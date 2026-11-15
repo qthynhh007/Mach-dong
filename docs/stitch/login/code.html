@@ -1,0 +1,196 @@
+<!DOCTYPE html><html lang="vi"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><meta content="web_standard" name="shell-type"><title>Mạch Đồng · OryzaSim - Nền tảng Sinh lý &amp; Né Mặn Lúa ĐBSCL</title><link href="https://fonts.googleapis.com" rel="preconnect"><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><style>@layer base { html, body { margin: 0; padding: 0; } body { overscroll-behavior: none; } main > :first-child { margin-top: 0 !important; } main > :last-child { margin-bottom: 0 !important; } } ::-webkit-scrollbar { display: none; }</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "surface-tint": "#216b43", "inverse-surface": "#263142", "secondary-fixed": "#ffdbd1", "on-surface-variant": "#404941", "surface": "#f9f9ff", "on-tertiary-container": "#ffc697", "on-surface": "#111c2c", "primary-container": "#1b663e", "secondary-container": "#ff6e48", "on-secondary-fixed": "#3c0800", "on-primary-fixed-variant": "#00522d", "surface-container": "#e7eeff", "primary-fixed": "#a8f3bf", "surface-dim": "#cfdaf1", "on-tertiary-fixed": "#2e1500", "on-primary-container": "#97e1af", "error-container": "#ffdad6", "secondary-fixed-dim": "#ffb4a1", "on-tertiary-fixed-variant": "#6d3a00", "on-error-container": "#93000a", "on-error": "#ffffff", "tertiary": "#663600", "tertiary-container": "#884a00", "surface-container-low": "#f0f3ff", "background": "#f9f9ff", "on-primary-fixed": "#00210f", "on-secondary": "#ffffff", "tertiary-fixed-dim": "#ffb77a", "on-primary": "#ffffff", "outline": "#707a71", "inverse-primary": "#8dd6a5", "on-background": "#111c2c", "error": "#ba1a1a", "tertiary-fixed": "#ffdcc2", "surface-container-lowest": "#ffffff", "surface-variant": "#d8e3fa", "secondary": "#ac3311", "inverse-on-surface": "#ebf1ff", "on-tertiary": "#ffffff", "surface-bright": "#f9f9ff", "outline-variant": "#bfc9bf", "surface-container-high": "#dee8ff", "primary-fixed-dim": "#8dd6a5", "on-secondary-fixed-variant": "#881f00", "on-secondary-container": "#651400", "primary": "#004d2a", "surface-container-highest": "#d8e3fa" }, "borderRadius": { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" }, "spacing": { "space-sm": "0.5rem", "margin": "1rem", "space-md": "1rem", "space-xl": "2.5rem", "space-xs": "0.25rem", "gutter-desktop": "1.5rem", "gutter": "1rem", "space-lg": "1.5rem", "margin-desktop": "2rem" }, "fontFamily": { "headline-lg": ["Inter"], "label-sm": ["JetBrains Mono"], "body-lg": ["Inter"], "metric-display-mobile": ["JetBrains Mono"], "label-md": ["JetBrains Mono"], "headline-sm": ["Inter"], "headline-xl-mobile": ["Inter"], "headline-xl": ["Inter"], "label-lg": ["JetBrains Mono"], "headline-md": ["Inter"], "body-sm": ["Inter"], "metric-display": ["JetBrains Mono"], "headline-lg-mobile": ["Inter"], "body-md": ["Inter"] }, "fontSize": { "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.015em", "fontWeight": "600" }], "label-sm": ["10px", { "lineHeight": "14px", "letterSpacing": "0.02em", "fontWeight": "500" }], "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }], "metric-display-mobile": ["22px", { "lineHeight": "28px", "letterSpacing": "-0.02em", "fontWeight": "700" }], "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0em", "fontWeight": "500" }], "headline-sm": ["18px", { "lineHeight": "24px", "letterSpacing": "-0.005em", "fontWeight": "600" }], "headline-xl-mobile": ["30px", { "lineHeight": "38px", "letterSpacing": "-0.015em", "fontWeight": "700" }], "headline-xl": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700" }], "label-lg": ["14px", { "lineHeight": "20px", "letterSpacing": "-0.01em", "fontWeight": "500" }], "headline-md": ["22px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }], "body-sm": ["12px", { "lineHeight": "18px", "fontWeight": "400" }], "metric-display": ["28px", { "lineHeight": "34px", "letterSpacing": "-0.03em", "fontWeight": "700" }], "headline-lg-mobile": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }], "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }] } } } }</script></head><body class="bg-surface font-body-md text-body-md text-on-surface antialiased"><header class="sticky top-0 z-50 bg-white border-b border-slate-200 shadow-sm px-4 md:px-6 py-2.5 flex items-center justify-between">
+<div class="flex items-center gap-4">
+<div>
+<div class="flex items-center gap-2">
+<span class="text-xl">🌾</span>
+<h1 class="text-base md:text-lg font-black text-[#064E3B] tracking-tight">MẠCH ĐỒNG <span class="text-xs md:text-sm font-semibold text-emerald-700">(NÔNG NGHIỆP ĐBSCL)</span></h1>
+</div>
+<div class="flex items-center gap-2 text-xs text-slate-500 mt-0.5">
+<span class="flex items-center gap-1 font-medium text-slate-600">
+<span class="material-symbols-outlined text-xs text-slate-400">location_on</span> Xã Long Hữu, Duyên Hải
+        </span>
+<span class="text-slate-300">|</span>
+<span class="font-semibold text-red-600 bg-red-50 px-2 py-0.5 rounded border border-red-200 flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-red-600 animate-ping"></span> Cống Mương Lộ: 2.8 g/L (Đóng)
+        </span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<div class="flex items-center gap-1.5 bg-[#dcfce7] border border-[#86efac] text-[#14532d] px-3.5 py-1.5 rounded-full font-medium text-xs shadow-sm hover:shadow transition-all cursor-pointer"><span class="text-sm">🌾</span><span class="font-bold text-sm text-[#14532d]">350 <span class="text-xs font-semibold">LÚA</span></span><span class="text-slate-400 mx-1">|</span><a href="#thele" class="text-xs text-[#15803d] hover:text-[#14532d] font-semibold underline underline-offset-2">Thể lệ thưởng</a></div>
+
+<div class="flex items-center gap-2 pl-2 border-l border-slate-200">
+<div class="w-8 h-8 rounded-full bg-emerald-100 border border-emerald-300 text-emerald-900 flex items-center justify-center font-bold text-xs">5R</div>
+<div class="hidden md:block">
+</div></div></div></header><main class="w-full bg-surface min-h-[calc(100vh-4rem)]"><div class="flex flex-col w-full">
+<!-- Minimalist Secondary App Bar Replacement for Login Flow (Hiding generic nav, presenting bespoke contextual bar) -->
+
+<!-- Main Split Layout Container -->
+<div class="w-full max-w-[1440px] mx-auto px-space-md lg:px-margin-desktop py-space-lg lg:py-space-xl flex-1 flex items-center justify-center">
+<div class="w-full grid grid-cols-1 lg:grid-cols-12 rounded-xl bg-surface-container-lowest shadow-md overflow-hidden min-h-[640px]">
+<!-- Column 1: Cinematic Visual & Agricultural Brand Identity (7 cols) -->
+<div class="lg:col-span-7 relative flex flex-col justify-between p-space-lg lg:p-space-xl min-h-[380px] lg:min-h-[640px] text-on-primary overflow-hidden">
+<!-- Photographic Background: Mekong Rice Field at Sunset -->
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 ease-out hover:scale-105" data-alt="Vast golden and lush emerald green rice terrace paddies in Mekong River Delta Vietnam during serene warm golden hour sunset, reflective water canals shining under warm sun rays, misty horizon with distant palm trees, ultra-fine cinematic photography, tranquil agricultural scenery" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBfoDNbuhdRjI8a9M7Awfi6Aab_wg5KKN1oUEyp0iSte7UGYYG4m82wmuyG8dUlVIZaC04V2MmvnLkCExfAUR6h5XtteGDrrV_Ly1CyG4QjlRz1NRr8wsvF0wyWIqDKb_JVBxXM2FwuPIH-YyDtLsxPsMVicZw9LbE1swpsPafelh9V7kn0ENQ6dz-Z3aVmbaOi8vVXJxbVFrBgqMHS0ZX1w8UmINEL9padrDRc-Ms')">
+</div>
+<!-- Scrim Gradients for Contrast -->
+<div class="absolute inset-0 bg-gradient-to-t from-primary/95 via-primary/40 to-transparent"></div>
+<div class="absolute inset-0 bg-gradient-to-r from-primary/60 via-transparent to-transparent"></div>
+<!-- Top Vignette Badge -->
+<div class="relative z-10 flex items-center gap-2">
+<span class="px-3 py-1 rounded-full bg-surface-container-lowest/20 backdrop-blur-md text-on-primary font-label-sm font-semibold tracking-wide uppercase">
+            Hệ sinh thái số hóa nông dân ĐBSCL
+          </span>
+</div>
+<!-- Middle Atmospheric Quotes & Field Metrics Preview -->
+<div class="relative z-10 my-auto py-space-lg max-w-xl">
+<div class="w-10 h-1 bg-primary-fixed mb-space-md rounded-full"></div>
+<blockquote class="font-headline-lg lg:text-headline-xl text-on-primary font-bold tracking-tight leading-snug drop-shadow-sm">
+            “Mạch Đồng – Kết nối nông hộ, đo mặn giữ ngọt nước, bảo vệ vụ mùa ĐBSCL.”
+          </blockquote>
+<p class="mt-space-sm font-body-md text-surface-container-low/90 max-w-lg">
+            Hệ thống giám sát cống đập, bản đồ vi mặn 24/7 và cảnh báo sinh lý lúa sớm cho hàng triệu hecta đồng bằng sông Cửu Long.
+          </p>
+</div>
+<!-- Bottom Station Micro-Telemetry Pill Grid -->
+<div class="relative z-10 pt-space-md flex flex-wrap items-center gap-space-sm font-label-sm">
+<div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-container-lowest/15 backdrop-blur-md">
+<span class="w-2 h-2 rounded-full bg-primary-fixed animate-pulse"></span>
+<span>Độ mặn an toàn lúa non: &lt; 1.5 g/L</span>
+</div>
+<div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-container-lowest/15 backdrop-blur-md">
+<span class="material-symbols-outlined text-[14px]">sensors</span>
+<span>42 Cụm cảm biến kết nối</span>
+</div>
+</div>
+</div>
+<!-- Column 2: Minimalist, Elevated Login Card (5 cols) -->
+<div class="lg:col-span-5 flex flex-col justify-between p-space-lg lg:p-space-xl bg-surface-container-lowest">
+<!-- Header of Form -->
+<div class="w-full">
+<div class="flex items-center justify-between mb-space-sm">
+<span class="font-label-sm uppercase tracking-wider text-primary font-bold">Xác thực hệ thống</span>
+<span class="font-label-sm text-outline flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-primary-container"></span>
+              Bảo mật 2 lớp
+            </span>
+</div>
+<h1 class="font-headline-md text-on-surface font-bold">Đăng Nhập Nông Hộ</h1>
+<p class="font-body-md text-on-surface-variant mt-1">
+            Nhập số điện thoại hoặc tài khoản hợp tác xã để tiếp tục quản lý đồng ruộng.
+          </p>
+<!-- Input Fields Form -->
+<form class="mt-space-lg space-y-space-md" onsubmit="event.preventDefault();">
+<!-- Phone or HTX Code Field -->
+<div class="flex flex-col gap-1">
+<label class="font-label-md text-on-surface font-medium" for="identifierInput">
+                Số điện thoại hoặc Mã HTX
+              </label>
+<div class="relative flex items-center">
+<span class="absolute left-3 text-outline material-symbols-outlined text-[18px]">phone_iphone</span>
+<input class="w-full pl-10 pr-3 py-2.5 bg-surface-container-low rounded-lg font-body-md text-on-surface placeholder:text-outline focus:outline-none focus:bg-surface focus:ring-2 focus:ring-primary-container transition-all" id="identifierInput" placeholder="Ví dụ: 0918 345 678 hoặc HTX-LONGHUU" type="text">
+</div>
+</div>
+<!-- Password / OTP Field -->
+<div class="flex flex-col gap-1">
+<div class="flex items-center justify-between">
+<label class="font-label-md text-on-surface font-medium" for="secretInput">
+                  Mật khẩu / Mã OTP SMS
+                </label>
+<button class="font-label-sm text-primary font-semibold hover:underline" type="button">
+                  Gửi mã OTP
+                </button>
+</div>
+<div class="relative flex items-center">
+<span class="absolute left-3 text-outline material-symbols-outlined text-[18px]">lock</span>
+<input class="w-full pl-10 pr-10 py-2.5 bg-surface-container-low rounded-lg font-body-md text-on-surface placeholder:text-outline focus:outline-none focus:bg-surface focus:ring-2 focus:ring-primary-container transition-all" id="secretInput" placeholder="Nhập mật khẩu hoặc 6 số OTP" type="password">
+<button class="absolute right-3 text-outline hover:text-on-surface material-symbols-outlined text-[18px]" onclick="const p = document.getElementById('secretInput'); p.type = p.type === 'password' ? 'text' : 'password';" type="button">
+                  visibility
+                </button>
+</div>
+</div>
+<!-- Remember Me & Forgot Password -->
+<div class="flex items-center justify-between pt-1">
+<label class="flex items-center gap-2 cursor-pointer select-none">
+<input checked="" class="w-4 h-4 rounded text-primary focus:ring-primary accent-primary" type="checkbox">
+<span class="font-body-sm text-on-surface-variant">Nhớ mật khẩu</span>
+</label>
+<a class="font-label-sm text-primary font-semibold hover:underline" href="#">
+                Quên mật khẩu?
+              </a>
+</div>
+<!-- Primary Action CTA -->
+<button class="w-full py-3 px-space-md rounded-lg bg-primary hover:bg-primary-container text-on-primary font-headline-sm font-semibold shadow-sm hover:shadow transition-all flex items-center justify-center gap-2 mt-space-sm group" type="submit">
+<span>Đăng Nhập Vào Ruộng</span>
+<span class="material-symbols-outlined text-[20px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</button>
+</form>
+<!-- Alternative Fast Login Divider -->
+<div class="relative my-space-lg flex items-center justify-center">
+<div class="w-full h-px bg-surface-container-high"></div>
+<span class="absolute bg-surface-container-lowest px-3 font-label-sm text-outline uppercase tracking-wider">
+              Hoặc đăng nhập nhanh
+            </span>
+</div>
+<!-- Secondary Providers (Zalo & QR Nông Nghiệp) -->
+<div class="grid grid-cols-2 gap-space-sm">
+<button class="flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg bg-surface-container-low hover:bg-surface-container font-label-md text-on-surface transition-colors shadow-sm" type="button">
+<span class="w-5 h-5 rounded-full bg-surface-container-highest flex items-center justify-center text-primary font-bold text-[11px]">Z</span>
+<span class="font-medium">Zalo OTP</span>
+</button>
+<button class="flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg bg-surface-container-low hover:bg-surface-container font-label-md text-on-surface transition-colors shadow-sm" type="button">
+<span class="material-symbols-outlined text-[18px] text-primary">qr_code_scanner</span>
+<span class="font-medium">QR Nông Nghiệp</span>
+</button>
+</div>
+</div>
+<!-- Footer Incentive Banner -->
+<div class="pt-space-lg mt-space-md border-t border-surface-container/60">
+<div class="p-space-sm rounded-lg bg-primary-fixed/30 flex items-center gap-space-sm">
+<span class="text-2xl leading-none shrink-0">🎁</span>
+<div class="flex flex-col min-w-0">
+<span class="font-body-sm text-on-surface font-medium leading-tight">
+                Chưa có tài khoản Mạch Đồng?
+              </span>
+<a class="font-label-sm text-primary font-bold hover:underline flex items-center gap-0.5 mt-0.5" href="#">
+<span>Đăng ký nhận ngay 50 LÚA hỗ trợ vụ mùa mới</span>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+</a>
+</div>
+</div>
+<div class="mt-space-sm flex items-center justify-between text-outline font-label-sm">
+<span>Phiên bản HTX 2.4.1</span>
+<a class="hover:text-primary transition-colors" href="#">Trợ giúp kỹ thuật</a>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script>
+  // Quick theme toggle sync with App Shell
+  (function() {
+    const pageThemeToggle = document.getElementById('pageThemeToggle');
+    const shellThemeBtn = document.getElementById('themeToggleBtn');
+    
+    if (pageThemeToggle) {
+      pageThemeToggle.addEventListener('click', () => {
+        if (shellThemeBtn) {
+          shellThemeBtn.click();
+        } else {
+          document.documentElement.classList.toggle('dark');
+        }
+      });
+    }
+  })();
+</script></main><footer class="w-full bg-surface-container-lowest shadow-[0_-1px_6px_rgba(0,0,0,0.02)]"><div class="w-full px-margin-desktop py-space-sm flex flex-col sm:flex-row items-center justify-between gap-space-sm"><div class="flex items-center gap-space-md font-label-sm text-label-sm text-on-surface-variant"><span>MẠCH ĐỒNG · OryzaSim v2.4.1</span><span class="hidden md:inline text-outline-variant">•</span><span class="hidden md:inline text-outline">Hệ hỗ trợ quyết định ứng phó xâm nhập mặn ĐBSCL</span></div><div class="flex items-center gap-space-lg font-label-sm text-label-sm text-outline"><span class="flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-primary-container"></span>Cập nhật vi khí hậu: 3 phút trước</span><span class="font-label-sm text-label-sm text-on-surface font-semibold">Viện Lúa ĐBSCL (CLRRI) · Mekong Delta Bio-Data</span></div></div></footer>
+
+
+
+
+
+
+</body></html>

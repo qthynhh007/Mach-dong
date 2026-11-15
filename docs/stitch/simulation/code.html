@@ -1,0 +1,967 @@
+<!DOCTYPE html><html lang="vi"><svg class="inline-defs-container" aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden"></svg><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Mạch Đồng - Mô Phỏng Sinh Lý Cây Lúa &amp; Ứng Phó Xâm Nhập Mặn</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&amp;family=JetBrains+Mono:wght@500;700;800&amp;display=swap" rel="stylesheet">
+<style>
+    body {
+      font-family: 'Be Vietnam Pro', sans-serif;
+      background-color: #F4F7F4;
+    }
+    .font-mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    
+    /* Dải phổ màu cho các thanh trượt */
+    .slider-salinity::-webkit-slider-runnable-track {
+      background: linear-gradient(to right, #22C55E 0%, #22C55E 25%, #F59E0B 35%, #EF4444 65%, #991B1B 100%);
+      height: 8px;
+      border-radius: 9999px;
+    }
+    .slider-water::-webkit-slider-runnable-track {
+      background: linear-gradient(to right, #D97706 0%, #22C55E 35%, #06B6D4 70%, #1D4ED8 100%);
+      height: 8px;
+      border-radius: 9999px;
+    }
+    .slider-stage::-webkit-slider-runnable-track {
+      background: linear-gradient(to right, #10B981 0%, #059669 35%, #EF4444 48%, #F59E0B 75%, #EAB308 100%);
+      height: 8px;
+      border-radius: 9999px;
+    }
+    .slider-temp::-webkit-slider-runnable-track {
+      background: linear-gradient(to right, #38BDF8 0%, #22C55E 35%, #F59E0B 70%, #DC2626 100%);
+      height: 8px;
+      border-radius: 9999px;
+    }
+    
+    /* Nút kéo Slider tròn màu trắng viền xanh đậm nổi */
+    input[type="range"] {
+      -webkit-appearance: none;
+      background: transparent;
+      cursor: pointer;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      height: 22px;
+      width: 22px;
+      border-radius: 50%;
+      background: #FFFFFF;
+      border: 3.5px solid #064E3B;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.25);
+      cursor: pointer;
+      margin-top: -7px;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.25);
+      box-shadow: 0 0 14px rgba(16, 185, 129, 0.5);
+    }
+    input[type="range"]:focus {
+      outline: none;
+    }
+
+    /* Hiệu ứng nhịp thở hạt ion muối & ranh giới mặn */
+    @keyframes glowRed {
+      0%, 100% {
+        box-shadow: 0 0 12px rgba(239, 68, 68, 0.7), 0 0 25px rgba(220, 38, 38, 0.45);
+        transform: translate(-50%, 0) scale(1);
+      }
+      50% {
+        box-shadow: 0 0 26px rgba(239, 68, 68, 1), 0 0 45px rgba(220, 38, 38, 0.75);
+        transform: translate(-50%, 0) scale(1.025);
+      }
+    }
+    .animate-glow-red {
+      animation: glowRed 2s ease-in-out infinite;
+    }
+
+    /* Animation đung đưa lá lúa bay qua bay lại tự nhiên */
+    @keyframes swayMain {
+      0%, 100% {
+        transform: rotate(0deg);
+      }
+      35% {
+        transform: rotate(2deg) skewX(0.8deg);
+      }
+      70% {
+        transform: rotate(-1.8deg) skewX(-1deg);
+      }
+    }
+    @keyframes swayBackLeft {
+      0%, 100% { transform: rotate(0deg); }
+      45% { transform: rotate(-3deg); }
+      80% { transform: rotate(2deg); }
+    }
+    @keyframes swayBackRight {
+      0%, 100% { transform: rotate(0deg); }
+      30% { transform: rotate(3.2deg); }
+      75% { transform: rotate(-2deg); }
+    }
+    @keyframes ionPulse {
+      0%, 100% {
+        transform: scale(1) translateY(0);
+        opacity: 0.88;
+      }
+      50% {
+        transform: scale(1.22) translateY(-3px);
+        opacity: 1;
+        filter: drop-shadow(0 0 8px currentColor);
+      }
+    }
+
+    .rice-sway-canopy {
+      transform-origin: 500px 350px;
+      animation: swayMain 5.5s ease-in-out infinite;
+    }
+    .rice-sway-left {
+      transform-origin: 220px 350px;
+      animation: swayBackLeft 6.2s ease-in-out infinite;
+    }
+    .rice-sway-right {
+      transform-origin: 780px 350px;
+      animation: swayBackRight 5.8s ease-in-out infinite;
+    }
+    .ion-animated {
+      animation: ionPulse 2.4s ease-in-out infinite;
+    }
+
+    /* Hiệu ứng phát sáng viền cho các thẻ bên trái */
+    .glow-card-red {
+      box-shadow: 0 0 25px -4px rgba(239, 68, 68, 0.25), 0 4px 12px rgba(0, 0, 0, 0.04);
+    }
+    .glow-card-cyan {
+      box-shadow: 0 0 25px -4px rgba(6, 182, 212, 0.22), 0 4px 12px rgba(0, 0, 0, 0.04);
+    }
+    .glow-card-teal {
+      box-shadow: 0 0 25px -4px rgba(16, 185, 129, 0.22), 0 4px 12px rgba(0, 0, 0, 0.04);
+    }
+    .glow-card-emerald {
+      box-shadow: 0 0 30px -4px rgba(16, 185, 129, 0.35), 0 10px 25px rgba(6, 78, 59, 0.3);
+    }
+  </style>
+</head>
+<body class="text-slate-800 antialiased min-h-screen bg-[#F4F7F4] flex flex-col">
+<!-- HEADER -->
+<header class="sticky top-0 z-50 bg-white border-b border-slate-200 shadow-sm px-4 md:px-6 py-2.5 flex items-center justify-between">
+<div class="flex items-center gap-4">
+<div>
+<div class="flex items-center gap-2">
+<span class="text-xl">🌾</span>
+<h1 class="text-base md:text-lg font-black text-[#064E3B] tracking-tight">MẠCH ĐỒNG <span class="text-xs md:text-sm font-semibold text-emerald-700">(NÔNG NGHIỆP ĐBSCL)</span></h1>
+</div>
+<div class="flex items-center gap-2 text-xs text-slate-500 mt-0.5">
+<span class="flex items-center gap-1 font-medium text-slate-600">
+<span class="material-symbols-outlined text-xs text-slate-400">location_on</span> Xã Long Hữu, Duyên Hải
+        </span>
+<span class="text-slate-300">|</span>
+<span class="font-semibold text-red-600 bg-red-50 px-2 py-0.5 rounded border border-red-200 flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-red-600 animate-ping"></span> Cống Mương Lộ: 2.8 g/L (Đóng)
+        </span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<div class="flex items-center gap-2 bg-[#dcfce7] border border-[#86efac] text-[#14532d] px-3.5 py-1.5 rounded-full font-medium text-xs shadow-sm hover:shadow transition-all cursor-pointer">
+  <span class="text-sm">🌾</span>
+  <span class="font-bold text-sm text-[#14532d]">350 <span class="text-xs font-semibold">LÚA</span></span>
+  <a href="#thele" class="ml-1 text-[11px] text-[#15803d] hover:text-[#14532d] font-semibold underline underline-offset-2">Thể lệ thưởng</a>
+</div>
+
+<div class="flex items-center gap-2 pl-2 border-l border-slate-200">
+<div class="w-8 h-8 rounded-full bg-emerald-100 border border-emerald-300 text-emerald-900 flex items-center justify-center font-bold text-xs">5R</div>
+<div class="hidden md:block">
+<p class="text-xs font-bold text-slate-800 leading-tight">Chú Năm Ruộng</p>
+<p class="text-[10px] text-slate-500 leading-tight">HTX Long Hữu</p>
+</div>
+</div>
+</div>
+</header>
+<!-- MAIN APP BODY: SIDEBAR + CONTENT -->
+<div class="flex flex-1 w-full relative">
+<!-- LEFT SIDEBAR -->
+<aside class="w-60 shrink-0 bg-white border-r border-slate-200 min-h-[calc(100vh-61px)] flex flex-col justify-between p-3.5 sticky top-[61px] self-start hidden lg:flex">
+<div class="space-y-4">
+<div>
+<p class="text-[10px] font-black uppercase text-slate-400 tracking-wider px-2.5 mb-1.5">ĐIỀU HÀNH &amp; DỮ LIỆU</p>
+<nav class="space-y-1">
+<a class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 hover:text-emerald-900 transition-colors" href="#">
+<span class="material-symbols-outlined text-sm">dashboard</span>
+<span>Tổng quan vùng</span>
+</a>
+<a class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 hover:text-emerald-900 transition-colors" href="#">
+<span class="material-symbols-outlined text-sm">table_chart</span>
+<span>Kho CSV độ mặn &amp; nước</span>
+</a>
+<a class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 hover:text-emerald-900 transition-colors" href="#">
+<span class="material-symbols-outlined text-sm">forum</span>
+<span>Thảo luận bà con</span>
+</a>
+<a class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold bg-emerald-800 text-white shadow-sm transition-all" href="#">
+<span class="material-symbols-outlined text-sm text-emerald-300">nature</span>
+<span>Mô phỏng Sinh lý Lúa</span>
+</a>
+<a class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 hover:text-emerald-900 transition-colors" href="#">
+<span class="material-symbols-outlined text-sm">menu_book</span>
+<span>Nhật ký đồng ruộng</span>
+</a>
+</nav>
+</div>
+<div class="pt-2 border-t border-slate-100">
+<p class="text-[10px] font-black uppercase text-slate-400 tracking-wider px-2.5 mb-1.5">THIẾT LẬP</p>
+<nav class="space-y-1">
+<a class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 hover:text-emerald-900 transition-colors" href="#">
+<span class="material-symbols-outlined text-sm">manage_accounts</span>
+<span>Hồ sơ &amp; Đổi mật khẩu</span>
+</a>
+<a class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 hover:text-emerald-900 transition-colors" href="#thele"><span class="material-symbols-outlined text-sm">military_tech</span><span>Thể lệ thưởng LÚA</span></a></nav>
+</div>
+</div>
+<div class="p-3 rounded-2xl bg-amber-50 border border-amber-200 mt-4">
+<div class="flex items-center gap-1.5 text-xs font-bold text-amber-900 mb-1">
+<span class="text-xs">🌾</span>
+<span>Khuyến cáo hôm nay</span>
+</div>
+<p class="text-[11px] text-amber-800 leading-relaxed font-medium">Cảnh giác triều cường rằm tháng 10. Trữ ngọt mương nội đồng, khép chặt cống bọng khi mặn vượt 2.0 g/L!</p>
+</div>
+</aside>
+<!-- MAIN SIMULATION WORKSPACE -->
+<div class="flex-1 min-w-0 p-3 md:p-5 xl:p-6 bg-[#F4F7F4]" id="simContentWrapper">
+<div class="max-w-[1720px] mx-auto space-y-4 md:space-y-5">
+<!-- 1. BẢNG 4 THANH TRƯỢT PHỔ MÀU SINH HỌC (TOP SLIDERS BAR) -->
+<section class="bg-white rounded-3xl p-5 border border-slate-200/90 shadow-sm transition-all hover:shadow-md">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4 pb-3 border-b border-slate-100">
+<div class="flex items-center gap-3">
+<div class="w-11 h-11 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-center shrink-0 shadow-sm overflow-hidden p-0.5">
+<img alt="Logo Cò Mạ" class="w-full h-full object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBTJlA8c54kTrtidTdZG2vh-eQrGVcLdHdoKksVv5UjT84H2HUu6GyVh7ZsByi05t4GhKdP4rfjR1eTJ3puOCwDG7jGKYAyWLMg37_OZ__mk07aFNYxUwW2gXA1gFVLMeEyi8g7T8oj6M3dPVka1IF5hQBJlLZ9nhsTLOZUDMD9PgjGYe-H46WRN5RcUF6QhI0MpHtoBLiMLIP7_0wvOAjEyzywT3i8niJ-kp4w8YoV6KtnKGv0YBSz">
+</div>
+<div>
+<div class="flex flex-wrap items-center gap-2">
+<h2 class="text-xl font-extrabold text-[#064E3B] tracking-tight">
+                  MẠCH ĐỒNG
+                </h2>
+<span class="bg-emerald-100/90 text-emerald-900 border border-emerald-300 text-xs font-bold px-3 py-0.5 rounded-full shadow-xs">
+                  🌱 Thử Nghiệm Sức Chịu Đựng Của Cây Lúa
+                </span>
+</div>
+<p class="text-xs text-slate-600 font-medium mt-1">
+                Bà con kéo các thanh trượt bên dưới để xem lúa phản ứng ra sao khi gặp nước mặn, ngập úng hoặc nắng gắt theo từng ngày tuổi lúa.
+              </p>
+</div>
+</div>
+<div class="flex items-center gap-2 self-end md:self-auto">
+<span class="bg-amber-50 text-amber-900 border border-amber-200 text-xs font-bold px-3.5 py-1.5 rounded-full flex items-center gap-1.5 shadow-sm">
+<span class="w-2 h-2 rounded-full bg-amber-500 animate-ping"></span>
+              🌾 Giống OM5451 · Triều Mặn Tháng 10
+            </span>
+<button class="text-xs font-bold text-slate-500 hover:text-emerald-800 transition-colors ml-2 py-1 px-2.5 rounded-lg hover:bg-slate-100" id="btnReset">
+              ↺ Đặt Lại Ban Đầu
+            </button>
+</div>
+</div>
+<!-- Grid 4 Cột Sliders -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 xl:gap-6">
+<!-- SLIDER 1: ĐỘ MẶN NƯỚC RUỘNG -->
+<div class="p-3.5 rounded-2xl bg-slate-50/70 border border-slate-200/70 hover:border-red-300 transition-colors">
+<div class="flex items-center justify-between mb-1.5">
+<label class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+<span>🌊</span> ĐỘ MẶN RUỘNG (ECw)
+              </label>
+<span class="font-mono text-sm font-extrabold text-red-600 px-2 py-0.5 rounded bg-red-50 border border-red-200" id="valSalinity">2.8 g/L</span>
+</div>
+<input class="w-full slider-salinity" id="inputSalinity" max="6" min="0" step="0.1" type="range" value="2.8">
+<div class="flex items-center justify-between text-[11px] mt-1.5 text-slate-500 font-medium">
+<span class="text-emerald-600 font-bold">0.0 (Ngọt)</span>
+<span class="text-amber-600">2.0 (Ngưỡng)</span>
+<span class="text-red-700 font-extrabold">6.0 (Tử)</span>
+</div>
+<p class="text-[11px] text-red-600/90 font-semibold mt-1">⚠️ Vượt ngưỡng chịu mặn OM5451 (2.0 g/L)</p>
+</div>
+<!-- SLIDER 2: MỰC NƯỚC NGẬP AWD -->
+<div class="p-3.5 rounded-2xl bg-slate-50/70 border border-slate-200/70 hover:border-sky-300 transition-colors">
+<div class="flex items-center justify-between mb-1.5">
+<label class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+<span>💧</span> MỰC NƯỚC RUỘNG (AWD)
+              </label>
+<span class="font-mono text-sm font-extrabold text-sky-700 px-2 py-0.5 rounded bg-sky-50 border border-sky-200" id="valWater">+12.5 cm</span>
+</div>
+<input class="w-full slider-water" id="inputWater" max="30" min="-10" step="0.5" type="range" value="4.5">
+<div class="flex items-center justify-between text-[11px] mt-1.5 text-slate-500 font-medium">
+<span class="text-amber-600">-10cm (Hạn)</span>
+<span class="text-emerald-600 font-bold">+5cm (Êm rễ)</span>
+<span class="text-blue-700 font-bold">+30cm (Ngập úng)</span>
+</div>
+<p class="text-[11px] text-sky-800 font-semibold mt-1">✓ Ngập nông dưỡng rễ, ém mặn tầng mặt</p>
+</div>
+<!-- SLIDER 3: GIAI ĐOẠN & NGÀY LÚA (DAS) -->
+<div class="p-3.5 rounded-2xl bg-slate-50/70 border border-slate-200/70 hover:border-amber-300 transition-colors">
+<div class="flex items-center justify-between mb-1.5">
+<label class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+<span>🌾</span> TUỔI LÚA &amp; GIAI ĐOẠN
+              </label>
+<span class="font-mono text-xs font-extrabold text-amber-700 px-2 py-0.5 rounded bg-amber-50 border border-amber-200" id="valStage">Ngày 48/95 (Làm Đòng (⚠️ Tử Huyệt))</span>
+</div>
+<input class="w-full slider-stage" id="inputStage" max="95" min="1" step="1" type="range" value="48">
+<div class="flex items-center justify-between text-[11px] mt-1.5 text-slate-500 font-medium">
+<span class="text-emerald-700">Mạ (01)</span>
+<span class="text-red-600 font-black underline">Đòng (48 ⚠️)</span>
+<span class="text-yellow-600 font-bold">Chín (95)</span>
+</div>
+<p class="text-[11px] text-red-600 font-bold mt-1">⚠️ Đang phân hóa hoa lúa (Tử huyệt sợ mặn!)</p>
+</div>
+<!-- SLIDER 4: NHIỆT ĐỘ TẦNG TÁN -->
+<div class="p-3.5 rounded-2xl bg-slate-50/70 border border-slate-200/70 hover:border-orange-300 transition-colors">
+<div class="flex items-center justify-between mb-1.5">
+<label class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+<span>☀️</span> NHIỆT ĐỘ TÁN LÚA
+              </label>
+<span class="font-mono text-sm font-extrabold text-amber-600 px-2 py-0.5 rounded bg-amber-50 border border-amber-200" id="valTemp">28.5°C</span>
+</div>
+<input class="w-full slider-temp" id="inputTemp" max="42" min="18" step="0.5" type="range" value="28.5">
+<div class="flex items-center justify-between text-[11px] mt-1.5 text-slate-500 font-medium">
+<span class="text-sky-600">18°C (Mát)</span>
+<span class="text-emerald-600 font-bold">28.5°C (Lý tưởng)</span>
+<span class="text-red-600">42°C (Nắng cháy)</span>
+</div>
+<p class="text-[11px] text-emerald-700 font-semibold mt-1">✓ Dải nhiệt độ tối ưu cho hoa lúa (26 - 32°C)</p>
+</div>
+</div>
+</section>
+<!-- 2. BỐ CỤC 2 CỘT RỘNG RÃI -->
+<main class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+<!-- CỘT TRÁI: 4 THẺ CHỈ SỐ CAO CẤP PHÁT SÁNG NỔI BẬT -->
+<aside class="lg:col-span-4 xl:col-span-3 space-y-4">
+<!-- THẺ 01: TIẾN TRÌNH NGẬP MẶN (CẤP BÁO CHÁY) -->
+<div class="bg-white rounded-3xl p-5 border-2 border-red-400 glow-card-red relative overflow-hidden transition-all duration-300 hover:border-red-500">
+<div class="absolute -right-6 -bottom-6 w-28 h-28 bg-red-100/60 rounded-full blur-xl pointer-events-none"></div>
+<div class="flex flex-col gap-1.5 mb-3.5">
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-red-600 animate-ping shrink-0"></span>
+<span class="text-xs font-bold tracking-tight text-red-800 uppercase">01 TIẾN TRÌNH NGẬP MẶN</span>
+</div>
+<div class="flex items-center">
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-red-100 text-red-700 border border-red-200 text-[10px] font-extrabold tracking-wide uppercase shadow-xs">
+<span class="w-1.5 h-1.5 rounded-full bg-red-600"></span>
+                  CẤP BÁO CHÁY
+                </span>
+</div>
+</div>
+<div class="space-y-3">
+<div>
+<div class="flex items-baseline justify-between">
+<span class="text-xs text-slate-500 font-medium">Độ mặn nước ruộng (ECw)</span>
+<span class="font-mono text-3xl font-black text-red-600 tracking-tight" id="dispSalinity">2.8 <span class="text-base font-bold text-red-500">g/L</span></span>
+</div>
+<!-- Thanh thước đo mini -->
+<div class="mt-2.5 h-2.5 w-full rounded-full bg-slate-100 overflow-hidden relative border border-slate-200">
+<div class="absolute inset-y-0 left-0 bg-gradient-to-r from-emerald-500 via-amber-400 to-red-600 rounded-full" style="width: 68%;"></div>
+<div class="absolute top-0 bottom-0 w-0.5 bg-black left-[48%] z-10" title="Ngưỡng 2.0 g/L"></div>
+</div>
+<div class="flex justify-between text-[10px] text-slate-400 font-mono mt-1">
+<span>0 g/L (Ngọt)</span>
+<span class="text-amber-700 font-bold">2.0 (Ngưỡng lúa)</span>
+<span class="text-red-700 font-bold">4.0+ (Chết mô lá)</span>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100">
+<div class="p-2.5 rounded-2xl bg-red-50/80 border border-red-200/80">
+<p class="text-[11px] text-slate-600 font-medium">Tỷ số Na⁺ / K⁺</p>
+<p class="font-mono text-lg font-black text-red-700">0.46</p>
+<p class="text-[10px] text-red-600 font-bold mt-0.5">⚠️ Xâm nhập tế bào!</p>
+</div>
+<div class="p-2.5 rounded-2xl bg-amber-50/80 border border-amber-200/80">
+<p class="text-[11px] text-slate-600 font-medium">Thui chột hoa đòng</p>
+<p class="font-mono text-lg font-black text-amber-800" id="dispDegrade">22.0%</p>
+<p class="text-[10px] text-amber-700 font-bold mt-0.5">Nguy cơ lép hạt cao</p>
+</div>
+</div>
+</div>
+</div>
+<!-- THẺ 02: VI KHÍ HẬU & NƯỚC RUỘNG (VIỀN CYAN PHÁT SÁNG) -->
+<div class="bg-white rounded-3xl p-5 border-2 border-cyan-400 glow-card-cyan transition-all duration-300 hover:border-cyan-500">
+<div class="flex flex-col gap-1.5 mb-3.5">
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-cyan-600 shrink-0"></span>
+<span class="text-xs font-bold tracking-tight text-sky-800 uppercase">02 VI KHÍ HẬU &amp; NƯỚC RUỘNG</span>
+</div>
+<div class="flex items-center">
+<span class="inline-flex items-center px-2 py-0.5 rounded-md bg-cyan-50 text-cyan-800 text-[10px] font-mono font-bold border border-cyan-200 shadow-xs">
+                  📡 IoT LoRa TV-04
+                </span>
+</div>
+</div>
+<!-- Mực nước ngập -->
+<div class="p-3 rounded-2xl bg-sky-50/80 border border-sky-200 flex items-center justify-between mb-3">
+<div>
+<p class="text-[11px] font-medium text-sky-800">Mực nước ngập ruộng (AWD)</p>
+<p class="font-mono text-2xl font-black text-sky-900" id="dispWater">+12.5 <span class="text-sm font-bold text-sky-700">cm</span></p>
+<p class="text-[10px] text-sky-700 font-semibold">Ngập nông dưỡng rễ (Ủ ngọt tầng rễ)</p>
+</div>
+<div class="w-12 h-12 rounded-2xl bg-sky-500/10 text-sky-600 flex items-center justify-center text-2xl shadow-inner">
+                🌊
+              </div>
+</div>
+<!-- 3 ô vi khí hậu -->
+<div class="grid grid-cols-3 gap-2 text-center">
+<div class="p-2 rounded-xl bg-slate-50 border border-slate-200/80">
+<p class="text-[10px] text-slate-500">Nhiệt tán</p>
+<p class="font-mono text-sm font-bold text-slate-800" id="dispTemp">28.5°C</p>
+<p class="text-[9px] text-emerald-600 font-medium">Tối ưu</p>
+</div>
+<div class="p-2 rounded-xl bg-slate-50 border border-slate-200/80">
+<p class="text-[10px] text-slate-500">Độ ẩm (RH)</p>
+<p class="font-mono text-sm font-bold text-slate-800">78%</p>
+<p class="text-[9px] text-slate-500 font-medium">Thích hợp</p>
+</div>
+<div class="p-2 rounded-xl bg-slate-50 border border-slate-200/80">
+<p class="text-[10px] text-slate-500">Bức xạ PAR</p>
+<p class="font-mono text-sm font-bold text-slate-800">720</p>
+<p class="text-[9px] text-emerald-600 font-medium">W/m² Tốt</p>
+</div>
+</div>
+</div>
+<!-- THẺ 03: ÁP SUẤT NỘI BÀO SINH HỌC (VIỀN TEAL PHÁT SÁNG) -->
+<div class="bg-white rounded-3xl p-5 border-2 border-emerald-400 glow-card-teal transition-all duration-300 hover:border-emerald-500">
+<div class="flex flex-col gap-1.5 mb-3.5">
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-emerald-600 shrink-0"></span>
+<span class="text-xs font-bold tracking-tight text-emerald-800 uppercase">03 ÁP SUẤT NỘI BÀO SINH HỌC</span>
+</div>
+<div class="flex items-center">
+<span class="inline-flex items-center px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-800 text-[10px] font-mono font-bold border border-emerald-200 shadow-xs">
+                  🔬 Micro-Cellular Engine
+                </span>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-2.5">
+<div class="p-3 rounded-2xl bg-emerald-50/50 border border-emerald-200/70">
+<p class="text-[11px] text-slate-600 font-medium">Độ mở khí khổng</p>
+<p class="font-mono text-xl font-black text-emerald-700">76.4%</p>
+<p class="text-[10px] text-slate-500 mt-0.5">Thoát hơi nước ổn định</p>
+</div>
+<div class="p-3 rounded-2xl bg-sky-50/50 border border-sky-200/70">
+<p class="text-[11px] text-slate-600 font-medium">Thế nước lá (Ψ leaf)</p>
+<p class="font-mono text-xl font-black text-sky-800">-1.00 <span class="text-xs">MPa</span></p>
+<p class="text-[10px] text-emerald-600 font-medium mt-0.5">Chưa bị sốc hạn</p>
+</div>
+</div>
+</div>
+<!-- THẺ 04: KHUYẾN NGHỊ NÔNG HỌC CLRRI (NỀN XANH THẪM VIỀN PHÁT SÁNG EMERALD) -->
+<div class="rounded-3xl p-5 bg-[#063828] text-white border-2 border-emerald-400 glow-card-emerald relative overflow-hidden shadow-2xl">
+<div class="absolute -right-10 -top-10 w-36 h-36 bg-emerald-400/20 rounded-full blur-2xl"></div>
+<div class="flex items-center gap-2 mb-2.5">
+<span class="w-7 h-7 rounded-xl bg-amber-400 text-emerald-950 flex items-center justify-center font-bold text-sm shadow">
+                🌾
+              </span>
+<h3 class="text-xs font-bold uppercase tracking-wider text-emerald-300">
+                KHUYẾN NGHỊ NÔNG HỌC CLRRI
+              </h3>
+</div>
+<p class="text-xs leading-relaxed text-emerald-100/90 font-normal">
+              Độ mặn <strong class="text-amber-300 font-bold">2.8 g/L</strong> đang tấn công trực tiếp đòng non. Đóng cống ngăn mặn triệt để, duy trì mực nước ngọt ém rễ 3 tấc, tăng cường phân bón lá Silic/Kali nano để trợ lực chống sốc muối tế bào!
+            </p>
+<div class="flex items-center gap-2 mt-4 pt-3 border-t border-emerald-800/80">
+<button class="flex-1 py-2.5 px-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-emerald-950 text-xs font-extrabold tracking-wide text-center transition-all shadow-md hover:scale-[1.02]">
+                🛡️ Áp Dụng Can Thiệp
+              </button>
+<button class="py-2.5 px-3 rounded-xl bg-emerald-900/90 hover:bg-emerald-800 text-emerald-200 text-xs font-semibold border border-emerald-700 transition-colors">
+                Chi Tiết
+              </button>
+</div>
+</div>
+</aside>
+<!-- CỘT PHẢI: TRANH CÂY LÚA CẮT LỚP KHỔNG LỒ & BACKGROUND ĐỒNG RUỘNG VỚI NÔNG DÂN MIỀN TÂY -->
+<section class="lg:col-span-8 xl:col-span-9 bg-white rounded-3xl p-4 md:p-6 border border-slate-200/90 shadow-sm flex flex-col justify-between overflow-hidden">
+<!-- BỨC TRANH CÂY LÚA CẮT LỚP KHỔNG LỒ (HÙNG TRÁNG, CHIỀU CAO 660PX) -->
+<div class="relative w-full h-[660px] rounded-2xl overflow-hidden border border-slate-200/90 shadow-inner">
+<!-- LỚP SVG TOÀN CẢNH -->
+<svg class="absolute inset-0 w-full h-full pointer-events-none select-none" preserveAspectRatio="xMidYMid slice" viewBox="0 0 1000 660">
+<defs>
+<!-- Bầu trời ban mai xanh trong -->
+<linearGradient id="skyGrad" x1="0%" x2="0%" y1="0%" y2="100%">
+<stop offset="0%" stop-color="#BAE6FD"></stop>
+<stop offset="45%" stop-color="#E0F2FE"></stop>
+<stop offset="85%" stop-color="#FEF08A" stop-opacity="0.4"></stop>
+<stop offset="100%" stop-color="#ECFDF5"></stop>
+</linearGradient>
+<!-- Mặt trời hừng đông xa -->
+<radialGradient cx="50%" cy="50%" id="sunGlow" r="50%">
+<stop offset="0%" stop-color="#FEF08A" stop-opacity="0.8"></stop>
+<stop offset="60%" stop-color="#FDE047" stop-opacity="0.25"></stop>
+<stop offset="100%" stop-color="#FEF9C3" stop-opacity="0"></stop>
+</radialGradient>
+<!-- Gradient rặng cây & dừa nước xa xăm -->
+<linearGradient id="horizonTrees" x1="0%" x2="0%" y1="0%" y2="100%">
+<stop offset="0%" stop-color="#047857" stop-opacity="0.45"></stop>
+<stop offset="100%" stop-color="#065F46" stop-opacity="0.75"></stop>
+</linearGradient>
+<!-- Dải sóng lúa bạt ngàn chân trời -->
+<linearGradient id="ricePaddyField" x1="0%" x2="0%" y1="0%" y2="100%">
+<stop offset="0%" stop-color="#86EFAC"></stop>
+<stop offset="50%" stop-color="#4ADE80"></stop>
+<stop offset="100%" stop-color="#16A34A"></stop>
+</linearGradient>
+<!-- Gradient tán lá lúa chính -->
+<linearGradient id="leafGradMain" x1="0%" x2="100%" y1="0%" y2="100%">
+<stop offset="0%" stop-color="#4ADE80"></stop>
+<stop offset="40%" stop-color="#10B981"></stop>
+<stop offset="100%" stop-color="#064E3B"></stop>
+</linearGradient>
+<!-- Gradient khóm lúa phụ nền -->
+<linearGradient id="leafGradSub" x1="0%" x2="0%" y1="0%" y2="100%">
+<stop offset="0%" stop-color="#6EE7B7" stop-opacity="0.85"></stop>
+<stop offset="100%" stop-color="#047857" stop-opacity="0.95"></stop>
+</linearGradient>
+<!-- Gradient tầng nước ruộng AWD (+4.5cm) -->
+<linearGradient id="waterGrad" x1="0%" x2="0%" y1="0%" y2="100%">
+<stop offset="0%" stop-color="#38BDF8" stop-opacity="0.55"></stop>
+<stop offset="50%" stop-color="#0284C7" stop-opacity="0.65"></stop>
+<stop offset="100%" stop-color="#0369A1" stop-opacity="0.8"></stop>
+</linearGradient>
+<!-- Tầng đất phù sa ĐBSCL nén chặt -->
+<linearGradient id="soilGrad" x1="0%" x2="0%" y1="0%" y2="100%">
+<stop offset="0%" stop-color="#3D2619"></stop>
+<stop offset="25%" stop-color="#2A180E"></stop>
+<stop offset="65%" stop-color="#190F08"></stop>
+<stop offset="100%" stop-color="#0B0604"></stop>
+</linearGradient>
+<!-- Glow ánh vàng kim đòng non -->
+<filter height="160%" id="glowGold" width="160%" x="-30%" y="-30%">
+<feGaussianBlur result="blur" stdDeviation="4"></feGaussianBlur>
+<feComposite in="SourceGraphic" in2="blur" operator="over"></feComposite>
+</filter>
+</defs>
+<!-- TẦNG BẦU TRỜI & NỀN ĐỒNG QUÊ (Y: 0 đến 350) -->
+<rect fill="url(#skyGrad)" height="350" width="1000" x="0" y="0"></rect>
+<circle cx="220" cy="90" fill="url(#sunGlow)" r="110"></circle>
+<circle cx="220" cy="90" fill="#FEF08A" opacity="0.85" r="28"></circle>
+<!-- Đám mây trắng -->
+<g fill="#FFFFFF" opacity="0.65">
+<path d="M120 70 C130 55, 160 55, 175 68 C190 62, 215 72, 215 88 C215 98, 110 98, 120 70 Z"></path>
+<path d="M720 50 C735 38, 765 38, 778 50 C792 45, 815 54, 815 68 C815 78, 710 78, 720 50 Z"></path>
+<path d="M850 110 C860 100, 885 100, 895 110 C905 106, 920 114, 920 125 C920 133, 840 133, 850 110 Z"></path>
+</g>
+<!-- Đàn cò bay lượn -->
+<g fill="none" opacity="0.6" stroke="#047857" stroke-width="1.6">
+<path d="M180 40 Q187 33 194 40 Q201 33 208 40"></path>
+<path d="M215 30 Q220 24 225 30 Q230 24 235 30"></path>
+<path d="M160 55 Q164 50 168 55 Q172 50 176 55"></path>
+</g>
+<!-- Rặng dừa nước chân trời -->
+<g fill="url(#horizonTrees)">
+<path d="M0 230 Q60 215 130 228 T280 220 T420 226 T580 218 T740 225 T900 218 T1000 224 L1000 260 L0 260 Z"></path>
+<path d="M130 228 L126 195 M130 228 L142 192 M130 228 L112 205 M130 228 L148 206" opacity="0.5" stroke="#047857" stroke-width="1.8"></path>
+<path d="M860 220 L856 188 M860 220 L872 186 M860 220 L842 198 M860 220 L878 198" opacity="0.5" stroke="#047857" stroke-width="1.8"></path>
+</g>
+<!-- Dải đồng lúa xa bát ngát -->
+<path d="M0 250 Q100 240 220 252 T480 242 T720 250 T1000 244 L1000 310 L0 310 Z" fill="url(#ricePaddyField)" opacity="0.85"></path>
+<path d="M0 295 Q150 285 320 298 T680 290 T1000 296 L1000 350 L0 350 Z" fill="#15803D" opacity="0.9"></path>
+<!-- NHÂN VẬT NÔNG DÂN MIỀN TÂY -->
+<g id="farmer-planting-left" opacity="0.88" transform="translate(145, 238) scale(0.65)">
+<polygon fill="#FDE047" points="12,0 0,14 24,14" stroke="#B45309" stroke-width="1.2"></polygon>
+<circle cx="12" cy="12" fill="#F59E0B" r="4.5"></circle>
+<path d="M12 15 C18 17 24 23 20 29 C16 32 8 30 6 25 Z" fill="#78350F" stroke="#451A03" stroke-width="1"></path>
+<path d="M14 23 L22 35" stroke="#78350F" stroke-linecap="round" stroke-width="2.2"></path>
+<path d="M22 33 L25 31 M23 35 L26 33 M24 36 L27 35" stroke="#22C55E" stroke-linecap="round" stroke-width="1.8"></path>
+<path d="M8 28 L5 38" stroke="#451A03" stroke-linecap="round" stroke-width="2"></path>
+<ellipse cx="14" cy="38" fill="#0284C7" opacity="0.35" rx="14" ry="3"></ellipse>
+</g>
+<g id="farmer-planting-left2" opacity="0.8" transform="translate(195, 245) scale(0.55)">
+<polygon fill="#FEF08A" points="12,0 0,14 24,14" stroke="#B45309" stroke-width="1.2"></polygon>
+<circle cx="12" cy="12" fill="#D97706" r="4"></circle>
+<path d="M12 15 C18 18 22 23 18 28 C15 31 8 28 6 23 Z" fill="#047857" stroke="#064E3B" stroke-width="1"></path>
+<path d="M14 22 L20 33" stroke="#047857" stroke-linecap="round" stroke-width="2"></path>
+<path d="M20 31 L23 29 M21 33 L24 31" stroke="#4ADE80" stroke-linecap="round" stroke-width="1.6"></path>
+<path d="M8 27 L6 36" stroke="#064E3B" stroke-linecap="round" stroke-width="2"></path>
+</g>
+<g id="farmer-hoe-right" opacity="0.92" transform="translate(820, 222) scale(0.72)">
+<polygon fill="#FDE047" points="14,0 0,16 28,16" stroke="#B45309" stroke-width="1.2"></polygon>
+<line stroke="#D97706" stroke-width="1" x1="0" x2="28" y1="16" y2="16"></line>
+<circle cx="14" cy="14" fill="#FBBF24" r="5"></circle>
+<path d="M12 18 L10 25" stroke="#FFFFFF" stroke-width="1.5"></path>
+<path d="M10 18 L18 18 L20 34 L8 34 Z" fill="#1E3A8A" stroke="#172554" stroke-width="1"></path>
+<line stroke="#78350F" stroke-linecap="round" stroke-width="2.2" x1="4" x2="26" y1="36" y2="12"></line>
+<path d="M25 11 L29 15 L25 17 Z" fill="#64748B" stroke="#334155" stroke-width="1"></path>
+<path d="M15 22 L20 20" stroke="#F59E0B" stroke-linecap="round" stroke-width="2"></path>
+<line stroke="#1E293B" stroke-linecap="round" stroke-width="2.6" x1="11" x2="9" y1="34" y2="46"></line>
+<line stroke="#1E293B" stroke-linecap="round" stroke-width="2.6" x1="17" x2="19" y1="34" y2="46"></line>
+</g>
+<!-- KHÓM LÚA PHỤ HAI BÊN -->
+<g class="rice-sway-left" opacity="0.88">
+<path d="M220 350 C180 290 120 250 40 220 C100 260 170 305 218 350 Z" fill="url(#leafGradSub)"></path>
+<path d="M220 350 C190 260 150 180 80 130 C130 190 190 270 220 350 Z" fill="url(#leafGradSub)"></path>
+<path d="M220 350 C210 240 200 150 160 80 C190 150 215 250 222 350 Z" fill="url(#leafGradSub)"></path>
+<path d="M220 350 C240 250 280 190 330 140 C280 200 240 270 222 350 Z" fill="url(#leafGradSub)"></path>
+</g>
+<g class="rice-sway-right" opacity="0.88">
+<path d="M780 350 C750 250 710 190 650 140 C705 200 755 270 778 350 Z" fill="url(#leafGradSub)"></path>
+<path d="M780 350 C785 240 800 150 840 80 C810 150 785 250 778 350 Z" fill="url(#leafGradSub)"></path>
+<path d="M780 350 C810 260 850 180 920 130 C870 190 810 270 780 350 Z" fill="url(#leafGradSub)"></path>
+<path d="M780 350 C820 290 880 250 960 220 C900 260 830 305 782 350 Z" fill="url(#leafGradSub)"></path>
+</g>
+<!-- TẦNG MẶT ĐẤT & NƯỚC RUỘNG AWD (+4.5cm) -->
+<rect fill="url(#soilGrad)" height="310" width="1000" x="0" y="350"></rect>
+<line stroke="#78350F" stroke-dasharray="4 4" stroke-width="2.5" x1="0" x2="1000" y1="350" y2="350"></line>
+<line stroke="#451A03" stroke-dasharray="6 6" stroke-width="1.5" x1="0" x2="1000" y1="430" y2="430"></line>
+<line stroke="#292524" stroke-dasharray="8 8" stroke-width="1" x1="0" x2="1000" y1="535" y2="535"></line>
+<!-- Thước đo độ sâu đất bên lề trái -->
+<text fill="#047857" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" x="35" y="344">0 cm (Mặt đất ruộng)</text>
+<text fill="#A8A29E" font-family="'JetBrains Mono', monospace" font-size="10" x="35" y="435">-10 cm (Tầng rễ mặt)</text>
+<text fill="#78716C" font-family="'JetBrains Mono', monospace" font-size="10" x="35" y="540">-25 cm (Tầng phù sa nén)</text>
+<text fill="#57534E" font-family="'JetBrains Mono', monospace" font-size="10" x="35" y="635">-35 cm (Đáy rễ sâu)</text>
+<!-- MẶT NƯỚC RUỘNG AWD (+4.5cm) -->
+<rect fill="url(#waterGrad)" height="55" width="1000" x="0" y="295"></rect>
+<line stroke="#38BDF8" stroke-dasharray="12 6" stroke-width="2.5" x1="0" x2="1000" y1="295" y2="295"></line>
+<path d="M0 310 Q50 306 100 310 T200 310 T300 310 T400 310 T500 310 T600 310 T700 310 T800 310 T900 310 T1000 310" fill="none" opacity="0.45" stroke="#BAE6FD" stroke-width="1"></path>
+<text fill="#0284C7" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" x="35" y="287">+4.5 cm (Mực nước ngập AWD)</text>
+<!-- HỆ THỐNG RỄ CHÙM CÂY LÚA -->
+<g opacity="0.95" stroke="#F5F5F4" stroke-linecap="round">
+<path d="M500 350 Q 500 450 500 580" fill="none" stroke-width="5"></path>
+<path d="M500 350 Q 480 440 445 550" fill="none" stroke-width="3.8"></path>
+<path d="M500 350 Q 520 440 555 550" fill="none" stroke-width="3.8"></path>
+<path d="M500 350 Q 435 410 370 490" fill="none" stroke-width="3.2"></path>
+<path d="M500 350 Q 565 410 630 490" fill="none" stroke-width="3.2"></path>
+<path d="M500 350 Q 405 385 310 435" fill="none" stroke-width="2.6"></path>
+<path d="M500 350 Q 595 385 690 435" fill="none" stroke-width="2.6"></path>
+<path d="M500 350 Q 455 470 405 600" fill="none" stroke-width="3"></path>
+<path d="M500 350 Q 545 470 595 600" fill="none" stroke-width="3"></path>
+<!-- Rễ tơ mao dẫn -->
+<path d="M445 550 Q 425 580 400 625" fill="none" stroke="#E7E5E4" stroke-width="1.8"></path>
+<path d="M555 550 Q 575 580 600 625" fill="none" stroke="#E7E5E4" stroke-width="1.8"></path>
+<path d="M370 490 Q 340 520 320 565" fill="none" stroke="#E7E5E4" stroke-width="1.5"></path>
+<path d="M630 490 Q 660 520 680 565" fill="none" stroke="#E7E5E4" stroke-width="1.5"></path>
+<path d="M310 435 Q 280 460 250 480" fill="none" stroke="#E7E5E4" stroke-width="1.2"></path>
+<path d="M690 435 Q 720 460 750 480" fill="none" stroke="#E7E5E4" stroke-width="1.2"></path>
+</g>
+<!-- HẠT ION MUỐI ĐỎ & DINH DƯỠNG NANO -->
+<g class="ion-animated" style="color: #EF4444;">
+<circle cx="340" cy="450" fill="#DC2626" r="14" stroke="#FFFFFF" stroke-width="2"></circle>
+<text fill="#FFFFFF" font-family="'JetBrains Mono', monospace" font-size="10" font-weight="800" text-anchor="middle" x="340" y="454">Na⁺</text>
+<circle cx="660" cy="450" fill="#DC2626" r="14" stroke="#FFFFFF" stroke-width="2"></circle>
+<text fill="#FFFFFF" font-family="'JetBrains Mono', monospace" font-size="10" font-weight="800" text-anchor="middle" x="660" y="454">Na⁺</text>
+<circle cx="430" cy="515" fill="#EF4444" r="13" stroke="#FFFFFF" stroke-width="2"></circle>
+<text fill="#FFFFFF" font-family="'JetBrains Mono', monospace" font-size="9" font-weight="800" text-anchor="middle" x="430" y="519">Na⁺</text>
+<circle cx="570" cy="525" fill="#EF4444" r="13" stroke="#FFFFFF" stroke-width="2"></circle>
+<text fill="#FFFFFF" font-family="'JetBrains Mono', monospace" font-size="9" font-weight="800" text-anchor="middle" x="570" y="529">Na⁺</text>
+<circle cx="280" cy="390" fill="#B91C1C" r="12" stroke="#FECACA" stroke-width="1.5"></circle>
+<text fill="#FFFFFF" font-family="'JetBrains Mono', monospace" font-size="9" font-weight="800" text-anchor="middle" x="280" y="394">Cl⁻</text>
+<circle cx="725" cy="400" fill="#B91C1C" r="12" stroke="#FECACA" stroke-width="1.5"></circle>
+<text fill="#FFFFFF" font-family="'JetBrains Mono', monospace" font-size="9" font-weight="800" text-anchor="middle" x="725" y="404">Cl⁻</text>
+</g>
+<g class="ion-animated" style="animation-delay: 1.2s; color: #10B981;">
+<circle cx="475" cy="420" fill="#059669" r="13" stroke="#A7F3D0" stroke-width="2"></circle>
+<text fill="#FFFFFF" font-family="'JetBrains Mono', monospace" font-size="10" font-weight="800" text-anchor="middle" x="475" y="424">K⁺</text>
+<circle cx="525" cy="430" fill="#059669" r="13" stroke="#A7F3D0" stroke-width="2"></circle>
+<text fill="#FFFFFF" font-family="'JetBrains Mono', monospace" font-size="10" font-weight="800" text-anchor="middle" x="525" y="434">K⁺</text>
+<rect fill="#0284C7" height="20" rx="6" stroke="#BAE6FD" stroke-width="1.5" width="36" x="440" y="575"></rect>
+<text fill="#FFFFFF" font-family="'JetBrains Mono', monospace" font-size="9" font-weight="800" text-anchor="middle" x="458" y="589">SiO₂</text>
+<rect fill="#0284C7" height="20" rx="6" stroke="#BAE6FD" stroke-width="1.5" width="36" x="525" y="575"></rect>
+<text fill="#FFFFFF" font-family="'JetBrains Mono', monospace" font-size="9" font-weight="800" text-anchor="middle" x="543" y="589">SiO₂</text>
+</g>
+<!-- BỤI CÂY LÚA OM5451 TRUNG TÂM -->
+<g class="rice-sway-canopy">
+<g>
+<path d="M500 350 C 420 280 320 230 200 190 C 270 240 370 300 495 350 Z" fill="url(#leafGradMain)"></path>
+<path d="M500 350 C 430 240 360 160 260 90 C 320 160 410 260 497 350 Z" fill="url(#leafGradMain)" opacity="0.95"></path>
+<path d="M500 350 C 460 200 420 100 350 40 C 400 120 460 240 500 350 Z" fill="url(#leafGradMain)"></path>
+</g>
+<g>
+<path d="M500 350 C 580 280 680 230 800 190 C 730 240 630 300 505 350 Z" fill="url(#leafGradMain)"></path>
+<path d="M500 350 C 570 240 640 160 740 90 C 680 160 590 260 503 350 Z" fill="url(#leafGradMain)" opacity="0.95"></path>
+<path d="M500 350 C 540 200 580 100 650 40 C 600 120 540 240 500 350 Z" fill="url(#leafGradMain)"></path>
+</g>
+<path d="M495 350 Q 485 180 500 20 Q 515 180 505 350 Z" fill="url(#leafGradMain)"></path>
+<path d="M485 350 L 490 230 Q 500 210 510 230 L 515 350 Z" fill="#047857" stroke="#064E3B" stroke-width="2.2"></path>
+<!-- KÍNH LÚP SOI PHÔI ĐÒNG NON -->
+<circle cx="500" cy="240" fill="#FEF08A" fill-opacity="0.32" filter="url(#glowGold)" r="44" stroke="#F59E0B" stroke-dasharray="6 3" stroke-width="3"></circle>
+<g fill="#F59E0B" stroke="#B45309" stroke-width="1">
+<path d="M500 270 Q 502 240 500 215" stroke="#D97706" stroke-width="2.2"></path>
+<circle cx="496" cy="225" fill="#FBBF24" r="4.5"></circle>
+<circle cx="504" cy="223" fill="#FBBF24" r="4.5"></circle>
+<circle cx="494" cy="235" fill="#FBBF24" r="4.5"></circle>
+<circle cx="506" cy="233" fill="#FBBF24" r="4.5"></circle>
+<circle cx="495" cy="245" fill="#FCD34D" r="5"></circle>
+<circle cx="505" cy="243" fill="#FCD34D" r="5"></circle>
+<circle cx="497" cy="255" fill="#FDE68A" r="5"></circle>
+<circle cx="503" cy="254" fill="#FDE68A" r="5"></circle>
+</g>
+<line stroke="#F59E0B" stroke-dasharray="4 3" stroke-width="2" x1="535" x2="620" y1="230" y2="210"></line>
+</g>
+</svg>
+<!-- CÁC THẺ GHIM NỔI TRÊN CANVAS -->
+<!-- 1. THẺ GHIM TRÁI: QUANG HỢP THUẦN Pn -->
+<div class="absolute top-8 left-8 max-w-xs bg-white/95 backdrop-blur-md rounded-2xl p-3.5 border border-emerald-200/90 shadow-lg pointer-events-auto">
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+<span class="text-[11px] font-bold text-slate-800">QUANG HỢP THUẦN (Pn)</span>
+</div>
+<div class="flex items-baseline gap-2 mt-1">
+<span class="font-mono text-xl font-black text-emerald-800">15.7</span>
+<span class="text-xs text-slate-500 font-mono">µmol/m²/s</span>
+</div>
+<p class="text-[10px] text-emerald-700 font-semibold mt-0.5">Tích lũy sinh khối tối ưu (Lá xanh mát)</p>
+</div>
+<!-- 2. THẺ GHIM PHẢI: DẪN KHÍ KHỔNG gs -->
+<div class="absolute top-8 right-8 max-w-xs bg-white/95 backdrop-blur-md rounded-2xl p-3.5 border border-slate-200 shadow-lg pointer-events-auto">
+<div class="flex items-center gap-2">
+<span class="text-xs">🌱</span>
+<span class="text-[11px] font-bold text-slate-800">ĐANG PHÂN HÓA HOA ĐÒNG</span>
+</div>
+<div class="flex items-baseline gap-2 mt-1">
+<span class="text-xs text-slate-500 font-medium">Dẫn khí khổng (gs):</span>
+<span class="font-mono text-base font-extrabold text-slate-800">0.26 <span class="text-xs">mol/m²/s</span></span>
+</div>
+<p class="text-[10px] text-slate-500 mt-0.5">Thoát hơi nước cân bằng qua khí khổng</p>
+</div>
+<!-- 3. THẺ GHIM ĐÒNG NON -->
+<div class="absolute top-[175px] right-[18%] sm:right-[24%] bg-amber-500/95 text-amber-950 px-4 py-2.5 rounded-2xl shadow-xl border-2 border-white backdrop-blur-sm pointer-events-auto">
+<p class="text-xs font-black flex items-center gap-1.5">
+<span>🌾</span> ĐÒNG NON 1.2CM (48 NGÀY)
+              </p>
+<p class="text-[11px] font-semibold text-amber-950/90 mt-0.5">
+                Phân hóa nhụy &amp; hạt phấn · Cực kỳ sợ mặn!
+              </p>
+</div>
+<!-- 4. THẺ ĐỎ PHÁT SÁNG NỔI BẬT CHÍNH GIỮA (TẦNG NƯỚC) -->
+<div class="absolute top-[280px] left-1/2 -translate-x-1/2 z-20 pointer-events-auto">
+<div class="bg-gradient-to-r from-red-600 via-rose-600 to-red-600 text-white font-extrabold px-6 py-2.5 rounded-full shadow-2xl border-2 border-white animate-glow-red flex items-center gap-2.5 tracking-wide text-xs sm:text-sm whitespace-nowrap">
+<span class="w-3 h-3 rounded-full bg-white animate-ping"></span>
+<span>🔴 Ranh Giới Mặn Kênh Mương Lộ: 2.8 g/L (Vượt Ngưỡng Sinh Học)</span>
+</div>
+</div>
+<!-- 5. TỐC ĐỘ HÚT NƯỚC TẦNG RỄ -->
+<div class="absolute top-[320px] right-8 bg-white/95 backdrop-blur-md rounded-2xl p-3 border border-sky-200 shadow-md pointer-events-auto">
+<p class="text-[11px] font-bold text-slate-700">Tốc độ hút nước tầng rễ</p>
+<div class="flex items-baseline gap-2 mt-0.5">
+<span class="font-mono text-lg font-black text-sky-800">2.8</span>
+<span class="text-xs text-slate-500 font-mono">mm/ngày</span>
+</div>
+<p class="text-[10px] text-sky-700 font-medium">Áp suất thẩm thấu rễ: 0.42 MPa</p>
+</div>
+<!-- 6. NHÃN TẦNG RỄ ÉM NGỌT -->
+<div class="absolute bottom-24 left-10 max-w-md bg-slate-900/90 text-white p-3.5 rounded-2xl border border-slate-700/80 shadow-2xl backdrop-blur-md pointer-events-auto">
+<div class="flex items-center gap-2 text-xs font-bold text-emerald-400">
+<span>🛡️</span> Tầng Rễ Hút Nước Ngọt Ém Rễ (0 - 15 cm)
+              </div>
+<p class="text-[11px] text-slate-300 mt-1 leading-relaxed">
+                Tầng đất mặt duy trì hàm lượng <strong class="text-emerald-400">K⁺ cao</strong> nhờ bón lót Kali trắng, ngăn chặn hiệu quả kênh ion <strong class="text-red-400">Na⁺</strong> xâm nhập vào vách tế bào nội bì rễ lúa.
+              </p>
+</div>
+<!-- 7. HỘP ĐEN NĂNG SUẤT DỰ BÁO -->
+<div class="absolute bottom-6 right-8 bg-black/85 text-white p-4 rounded-2xl border border-slate-800 shadow-2xl backdrop-blur-md pointer-events-auto text-right">
+<p class="text-[10px] uppercase font-mono tracking-wider text-slate-400">NĂNG SUẤT DỰ BÁO (OM5451)</p>
+<p class="font-mono text-3xl font-black text-emerald-400 mt-0.5">4.8 <span class="text-base text-slate-300 font-normal">tấn/ha</span></p>
+<p class="text-[11px] font-bold text-red-400 mt-1">
+                Thất thu -1.4 tấn/ha nếu ngập mặn kéo dài qua trổ!
+              </p>
+</div>
+</div>
+<!-- 4. KHỐI LIÊN HOÀN "CÒ MẠ TRỢ LÝ NÔNG HỌC" GẮN KẾT TỰ NHIÊN -->
+<div class="my-3 p-4 md:p-5 rounded-3xl bg-gradient-to-r from-amber-50 via-amber-100/40 to-emerald-50/50 border-2 border-amber-300/90 shadow-lg relative overflow-hidden flex flex-col md:flex-row items-stretch gap-4 md:gap-5">
+<div class="absolute -right-8 -bottom-8 w-48 h-48 bg-amber-200/35 rounded-full blur-2xl pointer-events-none"></div>
+<div class="absolute left-32 -top-8 w-40 h-40 bg-emerald-200/30 rounded-full blur-xl pointer-events-none"></div>
+<!-- CÒ MẠ VECTOR -->
+<div class="md:w-56 lg:w-60 shrink-0 relative flex flex-col items-center justify-end self-center md:self-auto group cursor-pointer pt-2">
+<div class="absolute bottom-1 w-40 h-6 bg-gradient-to-r from-emerald-600/20 via-emerald-700/30 to-amber-700/20 rounded-full blur-[2px]"></div>
+<div class="relative z-10 w-full flex justify-center items-end">
+<svg class="h-56 md:h-64 w-auto drop-shadow-lg transition-transform duration-300 group-hover:scale-105 select-none" fill="none" viewBox="0 0 240 280" xmlns="http://www.w3.org/2000/svg">
+<!-- Chân cò -->
+<g stroke="#D97706" stroke-linecap="round" stroke-linejoin="round" stroke-width="3.5">
+<path d="M100 220 L96 265 M96 265 L80 270 M96 265 L96 273 M96 265 L110 270"></path>
+<path d="M128 220 L132 265 M132 265 L118 270 M132 265 L134 273 M132 265 L148 269"></path>
+</g>
+<!-- Cán cuốc -->
+<line stroke="#78350F" stroke-linecap="round" stroke-width="4.5" x1="60" x2="195" y1="230" y2="90"></line>
+<polygon fill="#64748B" points="190,85 210,72 205,62 182,76" stroke="#334155" stroke-width="1.8"></polygon>
+<!-- Cánh trái -->
+<path d="M65 170 C40 150 30 125 42 108 C55 92 82 105 96 132 C100 142 104 154 105 165 Z" fill="#FFFFFF" stroke="#1E293B" stroke-linejoin="round" stroke-width="2.5"></path>
+<path d="M48 118 C58 135 72 152 90 160" stroke="#E2E8F0" stroke-linecap="round" stroke-width="2"></path>
+<!-- Thân mình chú Cò Mạ -->
+<ellipse cx="114" cy="180" fill="#FFFFFF" rx="34" ry="40" stroke="#1E293B" stroke-width="2.8"></ellipse>
+<!-- Áo bà ba nâu -->
+<path d="M88 155 C98 148 130 148 140 155 L145 208 C130 216 98 216 83 208 Z" fill="#78350F" stroke="#451A03" stroke-width="2"></path>
+<line stroke="#FBBF24" stroke-width="1.8" x1="114" x2="114" y1="156" y2="210"></line>
+<circle cx="114" cy="168" fill="#FBBF24" r="2"></circle>
+<circle cx="114" cy="184" fill="#FBBF24" r="2"></circle>
+<circle cx="114" cy="200" fill="#FBBF24" r="2"></circle>
+<!-- Cánh phải -->
+<path d="M142 165 C162 145 185 130 196 142 C204 152 188 175 165 190 Z" fill="#FFFFFF" stroke="#1E293B" stroke-linejoin="round" stroke-width="2.5"></path>
+<path d="M152 178 C158 174 168 172 176 178" stroke="#F59E0B" stroke-linecap="round" stroke-width="3"></path>
+<!-- Khăn rằn -->
+<path d="M96 140 C106 135 124 135 134 140 L136 154 C124 160 106 160 94 154 Z" fill="#065F46" stroke="#064E3B" stroke-width="1.8"></path>
+<line stroke="#FFFFFF" stroke-dasharray="3 2" stroke-width="1.5" x1="96" x2="134" y1="145" y2="145"></line>
+<line stroke="#FFFFFF" stroke-dasharray="3 2" stroke-width="1.5" x1="96" x2="134" y1="150" y2="150"></line>
+<path d="M118 152 L124 185 L114 185 Z" fill="#047857" stroke="#064E3B" stroke-width="1.2"></path>
+<!-- Cổ và Đầu -->
+<path d="M108 140 C106 112 108 92 112 76 L124 76 C128 92 130 112 126 140 Z" fill="#FFFFFF" stroke="#1E293B" stroke-width="2.5"></path>
+<circle cx="118" cy="68" fill="#FFFFFF" r="18" stroke="#1E293B" stroke-width="2.5"></circle>
+<!-- Mắt trái -->
+<ellipse cx="108" cy="62" fill="#FFFFFF" rx="7.5" ry="8.5" stroke="#0F172A" stroke-width="2"></ellipse>
+<circle cx="109" cy="62" fill="#0F172A" r="3.8"></circle>
+<circle cx="110.5" cy="60" fill="#FFFFFF" r="1.5"></circle>
+<!-- Mắt phải -->
+<ellipse cx="126" cy="62" fill="#FFFFFF" rx="7.5" ry="8.5" stroke="#0F172A" stroke-width="2"></ellipse>
+<circle cx="125" cy="62" fill="#0F172A" r="3.8"></circle>
+<circle cx="126.5" cy="60" fill="#FFFFFF" r="1.5"></circle>
+<!-- Lông mày -->
+<path d="M102 51 Q 109 46 115 51" stroke="#0F172A" stroke-linecap="round" stroke-width="2.5"></path>
+<path d="M120 51 Q 126 46 133 51" stroke="#0F172A" stroke-linecap="round" stroke-width="2.5"></path>
+<!-- Mỏ cò -->
+<path d="M124 66 L175 62 C178 65 174 70 145 74 L125 74 Z" fill="#F59E0B" stroke="#B45309" stroke-linejoin="round" stroke-width="2"></path>
+<path d="M125 74 L165 76 C168 80 162 84 135 83 L125 80 Z" fill="#D97706" stroke="#B45309" stroke-linejoin="round" stroke-width="2"></path>
+<ellipse cx="140" cy="74" fill="#991B1B" rx="8" ry="3"></ellipse>
+<!-- Nón lá -->
+<g id="non-la-farmer">
+<path d="M42 46 Q 118 -6 194 46 Q 118 60 42 46 Z" fill="#FEF08A" stroke="#B45309" stroke-linejoin="round" stroke-width="2.8"></path>
+<path d="M58 42 Q 118 6 178 42" fill="none" stroke="#D97706" stroke-width="1.2"></path>
+<path d="M76 36 Q 118 16 160 36" fill="none" stroke="#D97706" stroke-width="1.2"></path>
+<path d="M94 28 Q 118 22 142 28" fill="none" stroke="#D97706" stroke-width="1.2"></path>
+<polygon fill="#B45309" points="118,-4 122,5 114,5"></polygon>
+<path d="M85 48 Q 92 78 114 88" fill="none" stroke="#DC2626" stroke-linecap="round" stroke-width="2.2"></path>
+<path d="M152 48 Q 142 78 122 88" fill="none" stroke="#DC2626" stroke-linecap="round" stroke-width="2.2"></path>
+</g>
+</svg>
+</div>
+<div class="absolute top-1 left-2 sm:left-4 bg-white/95 backdrop-blur-sm text-slate-800 text-[10px] font-bold px-2.5 py-0.5 rounded-full shadow-md flex items-center gap-1.5 border border-amber-300 z-20" id="badgeSurvivalRate">
+<span class="text-red-500 text-xs">❤️</span>
+<span>Tỷ lệ sống:</span>
+<span class="font-mono font-black text-amber-700" id="valSurvivalRate">65%</span>
+</div>
+<span class="absolute top-1 right-2 sm:right-6 bg-red-600 text-white text-[10px] font-black px-2.5 py-0.5 rounded-full shadow-md animate-bounce flex items-center gap-1 border border-white z-20">
+<span>⚠️</span> 2.8 g/L!
+              </span>
+</div>
+<!-- BONG BÓNG ĐỐI THOẠI COMIC -->
+<div class="flex-1 bg-white/95 backdrop-blur-md rounded-2xl md:rounded-3xl p-4 md:p-5 border-2 border-amber-200 shadow-md relative z-10 flex flex-col justify-between">
+<div class="hidden md:block absolute top-14 -left-3.5 w-0 h-0 border-t-[9px] border-t-transparent border-b-[9px] border-b-transparent border-r-[15px] border-r-white drop-shadow-xs"></div>
+<div class="hidden md:block absolute top-[54.5px] -left-[18px] w-0 h-0 border-t-[10.5px] border-t-transparent border-b-[10.5px] border-b-transparent border-r-[17px] border-r-amber-200 pointer-events-none -z-10"></div>
+<div>
+<div class="flex flex-wrap items-center justify-between gap-2 mb-2.5 pb-2 border-b border-amber-100">
+<div class="flex items-center gap-2">
+<span class="w-6 h-6 rounded-full bg-amber-400 text-amber-950 flex items-center justify-center font-bold text-xs shadow-xs">🌾</span>
+<h4 class="text-sm md:text-base font-black text-amber-950 tracking-tight flex items-center gap-1.5">
+                      Cò Mạ Trợ Lý Nông Hộ
+                    </h4>
+</div>
+<span class="px-2.5 py-0.5 rounded-full bg-red-50 text-red-600 border border-red-200 text-[11px] font-bold flex items-center gap-1.5 shadow-xs animate-pulse">
+<span class="w-2 h-2 rounded-full bg-red-500 animate-ping"></span> Đang hốt hoảng cảnh báo!
+                  </span>
+</div>
+<div class="space-y-1.5 text-xs text-slate-800">
+<p class="font-black text-red-700 md:text-sm text-xs leading-snug flex items-center gap-1.5">
+<span>🚨</span> Bớ bà con! Độ mặn 2.8 g/L vượt ngưỡng rồi!
+                  </p>
+<p class="font-medium leading-relaxed text-slate-700">
+                    Lúa OM5451 đang phân hóa nhụy non mà đụng mặn trên <strong class="text-red-700 font-mono font-bold">2.0 g/L</strong> là điếc bông ngay! Bà con tuyệt đối <span class="underline font-bold text-red-600">không mở cống lấy nước ngoài mương</span>, giữ chặt lớp ngọt ém chân rễ <strong class="text-sky-800 font-bold">+4.5cm</strong> và phun rải cấp tốc <strong class="text-emerald-800 font-bold">Silic Nano + Kali Trắng</strong> để khóa kênh ion Na⁺ giải độc cho bông!
+                  </p>
+</div>
+</div>
+<div class="flex flex-wrap items-center gap-2 pt-3 mt-3 border-t border-slate-100">
+<button class="py-1.5 px-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-[11px] transition-all shadow-xs flex items-center gap-1.5 hover:scale-105 active:scale-95">
+<span>🛡️</span> Áp dụng quy trình ngay
+                </button>
+<button class="py-1.5 px-3 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-950 font-bold text-[11px] border border-amber-300 transition-all flex items-center gap-1.5 hover:scale-105">
+<span>⚡</span> Bật bảo vệ mặn
+                </button>
+<button class="py-1.5 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[11px] border border-slate-200 transition-all flex items-center gap-1.5 hover:scale-105">
+<span>🌾</span> Mách cách bón Silic
+                </button>
+</div>
+</div>
+</div>
+<!-- THANH TOOLBAR & THÔNG TIN DƯỚI CÙNG -->
+<div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-slate-100">
+<div class="flex items-center gap-2 text-xs text-slate-500 font-medium">
+<span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+<span>Mô hình dự báo năng suất Viện Lúa ĐBSCL (CLRRI-BioEngine) · Cập nhật từ 4 trạm trắc quan xã Long Hữu</span>
+</div>
+<div class="flex items-center gap-2.5">
+<button class="py-2 px-3.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors flex items-center gap-1.5">
+<span>📥</span> Tải CSV Dữ Liệu Rễ
+              </button>
+<button class="py-2 px-4 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white text-xs font-bold transition-all shadow-sm flex items-center gap-1.5">
+<span>⚙️</span> Điều Chỉnh Biến Nông Học
+              </button>
+</div>
+</div>
+</section>
+</main>
+</div>
+</div>
+</div>
+<!-- SCRIPT ĐIỀU KHIỂN LOGIC 4 THANH TRƯỢT THỜI GIAN THỰC -->
+<script>
+  const inputSalinity = document.getElementById('inputSalinity');
+  const inputWater = document.getElementById('inputWater');
+  const inputStage = document.getElementById('inputStage');
+  const inputTemp = document.getElementById('inputTemp');
+
+  const valSalinity = document.getElementById('valSalinity');
+  const dispSalinity = document.getElementById('dispSalinity');
+  const valWater = document.getElementById('valWater');
+  const dispWater = document.getElementById('dispWater');
+  const valStage = document.getElementById('valStage');
+  const valTemp = document.getElementById('valTemp');
+  const dispTemp = document.getElementById('dispTemp');
+  const dispDegrade = document.getElementById('dispDegrade');
+  const valSurvivalRate = document.getElementById('valSurvivalRate');
+  const btnReset = document.getElementById('btnReset');
+
+  function updateSimulation() {
+    const sal = parseFloat(inputSalinity.value);
+    const wat = parseFloat(inputWater.value);
+    const stage = parseInt(inputStage.value);
+    const temp = parseFloat(inputTemp.value);
+
+    // Cập nhật nhãn Sliders
+    valSalinity.innerText = sal.toFixed(1) + ' g/L';
+    dispSalinity.innerHTML = sal.toFixed(1) + ' <span class="text-base font-bold text-red-500">g/L</span>';
+
+    const sign = wat > 0 ? '+' : '';
+    valWater.innerText = sign + wat.toFixed(1) + ' cm';
+    dispWater.innerHTML = sign + wat.toFixed(1) + ' <span class="text-sm font-bold text-sky-700">cm</span>';
+
+    let stageName = "Mạ";
+    if (stage >= 16 && stage <= 42) stageName = "Đẻ Nhánh";
+    else if (stage >= 43 && stage <= 65) stageName = "Làm Đòng (⚠️ Tử Huyệt)";
+    else if (stage >= 66 && stage <= 78) stageName = "Trổ Bông";
+    else if (stage >= 79) stageName = "Chín";
+    valStage.innerText = `Ngày ${stage}/95 (${stageName})`;
+
+    valTemp.innerText = temp.toFixed(1) + '°C';
+    dispTemp.innerText = temp.toFixed(1) + '°C';
+
+    let degrade = sal > 2.0 ? ((sal - 2.0) * 15 + (stage >= 43 && stage <= 65 ? 10 : 0)) : 2.5;
+    degrade = Math.min(85, Math.max(1, degrade));
+    if (dispDegrade) {
+      dispDegrade.innerText = degrade.toFixed(1) + '%';
+    }
+
+    if (valSurvivalRate) {
+      let survival = 100 - (sal * 12) + (wat > 2 ? 4 : -5);
+      survival = Math.max(15, Math.min(98, Math.round(survival)));
+      valSurvivalRate.innerText = survival + '%';
+    }
+  }
+
+  inputSalinity.addEventListener('input', updateSimulation);
+  inputWater.addEventListener('input', updateSimulation);
+  inputStage.addEventListener('input', updateSimulation);
+  inputTemp.addEventListener('input', updateSimulation);
+
+  btnReset.addEventListener('click', () => {
+    inputSalinity.value = 2.8;
+    inputWater.value = 4.5;
+    inputStage.value = 48;
+    inputTemp.value = 28.5;
+    updateSimulation();
+  });
+</script>
+
+
+
+
+
+
+</body></html>

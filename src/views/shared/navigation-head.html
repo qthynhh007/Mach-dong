@@ -1,0 +1,7 @@
+<style>
+  @view-transition { navigation: auto; }
+  @media (prefers-reduced-motion: reduce) {
+    ::view-transition-group(root) { animation-duration: 0s; }
+    ::view-transition-old(root), ::view-transition-new(root) { animation: none; }
+  }
+</style>

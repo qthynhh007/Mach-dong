@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+
+<html lang="vi"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{"colors":{"on-error-container":"#93000a","on-tertiary-fixed-variant":"#6d3a00","surface-bright":"#f9f9ff","on-error":"#ffffff","secondary-container":"#ff6e48","surface-container":"#e7eeff","on-background":"#111c2c","surface-container-low":"#f0f3ff","on-secondary-fixed-variant":"#881f00","on-primary":"#ffffff","on-primary-container":"#97e1af","on-tertiary":"#ffffff","on-primary-fixed":"#00210f","tertiary-fixed-dim":"#ffb77a","surface":"#f9f9ff","on-secondary-fixed":"#3c0800","surface-container-highest":"#d8e3fa","on-secondary":"#ffffff","tertiary-fixed":"#ffdcc2","inverse-primary":"#8dd6a5","primary":"#004d2a","on-surface":"#111c2c","outline-variant":"#bfc9bf","primary-container":"#1b663e","outline":"#707a71","inverse-surface":"#263142","error-container":"#ffdad6","inverse-on-surface":"#ebf1ff","tertiary":"#663600","surface-tint":"#216b43","error":"#ba1a1a","surface-container-lowest":"#ffffff","on-secondary-container":"#651400","secondary-fixed-dim":"#ffb4a1","on-tertiary-container":"#ffc697","on-primary-fixed-variant":"#00522d","secondary-fixed":"#ffdbd1","surface-container-high":"#dee8ff","primary-fixed":"#a8f3bf","primary-fixed-dim":"#8dd6a5","on-tertiary-fixed":"#2e1500","on-surface-variant":"#404941","background":"#f9f9ff","tertiary-container":"#884a00","surface-dim":"#cfdaf1","surface-variant":"#d8e3fa","secondary":"#ac3311"},"borderRadius":{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},"spacing":{"margin":"1rem","space-sm":"0.5rem","gutter":"1rem","space-xl":"2.5rem","gutter-desktop":"1.5rem","space-lg":"1.5rem","margin-desktop":"2rem","space-xs":"0.25rem","space-md":"1rem"},"fontFamily":{"metric-display":["JetBrains Mono"],"headline-xl":["Inter"],"body-sm":["Inter"],"headline-lg":["Inter"],"label-lg":["JetBrains Mono"],"label-sm":["JetBrains Mono"],"body-lg":["Inter"],"headline-md":["Inter"],"label-md":["JetBrains Mono"],"metric-display-mobile":["JetBrains Mono"],"headline-sm":["Inter"],"headline-xl-mobile":["Inter"],"headline-lg-mobile":["Inter"],"body-md":["Inter"]},"fontSize":{"metric-display":["28px",{"lineHeight":"34px","letterSpacing":"-0.03em","fontWeight":"700"}],"headline-xl":["40px",{"lineHeight":"48px","letterSpacing":"-0.02em","fontWeight":"700"}],"body-sm":["12px",{"lineHeight":"18px","fontWeight":"400"}],"headline-lg":["32px",{"lineHeight":"40px","letterSpacing":"-0.015em","fontWeight":"600"}],"label-lg":["14px",{"lineHeight":"20px","letterSpacing":"-0.01em","fontWeight":"500"}],"label-sm":["10px",{"lineHeight":"14px","letterSpacing":"0.02em","fontWeight":"500"}],"body-lg":["16px",{"lineHeight":"24px","fontWeight":"400"}],"headline-md":["22px",{"lineHeight":"28px","letterSpacing":"-0.01em","fontWeight":"600"}],"label-md":["12px",{"lineHeight":"16px","letterSpacing":"0em","fontWeight":"500"}],"metric-display-mobile":["22px",{"lineHeight":"28px","letterSpacing":"-0.02em","fontWeight":"700"}],"headline-sm":["18px",{"lineHeight":"24px","letterSpacing":"-0.005em","fontWeight":"600"}],"headline-xl-mobile":["30px",{"lineHeight":"38px","letterSpacing":"-0.015em","fontWeight":"700"}],"headline-lg-mobile":["24px",{"lineHeight":"32px","letterSpacing":"-0.01em","fontWeight":"600"}],"body-md":["14px",{"lineHeight":"20px","fontWeight":"400"}]}}}}</script></head><body class="bg-background font-body-md text-on-surface antialiased selection:bg-primary-fixed selection:text-on-primary-fixed" style='font-family: "Be Vietnam Pro", sans-serif;'><header class="fixed top-0 left-0 right-0 z-50 h-16 bg-surface-container-lowest/90 backdrop-blur-md shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="w-full h-16 px-space-md flex items-center justify-between gap-space-md"><div class="flex items-center gap-space-md flex-shrink-0"><div class="flex items-center gap-space-xs"><span class="text-primary font-headline-sm text-headline-sm font-bold tracking-tight">🌾 MẠCH ĐỒNG</span><span class="hidden xl:inline-flex items-center px-space-xs py-0.5 rounded bg-surface-container text-on-surface-variant font-label-sm text-label-sm uppercase tracking-wider">NÔNG NGHIỆP ĐBSCL</span></div><div class="hidden 2xl:flex items-center gap-space-xs px-space-sm py-1 rounded-full bg-surface-container-low text-on-surface text-label-sm"><span class="font-semibold">📍 Xã Long Hữu, Duyên Hải</span><span class="text-outline">|</span><span class="font-medium text-on-surface-variant">💧 Cống Mương Lộ: <strong class="text-secondary">2.8 g/L</strong> (Đóng)</span></div></div><div class="flex items-center gap-space-sm flex-shrink-0"><a class="flex items-center gap-space-xs px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-900 border border-emerald-200/80 font-label-sm text-label-sm font-bold shadow-xs cursor-pointer hover:bg-emerald-200/80 transition-colors" data-path="the-le-thuong" href="#"><span class="flex items-center gap-1 text-emerald-800"><span>🌾</span> 350 LÚA</span><span class="text-emerald-400 font-normal">|</span><span class="font-medium text-emerald-900 hover:underline">Thể lệ thưởng</span></a><div class="flex items-center gap-space-xs pl-space-xs"><img alt="Chú Năm Ruộng" class="w-8 h-8 rounded-full object-cover ring-2 ring-primary-container/20" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD5i6l-h_pip2VluEzMhgE4-d0qDazpWseETzrABg42MNIXTmzRqfdwQlbx566SvFmJa9S6YGQ50eYWs2Fxf17bgx3Lfpxnd8vJ1DNtFDmzmfvoDJy-kFUrJCRz2FgltRh-1XzMeM5C9nmzC95buKti-_QH1nIgtQJRGd6KJVIiiRTbsjaz2lSfxccTILVkebXhcdhoYWlG_9Vk3iu16-ZlHyaYjL6iLgD_YTCeWlo"/><div class="hidden md:flex flex-col text-left leading-tight"><span class="font-label-sm text-label-sm font-bold text-on-surface">Chú Năm Ruộng</span><span class="font-label-sm text-[11px] text-on-surface-variant">HTX Long Hữu</span></div></div></div></div></header><aside class="fixed left-0 top-16 bottom-0 w-64 bg-surface-container-lowest shadow-[0_1px_8px_rgba(0,0,0,0.03)] z-40 flex flex-col justify-between py-space-md"><div class="flex flex-col gap-space-md px-space-sm overflow-y-auto"><div class="flex flex-col gap-1"><div class="px-space-sm py-1"><p class="font-label-sm text-[11px] text-outline uppercase tracking-wider font-bold">ĐIỀU HÀNH &amp; DỮ LIỆU</p></div><nav class="flex flex-col gap-1"><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" href="#"><span class="material-symbols-outlined text-lg">map</span><span class="font-body-md text-body-md">Tổng quan vùng</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" href="#"><span class="material-symbols-outlined text-lg">dataset</span><span class="font-body-md text-body-md">Kho CSV độ mặn &amp; nước</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" href="#"><span class="material-symbols-outlined text-lg">forum</span><span class="font-body-md text-body-md">Thảo luận bà con</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" href="#"><span class="material-symbols-outlined text-lg">psychology_alt</span><span class="font-body-md text-body-md">Mô phỏng Sinh lý Lúa</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" href="#"><span class="material-symbols-outlined text-lg">menu_book</span><span class="font-body-md text-body-md">Nhật ký đồng ruộng</span></a></nav></div><div class="flex flex-col gap-1 pt-2 border-t border-surface-container"><div class="px-space-sm py-1"><p class="font-label-sm text-[11px] text-outline uppercase tracking-wider font-bold">THIẾT LẬP</p></div><nav class="flex flex-col gap-1"><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" href="#"><span class="material-symbols-outlined text-lg">manage_accounts</span><span class="font-body-md text-body-md">Hồ sơ &amp; Đổi mật khẩu</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="the-le-thuong" href="#"><span class="material-symbols-outlined text-lg">military_tech</span><span class="font-body-md text-body-md">Thể lệ thưởng LÚA</span></a></nav></div></div><div class="px-space-sm pt-2"><div class="p-space-sm rounded-xl bg-surface-container-low flex flex-col gap-space-xs border border-surface-container"><div class="flex items-center gap-space-xs"><span class="material-symbols-outlined text-base text-primary">water_drop</span><span class="font-label-sm text-label-sm font-semibold text-on-surface">Khuyến cáo hôm nay</span></div><p class="font-body-sm text-[11px] text-on-surface-variant leading-tight">Triều cường rằm Tháng 10 mặn 2.8 g/L áp sát cửa cống. Đóng cống Mương Lộ trữ ngọt, ém rễ lúa OM5451 ở mức +10cm.</p></div></div></aside><div class="pl-64"><main class="relative pt-16 w-full min-h-screen bg-background"><div class="flex flex-col w-full">
+<!-- Top Navigation & Breadcrumb Header Strip -->
+<section class="w-full bg-surface-container-lowest px-space-md py-space-sm shadow-sm">
+<div class="max-w-[1400px] mx-auto flex flex-wrap items-center justify-between gap-space-sm">
+<div class="flex items-center gap-space-sm flex-wrap">
+<a class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-body-sm text-body-sm font-semibold transition-all" href="#">
+<span class="material-symbols-outlined text-[18px]">arrow_back</span>
+<span>Quay lại Thảo luận bà con</span>
+</a>
+<div class="h-4 w-px bg-outline-variant/60 hidden sm:block"></div>
+<nav class="flex items-center gap-1.5 font-label-md text-label-md text-on-surface-variant">
+<a class="hover:text-primary transition-colors" href="#">Thảo luận</a>
+<span class="text-outline-variant">/</span>
+<a class="hover:text-primary transition-colors" href="#">Kinh nghiệm canh tác</a>
+<span class="text-outline-variant">/</span>
+<span class="text-on-surface font-semibold truncate max-w-[200px] sm:max-w-none">Đợt mặn rằm tháng 10</span>
+</nav>
+</div>
+<div class="flex items-center gap-space-xs flex-wrap">
+<div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container-low text-secondary font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[16px] text-primary" style="font-variation-settings: 'FILL' 1;">verified</span>
+<span>Đã xác thực bởi Kỹ sư Khang (CLRRI)</span>
+</div>
+<div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary-fixed text-on-primary-fixed font-label-sm text-label-sm font-semibold">
+<span class="material-symbols-outlined text-[14px]">token</span>
+<span>+20 LÚA On-chain</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Main 2-Column Responsive Workspace -->
+<div class="w-full max-w-[1400px] mx-auto px-space-md py-space-md lg:py-space-lg">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-md lg:gap-space-lg items-start">
+<!-- Left Column: Article & Telemetry (~66% / 8 cols) -->
+<article class="lg:col-span-8 flex flex-col gap-space-md">
+<!-- Post Header Plate -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md lg:p-space-lg shadow-sm flex flex-col gap-space-md">
+<!-- Category & Variety Tags -->
+<div class="flex flex-wrap items-center justify-between gap-space-xs">
+<div class="flex items-center gap-space-xs flex-wrap">
+<span class="px-2.5 py-1 rounded-md bg-secondary-container text-on-secondary-fixed-variant font-label-sm text-label-sm font-semibold">
+                Trữ ngọt rãnh liếp
+              </span>
+<span class="px-2.5 py-1 rounded-md bg-surface-container text-on-surface font-label-sm text-label-sm">
+                🌾 OM5451 (Ngày 48 - Làm đòng)
+              </span>
+</div>
+<div class="flex items-center gap-1 text-on-surface-variant font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[15px] text-primary">visibility</span>
+<span>28 bà con đang đọc</span>
+</div>
+</div>
+<!-- Headline -->
+<h1 class="font-headline-md text-headline-md sm:text-headline-lg lg:text-headline-lg text-on-surface font-bold leading-tight tracking-tight">
+            Mẹo ém nước rãnh liếp +12cm giữ ngọt cho đòng lúa OM5451 khi cống Mương Lộ đóng mặn 2.8 g/L
+          </h1>
+<!-- Author Info & Timeline -->
+<div class="flex flex-wrap items-center justify-between gap-space-sm pt-space-xs">
+<div class="flex items-center gap-space-sm">
+<img class="w-11 h-11 rounded-full object-cover shadow-sm ring-2 ring-surface-container" data-alt="Close up portrait photo of Uncle Nam Ruong, a wise 52 year old Vietnamese rice farmer from Mekong Delta wearing traditional cotton shirt and conical hat tilted back, gentle smile with sun-tanned skin, authentic agrarian documentary photography style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAxB478ZpHBQCSg2mOboOTFCpHaH0iqTppE24Nmw_Jnfrkx_6IpM12_EfMfUmA2HlYe2yS2VqCiq49DG61XVpSPFo-83Ca0UoQd1IsJ4aMUCBpnE-QKwQIgCWRr6nkNQSy7j1yuOQFiLhlmOPaMTrvyGUmII52V9J4PRLz8FMCsUoskXP8swaQtES2xXglV-tTlo_ltZlLzScHYEW5V5DMTtAmPv6xtXwX0vcpQi3A"/>
+<div class="flex flex-col leading-tight">
+<div class="flex items-center gap-1.5">
+<span class="font-body-md text-body-md font-bold text-on-surface">Chú Năm Ruộng</span>
+<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-primary text-on-primary">Tác giả</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Ấp 3, Xã Long Hữu · 52 tuổi · <span class="font-normal text-outline">15 phút trước</span></span>
+</div>
+</div>
+<!-- Interaction Buttons: Upvote / Downvote / Bookmark / Share -->
+<div class="flex items-center gap-1.5 bg-surface-container-low px-2 py-1.5 rounded-lg">
+<button class="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-surface-container-lowest text-primary hover:bg-primary hover:text-on-primary font-data-mono-md text-data-mono-md font-bold shadow-xs transition-colors" title="Đồng tình kinh nghiệm">
+<span class="material-symbols-outlined text-[16px]">thumb_up</span>
+<span>+42</span>
+</button>
+<button class="p-1 rounded text-on-surface-variant hover:bg-surface-container-highest transition-colors" title="Không đồng tình">
+<span class="material-symbols-outlined text-[16px]">thumb_down</span>
+</button>
+<div class="w-px h-4 bg-outline-variant/60"></div>
+<button class="p-1 rounded text-on-surface-variant hover:text-primary hover:bg-surface-container-highest transition-colors" title="Lưu bài viết">
+<span class="material-symbols-outlined text-[18px]">bookmark</span>
+</button>
+<button class="p-1 rounded text-on-surface-variant hover:text-primary hover:bg-surface-container-highest transition-colors" title="Chia sẻ bài viết">
+<span class="material-symbols-outlined text-[18px]">share</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Rich Hero Graphic Element (Canal & Paddy Field Inspection) -->
+<div class="relative w-full rounded-xl overflow-hidden shadow-sm bg-surface-container-high">
+<div class="w-full h-64 sm:h-72 bg-cover bg-center" data-alt="Serene panoramic view of Mekong Delta rice fields during booting stage with lush green paddy rows partitioned by earthen canals and irrigation ditches, small sluice gates in the foreground with calm reflective water under soft humid tropical morning sky, cinematic agrarian realism." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAm1T24im7WG7KEBCkYKHNbS6Z7F2GyLhUkwJZEEtikI-PGvB_Io5aoKec-eaqm54QYKcicJvTCJ9aZ9LGjaModWcbhHiIu927HtdqfQ_bVLIgieDnD6dYqrZSZXTIEZKKp1XqNPOfodgOnd1iORnmgnnEOE4-kBTxjf_VuYBbwmZG0DNQTEb4qay7IDhYoZNruIZzM_uoipXLmml0Qou2khLcMYwyLrORQ5byQ8GQ')">
+<div class="absolute inset-0 bg-gradient-to-t from-inverse-surface/80 via-transparent to-transparent flex items-end p-space-md">
+<div class="flex flex-col text-inverse-on-surface">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-inverse-primary font-bold">Thực địa kênh nội đồng Ấp 3</span>
+<p class="font-body-sm text-body-sm opacity-90">Liếp lúa OM5451 giữ mực nước mặt ngập nông đều đặn, rễ non không bị xót phèn mặn</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Article Body Content -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md lg:p-space-lg shadow-sm flex flex-col gap-space-md">
+<!-- Highlight Core Parameter Callout Box -->
+<div class="bg-secondary-container/40 rounded-xl p-space-md flex items-start gap-space-sm shadow-xs">
+<span class="material-symbols-outlined text-primary text-[24px] flex-shrink-0 mt-0.5" style="font-variation-settings: 'FILL' 1;">info</span>
+<div class="flex flex-col gap-1">
+<span class="font-headline-sm text-headline-sm text-primary font-bold">Thông số cốt lõi</span>
+<p class="font-body-md text-body-md text-on-surface leading-relaxed">
+                Giữ mực nước mặt ruộng ổn định <strong class="text-primary font-bold">+10cm đến +12cm</strong>. Tuyệt đối không mở cống lấy nước ngoài rạch Mương Lộ khi máy đo vượt quá <strong class="text-error font-bold">2.0 g/L</strong>.
+              </p>
+</div>
+</div>
+<!-- Section 1 -->
+<div class="flex flex-col gap-2">
+<h2 class="font-headline-sm text-headline-sm text-on-surface font-bold flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+              1. Tình thế thực tế tại cống Mương Lộ sáng nay
+            </h2>
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+              Sáng nay 06:30, tôi cùng anh em tổ hợp tác kéo máy Hanna ra đo trước miệng cống Mương Lộ thì độ mặn đã leo tới <strong class="text-secondary font-semibold font-data-mono-md">2.8 g/L</strong> do triều cường Biển Đông dâng mạnh. Cống chính đã được ban quản lý đóng chặt để cách ly mặn với sông cái.
+            </p>
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+              Tuy nhiên, trà lúa giống <strong>OM5451</strong> của xã viên chúng ta đa phần đang bước vào ngày thứ 48 đến 52, giai đoạn tim đèn hình thành mạnh nhất. Nếu bà con để ruộng cạn, mao dẫn đất sẽ rút muối từ tầng sâu lên làm teo đòng ngay lập tức.
+            </p>
+</div>
+<!-- Interactive Inline Telemetry Widget comparing Field vs River -->
+<div class="bg-surface-container-low rounded-xl p-space-md flex flex-col gap-space-sm shadow-xs">
+<div class="flex flex-wrap items-center justify-between gap-space-xs">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[20px]">sensors</span>
+<span class="font-label-md text-label-md font-bold text-on-surface">Đo đạc cảm biến trạm cơ sở lúc 07:30</span>
+</div>
+<span class="font-label-sm text-label-sm text-outline font-data-mono-sm">Tx: 0x8a92...f3b2 · Khối Avalanche 19,402</span>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-space-sm pt-1">
+<!-- Field Salinity -->
+<div class="bg-surface-container-lowest p-space-sm rounded-lg flex flex-col gap-1 shadow-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Trong ruộng ém ngọt (Ruộng Chú Năm)</span>
+<span class="px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-fixed-variant font-label-sm text-[10px] font-bold">An toàn</span>
+</div>
+<div class="flex items-baseline gap-2">
+<span class="font-data-mono-lg text-headline-md text-primary font-bold">1.4</span>
+<span class="font-label-md text-label-md text-outline">g/L (ppt)</span>
+</div>
+<div class="w-full bg-surface-container rounded-full h-1.5 overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 35%"></div>
+</div>
+<span class="font-label-sm text-[11px] text-on-surface-variant">Mực nước: +11.5cm trên rễ</span>
+</div>
+<!-- River Salinity -->
+<div class="bg-surface-container-lowest p-space-sm rounded-lg flex flex-col gap-1 shadow-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Ngoài rạch Mương Lộ (Chân cống)</span>
+<span class="px-2 py-0.5 rounded-full bg-error-container text-on-error-container font-label-sm text-[10px] font-bold">Nguy hại</span>
+</div>
+<div class="flex items-baseline gap-2">
+<span class="font-data-mono-lg text-headline-md text-error font-bold">2.8</span>
+<span class="font-label-md text-label-md text-outline">g/L (ppt)</span>
+</div>
+<div class="w-full bg-surface-container rounded-full h-1.5 overflow-hidden">
+<div class="bg-error h-full rounded-full" style="width: 70%"></div>
+</div>
+<span class="font-label-sm text-[11px] text-error font-semibold">Tuyệt đối không lấy nước</span>
+</div>
+</div>
+</div>
+<!-- Section 2: Step by step -->
+<div class="flex flex-col gap-space-sm pt-2">
+<h2 class="font-headline-sm text-headline-sm text-on-surface font-bold flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+              2. Quy trình ém ngọt rãnh 3 bước đơn giản
+            </h2>
+<div class="grid grid-cols-1 gap-space-sm">
+<!-- Step 1 -->
+<div class="p-space-sm rounded-xl bg-surface-container-low flex items-start gap-space-sm">
+<div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold text-label-md flex-shrink-0">
+                  1
+                </div>
+<div class="flex flex-col gap-0.5">
+<span class="font-body-md text-body-md font-bold text-on-surface">Khóa chặt bọng lấy nước ven đê bao</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Dùng bao đất sét chèn kín miệng bọng dẫn. Tuyệt đối không để rò rỉ dù chỉ một dòng nhỏ từ rạch ngoài thẩm thấu vào nội đồng.</p>
+</div>
+</div>
+<!-- Step 2 -->
+<div class="p-space-sm rounded-xl bg-surface-container-low flex items-start gap-space-sm">
+<div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold text-label-md flex-shrink-0">
+                  2
+                </div>
+<div class="flex flex-col gap-0.5">
+<span class="font-body-md text-body-md font-bold text-on-surface">Dẫn nước ngọt dự trữ từ mương vườn vào rãnh liếp</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Duy trì mặt ruộng ngập nông đều đặn từ 10 - 12cm. Lớp nước ngọt này tạo áp lực thủy tĩnh đè mặn tầng rễ chìm xuống, rễ tơ ăn cạn vẫn hút được dinh dưỡng sạch nuôi đòng.</p>
+</div>
+</div>
+<!-- Step 3 -->
+<div class="p-space-sm rounded-xl bg-surface-container-low flex items-start gap-space-sm">
+<div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold text-label-md flex-shrink-0">
+                  3
+                </div>
+<div class="flex flex-col gap-0.5">
+<span class="font-body-md text-body-md font-bold text-on-surface">Rải nhẹ Silic Nano phối hợp Kali trắng</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Định lượng 0.5kg/công vào buổi chiều mát. Hợp chất giúp tế bào vách rễ hóa gỗ nhanh, ngăn chặn ion Na+ thâm nhập gây độc cây lúa.</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Author's Note & Reaction Row -->
+<div class="pt-space-sm flex flex-col gap-space-sm">
+<div class="p-space-sm rounded-lg bg-surface-container-high/60 text-on-surface-variant font-body-sm text-body-sm italic">
+              "Kinh nghiệm này gia đình tôi rút ra từ đợt hạn mặn lịch sử 2020. Mong bà con tổ hợp tác bình tĩnh phối hợp nhau giữ nước mương vườn, đừng hoang mang tự ý xả cống." — Chú Năm Ruộng
+            </div>
+<!-- Reaction Chips Bar -->
+<div class="flex flex-wrap items-center justify-between gap-space-sm pt-2">
+<div class="flex items-center gap-space-xs flex-wrap">
+<button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md font-semibold transition-all">
+<span>🌾</span>
+<span>24 Hữu ích</span>
+</button>
+<button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md font-semibold transition-all">
+<span>💧</span>
+<span>12 Đã làm theo</span>
+</button>
+<button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md font-semibold transition-all">
+<span>💡</span>
+<span>8 Câu hỏi hay</span>
+</button>
+</div>
+<button class="inline-flex items-center gap-1 text-primary hover:underline font-label-md text-label-md font-bold">
+<span class="material-symbols-outlined text-[18px]">history_edu</span>
+<span>Xem lịch sử chỉnh sửa (2)</span>
+</button>
+</div>
+</div>
+</div>
+</article>
+<!-- Right Column: Live Community Discussion Chat (~34% / 4 cols) -->
+<aside class="lg:col-span-4 sticky top-20 flex flex-col gap-space-md">
+<div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden flex flex-col h-[calc(100vh-110px)] min-h-[640px]">
+<!-- Chat Panel Header -->
+<div class="p-space-md bg-surface-container-low flex flex-col gap-space-xs shadow-xs">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="relative flex h-3 w-3">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-3 w-3 bg-primary"></span>
+</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-bold">Trò Chuyện Trực Tiếp</h3>
+</div>
+<span class="px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-fixed-variant font-label-sm text-[11px] font-bold">
+                18 xã viên online
+              </span>
+</div>
+<div class="flex items-center justify-between text-on-surface-variant">
+<div class="flex items-center gap-1 font-label-sm text-label-sm font-semibold text-primary">
+<span class="material-symbols-outlined text-[16px]">tag</span>
+<span>long-huu-né-mặn</span>
+</div>
+<span class="font-label-sm text-[11px] text-outline">Đồng bộ tự động</span>
+</div>
+</div>
+<!-- Message Feed Scroll Area -->
+<div class="flex-1 overflow-y-auto p-space-md flex flex-col gap-space-sm space-y-2" id="chatFeed">
+<!-- Message 1 -->
+<div class="flex items-start gap-2.5">
+<img class="w-8 h-8 rounded-full object-cover flex-shrink-0 mt-0.5 shadow-xs" data-alt="Avatar portrait of a middle aged Vietnamese farmer wearing a checkered bandanna, energetic expressions." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCdKD8Reox09sVcZj-1S3qGAuAmNwkVsQcVnw1HAHST1v595k92VLdmITGrxta7gDFqoFkosONmv_oM6PZMgXQW1d0rrID814kNEF4Rg45WLSq_Nkx2C1ZkwOAtisZg9AXGs1rXvxqda5yKiKA5z3FRYFBYiKJ3jLAUL2fHV9sdYSFDb9byqcs9ilHgakbgaQs_khJgwhERQW0RCEFFDf8mdWTgtrXECJyjCPxgQAc"/>
+<div class="flex flex-col max-w-[85%]">
+<div class="flex items-baseline gap-1.5">
+<span class="font-label-md text-label-md font-bold text-on-surface">Anh Ba Đất Giồng</span>
+<span class="font-data-mono-sm text-[11px] text-outline">08:05</span>
+</div>
+<div class="bg-surface-container-low text-on-surface p-2.5 rounded-2xl rounded-tl-none font-body-sm text-body-sm leading-relaxed shadow-xs mt-0.5">
+                  Hôm qua tui cũng làm theo chú Năm, ém nước mương vườn qua, đòng lúa sáng nay xanh mướt không bị cháy chóp lá!
+                </div>
+</div>
+</div>
+<!-- Message 2 (Engineer Khang) -->
+<div class="flex items-start gap-2.5">
+<img class="w-8 h-8 rounded-full object-cover flex-shrink-0 mt-0.5 shadow-xs" data-alt="Portrait of an agricultural researcher engineer wearing a clean white polo shirt and spectacles in a modern laboratory greenhouse in Vietnam." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCMG_5Ygl0MAcOJFZctdRcJSxWXuoCMk2GjOYdRMZXpTgH2jfBXRQKvw3w5RxTw-o9vmEifzm5KVOfBcG-IcT3LzvGdmGjDicjZtxVcbgz51UeLjUtU72C1Ycg4JrEfoAQD9zLXJ-gGxRhxhlbKeFwcm9q_4SbUygifWWvD4GjEvhrHhHcABdioFgD5gYcJsxsETtv7DyvXHlu15nIgDBwazPWhNlNm2AgJ-2_zkhc"/>
+<div class="flex flex-col max-w-[85%]">
+<div class="flex items-center gap-1.5">
+<span class="font-label-md text-label-md font-bold text-primary">Kỹ sư Khang</span>
+<span class="px-1.5 py-0.2 rounded text-[10px] font-bold bg-primary text-on-primary">HTX</span>
+<span class="font-data-mono-sm text-[11px] text-outline">08:12</span>
+</div>
+<div class="bg-primary/10 text-on-surface p-2.5 rounded-2xl rounded-tl-none font-body-sm text-body-sm leading-relaxed shadow-xs mt-0.5">
+                  Bà con lưu ý rải Kali trắng buổi chiều mát nhé, tránh nắng gắt trưa làm nóng rễ lúa non.
+                </div>
+</div>
+</div>
+<!-- Message 3 -->
+<div class="flex items-start gap-2.5">
+<img class="w-8 h-8 rounded-full object-cover flex-shrink-0 mt-0.5 shadow-xs" data-alt="Portrait of an elderly Mekong farmer with silver hair, warm smile, sun lines around eyes." src="https://lh3.googleusercontent.com/aida-public/AB6AXuApNoRo6ZQSGoiXWAHjNKjMICtbHqYv9djA6WKugKoysklDgK4jz_LP0C2eBB0vNDhNmwGAo1DetobRqbs3JzEs9Oj-thMOH4iYPXChuGUZnEM0iqcioCnnMFBg4AsFzdN20W-hcn0k4PWOcou97Oq1Hyjluil52SKU282GSkiMzKNsSvbcthCh2WxkfQrPlv1arDt_VhokGJakMo9s4QwpGgwPr56mZx6cmR398tQ"/>
+<div class="flex flex-col max-w-[85%]">
+<div class="flex items-baseline gap-1.5">
+<span class="font-label-md text-label-md font-bold text-on-surface">Chú Bảy Cò</span>
+<span class="font-label-sm text-[11px] text-on-surface-variant font-normal">Ấp 2</span>
+<span class="font-data-mono-sm text-[11px] text-outline">08:18</span>
+</div>
+<div class="bg-surface-container-low text-on-surface p-2.5 rounded-2xl rounded-tl-none font-body-sm text-body-sm leading-relaxed shadow-xs mt-0.5">
+                  Cống Mương Lộ khi nào triều rút mở xả ngọt vậy kỹ sư?
+                </div>
+</div>
+</div>
+<!-- Message 4: AI Mascot Co Ma -->
+<div class="flex items-start gap-2.5">
+<div class="w-8 h-8 rounded-full bg-secondary text-on-secondary flex items-center justify-center flex-shrink-0 shadow-xs mt-0.5 font-bold text-xs">
+                🌾
+              </div>
+<div class="flex flex-col max-w-[88%]">
+<div class="flex items-center gap-1.5">
+<span class="font-label-md text-label-md font-bold text-secondary">Cò Mạ Trợ Lý AI</span>
+<span class="px-1.5 py-0.2 rounded text-[10px] font-bold bg-tertiary-fixed text-on-tertiary-fixed">Hệ thống</span>
+<span class="font-data-mono-sm text-[11px] text-outline">08:19</span>
+</div>
+<div class="bg-secondary-container/40 text-on-surface p-3 rounded-2xl rounded-tl-none font-body-sm text-body-sm leading-relaxed shadow-xs mt-0.5 flex flex-col gap-1">
+<div class="flex items-center gap-1 text-primary font-bold text-label-sm">
+<span class="material-symbols-outlined text-[16px]">schedule</span>
+                    Dự báo triều rút: 21:00 đêm nay!
+                  </div>
+<p>
+                    Độ mặn ngoài rạch dự kiến giảm về <strong>1.1 g/L</strong>. Bà con chuẩn bị sẵn máy bơm để đón nước bù vào mương trữ nhé!
+                  </p>
+</div>
+</div>
+</div>
+<!-- Message 5: Author (Chu Nam) -->
+<div class="flex items-start gap-2.5">
+<img class="w-8 h-8 rounded-full object-cover flex-shrink-0 mt-0.5 shadow-xs" data-alt="Uncle Nam Ruong thumbnail avatar with rustic Mekong Delta farmer appearance." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA8ZHt_ePuTjasNKICntwCAxyLeyZ9abri_GZAWRcKnMkUss-c6BzeKwyK3K_rk-EFIyqfttoMIq7FLH7jc2tcSnPjwsrS02GCk3fQYDuj-dpI3aUrC7VEQeusMk5NB8dI5yblUBiHGUzbbPmqnx6Jct33-dcRYSKGLiX1GM3Jug9LIhi5htO3eT33fqyGXhuCrKoaVWoaVQvKb-xK7SWof20itMTQVmQDoPYN11Hw"/>
+<div class="flex flex-col max-w-[85%]">
+<div class="flex items-center gap-1.5">
+<span class="font-label-md text-label-md font-bold text-on-surface">Chú Năm Ruộng</span>
+<span class="px-1.5 py-0.2 rounded text-[10px] font-bold bg-primary text-on-primary">Tác giả</span>
+<span class="font-data-mono-sm text-[11px] text-outline">08:21</span>
+</div>
+<div class="bg-surface-container text-on-surface p-2.5 rounded-2xl rounded-tl-none font-body-sm text-body-sm leading-relaxed shadow-xs mt-0.5">
+                  Đúng rồi Bảy Cò ơi, cứ canh đêm nay kéo nước vô mương trữ liền!
+                </div>
+</div>
+</div>
+</div>
+<!-- Chat Input Area with Quick Reply Chips -->
+<div class="p-space-sm bg-surface-container-lowest flex flex-col gap-space-xs shadow-md">
+<!-- Quick Suggestion Chips -->
+<div class="flex items-center gap-1 overflow-x-auto pb-1 no-scrollbar">
+<button class="whitespace-nowrap px-2.5 py-1 rounded-full bg-surface-container hover:bg-surface-container-high text-on-surface text-label-sm font-medium transition-colors" onclick="insertQuickReply('👍 Đồng ý làm theo')">
+                👍 Đồng ý làm theo
+              </button>
+<button class="whitespace-nowrap px-2.5 py-1 rounded-full bg-surface-container hover:bg-surface-container-high text-on-surface text-label-sm font-medium transition-colors" onclick="insertQuickReply('❓ Cho hỏi liều lượng')">
+                ❓ Cho hỏi liều lượng
+              </button>
+<button class="whitespace-nowrap px-2.5 py-1 rounded-full bg-surface-container hover:bg-surface-container-high text-on-surface text-label-sm font-medium transition-colors" onclick="insertQuickReply('📍 Báo mặn ruộng tôi')">
+                📍 Báo mặn ruộng tôi
+              </button>
+</div>
+<!-- Composer Form -->
+<div class="relative flex items-center gap-1.5 bg-surface-container-low rounded-xl p-1.5">
+<button class="p-1.5 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors" title="Thêm hình ruộng">
+<span class="material-symbols-outlined text-[20px]">add_photo_alternate</span>
+</button>
+<button class="p-1.5 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors" title="Biểu cảm nông dân">
+<span class="material-symbols-outlined text-[20px]">sentiment_satisfied</span>
+</button>
+<input class="w-full bg-transparent px-2 py-1 text-on-surface font-body-sm text-body-sm focus:outline-none placeholder:text-outline" id="chatInput" placeholder="Nhắn tin chia sẻ với bà con trong ấp..." type="text"/>
+<button class="px-3 py-2 rounded-lg bg-primary hover:bg-primary-container text-on-primary font-bold transition-all flex items-center justify-center flex-shrink-0 shadow-xs" id="sendBtn" onclick="handleSendMessage()" title="Gửi tin nhắn">
+<span class="material-symbols-outlined text-[18px]">send</span>
+</button>
+</div>
+<div class="flex items-center justify-between px-1 text-[11px] text-outline font-label-sm">
+<span>Được bảo vệ bởi Avalanche Smart Contract</span>
+<span class="font-data-mono-sm">Enter để gửi</span>
+</div>
+</div>
+</div>
+</aside>
+</div>
+</div>
+<!-- Inline Micro-Interactions Script -->
+<script>
+    function insertQuickReply(text) {
+      const input = document.getElementById('chatInput');
+      if (input) {
+        input.value = text;
+        input.focus();
+      }
+    }
+
+    function handleSendMessage() {
+      const input = document.getElementById('chatInput');
+      const feed = document.getElementById('chatFeed');
+      if (!input || !feed || !input.value.trim()) return;
+
+      const userText = input.value.trim();
+      const now = new Date();
+      const timeStr = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+
+      const newMsg = document.createElement('div');
+      newMsg.className = 'flex items-start gap-2.5 animate-fadeIn';
+      newMsg.innerHTML = `
+        <div class="w-8 h-8 rounded-full bg-primary-container text-on-primary flex items-center justify-center flex-shrink-0 shadow-xs mt-0.5 font-bold text-xs">
+          Bạn
+        </div>
+        <div class="flex flex-col max-w-[85%]">
+          <div class="flex items-baseline gap-1.5">
+            <span class="font-label-md text-label-md font-bold text-on-surface">Bạn (Xã viên)</span>
+            <span class="font-data-mono-sm text-[11px] text-outline">${timeStr}</span>
+          </div>
+          <div class="bg-primary text-on-primary p-2.5 rounded-2xl rounded-tl-none font-body-sm text-body-sm leading-relaxed shadow-xs mt-0.5">
+            ${userText}
+          </div>
+        </div>
+      `;
+
+      feed.appendChild(newMsg);
+      input.value = '';
+      feed.scrollTop = feed.scrollHeight;
+    }
+
+    // Keyboard support for Enter key
+    document.getElementById('chatInput')?.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        handleSendMessage();
+      }
+    });
+  </script>
+</div></main></div>
+</body></html>

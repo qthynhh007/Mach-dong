@@ -1,0 +1,2 @@
+measured_at,site_type,metric,unit,value,is_simulated
+2026-11-15T08:00:00+07:00,field,water_depth,cm,4.5,true

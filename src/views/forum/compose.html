@@ -1,0 +1,152 @@
+{% extends "forum/base.html" %}
+{% from "shared/icon.html" import icon %}
+{% block title %}Đăng bài chia sẻ{% endblock %}
+{% block styles %}<link rel="stylesheet" href="/static/forum-compose.css">{% endblock %}
+{% block content %}
+<div class="w-full bg-surface-container-lowest px-space-md py-space-sm shadow-sm"><a class="inline-flex items-center gap-space-xs text-secondary hover:text-primary transition-colors py-1 px-space-xs rounded font-label-md text-label-md font-semibold" href="{{ url_for('forum.index') }}">
+<span class="material-symbols-outlined text-lg">{{ icon("chevron_left") }}</span>
+<span>Quay lại Thảo luận bà con</span>
+</a></div>
+<!-- Main Grid Workspace -->
+<div class="w-full max-w-[1400px] mx-auto p-space-md lg:p-space-lg">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter-desktop items-start">
+<!-- MAIN FORM COLUMN (Approx 68%) -->
+<section class="flex flex-col gap-space-lg lg:col-span-12">
+<!-- Page Title & Header Info -->
+<div class="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm">
+<div class="flex flex-wrap items-start justify-between gap-space-md mb-space-xs">
+<div>
+<div class="inline-flex items-center gap-space-xs px-2.5 py-0.5 rounded-full bg-secondary-container text-on-secondary-fixed font-label-sm text-label-sm uppercase tracking-wider mb-2 font-bold">
+<span class="material-symbols-outlined text-sm">{{ icon("description") }}</span>
+                Ghi chép bờ liếp
+              </div>
+<h1 class="font-headline-lg text-headline-lg text-primary tracking-tight font-bold">
+                Đăng Bài Chia Sẻ Kinh Nghiệm Canh Tác
+              </h1>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1">
+                Chia sẻ kinh nghiệm và ảnh ngoài ruộng. Bản nháp và bài demo được lưu trên trình duyệt này.
+              </p>
+</div>
+<div class="hidden sm:flex flex-col items-end text-right flex-shrink-0 bg-surface-container-low p-space-sm rounded-lg">
+<span class="font-label-sm text-[11px] text-outline uppercase tracking-wider font-semibold">Tài khoản ghi nhận</span>
+<span class="font-data-mono-md text-data-mono-md text-on-surface font-bold" data-profile-value="farmer-fullname">Chú Năm Ruộng</span>
+<span class="font-label-sm text-[11px] text-primary">Tổ 3 • HTX Long Hữu</span>
+</div>
+</div>
+</div>
+<!-- Compose Form Container -->
+<form id="forum-compose" method="post" class="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm flex flex-col gap-space-lg">
+<!-- Category Chips -->
+<div>
+<label class="block font-label-md text-label-md font-semibold text-on-surface mb-2">
+              1. Chủ đề kinh nghiệm bà con muốn chia sẻ:
+            </label>
+
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-space-xs" id="categoryChips" role="group" aria-label="Chủ đề kinh nghiệm">
+{% for id, label in topics.items() %}
+<label class="stitch-topic">
+<input type="radio" name="topic" value="{{ id }}" {% if loop.first %}checked{% endif %}>
+<span class="flex items-center justify-center rounded-lg px-space-sm py-2.5 font-label-md text-label-md text-center">{{ label }}</span>
+</label>
+{% endfor %}
+</div>
+</div>
+<!-- Variety & Growth Phase Selectors -->
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-space-md p-space-md bg-surface-container-low rounded-lg">
+<div class="flex flex-col gap-1.5">
+<label class="font-label-sm text-label-sm font-semibold text-on-surface flex items-center gap-1">
+<span class="material-symbols-outlined text-base text-primary">{{ icon("grass") }}</span>
+                Giống lúa đang canh tác
+              </label>
+<div class="relative">
+<select class="w-full bg-surface-container-lowest text-on-surface rounded-lg px-space-md py-2.5 font-body-md text-body-md shadow-xs appearance-none focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer pr-10 font-medium" name="cultivar" aria-label="Giống lúa đang canh tác">{% for value in cultivars %}<option>{{ value }}</option>{% endfor %}</select>
+<span class="material-symbols-outlined absolute right-3 top-2.5 pointer-events-none text-outline text-xl">{{ icon("expand_more") }}</span>
+</div>
+</div>
+<div class="flex flex-col gap-1.5">
+<label class="font-label-sm text-label-sm font-semibold text-on-surface flex items-center gap-1">
+<span class="material-symbols-outlined text-base text-primary">{{ icon("table_view") }}</span>
+                Giai đoạn sinh trưởng của ruộng
+              </label>
+<div class="relative">
+<select class="w-full bg-surface-container-lowest text-on-surface rounded-lg px-space-md py-2.5 font-body-md text-body-md shadow-xs appearance-none focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer pr-10 font-medium" name="stage" aria-label="Giai đoạn sinh trưởng">{% for value in stages %}<option>{{ value }}</option>{% endfor %}</select>
+<span class="material-symbols-outlined absolute right-3 top-2.5 pointer-events-none text-outline text-xl">{{ icon("expand_more") }}</span>
+</div>
+</div>
+</div>
+<!-- Post Title -->
+<div class="flex flex-col gap-1.5">
+<div class="flex items-center justify-between">
+<label class="font-label-md text-label-md font-semibold text-on-surface" for="post-title">
+                2. Tiêu đề bài chia sẻ
+              </label>
+<span class="font-label-sm text-label-sm text-outline" id="titleCount">0 / 120 ký tự</span>
+</div>
+<input class="w-full bg-surface-container-lowest text-on-surface rounded-lg px-space-md py-3 font-headline-sm text-headline-sm font-semibold shadow-xs focus:outline-none focus:ring-2 focus:ring-primary placeholder:text-outline-variant" id="post-title" maxlength="120" placeholder="Ví dụ: Mẹo ém nước rãnh +10cm khi cống đóng mặn rằm tháng 10..." type="text" name="title" required>
+</div>
+<!-- Sensor Measurement Attachment (Unique Telemetry Feature) -->
+
+<!-- Rich Text Content Area -->
+<div class="flex flex-col gap-1.5">
+<div class="flex items-center justify-between">
+<label class="font-label-md text-label-md font-semibold text-on-surface" for="post-content">
+                3. Chi tiết kinh nghiệm &amp; thao tác đồng ruộng
+              </label>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Văn bản và ảnh minh họa</span>
+</div>
+
+<!-- Formatting Toolbar -->
+<div class="bg-surface-container-high rounded-t-lg px-space-sm py-1.5 flex flex-wrap items-center gap-space-xs">
+  <button class="stitch-editor-button" type="button" data-prefix="• ">• Danh sách</button>
+  <button class="stitch-editor-button" type="button" data-prefix="1. ">1. Các bước</button>
+  <button class="stitch-editor-button" type="button" data-prefix="Số đo: ">Số đo</button>
+</div>
+<!-- Text Area -->
+<textarea class="w-full bg-surface-container-lowest text-on-surface rounded-b-lg p-space-md font-body-md text-body-md shadow-xs focus:outline-none focus:ring-2 focus:ring-primary leading-relaxed placeholder:text-outline-variant" id="post-content" name="body" rows="7" maxlength="5000" placeholder="Ghi địa điểm, thời gian, số đo và điều bà con quan sát được…" required></textarea>
+</div>
+<!-- Evidence Photo Upload Section -->
+<div class="flex flex-col gap-space-xs">
+<div class="font-label-md text-label-md font-semibold text-on-surface flex items-center justify-between">
+<span>4. Ảnh chụp thực tế đồng ruộng &amp; bút đo (Bằng chứng thực địa)</span>
+<span class="font-label-sm text-label-sm text-primary font-medium" id="photo-count">0 / 4 ảnh</span>
+</div>
+<div class="stitch-upload-grid">
+<div class="stitch-photos" id="photo-preview" hidden></div>
+<!-- Upload Dropzone Target -->
+<label for="post-photos" id="forum-dropzone" class="min-h-36 rounded-lg bg-surface-container-low hover:bg-surface-container flex flex-col items-center justify-center p-space-md text-center cursor-pointer transition-colors shadow-xs">
+<div class="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center text-primary mb-2">
+<span class="material-symbols-outlined text-2xl">{{ icon("upload_file") }}</span>
+</div>
+<p class="font-label-md text-label-md font-semibold text-on-surface">
+                  Chọn hoặc kéo thả ảnh ruộng, que đo
+                </p>
+<p class="font-body-sm text-body-sm text-outline mt-0.5">
+                  JPG, PNG hoặc WebP. Tối đa 4 ảnh, 5 MB mỗi ảnh.
+                </p>
+<input id="post-photos" class="stitch-file-input" aria-label="Chọn ảnh minh họa" type="file" accept="image/jpeg,image/png,image/webp" multiple>
+</label>
+</div>
+</div>
+<!-- Bottom Action Bar & Wallet Incentive Banner -->
+<div class="pt-space-md flex flex-col gap-space-md bg-surface-container-low p-space-md rounded-xl">
+<p id="compose-status" role="status" class="font-body-sm text-body-sm text-primary"></p>
+<div class="flex flex-col-reverse sm:flex-row items-center justify-between gap-space-sm pt-2">
+<button class="w-full sm:w-auto px-space-lg py-2.5 rounded-lg bg-surface-container-highest hover:bg-surface-container-high text-on-surface-variant font-label-md text-label-md font-semibold transition-colors" type="button" id="save-draft">
+                Lưu bản nháp bờ ruộng
+              </button>
+<div class="w-full sm:w-auto flex items-center gap-space-xs">
+<button class="w-full sm:w-auto inline-flex items-center justify-center gap-space-xs px-space-xl py-3 rounded-lg bg-primary hover:bg-[#0e2c24] text-on-primary font-label-md text-label-md font-bold shadow-md transition-colors active:scale-[0.99] cursor-pointer" type="submit" id="publish-post">
+<span>Đăng bài chia sẻ ngay</span>
+<span class="material-symbols-outlined text-lg">{{ icon("arrow_forward") }}</span>
+</button>
+</div>
+</div>
+</div>
+</form>
+</section>
+<!-- SIDEBAR COLUMN (Approx 32%) -->
+
+</div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,558 @@
+<!DOCTYPE html><html lang="vi"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><meta content="web_dashboard" name="shell-type"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"><link href="https://fonts.googleapis.com" rel="preconnect"><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={"darkMode":"class","theme":{"extend":{"colors":{"on-primary-fixed-variant":"#00522d","on-primary":"#ffffff","surface-dim":"#cfdaf1","inverse-on-surface":"#ebf1ff","error-container":"#ffdad6","surface-container":"#e7eeff","on-secondary":"#ffffff","inverse-surface":"#263142","surface-container-lowest":"#ffffff","surface-variant":"#d8e3fa","secondary-fixed":"#ffdbd1","surface-bright":"#f9f9ff","surface-container-low":"#f0f3ff","secondary-fixed-dim":"#ffb4a1","on-secondary-fixed":"#3c0800","primary-fixed":"#a8f3bf","on-tertiary-fixed":"#2e1500","on-primary-fixed":"#00210f","on-surface-variant":"#404941","surface":"#f9f9ff","secondary-container":"#ff6e48","tertiary-fixed-dim":"#ffb77a","on-secondary-container":"#651400","error":"#ba1a1a","on-background":"#111c2c","primary-container":"#1b663e","outline-variant":"#bfc9bf","surface-tint":"#216b43","on-tertiary":"#ffffff","inverse-primary":"#8dd6a5","on-secondary-fixed-variant":"#881f00","on-tertiary-container":"#ffc697","on-surface":"#111c2c","secondary":"#ac3311","on-tertiary-fixed-variant":"#6d3a00","background":"#f9f9ff","tertiary-container":"#884a00","surface-container-high":"#dee8ff","primary-fixed-dim":"#8dd6a5","tertiary":"#663600","on-error-container":"#93000a","outline":"#707a71","surface-container-highest":"#d8e3fa","primary":"#004d2a","tertiary-fixed":"#ffdcc2","on-error":"#ffffff","on-primary-container":"#97e1af"},"borderRadius":{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},"spacing":{"space-sm":"0.5rem","space-md":"1rem","space-xs":"0.25rem","gutter":"1rem","space-xl":"2.5rem","margin":"1rem","space-lg":"1.5rem","gutter-desktop":"1.5rem","margin-desktop":"2rem"},"fontFamily":{"body-sm":["Inter"],"label-md":["JetBrains Mono"],"metric-display-mobile":["JetBrains Mono"],"headline-lg-mobile":["Inter"],"headline-xl":["Inter"],"label-lg":["JetBrains Mono"],"headline-lg":["Inter"],"headline-md":["Inter"],"headline-sm":["Inter"],"metric-display":["JetBrains Mono"],"label-sm":["JetBrains Mono"],"body-lg":["Inter"],"headline-xl-mobile":["Inter"],"body-md":["Inter"]},"fontSize":{"body-sm":["12px",{"lineHeight":"18px","fontWeight":"400"}],"label-md":["12px",{"lineHeight":"16px","letterSpacing":"0em","fontWeight":"500"}],"metric-display-mobile":["22px",{"lineHeight":"28px","letterSpacing":"-0.02em","fontWeight":"700"}],"headline-lg-mobile":["24px",{"lineHeight":"32px","letterSpacing":"-0.01em","fontWeight":"600"}],"headline-xl":["40px",{"lineHeight":"48px","letterSpacing":"-0.02em","fontWeight":"700"}],"label-lg":["14px",{"lineHeight":"20px","letterSpacing":"-0.01em","fontWeight":"500"}],"headline-lg":["32px",{"lineHeight":"40px","letterSpacing":"-0.015em","fontWeight":"600"}],"headline-md":["22px",{"lineHeight":"28px","letterSpacing":"-0.01em","fontWeight":"600"}],"headline-sm":["18px",{"lineHeight":"24px","letterSpacing":"-0.005em","fontWeight":"600"}],"metric-display":["28px",{"lineHeight":"34px","letterSpacing":"-0.03em","fontWeight":"700"}],"label-sm":["10px",{"lineHeight":"14px","letterSpacing":"0.02em","fontWeight":"500"}],"body-lg":["16px",{"lineHeight":"24px","fontWeight":"400"}],"headline-xl-mobile":["30px",{"lineHeight":"38px","letterSpacing":"-0.015em","fontWeight":"700"}],"body-md":["14px",{"lineHeight":"20px","fontWeight":"400"}]}}}};</script></head><body class="bg-surface text-on-surface font-body-md text-body-md min-h-screen selection:bg-primary-fixed selection:text-on-primary-fixed"><header class="fixed top-0 left-0 right-0 h-16 z-50 bg-surface/90 backdrop-blur-md shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="w-full h-16 px-gutter-desktop flex items-center justify-between gap-space-md"><div class="flex items-center gap-space-lg"><a class="flex items-center gap-space-sm group" data-path="tong-quan-vung" href="#"><div class="w-9 h-9 rounded-xl bg-primary flex items-center justify-center text-on-primary text-xl shadow-[0_1px_3px_rgba(15,23,42,0.08)]">🌾</div><div class="flex flex-col"><span class="font-headline-sm text-headline-sm text-primary tracking-tight font-bold group-hover:text-primary-container transition-colors">MẠCH ĐỒNG</span><span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Nông Nghiệp ĐBSCL</span></div></a><div class="hidden xl:flex items-center gap-space-md pl-space-lg border-l border-outline-variant/30"><div class="flex items-center gap-space-xs text-on-surface-variant"><span class="material-symbols-outlined text-[18px] text-primary">location_on</span><span class="font-body-sm text-body-sm text-on-surface font-medium">Xã Long Hữu, Duyên Hải</span></div><span class="text-outline-variant">|</span><div class="flex items-center gap-space-xs"><span class="material-symbols-outlined text-[18px] text-secondary">water_drop</span><span class="font-body-sm text-body-sm text-on-surface">Cống Mương Lộ:</span><span class="font-label-sm text-label-sm px-space-xs py-0.5 rounded-lg bg-surface-container-high text-on-surface font-semibold">2.8 g/L</span><span class="font-label-sm text-label-sm px-space-xs py-0.5 rounded-lg bg-secondary-fixed text-on-secondary-fixed font-medium">Đóng</span></div></div></div><div class="flex items-center gap-space-md"><div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-sm font-medium shadow-sm transition-all" style="background-color: rgb(220, 252, 231); color: rgb(22, 101, 52); border: 1px solid rgba(22, 101, 52, 0.15);"><span class="text-base leading-none select-none">🌾</span><span class="font-bold font-metric-display tracking-tight text-[15px]">350 LÚA</span><span class="opacity-40">|</span><a href="#" title="Xem thể lệ tích điểm LÚA" class="hover:underline font-semibold text-[13px] transition-colors" style="color: #166534;">Thể lệ thưởng</a></div><a class="flex items-center gap-space-sm pl-space-xs pr-space-sm py-1 rounded-full hover:bg-surface-container-low transition-colors group" data-path="thong-tin-tai-khoan" href="#"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shadow-sm"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div><div class="hidden md:flex flex-col text-left"><span class="font-body-sm text-body-sm font-semibold text-on-surface leading-tight group-hover:text-primary transition-colors">Chú Năm Ruộng</span><span class="font-label-sm text-label-sm text-on-surface-variant">Hợp tác xã Long Hữu</span></div><span class="material-symbols-outlined text-on-surface-variant text-[18px] group-hover:text-on-surface transition-colors">expand_more</span></a></div></div></header><aside class="fixed left-0 top-16 bottom-0 w-64 bg-surface-container-lowest z-40 flex flex-col p-space-md shadow-[0_1px_8px_rgba(0,0,0,0.02)] overflow-y-auto"><div class="mb-space-md px-space-sm"><span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-semibold">Điều hành &amp; Dữ liệu</span></div><nav class="flex flex-col gap-space-xs" data-active-classes="bg-primary text-on-primary font-semibold shadow-[0_1px_3px_rgba(0,0,0,0.08)]"><a class="flex items-center gap-space-sm px-space-md py-2.5 rounded-xl text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="tong-quan-vung" href="#"><span class="material-symbols-outlined text-[20px]">map</span><span>Tổng quan vùng</span></a><a class="flex items-center gap-space-sm px-space-md py-2.5 rounded-xl text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="kho-csv" href="#"><span class="material-symbols-outlined text-[20px]">folder_open</span><span>Kho CSV độ mặn &amp; nước</span></a><a class="flex items-center gap-space-sm px-space-md py-2.5 rounded-xl text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="thao-luan-nhom" href="#"><span class="material-symbols-outlined text-[20px]">forum</span><span>Thảo luận bà con</span></a><a class="flex items-center gap-space-sm px-space-md py-2.5 rounded-xl text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="mo-phong-sinh-ly-lua" href="#"><span class="material-symbols-outlined text-[20px]">psychiatry</span><span>Mô phỏng Sinh lý Lúa</span></a><a class="flex items-center gap-space-sm px-space-md py-2.5 rounded-xl text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="nhat-ky-dong-ruong" href="#"><span class="material-symbols-outlined text-[20px]">edit_calendar</span><span>Nhật ký đồng ruộng</span></a></nav><div class="mt-space-lg mb-space-md px-space-sm border-t border-outline-variant/30 pt-space-md"><span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-semibold">Thiết lập</span></div><nav class="flex flex-col gap-space-xs" data-active-classes="bg-primary text-on-primary font-semibold shadow-[0_1px_3px_rgba(0,0,0,0.08)]"><a class="flex items-center gap-space-sm px-space-md py-2.5 rounded-xl bg-primary text-on-primary font-semibold shadow-[0_1px_3px_rgba(0,0,0,0.08)] transition-all" data-path="thong-tin-tai-khoan" href="#"><span class="material-symbols-outlined text-[20px]">account_circle</span><span>Hồ sơ &amp; Đổi mật khẩu</span></a><a class="flex items-center gap-space-sm px-space-md py-2.5 rounded-xl text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="the-le-thuong" href="#"><span class="material-symbols-outlined text-[20px]">military_tech</span><span>Thể lệ thưởng LÚA</span></a></nav><div class="mt-auto p-space-md rounded-xl bg-surface-container-low text-on-surface"><div class="flex items-center gap-space-xs text-primary font-semibold font-body-sm text-body-sm"><span class="material-symbols-outlined text-[18px]">spa</span><span>Khuyến cáo hôm nay</span></div><p class="mt-space-xs font-body-sm text-body-sm text-on-surface-variant leading-relaxed">Độ mặn triều cường rằm tháng 10 đang dâng tại cửa sông. Bà con hạn chế bơm nước vào lúc 14h - 18h.</p></div></aside><div class="pl-64"><main class="w-full pt-16 bg-surface min-h-[calc(100vh-4rem)] px-gutter-desktop py-space-lg"><div class="flex flex-col w-full">
+<div class="mb-space-lg flex flex-col md:flex-row md:items-end justify-between gap-space-md">
+<div>
+<div class="flex items-center gap-space-xs font-label-sm text-label-sm uppercase tracking-wider text-primary font-bold">
+<span class="material-symbols-outlined text-[16px]">verified_user</span>
+<span>Hồ sơ thành viên Hợp tác xã</span>
+</div>
+<h1 class="font-headline-lg text-headline-lg font-bold text-on-surface tracking-tight mt-0.5">
+        Quản lý Tài khoản &amp; Bảo mật
+      </h1>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1">
+        Cập nhật thông tin điền dã, đồng bộ dữ liệu thủy văn trạm cống và quản trị an toàn phiên làm việc.
+      </p>
+</div>
+<div class="flex items-center gap-space-sm self-start md:self-auto">
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary-fixed text-on-primary-fixed font-label-md text-label-md font-semibold">
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+        Chính thức HTX Long Hữu
+      </span>
+<span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm">
+        Mã nông hộ: <strong class="text-on-surface font-label-md text-label-md">ĐBSCL-LH-094</strong>
+</span>
+</div>
+</div>
+<div class="grid grid-cols-1 xl:grid-cols-12 gap-space-lg items-start">
+<div class="xl:col-span-5 flex flex-col gap-space-lg">
+<div class="bg-surface-container-lowest rounded-xl shadow-sm p-space-lg relative overflow-hidden">
+<div class="absolute -right-10 -top-10 w-44 h-44 rounded-full bg-primary-fixed/30 pointer-events-none blur-2xl"></div>
+<div class="absolute -left-8 bottom-0 w-36 h-36 rounded-full bg-surface-container-high/60 pointer-events-none blur-xl"></div>
+<div class="relative flex flex-col sm:flex-row items-center sm:items-start gap-space-md">
+<div class="relative shrink-0">
+<div class="w-24 h-24 rounded-full overflow-hidden shadow-md bg-surface-container-high">
+<img class="w-full h-full object-cover" data-alt="Portrait of a friendly Vietnamese elderly farmer named Uncle Nam smiling kindly, wearing a dark green traditional farming shirt and a sun-bleached hat, standing near lush green rice paddies in Tra Vinh under warm gentle afternoon light, cinematic, authentic photo." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB5weOq4Pgcy74-2RQ9lZJ1cdKLReJuBCC9Bma3mnqS3VTThj_QLGqtCwtPyFTytme2-YhU7lWwJJVM4uCxOUN5J_DNezdBI2GFXKNJMyXSnkf0WtNM5EiA2trcsk67H6ABbA3gpWLCXkUI9edl9OYJsoB2ZTqpJGLLyjQxG2eomUIIgfPSHHg318TwUqWurj5486HJeFaMFJW4tA_RVZjZ_piQt_0GLPBSqBP7h7A">
+</div>
+<div class="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-primary text-on-primary flex items-center justify-center shadow-sm" title="Đã xác thực nông hộ tiêu biểu">
+<span class="material-symbols-outlined text-[16px]">check_circle</span>
+</div>
+</div>
+<div class="flex flex-col text-center sm:text-left min-w-0 flex-1">
+<div class="flex flex-wrap items-center justify-center sm:justify-start gap-space-xs">
+<h2 class="font-headline-sm text-headline-sm font-bold text-on-surface">Chú Năm Ruộng</h2>
+<span class="font-label-sm text-label-sm text-on-surface-variant">(Trần Văn Năm)</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
+              Ấp 3, Xã Long Hữu, Huyện Duyên Hải, Tỉnh Trà Vinh
+            </p>
+<div class="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-surface-container-high w-fit mx-auto sm:mx-0">
+<span class="material-symbols-outlined text-[16px] text-primary">psychiatry</span>
+<span class="font-label-sm text-label-sm font-semibold text-primary">Nông hộ tiêu biểu HTX Nông nghiệp Long Hữu</span>
+</div>
+</div>
+</div>
+<div class="mt-space-md p-space-md rounded-xl bg-surface-container-low flex items-start gap-space-sm relative">
+<div class="w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center text-xl shrink-0 shadow-sm">
+            🪿
+          </div>
+<div class="flex-1">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm font-bold text-primary uppercase">Cò Mạ trợ lý đồng</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Vừa xong</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface mt-0.5 leading-relaxed">
+              “Chào chú Năm! Hồ sơ và số đo diện tích 4.2 ha của ruộng chú đã được HTX Long Hữu xác thực chính chủ. Dữ liệu trạm mặn đang đồng bộ rất êm!”
+            </p>
+</div>
+</div>
+<div class="mt-space-md grid grid-cols-2 gap-space-sm">
+<div class="p-space-sm rounded-xl bg-surface-container-low flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">Kinh nghiệm canh tác</span>
+<span class="font-metric-display text-metric-display font-bold text-on-surface mt-1">3 Vụ</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Lúa - Tôm bền vững</span>
+</div>
+<div class="p-space-sm rounded-xl bg-surface-container-low flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">Quy mô thâm canh</span>
+<span class="font-metric-display text-metric-display font-bold text-primary mt-1">4.2 <span class="font-headline-sm text-headline-sm">ha</span></span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">OM5451 &amp; Đài Thơm 8</span>
+</div>
+</div>
+<div class="mt-space-md pt-space-md flex flex-col gap-space-xs">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-bold">Huy hiệu đóng góp cộng đồng</span>
+<div class="grid grid-cols-2 gap-space-sm mt-1">
+<div class="flex items-center gap-space-xs p-2 rounded-lg bg-surface-container-high/70">
+<div class="w-8 h-8 rounded-lg bg-surface-container-highest flex items-center justify-center text-primary shrink-0">
+<span class="material-symbols-outlined text-[18px]">cloud_upload</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-md text-label-md font-bold text-on-surface">12 Tệp CSV</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant truncate">Đo mặn tại cống</span>
+</div>
+</div>
+<div class="flex items-center gap-space-xs p-2 rounded-lg bg-surface-container-high/70">
+<div class="w-8 h-8 rounded-lg bg-surface-container-highest flex items-center justify-center text-secondary shrink-0">
+<span class="material-symbols-outlined text-[18px]">chat</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-md text-label-md font-bold text-on-surface">28 Bài viết</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant truncate">Kinh nghiệm gieo sạ</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-lowest rounded-xl shadow-sm p-space-lg relative overflow-hidden">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="w-8 h-8 rounded-lg bg-primary-fixed flex items-center justify-center text-base">🌾</span>
+<div>
+<h3 class="font-headline-sm text-headline-sm font-bold text-on-surface">Ví Điểm Nông Nghiệp</h3>
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase">Quỹ hỗ trợ mùa màng</p>
+</div>
+</div>
+<span class="px-2.5 py-1 rounded-full bg-surface-container-high font-label-sm text-label-sm font-semibold text-primary">Tích cực</span>
+</div>
+<div class="mt-space-md p-space-md rounded-xl bg-gradient-to-br from-primary to-primary-container text-on-primary shadow-sm flex flex-col justify-between relative overflow-hidden min-h-[130px]">
+<div class="absolute -right-6 -bottom-6 text-[100px] opacity-10 select-none pointer-events-none">🌾</div>
+<div class="flex items-center justify-between z-10">
+<span class="font-label-sm text-label-sm tracking-widest uppercase text-on-primary/80">Số Dư Hiện Có</span>
+<span class="font-label-sm text-label-sm bg-on-primary/20 backdrop-blur-sm px-2 py-0.5 rounded text-on-primary">Niên vụ 2024-2025</span>
+</div>
+<div class="z-10 my-2">
+<div class="flex items-baseline gap-2">
+<span class="font-metric-display text-[36px] font-bold tracking-tight">350</span>
+<span class="font-headline-sm text-headline-sm font-bold text-primary-fixed">LÚA</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-primary/85">Tương đương 350.000 VNĐ quy đổi vật tư nông nghiệp tại HTX</p>
+</div>
+<div class="z-10 flex items-center justify-between pt-2 border-t border-on-primary/15 font-label-sm text-label-sm text-on-primary/75">
+<span>Chủ thẻ: TRẦN VĂN NĂM</span>
+<span>Hạn dùng: 31/12/2025</span>
+</div>
+</div>
+<div class="mt-space-md">
+<div class="flex items-center justify-between mb-space-xs">
+<span class="font-label-sm text-label-sm font-bold uppercase text-on-surface-variant">Biến động điểm gần đây</span>
+<span class="font-label-sm text-label-sm text-primary hover:underline cursor-pointer">Xem tất cả</span>
+</div>
+<div class="flex flex-col gap-2">
+<div class="p-2.5 rounded-lg bg-surface-container-low flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="w-7 h-7 rounded-full bg-primary-fixed text-primary flex items-center justify-center font-bold text-sm">↓</span>
+<div class="flex flex-col">
+<span class="font-body-sm text-body-sm font-semibold text-on-surface">Tải dữ liệu CSV trạm Mương Lộ</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">08:15 Hôm qua</span>
+</div>
+</div>
+<span class="font-label-md text-label-md font-bold text-primary">+50 LÚA</span>
+</div>
+<div class="p-2.5 rounded-lg bg-surface-container-low flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="w-7 h-7 rounded-full bg-primary-fixed text-primary flex items-center justify-center font-bold text-sm">↓</span>
+<div class="flex flex-col">
+<span class="font-body-sm text-body-sm font-semibold text-on-surface">Đóng góp mẹo kỹ thuật né mặn</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">14:40 - 24/10</span>
+</div>
+</div>
+<span class="font-label-md text-label-md font-bold text-primary">+20 LÚA</span>
+</div>
+<div class="p-2.5 rounded-lg bg-surface-container-low flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="w-7 h-7 rounded-full bg-secondary-fixed text-secondary flex items-center justify-center font-bold text-sm">↑</span>
+<div class="flex flex-col">
+<span class="font-body-sm text-body-sm font-semibold text-on-surface">Xuất báo cáo sinh lý bốc thoát hơi</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">09:12 - 21/10</span>
+</div>
+</div>
+<span class="font-label-md text-label-md font-bold text-secondary">-15 LÚA</span>
+</div>
+</div>
+</div>
+<button class="mt-space-md w-full py-2.5 px-space-md rounded-xl bg-surface-container-high hover:bg-surface-container-highest text-primary font-headline-sm text-body-md font-bold flex items-center justify-center gap-2 transition-all shadow-sm" type="button">
+<span class="material-symbols-outlined text-[20px]">local_mall</span>
+<span>Quy đổi phân bón / vật tư HTX</span>
+</button>
+</div>
+<div class="p-space-md rounded-xl bg-surface-container-low shadow-sm flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<div class="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[22px]">contact_support</span>
+</div>
+<div>
+<div class="font-body-sm text-body-sm font-semibold text-on-surface">Tổ hỗ trợ kỹ thuật số HTX Long Hữu</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">Hotline bà con: 1800 6879 (miễn cước)</div>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant text-[20px]">chevron_right</span>
+</div>
+</div>
+<div class="xl:col-span-7 flex flex-col gap-space-lg">
+<div class="bg-surface-container-lowest rounded-xl shadow-sm p-space-lg">
+<div class="flex items-center justify-between pb-space-sm">
+<div class="flex items-center gap-space-xs">
+<div class="w-9 h-9 rounded-xl bg-primary-fixed flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[22px]">edit_note</span>
+</div>
+<div>
+<h3 class="font-headline-sm text-headline-sm font-bold text-on-surface">Thông tin Nông hộ &amp; Vùng canh tác</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Thông số phục vụ dự báo độ mặn và điều tiết nước mương lộ</p>
+</div>
+</div>
+<span class="font-label-sm text-label-sm px-2.5 py-1 rounded bg-surface-container-high text-on-surface font-semibold">Vụ Đông Xuân 2024</span>
+</div>
+<form class="mt-space-md flex flex-col gap-space-md" id="farm-info-form">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-space-md">
+<div class="flex flex-col gap-1.5">
+<label class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-bold" for="farmer-fullname">
+                Họ và tên chủ hộ <span class="text-secondary">*</span>
+</label>
+<div class="relative">
+<input class="w-full h-11 px-3.5 rounded-lg bg-surface-container-low text-on-surface font-body-md text-body-md focus:bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary shadow-inner" id="farmer-fullname" type="text" value="Trần Văn Năm (Chú Năm Ruộng)">
+<span class="material-symbols-outlined absolute right-3 top-3 text-[18px] text-on-surface-variant">person</span>
+</div>
+</div>
+<div class="flex flex-col gap-1.5">
+<label class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-bold" for="farmer-phone">
+                Số điện thoại liên hệ <span class="text-secondary">*</span>
+</label>
+<div class="relative">
+<input class="w-full h-11 px-3.5 rounded-lg bg-surface-container-low text-on-surface font-body-md text-body-md focus:bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary shadow-inner" id="farmer-phone" type="tel" value="0918 245 889">
+<span class="material-symbols-outlined absolute right-3 top-3 text-[18px] text-on-surface-variant">call</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-1.5">
+<label class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-bold" for="farmer-address">
+              Địa chỉ cư trú &amp; ruộng mẫu
+            </label>
+<div class="relative">
+<input class="w-full h-11 px-3.5 rounded-lg bg-surface-container-low text-on-surface font-body-md text-body-md focus:bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary shadow-inner" id="farmer-address" type="text" value="Ấp 3, Xã Long Hữu, Huyện Duyên Hải, Tỉnh Trà Vinh">
+<span class="material-symbols-outlined absolute right-3 top-3 text-[18px] text-on-surface-variant">home_pin</span>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-space-md">
+<div class="flex flex-col gap-1.5">
+<label class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-bold" for="farmer-cultivar">
+                Giống lúa gieo trồng chủ lực
+              </label>
+<div class="relative">
+<select class="w-full h-11 px-3.5 rounded-lg bg-surface-container-low text-on-surface font-body-md text-body-md focus:bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary appearance-none cursor-pointer shadow-inner" id="farmer-cultivar">
+<option selected="" value="om5451">OM5451 (Chịu mặn 2 - 3‰)</option>
+<option value="daithom8">Đài Thơm 8 (Chất lượng cao)</option>
+<option value="st25">ST25 (Đặc sản né mặn)</option>
+<option value="om18">OM18 (Kháng phèn mặn nhẹ)</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-3 text-[18px] text-on-surface-variant pointer-events-none">expand_more</span>
+</div>
+</div>
+<div class="flex flex-col gap-1.5">
+<label class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-bold" for="farmer-area">
+                Diện tích ruộng mẫu (Hécta)
+              </label>
+<div class="relative">
+<input class="w-full h-11 px-3.5 rounded-lg bg-surface-container-low text-on-surface font-label-md text-label-md focus:bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary shadow-inner" id="farmer-area" step="0.1" type="number" value="4.2">
+<span class="absolute right-3 top-3 font-label-sm text-label-sm text-on-surface-variant font-bold">ha</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-1.5">
+<label class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-bold" for="hydrology-station">
+              Trạm đo thủy văn / Cống liên kết gần nhất
+            </label>
+<div class="relative">
+<select class="w-full h-11 px-3.5 rounded-lg bg-surface-container-low text-on-surface font-body-md text-body-md focus:bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary appearance-none cursor-pointer shadow-inner" id="hydrology-station">
+<option selected="" value="muong-lo">Cống Mương Lộ (Kênh Cầu Vồng - Cách 850m)</option>
+<option value="lang-the">Cống Láng Thé (Sông Tiền)</option>
+<option value="ben-gia">Trạm Bến Giá (Sông Cổ Chiên)</option>
+<option value="long-toan">Cống Long Toàn (Trục thoát triều)</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-3 text-[18px] text-on-surface-variant pointer-events-none">water_drop</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
+              Hệ thống sẽ tự động gửi chuông cảnh báo độ mặn khi trạm Cống Mương Lộ vượt ngưỡng 1.5 g/L.
+            </p>
+</div>
+<div class="pt-space-sm flex items-center justify-between flex-wrap gap-space-sm">
+<div class="font-body-sm text-body-sm text-primary font-semibold hidden flex items-center gap-1" id="save-info-msg">
+<span class="material-symbols-outlined text-[18px]">check</span>
+              Đã cập nhật thông tin vùng canh tác thành công!
+            </div>
+<button class="ml-auto px-space-lg py-2.5 rounded-lg bg-primary hover:bg-primary-container text-on-primary font-headline-sm text-body-md font-bold transition-all shadow-sm flex items-center gap-2" id="btn-save-farmer-info" type="button">
+<span class="material-symbols-outlined text-[18px]">save</span>
+<span>Lưu Thông Tin Canh Tác</span>
+</button>
+</div>
+</form>
+</div>
+<div class="bg-surface-container-lowest rounded-xl shadow-sm p-space-lg">
+<div class="flex items-center justify-between pb-space-sm">
+<div class="flex items-center gap-space-xs">
+<div class="w-9 h-9 rounded-xl bg-secondary-fixed flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[22px]">lock_reset</span>
+</div>
+<div>
+<h3 class="font-headline-sm text-headline-sm font-bold text-on-surface">Bảo Mật &amp; Đổi Mật Khẩu</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Bảo vệ tài khoản sổ sách đồng ruộng và dữ liệu đo đạc</p>
+</div>
+</div>
+<span class="inline-flex items-center gap-1 font-label-sm text-label-sm text-primary font-semibold">
+<span class="material-symbols-outlined text-[16px]">shield</span>
+            Bảo mật cấp độ 2
+          </span>
+</div>
+<form class="mt-space-md flex flex-col gap-space-md" id="password-change-form">
+<div class="flex flex-col gap-1.5">
+<label class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-bold" for="current-password">
+              Mật khẩu hiện tại <span class="text-secondary">*</span>
+</label>
+<div class="relative">
+<input class="w-full h-11 pl-3.5 pr-11 rounded-lg bg-surface-container-low text-on-surface font-body-md text-body-md focus:bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary shadow-inner" id="current-password" placeholder="Nhập mật khẩu chú đang dùng" type="password">
+<button class="btn-toggle-eye absolute right-3 top-2.5 text-on-surface-variant hover:text-on-surface" data-target="current-password" type="button">
+<span class="material-symbols-outlined text-[20px]">visibility</span>
+</button>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-space-md">
+<div class="flex flex-col gap-1.5">
+<label class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-bold" for="new-password">
+                Mật khẩu mới <span class="text-secondary">*</span>
+</label>
+<div class="relative">
+<input class="w-full h-11 pl-3.5 pr-11 rounded-lg bg-surface-container-low text-on-surface font-body-md text-body-md focus:bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary shadow-inner" id="new-password" placeholder="Ít nhất 8 ký tự" type="password">
+<button class="btn-toggle-eye absolute right-3 top-2.5 text-on-surface-variant hover:text-on-surface" data-target="new-password" type="button">
+<span class="material-symbols-outlined text-[20px]">visibility</span>
+</button>
+</div>
+<div class="mt-1 flex flex-col gap-1">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Độ an toàn:</span>
+<span class="font-label-sm text-label-sm font-bold text-on-surface-variant" id="pwd-strength-text">Chưa nhập</span>
+</div>
+<div class="w-full h-1.5 rounded-full bg-surface-container-high overflow-hidden flex gap-1">
+<div class="h-full w-1/3 rounded-full bg-outline-variant/40 transition-colors" id="pwd-bar-1"></div>
+<div class="h-full w-1/3 rounded-full bg-outline-variant/40 transition-colors" id="pwd-bar-2"></div>
+<div class="h-full w-1/3 rounded-full bg-outline-variant/40 transition-colors" id="pwd-bar-3"></div>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-1.5">
+<label class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-bold" for="confirm-password">
+                Xác nhận mật khẩu mới <span class="text-secondary">*</span>
+</label>
+<div class="relative">
+<input class="w-full h-11 pl-3.5 pr-11 rounded-lg bg-surface-container-low text-on-surface font-body-md text-body-md focus:bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary shadow-inner" id="confirm-password" placeholder="Nhập lại mật khẩu mới" type="password">
+<button class="btn-toggle-eye absolute right-3 top-2.5 text-on-surface-variant hover:text-on-surface" data-target="confirm-password" type="button">
+<span class="material-symbols-outlined text-[20px]">visibility</span>
+</button>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant mt-1" id="confirm-hint">Phải trùng khớp hoàn toàn với mật khẩu mới</span>
+</div>
+</div>
+<div class="p-space-sm rounded-xl bg-surface-container-low flex flex-col gap-space-xs">
+<span class="font-label-sm text-label-sm font-bold uppercase text-on-surface-variant">Xác thực đăng nhập an toàn</span>
+<label class="flex items-center gap-space-sm cursor-pointer select-none">
+<input checked="" class="w-4 h-4 rounded text-primary focus:ring-primary border-outline-variant cursor-pointer accent-primary" type="checkbox">
+<div class="flex flex-col">
+<span class="font-body-sm text-body-sm font-semibold text-on-surface">Nhận mã xác thực OTP qua Zalo / SMS khi có máy lạ</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Gửi mã 6 số về điện thoại 0918 245 889 giúp bảo vệ điểm LÚA và nhật ký canh tác</span>
+</div>
+</label>
+</div>
+<div class="pt-space-xs flex items-center justify-between flex-wrap gap-space-sm">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Lần đổi mật khẩu gần nhất: 12/08/2024</span>
+<button class="px-space-xl py-3 rounded-xl bg-primary hover:bg-primary-container text-on-primary font-headline-sm text-body-md font-bold transition-all shadow-md flex items-center gap-2" id="btn-submit-password" type="button">
+<span class="material-symbols-outlined text-[20px]">key</span>
+<span>Cập Nhật Mật Khẩu Mới</span>
+</button>
+</div>
+</form>
+<div class="mt-space-lg pt-space-md border-t border-outline-variant/30">
+<div class="flex items-center justify-between mb-space-sm">
+<span class="font-label-sm text-label-sm font-bold uppercase tracking-wider text-on-surface-variant">Phiên đăng nhập thiết bị gần đây</span>
+<button class="font-label-sm text-label-sm text-secondary hover:underline font-semibold" type="button">Đăng xuất tất cả thiết bị khác</button>
+</div>
+<div class="flex flex-col gap-space-xs">
+<div class="p-3 rounded-lg bg-surface-container-low flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-primary-fixed text-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]">desktop_windows</span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-2">
+<span class="font-body-sm text-body-sm font-semibold text-on-surface">Máy tính bàn Văn phòng HTX Long Hữu</span>
+<span class="font-label-sm text-label-sm px-1.5 py-0.5 rounded bg-primary-fixed text-on-primary-fixed font-bold">Hiện tại</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Google Chrome • IP: 113.185.42.10 • Đang hoạt động</span>
+</div>
+</div>
+<span class="w-2.5 h-2.5 rounded-full bg-primary" title="Đang trực tuyến"></span>
+</div>
+<div class="p-3 rounded-lg bg-surface-container-low flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-surface-container-high text-on-surface-variant flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]">smartphone</span>
+</div>
+<div class="flex flex-col">
+<span class="font-body-sm text-body-sm font-semibold text-on-surface">Điện thoại Vsmart Joy 4 (Ruộng lúa ấp 3)</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Ứng dụng di động Mạch Đồng • Hoạt động 3 giờ trước</span>
+</div>
+</div>
+<button class="text-on-surface-variant hover:text-secondary text-sm font-label-sm" title="Đăng xuất thiết bị này" type="button">
+<span class="material-symbols-outlined text-[18px]">logout</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="fixed bottom-6 right-6 z-50 transform translate-y-24 opacity-0 transition-all duration-300 pointer-events-none flex items-center gap-space-sm px-space-md py-3 rounded-xl bg-inverse-surface text-inverse-on-surface shadow-xl" id="toast-notify">
+<span class="material-symbols-outlined text-primary-fixed text-[22px]">check_circle</span>
+<span class="font-body-md text-body-md font-medium" id="toast-message">Cập nhật thành công!</span>
+</div>
+<script>
+    (function initAccountManagement() {
+      // Toggle password visibility
+      document.querySelectorAll('.btn-toggle-eye').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const targetId = btn.getAttribute('data-target');
+          const input = document.getElementById(targetId);
+          if (!input) return;
+          const isPass = input.type === 'password';
+          input.type = isPass ? 'text' : 'password';
+          const icon = btn.querySelector('.material-symbols-outlined');
+          if (icon) {
+            icon.textContent = isPass ? 'visibility_off' : 'visibility';
+          }
+        });
+      });
+
+      // Simple password strength evaluator
+      const newPwdInput = document.getElementById('new-password');
+      const b1 = document.getElementById('pwd-bar-1');
+      const b2 = document.getElementById('pwd-bar-2');
+      const b3 = document.getElementById('pwd-bar-3');
+      const textStrength = document.getElementById('pwd-strength-text');
+
+      if (newPwdInput) {
+        newPwdInput.addEventListener('input', () => {
+          const val = newPwdInput.value;
+          const len = val.length;
+
+          // Reset styles
+          b1.className = 'h-full w-1/3 rounded-full bg-outline-variant/40 transition-colors';
+          b2.className = 'h-full w-1/3 rounded-full bg-outline-variant/40 transition-colors';
+          b3.className = 'h-full w-1/3 rounded-full bg-outline-variant/40 transition-colors';
+
+          if (len === 0) {
+            textStrength.textContent = 'Chưa nhập';
+            textStrength.className = 'font-label-sm text-label-sm font-bold text-on-surface-variant';
+          } else if (len < 6) {
+            b1.className = 'h-full w-1/3 rounded-full bg-secondary transition-colors';
+            textStrength.textContent = 'Yếu (Nên thêm ký tự)';
+            textStrength.className = 'font-label-sm text-label-sm font-bold text-secondary';
+          } else if (len < 10) {
+            b1.className = 'h-full w-1/3 rounded-full bg-tertiary transition-colors';
+            b2.className = 'h-full w-1/3 rounded-full bg-tertiary transition-colors';
+            textStrength.textContent = 'Vừa phải';
+            textStrength.className = 'font-label-sm text-label-sm font-bold text-tertiary';
+          } else {
+            b1.className = 'h-full w-1/3 rounded-full bg-primary transition-colors';
+            b2.className = 'h-full w-1/3 rounded-full bg-primary transition-colors';
+            b3.className = 'h-full w-1/3 rounded-full bg-primary transition-colors';
+            textStrength.textContent = 'Rất mạnh & an toàn';
+            textStrength.className = 'font-label-sm text-label-sm font-bold text-primary';
+          }
+        });
+      }
+
+      // Toast notification helper
+      function showToast(msg) {
+        const toast = document.getElementById('toast-notify');
+        const toastMsg = document.getElementById('toast-message');
+        if (!toast || !toastMsg) return;
+        toastMsg.textContent = msg;
+        toast.classList.remove('translate-y-24', 'opacity-0');
+        toast.classList.add('translate-y-0', 'opacity-100');
+        setTimeout(() => {
+          toast.classList.remove('translate-y-0', 'opacity-100');
+          toast.classList.add('translate-y-24', 'opacity-0');
+        }, 3200);
+      }
+
+      // Save Farmer Info
+      const btnSaveInfo = document.getElementById('btn-save-farmer-info');
+      const saveInfoMsg = document.getElementById('save-info-msg');
+      if (btnSaveInfo) {
+        btnSaveInfo.addEventListener('click', () => {
+          btnSaveInfo.disabled = true;
+          const origText = btnSaveInfo.innerHTML;
+          btnSaveInfo.innerHTML = '<span class="material-symbols-outlined text-[18px] animate-spin">refresh</span> Đang lưu...';
+
+          setTimeout(() => {
+            btnSaveInfo.disabled = false;
+            btnSaveInfo.innerHTML = origText;
+            if (saveInfoMsg) {
+              saveInfoMsg.classList.remove('hidden');
+              setTimeout(() => saveInfoMsg.classList.add('hidden'), 4000);
+            }
+            showToast('Đã lưu thông tin nông hộ & trạm đo cống Mương Lộ!');
+          }, 600);
+        });
+      }
+
+      // Submit Password Change
+      const btnSubmitPwd = document.getElementById('btn-submit-password');
+      if (btnSubmitPwd) {
+        btnSubmitPwd.addEventListener('click', () => {
+          const currentPass = document.getElementById('current-password')?.value;
+          const newPass = document.getElementById('new-password')?.value;
+          const confirmPass = document.getElementById('confirm-password')?.value;
+
+          if (!currentPass) {
+            alert('Chú vui lòng nhập Mật khẩu hiện tại trước nha!');
+            document.getElementById('current-password')?.focus();
+            return;
+          }
+
+          if (!newPass || newPass.length < 6) {
+            alert('Mật khẩu mới cần dài từ 6 ký tự trở lên để tránh bị dò mật khẩu!');
+            document.getElementById('new-password')?.focus();
+            return;
+          }
+
+          if (newPass !== confirmPass) {
+            alert('Mật khẩu xác nhận chưa khớp với mật khẩu mới. Chú kiểm tra lại nhé!');
+            document.getElementById('confirm-password')?.focus();
+            return;
+          }
+
+          btnSubmitPwd.disabled = true;
+          const origText = btnSubmitPwd.innerHTML;
+          btnSubmitPwd.innerHTML = '<span class="material-symbols-outlined text-[18px] animate-spin">sync</span> Đang mã hóa...';
+
+          setTimeout(() => {
+            btnSubmitPwd.disabled = false;
+            btnSubmitPwd.innerHTML = origText;
+            document.getElementById('current-password').value = '';
+            document.getElementById('new-password').value = '';
+            document.getElementById('confirm-password').value = '';
+            b1.className = 'h-full w-1/3 rounded-full bg-outline-variant/40 transition-colors';
+            b2.className = 'h-full w-1/3 rounded-full bg-outline-variant/40 transition-colors';
+            b3.className = 'h-full w-1/3 rounded-full bg-outline-variant/40 transition-colors';
+            textStrength.textContent = 'Chưa nhập';
+            showToast('Mật khẩu của chú Năm đã được đổi mới an toàn!');
+          }, 800);
+        });
+      }
+    })();
+  </script>
+</div></main></div>
+
+
+
+
+
+
+
+</body></html>

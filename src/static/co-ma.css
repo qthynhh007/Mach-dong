@@ -1,0 +1,5 @@
+.co-ma-sprite {
+  display: block;
+  aspect-ratio: 3 / 4;
+  background: url("./assets/co-ma/emotions.png") no-repeat 0 0 / 400% 200%;
+}

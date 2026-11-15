@@ -1,0 +1,237 @@
+{
+  "darkMode": "class",
+  "theme": {
+    "extend": {
+      "colors": {
+        "surface-tint": "#216b43",
+        "inverse-surface": "#263142",
+        "secondary-fixed": "#ffdbd1",
+        "on-surface-variant": "#404941",
+        "surface": "#f9f9ff",
+        "on-tertiary-container": "#ffc697",
+        "on-surface": "#111c2c",
+        "primary-container": "#1b663e",
+        "secondary-container": "#ff6e48",
+        "on-secondary-fixed": "#3c0800",
+        "on-primary-fixed-variant": "#00522d",
+        "surface-container": "#e7eeff",
+        "primary-fixed": "#a8f3bf",
+        "surface-dim": "#cfdaf1",
+        "on-tertiary-fixed": "#2e1500",
+        "on-primary-container": "#97e1af",
+        "error-container": "#ffdad6",
+        "secondary-fixed-dim": "#ffb4a1",
+        "on-tertiary-fixed-variant": "#6d3a00",
+        "on-error-container": "#93000a",
+        "on-error": "#ffffff",
+        "tertiary": "#663600",
+        "tertiary-container": "#884a00",
+        "surface-container-low": "#f0f3ff",
+        "background": "#f9f9ff",
+        "on-primary-fixed": "#00210f",
+        "on-secondary": "#ffffff",
+        "tertiary-fixed-dim": "#ffb77a",
+        "on-primary": "#ffffff",
+        "outline": "#707a71",
+        "inverse-primary": "#8dd6a5",
+        "on-background": "#111c2c",
+        "error": "#ba1a1a",
+        "tertiary-fixed": "#ffdcc2",
+        "surface-container-lowest": "#ffffff",
+        "surface-variant": "#d8e3fa",
+        "secondary": "#ac3311",
+        "inverse-on-surface": "#ebf1ff",
+        "on-tertiary": "#ffffff",
+        "surface-bright": "#f9f9ff",
+        "outline-variant": "#bfc9bf",
+        "surface-container-high": "#dee8ff",
+        "primary-fixed-dim": "#8dd6a5",
+        "on-secondary-fixed-variant": "#881f00",
+        "on-secondary-container": "#651400",
+        "primary": "#004d2a",
+        "surface-container-highest": "#d8e3fa"
+      },
+      "borderRadius": {
+        "DEFAULT": "0.125rem",
+        "lg": "0.25rem",
+        "xl": "0.5rem",
+        "full": "0.75rem"
+      },
+      "spacing": {
+        "space-sm": "0.5rem",
+        "margin": "1rem",
+        "space-md": "1rem",
+        "space-xl": "2.5rem",
+        "space-xs": "0.25rem",
+        "gutter-desktop": "1.5rem",
+        "gutter": "1rem",
+        "space-lg": "1.5rem",
+        "margin-desktop": "2rem"
+      },
+      "fontFamily": {
+        "headline-lg": [
+          "Be Vietnam Pro",
+          "sans-serif"
+        ],
+        "label-sm": [
+          "JetBrains Mono"
+        ],
+        "body-lg": [
+          "Be Vietnam Pro",
+          "sans-serif"
+        ],
+        "metric-display-mobile": [
+          "JetBrains Mono"
+        ],
+        "label-md": [
+          "JetBrains Mono"
+        ],
+        "headline-sm": [
+          "Be Vietnam Pro",
+          "sans-serif"
+        ],
+        "headline-xl-mobile": [
+          "Be Vietnam Pro",
+          "sans-serif"
+        ],
+        "headline-xl": [
+          "Be Vietnam Pro",
+          "sans-serif"
+        ],
+        "label-lg": [
+          "JetBrains Mono"
+        ],
+        "headline-md": [
+          "Be Vietnam Pro",
+          "sans-serif"
+        ],
+        "body-sm": [
+          "Be Vietnam Pro",
+          "sans-serif"
+        ],
+        "metric-display": [
+          "JetBrains Mono"
+        ],
+        "headline-lg-mobile": [
+          "Be Vietnam Pro",
+          "sans-serif"
+        ],
+        "body-md": [
+          "Be Vietnam Pro",
+          "sans-serif"
+        ]
+      },
+      "fontSize": {
+        "headline-lg": [
+          "32px",
+          {
+            "lineHeight": "40px",
+            "letterSpacing": "-0.015em",
+            "fontWeight": "600"
+          }
+        ],
+        "label-sm": [
+          "10px",
+          {
+            "lineHeight": "14px",
+            "letterSpacing": "0.02em",
+            "fontWeight": "500"
+          }
+        ],
+        "body-lg": [
+          "16px",
+          {
+            "lineHeight": "24px",
+            "fontWeight": "400"
+          }
+        ],
+        "metric-display-mobile": [
+          "22px",
+          {
+            "lineHeight": "28px",
+            "letterSpacing": "-0.02em",
+            "fontWeight": "700"
+          }
+        ],
+        "label-md": [
+          "12px",
+          {
+            "lineHeight": "16px",
+            "letterSpacing": "0em",
+            "fontWeight": "500"
+          }
+        ],
+        "headline-sm": [
+          "18px",
+          {
+            "lineHeight": "24px",
+            "letterSpacing": "-0.005em",
+            "fontWeight": "600"
+          }
+        ],
+        "headline-xl-mobile": [
+          "30px",
+          {
+            "lineHeight": "38px",
+            "letterSpacing": "-0.015em",
+            "fontWeight": "700"
+          }
+        ],
+        "headline-xl": [
+          "40px",
+          {
+            "lineHeight": "48px",
+            "letterSpacing": "-0.02em",
+            "fontWeight": "700"
+          }
+        ],
+        "label-lg": [
+          "14px",
+          {
+            "lineHeight": "20px",
+            "letterSpacing": "-0.01em",
+            "fontWeight": "500"
+          }
+        ],
+        "headline-md": [
+          "22px",
+          {
+            "lineHeight": "28px",
+            "letterSpacing": "-0.01em",
+            "fontWeight": "600"
+          }
+        ],
+        "body-sm": [
+          "12px",
+          {
+            "lineHeight": "18px",
+            "fontWeight": "400"
+          }
+        ],
+        "metric-display": [
+          "28px",
+          {
+            "lineHeight": "34px",
+            "letterSpacing": "-0.03em",
+            "fontWeight": "700"
+          }
+        ],
+        "headline-lg-mobile": [
+          "24px",
+          {
+            "lineHeight": "32px",
+            "letterSpacing": "-0.01em",
+            "fontWeight": "600"
+          }
+        ],
+        "body-md": [
+          "14px",
+          {
+            "lineHeight": "20px",
+            "fontWeight": "400"
+          }
+        ]
+      }
+    }
+  }
+}

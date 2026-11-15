@@ -1,0 +1,4 @@
+{% macro co_ma(label="") -%}
+<span class="co-ma-sprite"
+      {% if label %}role="img" aria-label="{{ label }}"{% else %}aria-hidden="true"{% endif %}></span>
+{%- endmacro %}

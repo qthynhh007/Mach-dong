@@ -1,0 +1,105 @@
+{% extends "forum/base.html" %}
+{% from "shared/icon.html" import icon %}
+{% block title %}Thảo luận bà con{% endblock %}
+{% block styles %}<link rel="stylesheet" href="/static/forum-feed.css">{% endblock %}
+{% block content %}
+<div class="px-space-md py-space-md lg:px-space-lg max-w-[1440px] mx-auto w-full">
+<!-- Top Action & Navigation Banner -->
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-space-md pb-space-lg">
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-space-xs">
+<span class="px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm uppercase tracking-wider">Cộng Đồng Tri Thức Đồng Bằng</span>
+<span class="font-label-sm text-label-sm text-outline">Bản demo</span>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">Thảo Luận Bà Con</h1>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-2xl">Chia sẻ kinh nghiệm trữ ngọt, né mặn và theo dõi lúa ngoài ruộng.</p>
+</div>
+<div class="flex items-center gap-space-sm self-start md:self-auto shrink-0">
+<a class="flex items-center gap-2 px-space-md py-2.5 rounded-xl bg-primary text-on-primary font-headline-sm text-body-md font-semibold hover:bg-primary-container shadow-sm active:scale-[0.99] transition-colors cursor-pointer" href="{{ url_for('forum.compose') }}">
+<span class="material-symbols-outlined text-lg">{{ icon("description") }}</span>
+<span>+ Viết bài chia sẻ</span>
+</a>
+</div>
+</div>
+<!-- Search & Filter Ribbon -->
+<div class="bg-surface-container-lowest p-space-sm rounded-xl shadow-sm mb-space-lg flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-space-sm">
+<div class="relative flex-1 min-w-0">
+<span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-outline text-lg">{{ icon("search") }}</span>
+<input class="w-full pl-10 pr-4 py-2 bg-surface-container-low rounded-lg font-body-sm text-body-sm text-on-surface placeholder:text-outline focus:outline-none focus:bg-surface-container-lowest focus:ring-1 focus:ring-primary transition-colors" placeholder="Tìm kinh nghiệm, giống lúa…" id="forum-search" type="search" aria-label="Tìm bài chia sẻ">
+</div>
+
+<div class="flex items-center gap-1.5 overflow-x-auto pb-1 lg:pb-0">
+  <button type="button" class="stitch-filter px-3 py-1.5 rounded-lg font-label-md text-label-md whitespace-nowrap" data-filter="" aria-pressed="true">Tất cả</button>
+  {% for id, label in topics.items() %}
+  <button type="button" class="stitch-filter px-3 py-1.5 rounded-lg font-label-md text-label-md whitespace-nowrap" data-filter="{{ id }}" aria-pressed="false">{{ label }}</button>
+  {% endfor %}
+</div>
+</div>
+<div class="stitch-feed-layout"><section class="min-w-0" aria-label="Bài chia sẻ"><div id="forum-feed" class="flex flex-col gap-space-md"></div><p id="forum-empty" class="bg-surface-container-lowest p-space-md rounded-xl" hidden>Chưa có bài phù hợp.</p></section><aside class="forum-stack" aria-label="Thông tin diễn đàn">
+    <section class="forum-card">
+      <span class="forum-label forum-label-orange">Cò Mạ mách nước</span>
+      <div class="forum-mascot">
+        <img src="/static/assets/stitch-simulation/co-ma-logo.png" width="56" height="56" alt="">
+        <p>Ghi rõ giờ đo, đơn vị và điểm đo ở ruộng hay ở kênh để bà con dễ đối chiếu nghen.</p>
+      </div>
+    </section>
+    <section class="forum-card">
+      <h2>Kinh nghiệm nổi bật</h2>
+      <ol class="forum-featured">
+        {% for post in posts %}
+        <li><a href="{{ url_for('forum.detail', post_id=post.id) }}">{{ post.title }}</a></li>
+        {% endfor %}
+      </ol>
+    </section>
+    <section class="forum-card">
+      <h2>Quy chuẩn thảo luận</h2>
+      <ul class="forum-rules">
+        <li>Ghi nguồn của số liệu và phân biệt quan sát với giả định.</li>
+        <li>Chỉ đính kèm ảnh được phép chia sẻ.</li>
+        <li>Đăng bảng số đo tại <a href="{{ url_for('community.community') }}">Kho CSV cộng đồng</a>.</li>
+      </ul>
+    </section>
+  </aside></div></div>
+<template id="forum-card-template">
+<article class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm hover:shadow-md transition-colors flex items-start gap-space-md">
+<!-- Upvote Counter Strip -->
+
+<button type="button" class="forum-vote flex flex-col items-center p-1.5 bg-surface-container-low rounded-lg shrink-0" aria-label="Đánh dấu bài hữu ích" aria-pressed="false">
+  <span class="material-symbols-outlined text-lg">{{ icon("expand_less") }}</span>
+  <strong class="font-data-mono-md text-data-mono-md font-bold text-primary my-0.5" data-score></strong>
+</button>
+<!-- Post Content Area -->
+<div class="flex-1 min-w-0 flex flex-col gap-2">
+<!-- Author Meta Row -->
+<div class="flex flex-wrap items-center justify-between gap-y-1 gap-x-2">
+<div class="flex items-center gap-2">
+<img class="w-7 h-7 rounded-full object-cover" src="/static/assets/stitch-profile-portrait.jpg" width="28" height="28" alt="">
+<div class="flex flex-wrap items-center gap-1.5">
+<span class="font-body-md text-body-md font-semibold text-on-surface" data-author></span>
+<span class="font-label-sm text-[11px] text-on-surface-variant" data-location></span>
+<span class="px-1.5 py-0.2 rounded bg-surface-container text-on-surface-variant font-label-sm text-[10px] font-semibold">Demo</span>
+</div>
+</div>
+
+</div>
+<!-- Title & Topic Tags -->
+<div>
+<div class="flex flex-wrap gap-1.5 mb-1">
+<span class="px-2 py-0.5 rounded bg-primary-fixed text-on-primary-fixed font-label-sm text-label-sm font-semibold" data-cultivar></span>
+<span class="px-2 py-0.5 rounded bg-surface-container text-on-surface-variant font-label-sm text-label-sm" data-topic></span>
+
+</div>
+<h2 class="font-headline-sm text-headline-sm text-on-surface font-semibold hover:text-primary transition-colors cursor-pointer"><a data-post-link></a></h2>
+</div>
+<!-- Excerpt Body -->
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed" data-body></p>
+<div class="stitch-photos" data-photos hidden></div>
+
+<div class="flex flex-wrap items-center justify-between pt-2 text-on-surface-variant font-label-md text-label-md">
+<a class="flex items-center gap-1.5 hover:text-primary" data-discussion-link>{{ icon("chat") }} Trao đổi</a>
+</div>
+</div>
+</article>
+</template>
+<script id="forum-data" type="application/json">{{ {"topics": topics, "posts": posts}|tojson }}</script>
+{% endblock %}

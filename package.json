@@ -1,0 +1,12 @@
+{
+  "name": "agridata-styles",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build:css": "node scripts/build-css.mjs"
+  },
+  "devDependencies": {
+    "postcss": "^8.4.49",
+    "tailwindcss": "3.4.19"
+  }
+}

@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="vi">
+<head>{% include "shared/navigation-head.html" %}
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mạch Đồng</title>
+  <link rel="icon" href="/static/assets/stitch-simulation/co-ma-logo.png">
+  <link rel="stylesheet" href="/static/assets/stitch-simulation/fonts.css">
+  <link rel="stylesheet" href="/static/shell.css">
+</head>
+<body>
+{% include "shared/header.html" %}
+{% include "shared/sidebar.html" %}
+<main id="main-content" tabindex="-1" class="app-status">
+  <h1>{{ self.title() }}</h1>
+  <p>{% block description %}{% endblock %}</p>
+  <a href="/simulation">Mở mô phỏng</a> · <a href="/community">Mở kho CSV</a>
+</main>
+</body>
+</html>
