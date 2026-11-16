@@ -9,7 +9,7 @@
 <div class="flex flex-col gap-1">
 <div class="flex items-center gap-space-xs">
 <span class="px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm uppercase tracking-wider">Cộng Đồng Tri Thức Đồng Bằng</span>
-<span class="font-label-sm text-label-sm text-outline">Bản demo</span>
+<span class="font-label-sm text-label-sm text-outline">Hỏi đáp &amp; chia sẻ</span>
 </div>
 <h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">Thảo Luận Bà Con</h1>
 <p class="font-body-md text-body-md text-on-surface-variant max-w-2xl">Chia sẻ kinh nghiệm trữ ngọt, né mặn và theo dõi lúa ngoài ruộng.</p>
@@ -35,7 +35,14 @@
   {% endfor %}
 </div>
 </div>
-<div class="stitch-feed-layout"><section class="min-w-0" aria-label="Bài chia sẻ"><div id="forum-feed" class="flex flex-col gap-space-md"></div><p id="forum-empty" class="bg-surface-container-lowest p-space-md rounded-xl" hidden>Chưa có bài phù hợp.</p></section><aside class="forum-stack" aria-label="Thông tin diễn đàn">
+<div class="community-controls">
+  <label>Sắp xếp <select id="forum-sort"><option value="newest">Mới nhất</option><option value="helpful">Hữu ích nhất</option><option value="oldest">Cũ nhất</option></select></label>
+  <label>Trạng thái <select id="forum-state"><option value="">Tất cả bài</option><option value="unanswered">Chưa có trả lời</option><option value="solved">Đã giải đáp</option></select></label>
+  <label><input id="forum-mine" type="checkbox"> Bài của tôi</label>
+  <button id="forum-refresh" class="community-button" type="button">Tải lại</button>
+  <span id="forum-total" aria-live="polite"></span>
+</div>
+<div class="stitch-feed-layout"><section class="min-w-0" aria-label="Bài chia sẻ"><div id="forum-feed" class="flex flex-col gap-space-md"></div><p id="forum-empty" class="bg-surface-container-lowest p-space-md rounded-xl" hidden>Chưa có bài phù hợp.</p><nav class="community-pagination" aria-label="Phân trang"><button id="forum-previous" type="button" class="community-button">Trang trước</button><span id="forum-page"></span><button id="forum-next" type="button" class="community-button">Trang sau</button></nav></section><aside class="forum-stack" aria-label="Thông tin diễn đàn">
     <section class="forum-card">
       <span class="forum-label forum-label-orange">Cò Mạ mách nước</span>
       <div class="forum-mascot">
@@ -47,7 +54,7 @@
       <h2>Kinh nghiệm nổi bật</h2>
       <ol class="forum-featured">
         {% for post in posts %}
-        <li><a href="{{ url_for('forum.detail', post_id=post.id) }}">{{ post.title }}</a></li>
+        <li><a href="{{ url_for('forum.detail', postId=post.id) }}">{{ post.title }}</a></li>
         {% endfor %}
       </ol>
     </section>
@@ -77,7 +84,7 @@
 <div class="flex flex-wrap items-center gap-1.5">
 <span class="font-body-md text-body-md font-semibold text-on-surface" data-author></span>
 <span class="font-label-sm text-[11px] text-on-surface-variant" data-location></span>
-<span class="px-1.5 py-0.2 rounded bg-surface-container text-on-surface-variant font-label-sm text-[10px] font-semibold">Demo</span>
+<span class="community-meta" data-meta></span>
 </div>
 </div>
 
@@ -101,5 +108,4 @@
 </div>
 </article>
 </template>
-<script id="forum-data" type="application/json">{{ {"topics": topics, "posts": posts}|tojson }}</script>
 {% endblock %}

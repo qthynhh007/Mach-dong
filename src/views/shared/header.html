@@ -30,8 +30,13 @@
     <a class="app-account-trigger" href="{{ url_for('auth.profile') }}" aria-label="Chỉnh sửa hồ sơ và mật khẩu" {% if current_page == "profile" %}aria-current="page"{% endif %}>
         <img class="app-avatar" src="/static/assets/stitch-profile-portrait.jpg" width="32" height="32" alt="">
         <span class="app-account-name">
+          {% if forumData is defined and forumData.member %}
+          <strong>{{ forumData.member.displayName }}</strong>
+          <small>{{ 'Phiên khách' if forumData.member.isGuest else forumData.member.location }}</small>
+          {% else %}
           <strong data-profile-value="farmer-fullname">{{ demo_name }}</strong>
           <small>{{ demo_cooperative }}</small>
+          {% endif %}
         </span>
         <svg class="app-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
           <path d="m6 4 4 4-4 4" stroke-linecap="round" stroke-linejoin="round"/>

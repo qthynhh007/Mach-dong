@@ -1,0 +1,8 @@
+{% extends "forum/base.html" %}
+{% block title %}Không thể mở bài viết{% endblock %}
+{% block content %}
+<section class="forum-card community-error">
+  <h1>{{ message }}</h1>
+  <a href="{{ url_for('forum.index') }}">Quay lại Thảo luận bà con</a>
+</section>
+{% endblock %}

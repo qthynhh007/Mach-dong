@@ -1,4 +1,6 @@
 from io import BytesIO
+from pathlib import Path
+from tempfile import TemporaryDirectory
 from unittest import TestCase
 
 from main import create_app
@@ -8,7 +10,15 @@ from src.services.simulation_service import evaluate
 
 class TestApp(TestCase):
     def setUp(self) -> None:
-        self.client = create_app().test_client()
+        directory = TemporaryDirectory()
+        self.addCleanup(directory.cleanup)
+        self.client = create_app(
+            {
+                "TESTING": True,
+                "SECRET_KEY": "app-tests-only",
+                "COMMUNITY_DATABASE": str(Path(directory.name) / "community.sqlite3"),
+            }
+        ).test_client()
 
     def test_views_render(self) -> None:
         for route, title in (

@@ -7,7 +7,6 @@
 <span class="material-symbols-outlined text-[18px]">{{ icon("chevron_left") }}</span>
 <span>Quay lại Thảo luận bà con</span>
 </a></section>
-<p id="detail-missing" class="p-space-md" hidden>Không tìm thấy bài demo trên trình duyệt này.</p>
 <!-- Main 2-Column Responsive Workspace -->
 <div class="w-full max-w-[1400px] mx-auto px-space-md py-space-md lg:py-space-lg">
 <div id="forum-detail" hidden class="grid grid-cols-1 lg:grid-cols-12 gap-space-md lg:gap-space-lg items-start">
@@ -21,7 +20,7 @@
 <span class="px-2.5 py-1 rounded-md bg-secondary-container text-on-secondary-fixed-variant font-label-sm text-label-sm font-semibold" data-topic></span>
 <span class="px-2.5 py-1 rounded-md bg-surface-container text-on-surface font-label-sm text-label-sm" data-cultivar></span>
 </div>
-<span class="font-label-sm text-label-sm text-outline">Bài chia sẻ demo</span>
+<span class="font-label-sm text-label-sm text-outline" data-meta></span>
 </div>
 <!-- Headline -->
 <h1 class="font-headline-md text-headline-md sm:text-headline-lg lg:text-headline-lg text-on-surface font-bold leading-tight tracking-tight" data-title></h1>
@@ -47,6 +46,10 @@
 <!-- Article Body Content -->
 <div class="bg-surface-container-lowest rounded-xl p-space-md lg:p-space-lg shadow-sm flex flex-col gap-space-md">
 <p data-body class="stitch-article-body font-body-md text-body-md text-on-surface leading-relaxed"></p>
+<div id="post-actions" class="community-actions" hidden>
+  <a id="edit-post" class="community-button">Sửa bài</a>
+  <button id="delete-post" type="button" class="community-button community-danger">Xóa bài</button>
+</div>
 </div>
 </article>
 <!-- Right Column: Live Community Discussion Chat (~34% / 4 cols) -->
@@ -63,20 +66,22 @@
 <h3 class="font-headline-sm text-headline-sm text-on-surface font-bold" id="forum-chat-title">Khung trao đổi</h3>
 </div>
 <span class="px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-fixed-variant font-label-sm text-[11px] font-bold">
-                Demo
+                Hỏi đáp
               </span>
 </div>
 <div class="flex items-center justify-between text-on-surface-variant">
 <div class="flex items-center gap-1 font-label-sm text-label-sm font-semibold text-primary">
 <span>Thảo luận bài chia sẻ</span>
 </div>
-<span class="font-label-sm text-[11px] text-outline">Lưu trong trình duyệt</span>
+<button id="refresh-replies" class="community-button" type="button">Tải trao đổi mới</button>
 </div>
 </div>
+<label class="community-reply-sort">Thứ tự trả lời <select id="reply-sort"><option value="helpful">Hữu ích nhất</option><option value="oldest">Cũ nhất</option><option value="newest">Mới nhất</option></select></label>
 <div id="forum-replies" class="stitch-replies overflow-y-auto p-space-md flex flex-col gap-space-sm" role="log" aria-label="Nội dung trao đổi"></div>
 <div class="p-space-sm bg-surface-container-lowest flex flex-col gap-space-xs shadow-md"><!-- Composer Form -->
+<div id="reply-context" class="community-actions" hidden><span id="reply-target"></span><button id="cancel-reply" class="community-button" type="button">Hủy</button></div>
 <form id="forum-reply-form" method="post" class="relative flex items-center gap-1.5 bg-surface-container-low rounded-xl p-1.5">
-<input class="w-full bg-transparent px-2 py-1 text-on-surface font-body-sm text-body-sm focus:outline-none placeholder:text-outline" id="forum-reply" aria-label="Nhắn tin về bài chia sẻ" maxlength="500" required placeholder="Nhắn tin chia sẻ với bà con trong ấp..." type="text"/>
+<textarea class="w-full bg-transparent px-2 py-1 text-on-surface font-body-sm text-body-sm focus:outline-none placeholder:text-outline" id="forum-reply" aria-label="Câu trả lời" maxlength="5000" rows="3" required placeholder="Viết câu trả lời cho bà con..."></textarea>
 <button class="px-3 py-2 rounded-lg bg-primary hover:bg-primary-container text-on-primary font-bold transition-colors flex items-center justify-center flex-shrink-0 shadow-xs" type="submit" aria-label="Gửi">
 <span class="material-symbols-outlined text-[18px]">{{ icon("arrow_forward") }}</span>
 </button>
@@ -87,5 +92,4 @@
 </aside>
 </div>
 </div>
-<script id="forum-data" type="application/json">{{ {"topics": topics, "post": post, "postId": post_id, "replies": replies}|tojson }}</script>
 {% endblock %}

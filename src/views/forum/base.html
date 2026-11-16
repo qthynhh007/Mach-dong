@@ -14,8 +14,18 @@
 {% include "shared/header.html" %}
 {% include "shared/sidebar.html" %}
 <main id="main-content" tabindex="-1" class="forum-workspace">
+  {% if forumData is defined %}
+  <div class="community-session">
+    {% if forumData.member %}
+      {{ forumData.member.displayName }}{% if forumData.member.isGuest %} · Phiên khách dùng thử. Giữ cookie trình duyệt để tiếp tục quản lý bài của bạn.{% endif %}
+    {% else %}<a href="/login">Đăng nhập để đăng bài và trả lời.</a>{% endif %}
+  </div>
+  {% endif %}
+  <p id="forum-status" class="community-status" role="status" aria-live="polite"></p>
+  <noscript><p class="community-status">Hãy bật JavaScript để dùng diễn đàn.</p></noscript>
   {% block content %}{% endblock %}
 </main>
+{% if forumData is defined %}<script id="forum-data" type="application/json">{{ forumData|tojson }}</script>{% endif %}
 <script src="/static/forum.js" defer></script>
 </body>
 </html>

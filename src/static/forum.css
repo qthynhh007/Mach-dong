@@ -39,3 +39,28 @@
   #photo-preview { grid-template-columns: repeat(auto-fit, minmax(min(100%, 96px), 1fr)); }
 }
 @media (max-width: 920px) { .stitch-feed-layout { grid-template-columns: minmax(0, 1fr); } }
+.community-session { padding: .65rem 1.5rem; background: #e6f1e9; font-size: .8rem; color: #214838; }
+.community-status { padding: .75rem 1.5rem; color: #943528; white-space: pre-wrap; }
+.community-status:empty { display: none; }
+.community-controls, .community-actions, .community-pagination { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem; }
+.community-controls, .community-pagination { margin: 0 0 1.2rem; font-size: .85rem; }
+.community-pagination { margin-top: 1rem; justify-content: center; }
+.community-controls select, .community-reply-sort select { padding: .4rem; border-radius: 6px; background: #fff; border: 1px solid #c4d4cb; }
+.community-button { display: inline-flex; align-items: center; padding: .35rem .6rem; border-radius: 6px; background: #e7eee9; color: #16472e; font-size: .8rem; cursor: pointer; }
+.community-button:hover { background: #d6e4db; }
+.community-button:focus-visible { outline: 2px solid #00522f; outline-offset: 2px; }
+.community-button[aria-pressed=true] { background: #c3ebd4; }
+.forum-workspace button:disabled { opacity: .5; cursor: not-allowed; }
+.community-danger { color: #9a3024; }
+.community-meta { font-size: .72rem; color: #53645b; }
+.community-reply-sort { padding: .5rem 1rem; font-size: .8rem; }
+.community-reply-children { margin: .6rem 0 0 .45rem; padding-left: .5rem; border-left: 2px solid #b3d3bf; display: grid; gap: .6rem; }
+.community-reply-header { display: flex; gap: .35rem; flex-wrap: wrap; align-items: center; }
+.community-accepted { background: #caedd9; color: #16472e; padding: .15rem .4rem; border-radius: 5px; font-size: .72rem; }
+.stitch-replies article.is-accepted { border: 1px solid #438961; background: #eef9f1; }
+.stitch-replies p { margin: .4rem 0; }
+.community-reply-editor { display: grid; gap: .5rem; margin-top: .5rem; }
+.community-reply-editor textarea { min-height: 100px; padding: .5rem; width: 100%; border: 1px solid #c4d4cb; border-radius: 6px; background: white; color: #223b2c; }
+.community-error { margin: 2rem; }
+.community-error a { display: inline-block; margin-top: 1rem; text-decoration: underline; }
+.forum-workspace [hidden] { display: none !important; }
