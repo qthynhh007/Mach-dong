@@ -1,118 +1,282 @@
 {% from "shared/icon.html" import icon as render_icon -%}
 <!DOCTYPE html><html lang="vi"><head>{% include "shared/navigation-head.html" %}<link rel="icon" href="/static/assets/stitch-simulation/co-ma-logo.png"><link rel="stylesheet" href="/static/assets/stitch-simulation/fonts.css"><link rel="stylesheet" href="/static/auth.css"><link rel="stylesheet" href="/static/shell.css"><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><meta content="web_standard" name="shell-type"><title>Đăng nhập · Mạch Đồng</title>
+<style>
+  @layer base {
+    html, body { margin: 0; padding: 0; }
+    body { overscroll-behavior: none; }
+    main > :first-child { margin-top: 0 !important; }
+    main > :last-child { margin-bottom: 0 !important; }
+  }
+  ::-webkit-scrollbar { display: none; }
+  .auth-card-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1.15rem;
+  }
+  .auth-field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .auth-two-col {
+    display: grid;
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+    gap: 0.85rem;
+  }
+  @media (min-width: 640px) {
+    .auth-two-col {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  .auth-wallet-box {
+    padding: 0.9rem 1rem;
+    border-radius: 0.5rem;
+    background-color: #f0f3ff;
+    border: 1px solid #d0d9ec;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+  .auth-mode-tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.35rem;
+    padding: 0.3rem;
+    border-radius: 0.5rem;
+    background-color: #f0f3ff;
+  }
+  .auth-otp-row {
+    display: flex;
+    gap: 0.5rem;
+    align-items: stretch;
+  }
+</style></head><body class="bg-surface font-body-md text-body-md text-on-surface antialiased">{% include "shared/header.html" %}<main id="main-content" tabindex="-1" class="w-full bg-surface min-h-[calc(100vh-4rem)]"><div class="flex flex-col w-full">
 
-
-<style>@layer base { html, body { margin: 0; padding: 0; } body { overscroll-behavior: none; } main > :first-child { margin-top: 0 !important; } main > :last-child { margin-bottom: 0 !important; } } ::-webkit-scrollbar { display: none; }</style></head><body class="bg-surface font-body-md text-body-md text-on-surface antialiased">{% include "shared/header.html" %}<main id="main-content" tabindex="-1" class="w-full bg-surface min-h-[calc(100vh-4rem)]"><div class="flex flex-col w-full">
-<!-- Minimalist Secondary App Bar Replacement for Login Flow (Hiding generic nav, presenting bespoke contextual bar) -->
-
-<!-- Main Split Layout Container -->
 <div class="w-full max-w-[1440px] mx-auto px-space-md lg:px-margin-desktop py-space-lg lg:py-space-xl flex-1 flex items-center justify-center">
-<div class="w-full grid grid-cols-1 lg:grid-cols-12 rounded-xl bg-surface-container-lowest shadow-md overflow-hidden min-h-[640px]">
-<!-- Column 1: Cinematic Visual & Agricultural Brand Identity (7 cols) -->
-<div class="lg:col-span-7 relative flex flex-col justify-between p-space-lg lg:p-space-xl min-h-[380px] lg:min-h-[640px] text-on-primary overflow-hidden">
-<!-- Photographic Background: Mekong Rice Field at Sunset -->
-<div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 ease-out hover:scale-105" data-alt="Vast golden and lush emerald green rice terrace paddies in Mekong River Delta Vietnam during serene warm golden hour sunset, reflective water canals shining under warm sun rays, misty horizon with distant palm trees, ultra-fine cinematic photography, tranquil agricultural scenery" style="background-image: url('/static/assets/stitch-login-hero.jpg')">
+<div class="w-full grid grid-cols-1 lg:grid-cols-12 rounded-xl bg-surface-container-lowest shadow-md overflow-hidden min-h-[680px]">
+
+<!-- Column 1: Cinematic Visual & Avalanche Fuji Wallet Guide (7 cols) -->
+<div class="lg:col-span-7 relative flex flex-col justify-between p-space-lg lg:p-space-xl min-h-[420px] lg:min-h-[680px] text-on-primary overflow-hidden">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 ease-out hover:scale-105" style="background-image: url('/static/assets/stitch-login-hero.jpg')"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-primary/95 via-primary/55 to-primary/20"></div>
+<div class="absolute inset-0 bg-gradient-to-r from-primary/75 via-transparent to-transparent"></div>
+
+<div class="relative z-10 flex flex-wrap items-center gap-2">
+  <span class="px-3 py-1 rounded-full bg-surface-container-lowest/20 backdrop-blur-md text-on-primary font-label-sm font-semibold tracking-wide uppercase">
+    Hệ sinh thái số hóa nông dân ĐBSCL
+  </span>
+  <span class="px-3 py-1 rounded-full bg-primary-fixed/30 backdrop-blur-md text-on-primary font-label-sm font-semibold">
+    Avalanche Fuji · Chain ID 43113
+  </span>
 </div>
-<!-- Scrim Gradients for Contrast -->
-<div class="absolute inset-0 bg-gradient-to-t from-primary/95 via-primary/40 to-transparent"></div>
-<div class="absolute inset-0 bg-gradient-to-r from-primary/60 via-transparent to-transparent"></div>
-<!-- Top Vignette Badge -->
-<div class="relative z-10 flex items-center gap-2">
-<span class="px-3 py-1 rounded-full bg-surface-container-lowest/20 backdrop-blur-md text-on-primary font-label-sm font-semibold tracking-wide uppercase">
-            Hệ sinh thái số hóa nông dân ĐBSCL
-          </span>
+
+<div class="relative z-10 my-auto py-space-lg max-w-xl space-y-space-md">
+  <div class="w-10 h-1 bg-primary-fixed rounded-full"></div>
+  <blockquote class="font-headline-lg lg:text-headline-xl text-on-primary font-bold tracking-tight leading-snug drop-shadow-sm">
+    “Mạch Đồng – Kết nối nông hộ, đo mặn giữ ngọt nước, bảo vệ vụ mùa ĐBSCL.”
+  </blockquote>
+  <p class="font-body-md text-surface-container-low/95 max-w-lg leading-relaxed">
+    Đăng nhập bằng Email kèm <strong>Mã xác nhận 6 số gửi qua Email</strong> (hoặc Username / SĐT +84 và Mật khẩu). Hệ thống tự động khởi tạo và gắn kết ví điểm Avalanche Fuji theo Email của bà con.
+  </p>
+
+  <!-- Vietnamese Wallet Basic Info Card -->
+  <div class="p-space-md rounded-xl bg-surface-container-lowest/15 backdrop-blur-md border border-on-primary/20 text-on-primary space-y-2">
+    <div class="flex flex-wrap items-center justify-between gap-2">
+      <span class="font-label-md font-bold uppercase tracking-wider text-primary-fixed">🌾 Thông tin cơ bản về Ví Avalanche Fuji</span>
+      <span class="px-2.5 py-0.5 rounded bg-on-primary/20 font-label-sm">Tự động 100% tiếng Việt</span>
+    </div>
+    <ul class="text-sm space-y-1.5 list-disc pl-5 text-surface-container-low/95 leading-relaxed">
+      <li><strong>Tự động tạo ví qua Email xác thực:</strong> Bà con chỉ cần nhập Email và nhận mã 6 số. Mạch Đồng tự động khởi tạo địa chỉ ví <code>0x...</code> riêng gắn với Email đó (không cần cài ví tiếng Anh).</li>
+      <li><strong>Lưu điểm đóng góp minh bạch:</strong> Mỗi tệp CSV hoặc số đo độ mặn được duyệt sẽ cộng <strong>Điểm Mô Phỏng (Simulation Credits)</strong> vào ví để chạy Phòng Mô Phỏng và hỏi Cò Mạ.</li>
+      <li><strong>Thông số mạng:</strong> Avalanche Fuji C-Chain · Chain ID <code>43113</code> · RPC <code>api.avax-test.network</code>.</li>
+    </ul>
+  </div>
 </div>
-<!-- Middle Atmospheric Quotes & Field Metrics Preview -->
-<div class="relative z-10 my-auto py-space-lg max-w-xl">
-<div class="w-10 h-1 bg-primary-fixed mb-space-md rounded-full"></div>
-<blockquote class="font-headline-lg lg:text-headline-xl text-on-primary font-bold tracking-tight leading-snug drop-shadow-sm">
-            “Mạch Đồng – Kết nối nông hộ, đo mặn giữ ngọt nước, bảo vệ vụ mùa ĐBSCL.”
-          </blockquote>
-<p class="mt-space-sm font-body-md text-surface-container-low/90 max-w-lg">
-            Chia sẻ số đo ruộng và xem kịch bản rủi ro mặn, ngập cho lúa OM5451.
-          </p>
-</div>
-<!-- Bottom Station Micro-Telemetry Pill Grid -->
+
 <div class="relative z-10 pt-space-md flex flex-wrap items-center gap-space-sm font-label-sm">
-<div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-container-lowest/15 backdrop-blur-md">
-<span class="w-2 h-2 rounded-full bg-primary-fixed animate-pulse"></span>
-<span>Ruộng lúa OM5451</span>
+  <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-container-lowest/15 backdrop-blur-md">
+    <span class="w-2 h-2 rounded-full bg-primary-fixed animate-pulse"></span>
+    <span>Ruộng lúa OM5451</span>
+  </div>
+  <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-container-lowest/15 backdrop-blur-md">
+    <span class="material-symbols-outlined text-[14px]">{{ render_icon("sensors") }}</span>
+    <span>Xác thực Email OTP &amp; PBKDF2-SHA256</span>
+  </div>
 </div>
-<div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-container-lowest/15 backdrop-blur-md">
-<span class="material-symbols-outlined text-[14px]">{{ render_icon("sensors") }}</span>
-<span>Địa bàn demo · Long Hữu</span>
 </div>
-</div>
-</div>
-<!-- Column 2: Minimalist, Elevated Login Card (5 cols) -->
+
+<!-- Column 2: Login / Sign-In Card (5 cols) -->
 <div class="lg:col-span-5 flex flex-col justify-between p-space-lg lg:p-space-xl bg-surface-container-lowest">
-<!-- Header of Form -->
-<div class="w-full">
-<div class="flex items-center justify-between mb-space-sm">
-<span class="font-label-sm uppercase tracking-wider text-primary font-bold">Xác thực hệ thống</span>
+<div class="w-full auth-card-grid">
 
-</div>
-<h1 class="font-headline-md text-on-surface font-bold">Đăng Nhập Nông Hộ</h1>
-<p class="font-body-md text-on-surface-variant mt-1">
-            Xem thử giao diện truy cập Mạch Đồng.
-          </p>
-<!-- Input Fields Form -->
-<form class="mt-space-lg space-y-space-md" data-auth-preview>
-<!-- Phone or HTX Code Field -->
-<div class="flex flex-col gap-1">
-<label class="font-label-md text-on-surface font-medium" for="identifierInput">
-                Số điện thoại hoặc Mã HTX
-              </label>
-<div class="relative flex items-center">
-<span class="absolute left-3 text-outline material-symbols-outlined text-[18px]">{{ render_icon("phone_iphone") }}</span>
-<input class="w-full pl-10 pr-3 py-2.5 bg-surface-container-low rounded-lg font-body-md text-on-surface placeholder:text-outline focus:outline-none focus:bg-surface focus:ring-2 focus:ring-primary-container transition-colors" required autocomplete="username" id="identifierInput" placeholder="Ví dụ: 0918 345 678 hoặc HTX-LONGHUU" type="text">
-</div>
-</div>
-<!-- Password / OTP Field -->
-<div class="flex flex-col gap-1">
-<div class="flex items-center justify-between">
-<label class="font-label-md text-on-surface font-medium" for="secretInput">
-                  Mật khẩu
-                </label>
+  <!-- Header of Form -->
+  <div>
+    <div class="flex items-center justify-between mb-space-xs">
+      <span class="font-label-sm uppercase tracking-wider text-primary font-bold">Xác thực hệ thống</span>
+      <span class="font-label-sm px-2.5 py-1 rounded bg-primary-fixed text-on-primary-fixed font-semibold">Email OTP + Fuji 43113</span>
+    </div>
+    <h1 class="font-headline-md text-on-surface font-bold">Đăng Nhập Nông Hộ</h1>
+    <p class="font-body-sm text-on-surface-variant mt-1 leading-relaxed">
+      Nhập <strong>Email</strong> để nhận <strong>mã xác nhận 6 số</strong> (hoặc đăng nhập bằng Username / SĐT +84 và Mật khẩu).
+    </p>
+  </div>
 
+  <!-- Active Session Banner (shown if already logged in) -->
+  <div id="activeSessionBanner" class="p-space-sm rounded-lg bg-primary-fixed/40 border border-primary/30 {% if not current_user %}hidden{% endif %}">
+    <div class="flex items-center justify-between gap-2">
+      <div class="min-w-0">
+        <p class="font-label-md font-bold text-primary">Đang đăng nhập: <span data-session-name>{{ current_user.name if current_user else '' }}</span> (<span data-session-role>{{ current_user.role if current_user else '' }}</span>)</p>
+        <p class="text-xs text-on-surface-variant mt-1 truncate">Ví Fuji: <code data-session-wallet>{{ current_user.wallet_address if current_user else '' }}</code> · Điểm: <strong data-session-credits>{{ current_user.simulation_credits if current_user else 0 }}</strong></p>
+      </div>
+      <button type="button" data-logout-btn class="px-3 py-1.5 rounded-lg bg-secondary text-on-primary font-label-sm font-bold shrink-0">Đăng xuất</button>
+    </div>
+  </div>
+
+  <!-- Mode Toggle: Quick Sign-In vs Full Sign-In with Profile & Wallet -->
+  <div class="auth-mode-tabs">
+    <button type="button" data-signin-mode="quick" class="py-2 px-3 rounded-lg bg-primary text-on-primary font-label-sm font-bold transition-colors text-center">
+      Đăng nhập (Email OTP / Mật khẩu)
+    </button>
+    <button type="button" data-signin-mode="full" class="py-2 px-3 rounded-lg text-on-surface font-label-sm font-semibold transition-colors text-center">
+      Đầy đủ + Tạo/Gắn Ví Fuji
+    </button>
+  </div>
+
+  <!-- Input Fields Form -->
+  <form class="space-y-space-md" id="loginForm" data-auth-form="login">
+    <!-- Identifier / Email Field (Quick Mode) -->
+    <div class="auth-field-group" id="quickIdentifierGroup">
+      <label class="font-label-md text-on-surface font-medium" for="identifierInput">
+        Email (nhận mã OTP) hoặc Username / SĐT (+84)
+      </label>
+      <div class="auth-otp-row">
+        <div class="relative flex items-center flex-1">
+          <span class="absolute left-3 text-outline material-symbols-outlined text-[18px]">{{ render_icon("account_circle") }}</span>
+          <input class="w-full pl-10 pr-3 py-2.5 bg-surface-container-low rounded-lg font-body-md text-on-surface placeholder:text-outline focus:outline-none focus:bg-surface focus:ring-2 focus:ring-primary-container transition-colors" required autocomplete="username" id="identifierInput" name="identifier" placeholder="ten@gmail.com / admin / +84911421604" type="text">
+        </div>
+        <button type="button" id="btnSendOtpLogin" class="px-3 py-2 rounded-lg bg-primary-fixed hover:bg-primary-fixed-dim text-on-primary-fixed font-label-sm font-bold shrink-0 transition-colors">
+          Gửi mã Email
+        </button>
+      </div>
+    </div>
+
+    <!-- Full Sign-In Fields -->
+    <div id="fullSigninFields" class="space-y-space-md hidden">
+      <div class="auth-two-col">
+        <div class="auth-field-group">
+          <label class="font-label-sm text-on-surface font-semibold" for="loginFullName">Họ và tên nông hộ *</label>
+          <input id="loginFullName" name="name" type="text" placeholder="Nguyễn Văn Đồng" class="w-full px-3 py-2.5 bg-surface-container-low rounded-lg text-on-surface focus:ring-2 focus:ring-primary-container">
+        </div>
+        <div class="auth-field-group">
+          <label class="font-label-sm text-on-surface font-semibold" for="loginUsername">Tên đăng nhập (Username) *</label>
+          <input id="loginUsername" name="username" type="text" placeholder="nongdan_longhuu" class="w-full px-3 py-2.5 bg-surface-container-low rounded-lg text-on-surface focus:ring-2 focus:ring-primary-container">
+        </div>
+      </div>
+      <div class="auth-two-col">
+        <div class="auth-field-group">
+          <label class="font-label-sm text-on-surface font-semibold" for="loginEmail">Email (nhận mã &amp; tạo ví Fuji) *</label>
+          <div class="auth-otp-row">
+            <input id="loginEmail" name="email" type="email" data-wallet-email-source placeholder="nongho@gmail.com" class="flex-1 min-w-0 px-3 py-2.5 bg-surface-container-low rounded-lg text-on-surface focus:ring-2 focus:ring-primary-container">
+            <button type="button" id="btnSendOtpFull" class="px-2.5 py-2 rounded-lg bg-primary-fixed text-on-primary-fixed font-label-sm font-bold shrink-0">
+              Gửi mã
+            </button>
+          </div>
+        </div>
+        <div class="auth-field-group">
+          <label class="font-label-sm text-on-surface font-semibold" for="loginPhone">Số điện thoại (+84) *</label>
+          <input id="loginPhone" name="phone" type="tel" value="+84" placeholder="+84912345678" class="w-full px-3 py-2.5 bg-surface-container-low rounded-lg text-on-surface focus:ring-2 focus:ring-primary-container">
+        </div>
+      </div>
+    </div>
+
+    <!-- Email Confirmation Code (OTP) + Password Row -->
+    <div class="auth-two-col">
+      <div class="auth-field-group">
+        <label class="font-label-sm text-on-surface font-semibold" for="otpCodeInput">
+          Mã xác nhận Email (6 chữ số)
+        </label>
+        <input class="w-full px-3 py-2.5 bg-surface-container-low rounded-lg font-label-md text-on-surface placeholder:text-outline focus:outline-none focus:bg-surface focus:ring-2 focus:ring-primary-container tracking-widest" id="otpCodeInput" name="otp_code" maxlength="6" inputmode="numeric" placeholder="Nhập 6 số (VD: 482910)" type="text">
+      </div>
+      <div class="auth-field-group">
+        <label class="font-label-sm text-on-surface font-semibold" for="secretInput">
+          Mật khẩu (băm PBKDF2-SHA256)
+        </label>
+        <div class="relative flex items-center">
+          <span class="absolute left-3 text-outline material-symbols-outlined text-[18px]">{{ render_icon("lock") }}</span>
+          <input class="w-full pl-10 pr-10 py-2.5 bg-surface-container-low rounded-lg font-body-md text-on-surface placeholder:text-outline focus:outline-none focus:bg-surface focus:ring-2 focus:ring-primary-container transition-colors" autocomplete="current-password" id="secretInput" name="password" placeholder="Nhập mật khẩu" type="password">
+          <button class="absolute right-3 text-outline hover:text-on-surface material-symbols-outlined text-[18px]" data-show-password="secretInput" aria-label="Hiện mật khẩu" aria-pressed="false" type="button">{{ render_icon("visibility") }}</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Avalanche Wallet Attachment / Auto-Creation Section -->
+    <div class="auth-wallet-box">
+      <div class="flex items-center justify-between">
+        <span class="font-label-sm font-bold text-primary uppercase">🔗 Đính kèm / Tự tạo Ví Avalanche Fuji</span>
+        <span class="text-xs text-on-surface-variant font-semibold">Chain ID: 43113</span>
+      </div>
+      <div class="flex flex-col gap-2 text-xs">
+        <label class="flex items-center gap-2 cursor-pointer">
+          <input type="radio" name="wallet_mode" value="AUTO_EMAIL" checked data-wallet-mode-radio>
+          <span><strong>Tự động tạo ví mới gắn với Email</strong> (Khuyên dùng cho bà con)</span>
+        </label>
+        <label class="flex items-center gap-2 cursor-pointer">
+          <input type="radio" name="wallet_mode" value="EXTERNAL" data-wallet-mode-radio>
+          <span><strong>Đính kèm địa chỉ ví Avalanche có sẵn (<code>0x...</code>)</strong></span>
+        </label>
+      </div>
+      <div id="autoWalletPreviewBox" class="p-2.5 rounded-lg bg-surface-container-lowest text-xs text-on-surface-variant">
+        <span>Địa chỉ ví Fuji theo Email: </span>
+        <code id="emailWalletPreviewText" class="font-bold text-primary break-all">{{ wallet_guide.preview_wallet_address or 'Sẽ tự động khởi tạo theo Email tài khoản' }}</code>
+      </div>
+      <div id="externalWalletInputBox" class="hidden space-y-2">
+        <div class="flex gap-2">
+          <input id="walletAddressInput" name="wallet_address" type="text" placeholder="0x71C... (42 ký tự hex)" class="flex-1 px-3 py-2 rounded-lg bg-surface-container-lowest text-xs text-on-surface border border-outline-variant">
+          <button type="button" id="btnConnectBrowserWallet" class="px-3 py-2 rounded-lg bg-primary-fixed text-on-primary-fixed font-label-sm font-semibold shrink-0">Lấy từ trình duyệt</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex flex-wrap items-center justify-between gap-2 text-xs pt-1">
+      <label class="flex items-center gap-2 cursor-pointer text-on-surface-variant">
+        <input type="checkbox" id="rememberMeInput" name="remember_me" checked>
+        <span>Duy trì phiên đăng nhập (7 ngày)</span>
+      </label>
+      <a href="/register" class="text-primary font-semibold hover:underline">Tạo tài khoản nông hộ mới →</a>
+    </div>
+
+    <!-- Primary Action CTA -->
+    <button class="w-full py-3 px-space-md rounded-lg bg-primary hover:bg-primary-container text-on-primary font-headline-sm font-semibold shadow-sm hover:shadow transition-colors flex items-center justify-center gap-2 group" type="submit">
+      <span>Đăng Nhập Vào Ruộng</span>
+      <span class="material-symbols-outlined text-[20px] group-hover:translate-x-1 transition-transform">{{ render_icon("arrow_forward") }}</span>
+    </button>
+  </form>
+
+  <p role="status" class="text-sm font-medium" data-auth-message></p>
 </div>
-<div class="relative flex items-center">
-<span class="absolute left-3 text-outline material-symbols-outlined text-[18px]">{{ render_icon("lock") }}</span>
-<input class="w-full pl-10 pr-10 py-2.5 bg-surface-container-low rounded-lg font-body-md text-on-surface placeholder:text-outline focus:outline-none focus:bg-surface focus:ring-2 focus:ring-primary-container transition-colors" required autocomplete="current-password" id="secretInput" placeholder="Nhập mật khẩu mẫu" type="password">
-<button class="absolute right-3 text-outline hover:text-on-surface material-symbols-outlined text-[18px]" data-show-password="secretInput" aria-label="Hiện mật khẩu" aria-pressed="false" type="button">{{ render_icon("visibility") }}</button>
-</div>
-</div>
-<!-- Primary Action CTA -->
-<button class="w-full py-3 px-space-md rounded-lg bg-primary hover:bg-primary-container text-on-primary font-headline-sm font-semibold shadow-sm hover:shadow transition-colors flex items-center justify-center gap-2 mt-space-sm group" type="submit">
-<span>Đăng Nhập Vào Ruộng</span>
-<span class="material-symbols-outlined text-[20px] group-hover:translate-x-1 transition-transform">{{ render_icon("arrow_forward") }}</span>
-</button>
-</form>
-<p class="app-notice mt-space-md">Bản xem thử giao diện. Hãy dùng thông tin mẫu.</p><p role="status" class="mt-2 text-sm" data-auth-message></p><a href="/community" class="mt-2 inline-block text-primary font-semibold">Mở Kho CSV</a></div><!-- Footer Incentive Banner -->
-<div class="pt-space-lg mt-space-md border-t border-surface-container/60">
-<div class="p-space-sm rounded-lg bg-primary-fixed/30 flex items-center gap-space-sm">
-<span class="text-2xl leading-none shrink-0">🎁</span>
-<div class="flex flex-col min-w-0">
-<span class="font-body-sm text-on-surface font-medium leading-tight">
-                Chưa có tài khoản Mạch Đồng?
-              </span>
-<a class="font-label-sm text-primary font-bold hover:underline flex items-center gap-0.5 mt-0.5" href="/register">
-<span>Đăng ký tài khoản</span>
-<span class="material-symbols-outlined text-[14px]">{{ render_icon("chevron_right") }}</span>
-</a>
+
+<!-- Footer Incentive Banner -->
+<div class="pt-space-md mt-space-md border-t border-surface-container/60">
+  <div class="p-space-sm rounded-lg bg-primary-fixed/30 flex items-center justify-between gap-space-sm">
+    <div class="flex items-center gap-space-sm min-w-0">
+      <span class="text-2xl leading-none shrink-0">🎁</span>
+      <div class="flex flex-col min-w-0">
+        <span class="font-body-sm text-on-surface font-medium leading-tight">
+          Chưa có tài khoản nông hộ Mạch Đồng?
+        </span>
+        <a class="font-label-sm text-primary font-bold hover:underline flex items-center gap-0.5 mt-0.5" href="/register">
+          <span>Đăng ký tài khoản &amp; nhận ví Avalanche Fuji tự động</span>
+          <span class="material-symbols-outlined text-[14px]">{{ render_icon("chevron_right") }}</span>
+        </a>
+      </div>
+    </div>
+    <a href="/community" class="text-xs text-primary font-semibold shrink-0 hover:underline">Mở Kho CSV</a>
+  </div>
 </div>
 </div>
 
-</div>
-</div>
 </div>
 </div>
 </div>
 </main>
-
-
-
-
-
-
 <script src="/static/auth.js" defer></script></body></html>

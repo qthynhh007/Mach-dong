@@ -9,11 +9,25 @@ from src.controllers import (
     forum_controller,
     simulation_controller,
 )
+from src.controllers.session_guard import get_current_auth
+from src.services.auth_service import default_auth_service
 
 
 def create_app() -> Flask:
     app = Flask(__name__, template_folder="views", static_folder="static")
     app.config["MAX_CONTENT_LENGTH"] = MAX_CSV_BYTES + 64_000
+
+    @app.context_processor
+    def inject_auth_context() -> dict:
+        auth = get_current_auth(default_auth_service, require_csrf=False)
+        if auth is None:
+            return {"auth_user": None, "auth_csrf_token": ""}
+        user, session = auth
+        return {
+            "auth_user": user.to_public_dict(),
+            "auth_csrf_token": session.csrf_token,
+        }
+
     for controller in (
         community_controller,
         forum_controller,

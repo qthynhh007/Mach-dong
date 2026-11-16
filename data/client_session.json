@@ -1,0 +1,17 @@
+{
+  "session_token": "0e0ae8c8-40a3-4054-b75d-1eb370ca720f.aea67cfdf43959c06901109235fc8b162ab7051d6784bf55674836bf9b27dafa",
+  "csrf_token": "0fd41868def493f2011722821addf1732c3c9f9c2c495d35",
+  "expires_at": 1795429171.428183,
+  "user": {
+    "user_id": "86ff1801-a14c-4945-ab1f-7958a203c50a",
+    "username": "pmnhat",
+    "name": "Phạm Minh Nhật",
+    "email": "teanjp999@gmail.com",
+    "phone": "+84911421604",
+    "role": "FARMER",
+    "wallet_address": "0x9c0937453bfc841ac1bbf6663d31ca964a71b5f5",
+    "wallet_type": "AUTO_EMAIL",
+    "chain_id": 43113,
+    "simulation_credits": 3
+  }
+}

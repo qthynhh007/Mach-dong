@@ -53,15 +53,15 @@
 </div>
 <div class="flex flex-col text-center sm:text-left min-w-0 flex-1">
 <div class="flex flex-wrap items-center justify-center sm:justify-start gap-space-xs">
-<h2 class="font-headline-sm text-headline-sm font-bold text-on-surface" data-profile-value="farmer-fullname">Chú Năm Ruộng</h2>
+<h2 class="font-headline-sm text-headline-sm font-bold text-on-surface" data-profile-value="farmer-fullname">{{ current_user.name if current_user else 'Chú Năm Ruộng' }}</h2>
 
 </div>
 <p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5" data-profile-value="farmer-address">
-              Ấp 3, Xã Long Hữu, Huyện Duyên Hải, Tỉnh Trà Vinh
+              {% if current_user %}Email: {{ current_user.email }} · SĐT: {{ current_user.phone }}{% else %}Ấp 3, Xã Long Hữu, Huyện Duyên Hải, Tỉnh Trà Vinh{% endif %}
             </p>
 <div class="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-surface-container-high w-fit mx-auto sm:mx-0">
 <span class="material-symbols-outlined text-[16px] text-primary">{{ render_icon("grass") }}</span>
-<span class="font-label-sm text-label-sm font-semibold text-primary">Thành viên HTX Long Hữu</span>
+<span class="font-label-sm text-label-sm font-semibold text-primary">{{ ('Vai trò: ' ~ current_user.role ~ ' · @' ~ current_user.username) if current_user else 'Thành viên HTX Long Hữu' }}</span>
 </div>
 </div>
 </div>
@@ -134,14 +134,15 @@
 </div>
 <div class="z-10 my-2">
 <div class="flex items-baseline gap-2">
-<span class="font-metric-display text-[36px] font-bold tracking-tight">350</span>
+<span class="font-metric-display text-[36px] font-bold tracking-tight" data-profile-credits>{{ current_user.simulation_credits if current_user else 350 }}</span>
 <span class="font-headline-sm text-headline-sm font-bold text-primary-fixed">LÚA</span>
 </div>
-<p class="font-body-sm text-body-sm text-on-primary/85">Điểm đóng góp cộng đồng</p>
+<p class="font-body-sm text-body-sm text-on-primary/85">Điểm đóng góp cộng đồng · Avalanche Fuji (43113)</p>
+<p class="text-xs text-on-primary/90 mt-1 break-all">Ví Fuji: <code data-profile-wallet>{{ current_user.wallet_address if current_user else 'Chưa đăng nhập' }}</code></p>
 </div>
 <div class="z-10 flex items-center justify-between pt-2 border-t border-on-primary/15 font-label-sm text-label-sm text-on-primary/75">
-<span>Chủ thẻ · <span data-profile-value="farmer-fullname">Trần Văn Năm</span></span>
-
+<span>Chủ thẻ · <span data-profile-value="farmer-fullname">{{ current_user.name if current_user else 'Trần Văn Năm' }}</span></span>
+<span>{{ current_user.wallet_type if current_user else 'AUTO_EMAIL' }}</span>
 </div>
 </div>
 <div class="mt-space-md">
@@ -205,16 +206,16 @@
                 Họ và tên chủ hộ <span class="text-secondary">*</span>
 </label>
 <div class="relative">
-<input class="w-full h-11 px-3.5 rounded-lg bg-surface-container-low text-on-surface font-body-md text-body-md focus:bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary shadow-inner" id="farmer-fullname" required maxlength="80" autocomplete="off" type="text" value="Trần Văn Năm (Chú Năm Ruộng)">
+<input class="w-full h-11 px-3.5 rounded-lg bg-surface-container-low text-on-surface font-body-md text-body-md focus:bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary shadow-inner" id="farmer-fullname" required maxlength="80" autocomplete="off" type="text" value="{{ current_user.name if current_user else 'Trần Văn Năm (Chú Năm Ruộng)' }}">
 <span class="material-symbols-outlined absolute right-3 top-3 text-[18px] text-on-surface-variant">{{ render_icon("account_circle") }}</span>
 </div>
 </div>
 <div class="flex flex-col gap-1.5">
 <label class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-bold" for="farmer-phone">
-                Số điện thoại liên hệ <span class="text-secondary">*</span>
+                Số điện thoại liên hệ (+84) <span class="text-secondary">*</span>
 </label>
 <div class="relative">
-<input class="w-full h-11 px-3.5 rounded-lg bg-surface-container-low text-on-surface font-body-md text-body-md focus:bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary shadow-inner" id="farmer-phone" required maxlength="24" autocomplete="off" type="tel" value="0918 245 889">
+<input class="w-full h-11 px-3.5 rounded-lg bg-surface-container-low text-on-surface font-body-md text-body-md focus:bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary shadow-inner" id="farmer-phone" required maxlength="24" autocomplete="off" type="tel" value="{{ current_user.phone if current_user else '+84918245889' }}">
 <span class="material-symbols-outlined absolute right-3 top-3 text-[18px] text-on-surface-variant">{{ render_icon("phone_iphone") }}</span>
 </div>
 </div>
