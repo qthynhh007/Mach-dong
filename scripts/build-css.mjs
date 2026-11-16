@@ -3,7 +3,7 @@ import postcss from "postcss";
 import tailwind from "tailwindcss";
 
 const pages = {
-  community: ["community/index.html"],
+  community: ["community/index.html", "community/datasets.html"],
   simulation: ["simulation/index.html"],
   auth: ["auth/login.html", "auth/register.html"],
   profile: ["auth/profile.html"],
@@ -17,7 +17,20 @@ for (const [page, templates] of Object.entries(pages)) {
     raw: await readFile(new URL(`../src/views/${name}`, import.meta.url), "utf8"),
     extension: "html",
   })));
-  const styles = await postcss([tailwind({ ...settings, content })])
+  const theme = settings.theme ?? {};
+  const extend = theme.extend ?? {};
+  const font = ["var(--md-font)"];
+  const fontFamily = Object.fromEntries(
+    Object.keys(extend.fontSize ?? {}).map((name) => [name, font]),
+  );
+  const styles = await postcss([tailwind({
+    ...settings,
+    content,
+    theme: {
+      ...theme,
+      extend: { ...extend, fontFamily: { sans: font, mono: font, ...fontFamily } },
+    },
+  })])
     .process("@tailwind base;\n@tailwind components;\n@tailwind utilities;", { from: undefined });
   await writeFile(new URL(`../src/static/${page}.css`, import.meta.url), styles.css);
 }

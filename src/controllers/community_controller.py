@@ -20,8 +20,15 @@ from werkzeug.exceptions import HTTPException
 
 from src.config import MAX_CSV_BYTES
 from src.models.community import communityMember
-from src.services.community_service import communityError, communityService, sampleCsv
-from src.services.forum_service import CULTIVARS, STAGES, TOPICS
+from src.services.community_service import communityError, communityService
+from src.services.csv_library import DATASET_BY_SLUG, DATASETS
+from src.services.forum_service import (
+    CULTIVARS,
+    DISCUSSION_TOPICS,
+    EDITORIAL_AUTHOR,
+    STAGES,
+    TOPICS,
+)
 from src.services.quality_service import preview_csv
 
 
@@ -34,6 +41,9 @@ class communityController:
             "/community/samples/<name>", "download_sample", self.downloadSample
         )
         self.blueprint.add_url_rule(
+            "/api/community/datasets/<name>", "dataset_preview", self.dataset_preview
+        )
+        self.blueprint.add_url_rule(
             "/api/community/preview", "preview", self.previewCsv, methods=["POST"]
         )
         self.forumBlueprint.add_url_rule("/forum", "index", self.index)
@@ -42,6 +52,7 @@ class communityController:
         self.forumBlueprint.add_url_rule("/forum/<postId>/edit", "edit", self.edit)
         for path, handler, methods in (
             ("session", self.getSession, ["GET"]),
+            ("members/<path:member_id>", self.member_profile, ["GET"]),
             ("posts", self.posts, ["GET", "POST"]),
             ("posts/<postId>", self.post, ["GET", "PATCH", "DELETE"]),
             ("posts/<postId>/vote", self.postVote, ["PUT"]),
@@ -73,6 +84,8 @@ class communityController:
             raise RuntimeError(
                 "COMMUNITY_IDENTITY_PROVIDER must return communityMember or None"
             )
+        if member is not None and member.id == EDITORIAL_AUTHOR:
+            raise RuntimeError("Danh tính Admin hệ thống dành cho bài tham khảo.")
         if provider is None and session.get("userId"):
             member = communityMember(
                 "user:" + str(session["userId"]),
@@ -174,13 +187,22 @@ class communityController:
         }
 
     def library(self) -> str:
-        return render_template("community/index.html", current_page="community")
+        return render_template(
+            "community/index.html", current_page="community",
+            datasets=[(dataset, dataset.preview()["row_count"]) for dataset in DATASETS],
+        )
 
     def downloadSample(self, name: str) -> Response:
-        path = sampleCsv(name)
-        if path is None:
+        dataset = DATASET_BY_SLUG.get(name)
+        if dataset is None:
             abort(404)
-        return send_file(path, as_attachment=True, mimetype="text/csv")
+        return send_file(dataset.path, as_attachment=True, mimetype="text/csv")
+
+    def dataset_preview(self, name: str) -> tuple[Response, int]:
+        dataset = DATASET_BY_SLUG.get(name)
+        if dataset is None:
+            raise communityError("Không tìm thấy bộ dữ liệu.", 404)
+        return self.respond(dataset.preview())
 
     def previewCsv(self) -> tuple[Response, int]:
         upload = request.files.get("file")
@@ -219,7 +241,7 @@ class communityController:
         return render_template(
             "forum/compose.html",
             current_page="forum",
-            topics=TOPICS,
+            topics=DISCUSSION_TOPICS,
             cultivars=CULTIVARS,
             stages=STAGES,
             forumData=forumData,
@@ -240,7 +262,7 @@ class communityController:
         return render_template(
             "forum/compose.html",
             current_page="forum",
-            topics=TOPICS,
+            topics=DISCUSSION_TOPICS,
             cultivars=CULTIVARS,
             stages=STAGES,
             forumData=forumData,
@@ -248,6 +270,9 @@ class communityController:
 
     def getSession(self) -> tuple[Response, int]:
         return self.respond(self.pageData())
+
+    def member_profile(self, member_id: str) -> tuple[Response, int]:
+        return self.respond(self.service().member_profile(member_id))
 
     def posts(self) -> tuple[Response, int]:
         if request.method in ("GET", "HEAD"):

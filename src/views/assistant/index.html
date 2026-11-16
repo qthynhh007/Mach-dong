@@ -6,11 +6,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#f2f5ef">
-  <meta name="description" content="Lời khuyên Cò Mạ về mặn, ngập và sức khỏe lúa OM5451.">
+  <meta name="description" content="Lời khuyên Cò Mạ về trồng cây, dinh dưỡng, sâu bệnh, mặn và ngập.">
   <link rel="preload" as="image" href="{{ url_for('static', filename='assets/co-ma/emotions.png') }}">
   <title>Trợ lý Cò Mạ · Mạch Đồng</title>
   <link rel="icon" href="{{ url_for('static', filename='assets/stitch-simulation/co-ma-logo.png') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='assets/stitch-simulation/fonts.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='shell.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='co-ma.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='assistant.css') }}">
@@ -24,7 +23,7 @@
   <div class="assistant-heading">
     <div>
       <h1>Trợ lý Cò Mạ</h1>
-      <p>Hỏi Cò về mặn, ngập và sức khỏe lúa OM5451.</p>
+      <p>Hỏi về cách trồng, cải tạo đất, sâu bệnh, mặn và ngập.</p>
     </div>
     <a class="assistant-secondary" href="{{ url_for('simulation.simulation') }}">
       {{ icon("grass") }} Mở mô phỏng {{ icon("arrow_forward") }}
@@ -38,7 +37,9 @@
           <div class="assistant-avatar">{{ co_ma() }}</div>
           <div>
             <h2 id="assistant-chat-title">Trò chuyện với Cò Mạ</h2>
-            <span class="assistant-mode" id="assistant-status" role="status">Phản hồi mẫu</span>
+            <span class="assistant-mode" id="assistant-status" role="status">
+              {{ "Gemini 3.8 Flash" if gemini_enabled else "Tra cứu dữ liệu · Chưa kết nối Gemini" }}
+            </span>
           </div>
         </div>
         <button class="assistant-reset" id="assistant-reset" type="button" hidden>Bắt đầu lại</button>
@@ -50,7 +51,7 @@
           <li class="assistant-message assistant-message--co-ma">
             <span class="assistant-speaker">Cò Mạ</span>
             <div class="assistant-bubble">
-              <p>Chào bà con, Cò Mạ đây! Mình coi lúa chịu mặn, chịu ngập ra sao, hay đọc thử một kịch bản mẫu?</p>
+              <p>Chào bà con, Cò Mạ đây! Bà con đang trồng cây gì? Cho Cò biết cây ở giai đoạn nào và trồng chậu, lên luống hay ngoài vườn nha.</p>
             </div>
           </li>
         </ol>
@@ -61,16 +62,23 @@
 
       <div class="assistant-chat-footer">
         <div class="assistant-starters" aria-label="Câu hỏi gợi ý" role="group">
-          <button type="button" data-question="Đọc kịch bản mẫu giúp tôi">Kịch bản mẫu</button>
-          <button type="button" data-question="Lúa làm đòng gặp mặn thì sao?">Rủi ro mặn</button>
-          <button type="button" data-question="Tính tỷ lệ cây sống thế nào?">Tỷ lệ cây sống</button>
+          {% if gemini_enabled %}
+          <button type="button" data-question="Trồng dưa leo trong chậu bắt đầu thế nào?">Trồng dưa leo</button>
+          <button type="button" data-question="Làm sao cải tạo đất để trồng rau cải?">Cải tạo đất</button>
+          <button type="button" data-question="Cà chua trồng chậu bị đen ở đáy quả. Có cần bón canxi ngay không?">Cà chua đen đáy quả</button>
+          {% endif %}
+          <button type="button" data-question="Đọc số đo mặn và ngập tại LH-03">Ca ngập mẫu LH-03</button>
+          <button type="button" data-question="Độ mặn thực đo tại Cầu Quan là bao nhiêu?">Độ mặn Cầu Quan</button>
         </div>
-        <form class="assistant-composer" id="assistant-form">
+        <form class="assistant-composer" id="assistant-form"
+              data-chat-url="{{ url_for('assistant.chat') }}"
+              data-history-limit="{{ max_history_turns }}">
           <label for="assistant-input" class="assistant-visually-hidden">Câu hỏi của bạn</label>
-          <textarea id="assistant-input" name="message" rows="2" maxlength="400"
-                    placeholder="Ví dụ, lúa làm đòng gặp mặn…" autocomplete="off" required disabled></textarea>
+          <textarea id="assistant-input" name="message" rows="2" maxlength="{{ max_message_length }}"
+                    placeholder="{{ 'Ví dụ, ớt bị vàng lá thì kiểm tra gì trước?' if gemini_enabled else 'Ví dụ, độ mặn trạm Cầu Quan hoặc ca LH-03' }}" autocomplete="off" required disabled></textarea>
           <button type="submit" id="assistant-send" aria-disabled="true" disabled>Gửi {{ icon("arrow_forward") }}</button>
         </form>
+        <p class="assistant-error" id="assistant-error" role="alert"></p>
         <noscript><p>Bật JavaScript để trò chuyện với Cò Mạ.</p></noscript>
       </div>
     </section>

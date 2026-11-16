@@ -30,8 +30,8 @@
 <img class="w-11 h-11 rounded-full object-cover" src="/static/assets/stitch-profile-portrait.jpg" width="44" height="44" alt="">
 <div class="flex flex-col leading-tight">
 <div class="flex items-center gap-1.5">
-<span class="font-body-md text-body-md font-bold text-on-surface" data-author></span>
-<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-primary text-on-primary">Tác giả</span>
+<button type="button" class="member-trigger font-body-md text-body-md font-bold" aria-haspopup="dialog" data-author></button>
+<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-primary text-on-primary" data-author-role>Tác giả</span>
 </div>
 <span class="font-label-sm text-label-sm text-on-surface-variant" data-location></span>
 </div>
@@ -46,6 +46,7 @@
 <!-- Article Body Content -->
 <div class="bg-surface-container-lowest rounded-xl p-space-md lg:p-space-lg shadow-sm flex flex-col gap-space-md">
 <p data-body class="stitch-article-body font-body-md text-body-md text-on-surface leading-relaxed"></p>
+<a data-source-url hidden class="text-primary underline font-semibold" rel="noopener noreferrer" target="_blank">Đọc bài gốc</a>
 <div id="post-actions" class="community-actions" hidden>
   <a id="edit-post" class="community-button">Sửa bài</a>
   <button id="delete-post" type="button" class="community-button community-danger">Xóa bài</button>

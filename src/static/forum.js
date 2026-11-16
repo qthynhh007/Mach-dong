@@ -8,11 +8,11 @@
   class communityApi {
     constructor(csrfToken) { this.csrfToken = csrfToken; }
 
-    async request(path, method = "GET", payload) {
+    async request(path, method = "GET", payload, signal) {
       let response;
       try {
         response = await fetch("/api/community/" + path, {
-          method, credentials: "same-origin", cache: "no-store",
+          method, signal, credentials: "same-origin", cache: "no-store",
           headers: {"Content-Type": "application/json", "X-CSRF-Token": this.csrfToken},
           ...(payload === undefined ? {} : {body: JSON.stringify(payload)}),
         });
@@ -83,8 +83,17 @@
 
     populatePost(root, post, full = false) {
       for (const field of ["author", "location", "body"]) root.querySelector(`[data-${field}]`).textContent = post[field];
+      root.querySelector("[data-author]").dataset.memberId = post.authorId;
       root.querySelector("[data-topic]").textContent = data.topics[post.topic];
-      root.querySelector("[data-cultivar]").textContent = post.cultivar + (full ? " · " + post.stage : "");
+      const cultivar = root.querySelector("[data-cultivar]");
+      cultivar.textContent = (full ? [post.cultivar, post.stage] : [post.cultivar]).filter(Boolean).join(" · ");
+      cultivar.hidden = !cultivar.textContent;
+      const source = root.querySelector("[data-source-url]");
+      if (source && post.sourceUrl) {
+        source.href = post.sourceUrl;
+        source.hidden = false;
+        root.querySelector("[data-author-role]").textContent = "Người chia sẻ";
+      }
       root.querySelector("[data-meta]").textContent = [
         post.isSample ? "Dữ liệu mẫu" : "", this.date(post.createdAt),
         `${post.answerCount} câu trả lời`, post.acceptedReplyId ? "✓ Đã giải đáp" : "",
@@ -93,6 +102,77 @@
       gallery.replaceChildren(...post.photos.map((src) => this.picture(src)).filter(Boolean));
       gallery.hidden = !gallery.childElementCount;
       this.bindVote(root, post);
+    }
+  }
+
+  class communityMemberView extends communityView {
+    constructor(api) {
+      super(api);
+      this.dialog = find("member-dialog");
+      this.content = find("member-content");
+      this.formatDate = new Intl.DateTimeFormat("vi-VN", {dateStyle: "short"});
+      document.addEventListener("click", (event) => {
+        const trigger = event.target.closest("[data-member-id]");
+        if (trigger) this.open(trigger.dataset.memberId);
+      });
+      this.dialog.addEventListener("close", () => {
+        if (!this.dialog.open) this.request?.abort();
+      });
+      this.dialog.addEventListener("click", (event) => {
+        if (event.target === this.dialog) this.dialog.close();
+      });
+    }
+
+    async open(memberId) {
+      this.request?.abort();
+      const request = new AbortController();
+      this.request = request;
+      this.content.hidden = true;
+      const status = find("member-status");
+      status.hidden = false;
+      status.textContent = "Đang tải hồ sơ…";
+      this.dialog.querySelector(".member-dialog-scroll").scrollTop = 0;
+      if (!this.dialog.open) this.dialog.showModal();
+      try {
+        const profile = await this.api.request(`members/${encodeURIComponent(memberId)}`, "GET", undefined, request.signal);
+        if (request.signal.aborted) return;
+        this.render(profile);
+        status.textContent = "";
+        status.hidden = true;
+        this.content.hidden = false;
+      } catch (error) {
+        if (!request.signal.aborted) status.textContent = error.message;
+      }
+    }
+
+    render(profile) {
+      find("member-name").textContent = profile.displayName;
+      find("member-avatar").textContent = profile.displayName.trim().split(/\s+/u)
+        .slice(0, 2).map((word) => Array.from(word)[0]).join("").toLocaleUpperCase("vi-VN");
+      find("member-role").textContent = profile.role;
+      const place = find("member-place");
+      place.hidden = !profile.location;
+      place.querySelector("span").textContent = profile.location;
+      find("member-post-count").textContent = profile.postCount;
+      find("member-reply-count").textContent = profile.replyCount;
+      find("member-posts").replaceChildren(...profile.posts.map((post) => {
+        const row = this.element("li");
+        const link = this.element("a", "", "member-post");
+        link.href = `/forum/${encodeURIComponent(post.id)}`;
+        const info = this.element("span", "", "member-post-info");
+        const labels = [data.topics[post.topic], post.cultivar, post.isSample ? "[Giả lập]" : ""];
+        info.append(
+          this.element("small", [...labels.filter(Boolean), this.formatDate.format(new Date(post.createdAt))].join(" · ")),
+          this.element("strong", post.title),
+        );
+        link.append(info, this.element("span", `${post.score} hữu ích →`, "member-post-score"));
+        row.append(link);
+        return row;
+      }));
+      find("member-empty").hidden = profile.posts.length > 0;
+      const summary = find("member-post-summary");
+      summary.hidden = profile.postCount <= profile.posts.length;
+      summary.textContent = `Đang xem ${profile.posts.length}/${profile.postCount} bài đã chia sẻ.`;
     }
   }
 
@@ -414,7 +494,15 @@
       const item = this.element("article", "", reply.isAccepted ? "is-accepted" : "");
       item.id = "reply-" + reply.id;
       const header = this.element("div", "", "community-reply-header");
-      header.append(this.element("strong", reply.author), this.element("time", this.date(reply.createdAt), "community-meta"));
+      const author = this.element(
+        reply.isDeleted ? "strong" : "button", reply.author, reply.isDeleted ? "" : "member-trigger"
+      );
+      if (!reply.isDeleted) {
+        author.type = "button";
+        author.dataset.memberId = reply.authorId;
+        author.setAttribute("aria-haspopup", "dialog");
+      }
+      header.append(author, this.element("time", this.date(reply.createdAt), "community-meta"));
       if (reply.isAccepted) header.append(this.element("span", "✓ Được tác giả chọn", "community-accepted"));
       if (reply.version > 1 && !reply.isDeleted) header.append(this.element("span", "Đã chỉnh sửa", "community-meta"));
       item.append(header, this.element("p", reply.isDeleted ? "Câu trả lời đã được tác giả xóa." : reply.body));
@@ -478,6 +566,7 @@
   }
 
   const api = new communityApi(data.csrfToken);
+  if (find("forum-feed") || find("forum-detail")) new communityMemberView(api);
   if (find("forum-feed")) new communityFeedView(api);
   if (find("forum-compose")) new communityComposeView(api);
   if (find("forum-detail")) new communityDetailView(api);

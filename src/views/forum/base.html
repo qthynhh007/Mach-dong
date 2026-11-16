@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}{% endblock %} · Mạch Đồng</title>
   <link rel="icon" href="/static/assets/stitch-simulation/co-ma-logo.png">
-  <link rel="stylesheet" href="/static/assets/stitch-simulation/fonts.css">
   {% block styles %}{% endblock %}
   <link rel="stylesheet" href="/static/shell.css">
   <link rel="stylesheet" href="/static/forum.css">
@@ -25,6 +24,7 @@
   <noscript><p class="community-status">Hãy bật JavaScript để dùng diễn đàn.</p></noscript>
   {% block content %}{% endblock %}
 </main>
+{% include "forum/member-dialog.html" %}
 {% if forumData is defined %}<script id="forum-data" type="application/json">{{ forumData|tojson }}</script>{% endif %}
 <script src="/static/forum.js" defer></script>
 </body>

@@ -1,7 +1,7 @@
 :root { --md-green: #1a654d; --md-ink: #0e2c24; }
 html { scroll-padding-top: 76px; }
 * { box-sizing: border-box; }
-body { margin: 0; color: var(--md-ink); font-family: "Be Vietnam Pro", Arial, sans-serif; }
+body { margin: 0; color: var(--md-ink); }
 [hidden] { display: none !important; }
 [data-alt] { background-color: #124b38; }
 .app-skip-link {
@@ -94,6 +94,10 @@ body.app-workspace { padding-left: 240px; }
 .app-csv-results { max-height: 14rem; overflow: auto; }
 .app-csv-results table { border-collapse: collapse; min-width: 100%; font-size: .75rem; }
 .app-csv-results td, .app-csv-results th { text-align: left; border: 1px solid #dce6dc; padding: .4rem; }
+[data-dataset] a[href^="https://"], [data-source-url] {
+  text-decoration: underline;
+  text-underline-offset: .15em;
+}
 @media (max-width: 1023px) {
   .app-side { display: none; }
   .app-more-links { display: block; }

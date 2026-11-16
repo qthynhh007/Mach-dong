@@ -4,7 +4,7 @@ from io import StringIO
 from src.config import MAX_CSV_BYTES
 
 
-def preview_csv(raw: bytes) -> dict[str, list[str] | list[list[str]] | int]:
+def preview_csv(raw: bytes, limit: int = 5) -> dict[str, list[str] | list[list[str]] | int]:
     if not raw or len(raw) > MAX_CSV_BYTES:
         raise ValueError("Tệp cần có dữ liệu và dung lượng không quá 1 MB.")
     try:
@@ -22,7 +22,7 @@ def preview_csv(raw: bytes) -> dict[str, list[str] | list[list[str]] | int]:
             if len(row) != len(columns):
                 raise ValueError(f"Số cột không khớp ở dòng {reader.line_num}.")
             row_count += 1
-            if len(rows) < 5:
+            if len(rows) < limit:
                 rows.append([cell[:200] for cell in row])
         if not row_count:
             raise ValueError("CSV chưa có dòng số liệu.")

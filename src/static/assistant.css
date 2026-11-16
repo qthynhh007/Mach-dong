@@ -173,6 +173,8 @@ button.assistant-reset:hover { background: var(--assistant-light); }
 }
 
 .assistant-bubble p { white-space: pre-wrap; }
+.assistant-sources { margin: .65rem 0 0; padding-inline-start: 1.25rem; font-size: .8rem; }
+.assistant-sources a { color: inherit; text-decoration: underline; text-underline-offset: .15em; }
 
 .assistant-message--you .assistant-bubble {
   border-color: #cee0ce;
@@ -206,6 +208,15 @@ button.assistant-reset:hover { background: var(--assistant-light); }
   padding: .66rem clamp(.75rem, 1.8vw, 1.3rem) .9rem;
   border-top: 1px solid var(--assistant-edge);
 }
+
+.assistant-main .assistant-error {
+  margin-top: .5rem;
+  color: #9f2424;
+  font-size: .82rem;
+  line-height: 1.5;
+}
+
+.assistant-error:empty { display: none; }
 
 .assistant-starters { display: flex; flex-wrap: wrap; gap: .25rem .45rem; margin-bottom: .45rem; }
 

@@ -1,0 +1,34 @@
+{% from "shared/icon.html" import icon %}
+<ul class="csv-list" aria-label="Các bộ dữ liệu CSV">
+  {% for dataset, row_count in datasets %}
+  {% set download = url_for('community.download_sample', name=dataset.slug) %}
+  <li class="csv-row" data-dataset="{{ dataset.categories | join(' ') }}">
+    <div class="csv-row-main">
+      <h2 id="csv-title-{{ dataset.slug }}">{{ dataset.path.name }}</h2>
+      <span class="csv-badge{{ ' csv-badge-demo' if dataset.simulated else '' }}">
+        {{ '[Giả lập]' if dataset.simulated else 'Có nguồn đối chiếu' }}
+      </span>
+      <p>{{ dataset.title }} · {{ dataset.details }}</p>
+      {% if dataset.sources %}
+      <p class="csv-sources">
+        {% for title, url in dataset.sources %}
+        <a href="{{ url }}" target="_blank" rel="noopener noreferrer">{{ title }}</a>{{ ' · ' if not loop.last else '' }}
+        {% endfor %}
+      </p>
+      {% endif %}
+    </div>
+    <div class="csv-data-points">
+      <p title="Địa bàn">{{ icon("location_on") }} <span>{{ dataset.location }}</span></p>
+      <p title="Số dòng và dung lượng">{{ icon("table_view") }} <span>{{ row_count }} dòng · {{ dataset.file_size }}</span></p>
+      <p title="Kỳ dữ liệu">{{ icon("clock") }} <span>{{ dataset.period }}</span></p>
+    </div>
+    <div class="csv-row-actions">
+      <button type="button" class="csv-button csv-secondary"
+              data-csv-preview="{{ url_for('community.dataset_preview', name=dataset.slug) }}"
+              data-csv-file="{{ dataset.path.name }}" data-csv-download="{{ download }}"
+              aria-describedby="csv-title-{{ dataset.slug }}" aria-haspopup="dialog">{{ icon("visibility") }} Xem thử</button>
+      <a class="csv-button csv-primary" href="{{ download }}" aria-describedby="csv-title-{{ dataset.slug }}">{{ icon("download") }} Tải về</a>
+    </div>
+  </li>
+  {% endfor %}
+</ul>

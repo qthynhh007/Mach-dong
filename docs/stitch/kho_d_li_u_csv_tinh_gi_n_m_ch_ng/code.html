@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+
+<html lang="vi"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;font-family:'Be Vietnam Pro',sans-serif;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{"colors":{"on-primary-fixed-variant":"#00513b","on-primary":"#ffffff","surface-container":"#eeeee7","on-surface":"#1a1c18","surface-bright":"#fafaf3","tertiary-container":"#4f5f23","background":"#fafaf3","on-secondary-fixed":"#022019","inverse-on-surface":"#f1f1ea","on-primary-container":"#98dfc1","on-secondary-container":"#4d6a60","surface-dim":"#dadad4","inverse-primary":"#8ed5b7","on-background":"#1a1c18","surface-container-lowest":"#ffffff","primary-container":"#1a654d","on-tertiary":"#ffffff","error":"#ba1a1a","inverse-surface":"#2f312d","surface-variant":"#e3e3dc","on-error-container":"#93000a","outline-variant":"#bfc9c2","surface-container-low":"#f4f4ed","error-container":"#ffdad6","surface-tint":"#216a52","secondary-container":"#c9eadd","secondary-fixed":"#c9eadd","secondary":"#47645b","on-surface-variant":"#3f4944","on-secondary-fixed-variant":"#2f4c43","surface-container-highest":"#e3e3dc","primary":"#004c37","tertiary-fixed":"#d7eba0","secondary-fixed-dim":"#adcdc1","surface":"#fafaf3","on-secondary":"#ffffff","on-tertiary-fixed-variant":"#3d4c12","surface-container-high":"#e8e9e2","tertiary":"#38470d","outline":"#6f7974","tertiary-fixed-dim":"#bbcf86","on-tertiary-fixed":"#161f00","primary-fixed":"#a9f1d2","on-error":"#ffffff","primary-fixed-dim":"#8ed5b7","on-tertiary-container":"#c5d88f","on-primary-fixed":"#002116"},"borderRadius":{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},"spacing":{"margin-desktop":"3rem","space-sm":"0.5rem","space-xl":"2.5rem","space-lg":"1.5rem","gutter":"1rem","space-xs":"0.25rem","gutter-tablet":"1.25rem","gutter-desktop":"1.5rem","margin-tablet":"2rem","space-md":"1rem","margin":"1rem"},"fontFamily":{"label-sm":["Inter"],"body-sm":["Inter"],"headline-md":["Inter"],"headline-lg-mobile":["Inter"],"headline-xl-mobile":["Inter"],"headline-lg":["Inter"],"headline-sm":["Inter"],"body-lg":["Inter"],"headline-xl":["Inter"],"data-mono-sm":["IBM Plex Sans"],"body-md":["Inter"],"label-md":["Inter"],"data-mono-lg":["IBM Plex Sans"],"data-mono-md":["IBM Plex Sans"]},"fontSize":{"label-sm":["11px",{"lineHeight":"16px","letterSpacing":"0.04em","fontWeight":"600"}],"body-sm":["14px",{"lineHeight":"20px","fontWeight":"400"}],"headline-md":["24px",{"lineHeight":"32px","letterSpacing":"-0.01em","fontWeight":"600"}],"headline-lg-mobile":["26px",{"lineHeight":"34px","letterSpacing":"-0.01em","fontWeight":"600"}],"headline-xl-mobile":["32px",{"lineHeight":"40px","letterSpacing":"-0.01em","fontWeight":"700"}],"headline-lg":["36px",{"lineHeight":"44px","letterSpacing":"-0.02em","fontWeight":"600"}],"headline-sm":["20px",{"lineHeight":"28px","fontWeight":"600"}],"body-lg":["18px",{"lineHeight":"28px","fontWeight":"400"}],"headline-xl":["48px",{"lineHeight":"56px","letterSpacing":"-0.02em","fontWeight":"700"}],"data-mono-sm":["12px",{"lineHeight":"16px","fontWeight":"400"}],"body-md":["16px",{"lineHeight":"24px","fontWeight":"400"}],"label-md":["13px",{"lineHeight":"18px","letterSpacing":"0.01em","fontWeight":"500"}],"data-mono-lg":["20px",{"lineHeight":"28px","letterSpacing":"0.02em","fontWeight":"600"}],"data-mono-md":["14px",{"lineHeight":"20px","fontWeight":"500"}]}}}}</script></head><body class="bg-background font-body-md text-on-surface antialiased selection:bg-secondary-container selection:text-on-secondary-fixed"><header class="fixed top-0 left-0 right-0 h-16 bg-surface-bright/75 backdrop-blur-xl z-40 border-b border-outline-variant/30 shadow-[0_4px_24px_rgba(0,0,0,0.03)]"><div class="h-16 w-full px-space-md flex items-center justify-between gap-space-sm"><div class="flex items-center gap-space-md"><div class="w-[240px] shrink-0 flex items-center gap-space-xs"><span class="font-headline-sm text-headline-sm font-bold tracking-tight text-primary flex items-center gap-space-xs"><span class="text-[22px]">🌾</span><span>MẠCH ĐỒNG</span></span><span class="hidden lg:inline-block font-label-sm text-label-sm text-secondary uppercase tracking-wider pl-space-xs font-semibold">ĐBSCL</span></div><div class="hidden sm:flex items-center gap-space-xs bg-surface-container-high/70 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/50 shadow-sm"><span class="w-2 h-2 rounded-full bg-error animate-pulse"></span><span class="font-label-sm text-label-sm text-on-surface-variant font-medium">Cống Mương Lộ:</span><span class="font-data-mono-md text-data-mono-md font-bold text-error">2.8 g/L</span><span class="font-label-sm text-label-sm px-1.5 py-0.5 rounded-md bg-surface-container-highest/80 text-on-surface-variant font-medium">(Đóng)</span></div></div><div class="flex items-center gap-space-md shrink-0"><div class="flex items-center gap-space-xs bg-secondary-container/60 backdrop-blur-md border border-white/40 px-3 py-1.5 rounded-full shadow-sm"><span class="text-[14px]">🌾</span><span class="font-data-mono-md text-data-mono-md font-bold text-on-secondary-fixed">350 LÚA</span><span class="text-outline-variant font-body-sm text-body-sm">|</span><a class="font-label-sm text-label-sm text-primary hover:text-on-primary-fixed-variant transition-colors font-semibold" data-path="the-le-thuong-lua" href="#">Thể lệ thưởng</a></div><div class="flex items-center gap-space-sm bg-surface-container-lowest/80 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/70 shadow-sm hover:shadow transition-all"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0 shadow-sm"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div><div class="hidden md:flex flex-col text-left pr-2"><span class="font-label-md text-label-md font-bold text-on-surface leading-tight">Chú Năm Ruộng</span><span class="font-label-sm text-[11px] text-on-surface-variant font-medium">HTX Long Hữu</span></div></div></div></div></header><aside class="fixed left-0 top-16 bottom-0 w-[240px] bg-surface-container-lowest/85 backdrop-blur-xl z-30 flex flex-col justify-between border-r border-outline-variant/30 shadow-[4px_0_24px_rgba(0,0,0,0.02)] overflow-y-auto"><div class="py-space-md flex flex-col gap-space-md"><div class="px-space-md"><span class="font-label-sm text-label-sm font-bold uppercase tracking-wider text-secondary">ĐIỀU HÀNH &amp; DỮ LIỆU</span><nav class="mt-space-xs flex flex-col gap-1" data-active-classes="bg-secondary-container/80 backdrop-blur-md text-on-secondary-fixed font-semibold rounded-xl border border-secondary-fixed/50"><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-xl text-on-surface-variant hover:bg-surface-container-high/60 hover:text-on-surface transition-all font-body-sm text-body-sm" data-path="tong-quan-vung" href="#"><span class="material-symbols-outlined text-[18px]">map</span><span>Tổng quan vùng</span></a><a aria-current="page" class="flex items-center gap-space-sm px-space-sm py-2 transition-all bg-secondary-container/80 backdrop-blur-md text-on-secondary-fixed font-semibold rounded-xl border border-secondary-fixed/50 shadow-sm" data-path="kho-csv-do-man-nuoc" href="#"><span class="material-symbols-outlined text-[18px]">dataset</span><span>Kho CSV độ mặn &amp; nước</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-xl text-on-surface-variant hover:bg-surface-container-high/60 hover:text-on-surface transition-all font-body-sm text-body-sm" data-path="thao-luan-ba-con" href="#"><span class="material-symbols-outlined text-[18px]">forum</span><span>Thảo luận bà con</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-xl text-on-surface-variant hover:bg-surface-container-high/60 hover:text-on-surface transition-all font-body-sm text-body-sm" data-path="mo-phong-sinh-ly-lua" href="#"><span class="material-symbols-outlined text-[18px]">psychology_alt</span><span>Mô phỏng Sinh lý Lúa</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-xl text-on-surface-variant hover:bg-surface-container-high/60 hover:text-on-surface transition-all font-body-sm text-body-sm" data-path="nhat-ky-dong-ruong" href="#"><span class="material-symbols-outlined text-[18px]">menu_book</span><span>Nhật ký đồng ruộng</span></a></nav></div><div class="px-space-md"><span class="font-label-sm text-label-sm font-bold uppercase tracking-wider text-secondary">THIẾT LẬP</span><nav class="mt-space-xs flex flex-col gap-1" data-active-classes="bg-secondary-container/80 text-on-secondary-fixed font-semibold rounded-xl"><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-xl text-on-surface-variant hover:bg-surface-container-high/60 hover:text-on-surface transition-all font-body-sm text-body-sm" data-path="ho-so-doi-mat-khau" href="#"><span class="material-symbols-outlined text-[18px]">manage_accounts</span><span>Hồ sơ &amp; Đổi mật khẩu</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-xl text-on-surface-variant hover:bg-surface-container-high/60 hover:text-on-surface transition-all font-body-sm text-body-sm" data-path="the-le-thuong-lua" href="#"><span class="material-symbols-outlined text-[18px]">military_tech</span><span>Thể lệ thưởng LÚA</span></a></nav></div></div><div class="p-space-sm m-space-sm bg-surface-container-low/80 backdrop-blur-md rounded-2xl border border-white/60 shadow-[0_4px_16px_rgba(0,0,0,0.03)]"><div class="flex items-start gap-space-xs mb-1.5"><span class="material-symbols-outlined text-tertiary-container text-[18px] shrink-0 mt-0.5">warning</span><span class="font-label-sm text-label-sm font-bold text-tertiary-container uppercase tracking-wide">Khuyến cáo hôm nay</span></div><p class="font-body-sm text-[12px] leading-[18px] text-on-surface-variant">Triều cường rằm Tháng 10 mặn <span class="font-bold text-error">2.8 g/L</span> áp sát cửa cống. Đóng cống Mương Lộ trữ ngọt, ém rễ lúa OM5451 ở mức <span class="font-bold text-primary">+10cm</span>.</p></div></aside><div class="pl-[240px]"><main class="relative pt-16 min-h-screen bg-background w-full overflow-hidden"><div class="flex flex-col w-full relative">
+<!-- Glassmorphism 2026 Ambient Glowing Orbs -->
+<div class="fixed top-12 right-20 w-[480px] h-[480px] bg-primary-fixed/35 rounded-full blur-[110px] pointer-events-none -z-10 animate-pulse" style="animation-duration: 9s;"></div>
+<div class="fixed bottom-10 left-[280px] w-[420px] h-[420px] bg-secondary-container/45 rounded-full blur-[100px] pointer-events-none -z-10"></div>
+<div class="fixed top-1/2 right-1/3 w-[360px] h-[360px] bg-tertiary-fixed/25 rounded-full blur-[100px] pointer-events-none -z-10"></div>
+<!-- Main Container -->
+<div class="w-full max-w-[1360px] mx-auto px-4 md:px-8 py-6 space-y-6">
+<!-- Top Breadcrumb & Metadata Strip -->
+<div class="flex flex-wrap items-center justify-between gap-3 text-on-surface-variant font-label-sm text-label-sm">
+<div class="flex items-center gap-2">
+<span class="text-primary font-bold">MẠCH ĐỒNG</span>
+<span class="text-outline-variant">/</span>
+<span class="text-secondary font-medium">Dữ liệu mở Mekong</span>
+<span class="text-outline-variant">/</span>
+<span class="text-on-surface font-semibold">Kho CSV độ mặn &amp; nước</span>
+</div>
+<div class="flex items-center gap-4 bg-surface-container-low/75 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/60 shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
+<span class="flex items-center gap-2 text-primary font-medium">
+<span class="w-2 h-2 rounded-full bg-primary animate-ping"></span>
+          Đồng bộ trạm: 14 trạm tự động
+        </span>
+<span class="text-outline-variant">·</span>
+<span class="font-data-mono-sm text-data-mono-sm text-on-surface-variant">Block #18,492,102 (Avalanche Tx Verified)</span>
+</div>
+</div>
+<!-- Header Section with Search & CTA -->
+<div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 pb-2">
+<div class="max-w-2xl">
+<h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight font-extrabold mb-2">
+          Kho Dữ Liệu CSV Quan Trắc Cộng Đồng
+        </h1>
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+          Dữ liệu độ mặn (EC/TDS) và mực nước đo đạc thực tế từ bà con &amp; trạm cảm biến ĐBSCL. Tự do khai thác, phân tích và chia sẻ phòng ngừa thiên tai.
+        </p>
+</div>
+<!-- Action Controls -->
+<div class="flex flex-wrap items-center gap-3 shrink-0">
+<!-- Frosted Glass Search Bar -->
+<div class="relative w-full sm:w-80">
+<div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-secondary">
+<span class="material-symbols-outlined text-[18px]">search</span>
+</div>
+<input class="w-full pl-10 pr-4 py-2.5 bg-surface-container-lowest/70 backdrop-blur-xl border border-white/70 text-on-surface placeholder:text-outline text-body-sm font-body-sm rounded-xl shadow-[0_2px_12px_rgba(0,0,0,0.03)] focus:outline-none focus:ring-2 focus:ring-primary focus:bg-surface-container-lowest/90 transition-all" id="csv-search" placeholder="Tìm theo tên file, xã, trạm cống..." type="text"/>
+</div>
+<!-- Upload CSV Button -->
+<button class="flex items-center gap-2 px-4 py-2.5 bg-primary hover:bg-on-primary-fixed-variant text-on-primary font-label-md text-label-md rounded-xl shadow-[0_4px_16px_rgba(0,76,55,0.25)] hover:shadow-[0_6px_20px_rgba(0,76,55,0.35)] transition-all duration-200 active:scale-[0.98] shrink-0 border border-primary-fixed/20" onclick="openUploadModal()">
+<span class="material-symbols-outlined text-[18px]">upload_file</span>
+<span>+ Tải lên CSV</span>
+<span class="bg-primary-fixed text-on-primary-fixed px-2 py-0.5 rounded-full text-[11px] font-bold shadow-sm">+15 LÚA</span>
+</button>
+</div>
+</div>
+<!-- Quick Filter Pills & Summary Metric Banner -->
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4 p-3 bg-surface-container-low/70 backdrop-blur-xl border border-white/60 rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.02)]">
+<!-- Filter Chips -->
+<div class="flex items-center gap-2 overflow-x-auto pb-1 md:pb-0 text-nowrap scrollbar-none" id="filter-container">
+<button class="filter-btn active px-3.5 py-1.5 rounded-xl text-label-sm font-label-sm bg-primary text-on-primary shadow-sm transition-all" data-filter="all">
+          Tất cả (12)
+        </button>
+<button class="filter-btn px-3.5 py-1.5 rounded-xl text-label-sm font-label-sm bg-surface-container-highest/60 backdrop-blur-md text-on-surface-variant hover:bg-surface-container-high transition-all" data-filter="long-huu">
+          Xã Long Hữu
+        </button>
+<button class="filter-btn px-3.5 py-1.5 rounded-xl text-label-sm font-label-sm bg-surface-container-highest/60 backdrop-blur-md text-on-surface-variant hover:bg-surface-container-high transition-all" data-filter="muong-lo">
+          Trạm Cống Mương Lộ
+        </button>
+<button class="filter-btn px-3.5 py-1.5 rounded-xl text-label-sm font-label-sm bg-surface-container-highest/60 backdrop-blur-md text-on-surface-variant hover:bg-surface-container-high transition-all" data-filter="om5451">
+          Ruộng OM5451
+        </button>
+<button class="filter-btn px-3.5 py-1.5 rounded-xl text-label-sm font-label-sm bg-surface-container-highest/60 backdrop-blur-md text-on-surface-variant hover:bg-surface-container-high transition-all" data-filter="this-week">
+          Tuần này
+        </button>
+</div>
+<!-- Quick Metrics Counter -->
+<div class="flex items-center gap-4 text-label-sm font-label-sm text-on-surface-variant shrink-0 self-end md:self-auto px-2">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-secondary text-[16px]">folder_zip</span>
+<span>Tổng: <strong class="text-on-surface font-semibold">12 bộ dữ liệu</strong></span>
+</div>
+<span class="text-outline-variant">|</span>
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-primary text-[16px]">cloud_download</span>
+<span>Lượt tải: <strong class="text-on-surface font-semibold">1,840</strong></span>
+</div>
+</div>
+</div>
+<!-- CSV FILE LIST: Modern Glassmorphic Single-Row List (Frosted Glass 2026) -->
+<div class="space-y-3" id="csv-list">
+<!-- Row 1: Cống Mương Lộ -->
+<div class="csv-item group bg-surface-container-lowest/65 backdrop-blur-xl hover:bg-surface-container-lowest/90 border border-white/70 hover:border-primary/40 transition-all duration-200 rounded-2xl p-4 md:px-5 md:py-4 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_30px_rgba(0,76,55,0.08)] flex flex-col lg:flex-row lg:items-center justify-between gap-4" data-category="muong-lo this-week">
+<div class="flex flex-col gap-1 min-w-0 lg:w-[36%]">
+<div class="flex items-center gap-2.5 flex-wrap">
+<span class="font-data-mono-md text-[15px] font-semibold text-on-surface group-hover:text-primary transition-colors tracking-tight">do_man_tram_muong_lo_ram_thang10.csv</span>
+<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full font-label-sm text-[11px] bg-error-container/80 backdrop-blur-md text-on-error-container border border-error/20 font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-error animate-pulse"></span>
+        2.8 g/L Đỉnh mặn (Cảnh báo)
+      </span>
+</div>
+<p class="font-body-sm text-[12px] text-on-surface-variant truncate">Chuỗi đo EC tự động tần suất 15 phút/lần tại cửa cống đợt triều cường rằm tháng 10.</p>
+</div>
+<div class="flex items-center gap-2 text-on-surface-variant font-body-sm text-[13px] lg:w-[20%] min-w-0">
+<span class="material-symbols-outlined text-secondary text-[16px] shrink-0">location_on</span>
+<span class="truncate"><strong class="text-on-surface font-medium">Cống Mương Lộ</strong> · Trạm HTX</span>
+</div>
+<div class="flex items-center gap-2 text-on-surface-variant font-data-mono-sm text-[12px] lg:w-[15%] shrink-0">
+<span class="material-symbols-outlined text-outline text-[16px]">dataset</span>
+<span>2,880 dòng · <strong class="text-on-surface font-medium">96 KB</strong></span>
+</div>
+<div class="flex items-center gap-1.5 text-on-surface-variant font-label-sm text-[12px] lg:w-[13%] shrink-0">
+<span class="material-symbols-outlined text-outline text-[15px]">schedule</span>
+<span>Hôm nay, 07:30</span>
+</div>
+<div class="flex items-center gap-2 lg:w-[16%] justify-end shrink-0">
+<button class="px-3 py-1.5 bg-surface-container-high/50 hover:bg-surface-container-high backdrop-blur-md text-on-surface-variant hover:text-on-surface font-label-sm text-[12px] rounded-xl border border-white/50 transition-all flex items-center gap-1.5 shadow-sm" onclick="openPreviewModal('do_man_tram_muong_lo_ram_thang10.csv', 'Cống Mương Lộ · Trạm HTX', '2.8 g/L', 'danger')">
+<span class="material-symbols-outlined text-[15px]">visibility</span>
+<span>Xem thử</span>
+</button>
+<button class="px-3.5 py-1.5 bg-primary hover:bg-on-primary-fixed-variant text-on-primary font-label-sm text-[12px] font-medium rounded-xl transition-all shadow-sm hover:shadow flex items-center gap-1.5" onclick="triggerDownload('do_man_tram_muong_lo_ram_thang10.csv')">
+<span class="material-symbols-outlined text-[15px]">download</span>
+<span>Tải về</span>
+</button>
+</div>
+</div>
+<!-- Row 2: Ấp 3 Long Hữu -->
+<div class="csv-item group bg-surface-container-lowest/65 backdrop-blur-xl hover:bg-surface-container-lowest/90 border border-white/70 hover:border-primary/40 transition-all duration-200 rounded-2xl p-4 md:px-5 md:py-4 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_30px_rgba(0,76,55,0.08)] flex flex-col lg:flex-row lg:items-center justify-between gap-4" data-category="long-huu om5451 this-week">
+<div class="flex flex-col gap-1 min-w-0 lg:w-[36%]">
+<div class="flex items-center gap-2.5 flex-wrap">
+<span class="font-data-mono-md text-[15px] font-semibold text-on-surface group-hover:text-primary transition-colors tracking-tight">em_ngot_ranh_liep_ruong_om5451.csv</span>
+<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full font-label-sm text-[11px] bg-secondary-container/80 backdrop-blur-md text-on-secondary-fixed border border-secondary/20 font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+        1.4 g/L An toàn sinh lý
+      </span>
+</div>
+<p class="font-body-sm text-[12px] text-on-surface-variant truncate">Quan trắc nước chân ruộng rãnh liếp trữ ngọt ém phèn lúa OM5451 giai đoạn đẻ nhánh.</p>
+</div>
+<div class="flex items-center gap-2 text-on-surface-variant font-body-sm text-[13px] lg:w-[20%] min-w-0">
+<span class="material-symbols-outlined text-secondary text-[16px] shrink-0">location_on</span>
+<span class="truncate"><strong class="text-on-surface font-medium">Ấp 3, Long Hữu</strong> · Chú Năm Ruộng</span>
+</div>
+<div class="flex items-center gap-2 text-on-surface-variant font-data-mono-sm text-[12px] lg:w-[15%] shrink-0">
+<span class="material-symbols-outlined text-outline text-[16px]">dataset</span>
+<span>720 dòng · <strong class="text-on-surface font-medium">24 KB</strong></span>
+</div>
+<div class="flex items-center gap-1.5 text-on-surface-variant font-label-sm text-[12px] lg:w-[13%] shrink-0">
+<span class="material-symbols-outlined text-outline text-[15px]">schedule</span>
+<span>Hôm nay, 06:45</span>
+</div>
+<div class="flex items-center gap-2 lg:w-[16%] justify-end shrink-0">
+<button class="px-3 py-1.5 bg-surface-container-high/50 hover:bg-surface-container-high backdrop-blur-md text-on-surface-variant hover:text-on-surface font-label-sm text-[12px] rounded-xl border border-white/50 transition-all flex items-center gap-1.5 shadow-sm" onclick="openPreviewModal('em_ngot_ranh_liep_ruong_om5451.csv', 'Ấp 3, Long Hữu · Chú Năm Ruộng', '1.4 g/L', 'safe')">
+<span class="material-symbols-outlined text-[15px]">visibility</span>
+<span>Xem thử</span>
+</button>
+<button class="px-3.5 py-1.5 bg-primary hover:bg-on-primary-fixed-variant text-on-primary font-label-sm text-[12px] font-medium rounded-xl transition-all shadow-sm hover:shadow flex items-center gap-1.5" onclick="triggerDownload('em_ngot_ranh_liep_ruong_om5451.csv')">
+<span class="material-symbols-outlined text-[15px]">download</span>
+<span>Tải về</span>
+</button>
+</div>
+</div>
+<!-- Row 3: Kênh Nội Đồng -->
+<div class="csv-item group bg-surface-container-lowest/65 backdrop-blur-xl hover:bg-surface-container-lowest/90 border border-white/70 hover:border-primary/40 transition-all duration-200 rounded-2xl p-4 md:px-5 md:py-4 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_30px_rgba(0,76,55,0.08)] flex flex-col lg:flex-row lg:items-center justify-between gap-4" data-category="this-week">
+<div class="flex flex-col gap-1 min-w-0 lg:w-[36%]">
+<div class="flex items-center gap-2.5 flex-wrap">
+<span class="font-data-mono-md text-[15px] font-semibold text-on-surface group-hover:text-primary transition-colors tracking-tight">quan_trac_kenh_noi_dong_ap_cong.csv</span>
+<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full font-label-sm text-[11px] bg-tertiary-fixed/80 backdrop-blur-md text-on-tertiary-fixed border border-tertiary/20 font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span>
+        0.9 g/L Nước ngọt tốt (Bơm tưới)
+      </span>
+</div>
+<p class="font-body-sm text-[12px] text-on-surface-variant truncate">Dữ liệu trắc địa đo mực nước kênh nhánh nội đồng, phù hợp mở cống tiếp nước ngọt.</p>
+</div>
+<div class="flex items-center gap-2 text-on-surface-variant font-body-sm text-[13px] lg:w-[20%] min-w-0">
+<span class="material-symbols-outlined text-secondary text-[16px] shrink-0">location_on</span>
+<span class="truncate"><strong class="text-on-surface font-medium">Ấp Cống</strong> · Kỹ sư Khang</span>
+</div>
+<div class="flex items-center gap-2 text-on-surface-variant font-data-mono-sm text-[12px] lg:w-[15%] shrink-0">
+<span class="material-symbols-outlined text-outline text-[16px]">dataset</span>
+<span>1,200 dòng · <strong class="text-on-surface font-medium">40 KB</strong></span>
+</div>
+<div class="flex items-center gap-1.5 text-on-surface-variant font-label-sm text-[12px] lg:w-[13%] shrink-0">
+<span class="material-symbols-outlined text-outline text-[15px]">schedule</span>
+<span>Hôm qua, 16:20</span>
+</div>
+<div class="flex items-center gap-2 lg:w-[16%] justify-end shrink-0">
+<button class="px-3 py-1.5 bg-surface-container-high/50 hover:bg-surface-container-high backdrop-blur-md text-on-surface-variant hover:text-on-surface font-label-sm text-[12px] rounded-xl border border-white/50 transition-all flex items-center gap-1.5 shadow-sm" onclick="openPreviewModal('quan_trac_kenh_noi_dong_ap_cong.csv', 'Ấp Cống · Kỹ sư Khang', '0.9 g/L', 'fresh')">
+<span class="material-symbols-outlined text-[15px]">visibility</span>
+<span>Xem thử</span>
+</button>
+<button class="px-3.5 py-1.5 bg-primary hover:bg-on-primary-fixed-variant text-on-primary font-label-sm text-[12px] font-medium rounded-xl transition-all shadow-sm hover:shadow flex items-center gap-1.5" onclick="triggerDownload('quan_trac_kenh_noi_dong_ap_cong.csv')">
+<span class="material-symbols-outlined text-[15px]">download</span>
+<span>Tải về</span>
+</button>
+</div>
+</div>
+<!-- Row 4: Nhật ký vụ lúa 95 ngày -->
+<div class="csv-item group bg-surface-container-lowest/65 backdrop-blur-xl hover:bg-surface-container-lowest/90 border border-white/70 hover:border-primary/40 transition-all duration-200 rounded-2xl p-4 md:px-5 md:py-4 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_30px_rgba(0,76,55,0.08)] flex flex-col lg:flex-row lg:items-center justify-between gap-4" data-category="long-huu om5451">
+<div class="flex flex-col gap-1 min-w-0 lg:w-[36%]">
+<div class="flex items-center gap-2.5 flex-wrap">
+<span class="font-data-mono-md text-[15px] font-semibold text-on-surface group-hover:text-primary transition-colors tracking-tight">nhat_ky_do_man_vong_doi_95ngay_om5451.csv</span>
+<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full font-label-sm text-[11px] bg-surface-container-high/80 backdrop-blur-md text-on-surface-variant border border-outline-variant/30 font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+        Trọn bộ 95 ngày (Full Dataset)
+      </span>
+</div>
+<p class="font-body-sm text-[12px] text-on-surface-variant truncate">Tổng hợp độ mặn, nhiệt độ nước và lịch đóng mở cống xuyên suốt vụ lúa Thu Đông.</p>
+</div>
+<div class="flex items-center gap-2 text-on-surface-variant font-body-sm text-[13px] lg:w-[20%] min-w-0">
+<span class="material-symbols-outlined text-secondary text-[16px] shrink-0">location_on</span>
+<span class="truncate"><strong class="text-on-surface font-medium">HTX Long Hữu</strong> · Ban Giám Đốc</span>
+</div>
+<div class="flex items-center gap-2 text-on-surface-variant font-data-mono-sm text-[12px] lg:w-[15%] shrink-0">
+<span class="material-symbols-outlined text-outline text-[16px]">dataset</span>
+<span>4,320 dòng · <strong class="text-on-surface font-medium">142 KB</strong></span>
+</div>
+<div class="flex items-center gap-1.5 text-on-surface-variant font-label-sm text-[12px] lg:w-[13%] shrink-0">
+<span class="material-symbols-outlined text-outline text-[15px]">schedule</span>
+<span>2 ngày trước</span>
+</div>
+<div class="flex items-center gap-2 lg:w-[16%] justify-end shrink-0">
+<button class="px-3 py-1.5 bg-surface-container-high/50 hover:bg-surface-container-high backdrop-blur-md text-on-surface-variant hover:text-on-surface font-label-sm text-[12px] rounded-xl border border-white/50 transition-all flex items-center gap-1.5 shadow-sm" onclick="openPreviewModal('nhat_ky_do_man_vong_doi_95ngay_om5451.csv', 'HTX Long Hữu · Ban Giám Đốc', 'Chuẩn Vụ', 'normal')">
+<span class="material-symbols-outlined text-[15px]">visibility</span>
+<span>Xem thử</span>
+</button>
+<button class="px-3.5 py-1.5 bg-primary hover:bg-on-primary-fixed-variant text-on-primary font-label-sm text-[12px] font-medium rounded-xl transition-all shadow-sm hover:shadow flex items-center gap-1.5" onclick="triggerDownload('nhat_ky_do_man_vong_doi_95ngay_om5451.csv')">
+<span class="material-symbols-outlined text-[15px]">download</span>
+<span>Tải về</span>
+</button>
+</div>
+</div>
+<!-- Row 5: Triều cường duyên hải -->
+<div class="csv-item group bg-surface-container-lowest/65 backdrop-blur-xl hover:bg-surface-container-lowest/90 border border-white/70 hover:border-primary/40 transition-all duration-200 rounded-2xl p-4 md:px-5 md:py-4 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_30px_rgba(0,76,55,0.08)] flex flex-col lg:flex-row lg:items-center justify-between gap-4" data-category="this-week">
+<div class="flex flex-col gap-1 min-w-0 lg:w-[36%]">
+<div class="flex items-center gap-2.5 flex-wrap">
+<span class="font-data-mono-md text-[15px] font-semibold text-on-surface group-hover:text-primary transition-colors tracking-tight">trieu_cuong_bien_dong_tram_duyen_hai.csv</span>
+<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full font-label-sm text-[11px] bg-surface-container-high/80 backdrop-blur-md text-on-surface-variant border border-outline-variant/30 font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+        Triều +1.9m · Cảnh báo rạng sáng
+      </span>
+</div>
+<p class="font-body-sm text-[12px] text-on-surface-variant truncate">Chu kỳ con nước rằm và biên độ triều dâng cửa biển Trà Vinh phục vụ đóng cửa xả ngập úng.</p>
+</div>
+<div class="flex items-center gap-2 text-on-surface-variant font-body-sm text-[13px] lg:w-[20%] min-w-0">
+<span class="material-symbols-outlined text-secondary text-[16px] shrink-0">location_on</span>
+<span class="truncate"><strong class="text-on-surface font-medium">Đài KTTV Ven Biển</strong> · Sensor Tự động</span>
+</div>
+<div class="flex items-center gap-2 text-on-surface-variant font-data-mono-sm text-[12px] lg:w-[15%] shrink-0">
+<span class="material-symbols-outlined text-outline text-[16px]">dataset</span>
+<span>1,800 dòng · <strong class="text-on-surface font-medium">60 KB</strong></span>
+</div>
+<div class="flex items-center gap-1.5 text-on-surface-variant font-label-sm text-[12px] lg:w-[13%] shrink-0">
+<span class="material-symbols-outlined text-outline text-[15px]">schedule</span>
+<span>3 ngày trước</span>
+</div>
+<div class="flex items-center gap-2 lg:w-[16%] justify-end shrink-0">
+<button class="px-3 py-1.5 bg-surface-container-high/50 hover:bg-surface-container-high backdrop-blur-md text-on-surface-variant hover:text-on-surface font-label-sm text-[12px] rounded-xl border border-white/50 transition-all flex items-center gap-1.5 shadow-sm" onclick="openPreviewModal('trieu_cuong_bien_dong_tram_duyen_hai.csv', 'Đài KTTV Ven Biển · Sensor Tự động', 'Triều 1.9m', 'warning')">
+<span class="material-symbols-outlined text-[15px]">visibility</span>
+<span>Xem thử</span>
+</button>
+<button class="px-3.5 py-1.5 bg-primary hover:bg-on-primary-fixed-variant text-on-primary font-label-sm text-[12px] font-medium rounded-xl transition-all shadow-sm hover:shadow flex items-center gap-1.5" onclick="triggerDownload('trieu_cuong_bien_dong_tram_duyen_hai.csv')">
+<span class="material-symbols-outlined text-[15px]">download</span>
+<span>Tải về</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Data Quality & Protocol Note Card: Frosted Glassmorphism 2026 -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">
+<div class="p-5 bg-surface-container-lowest/65 backdrop-blur-xl rounded-2xl border border-white/70 shadow-[0_4px_20px_rgba(0,0,0,0.02)] flex items-start gap-3.5 hover:shadow-md transition-shadow">
+<div class="w-10 h-10 rounded-xl bg-secondary-container/80 backdrop-blur-md text-on-secondary-fixed flex items-center justify-center shrink-0 border border-secondary-fixed/50">
+<span class="material-symbols-outlined text-[20px]">verified</span>
+</div>
+<div>
+<span class="font-label-md text-label-md font-bold text-on-surface block mb-1">Xác thực Avalanche L1</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">Tất cả dữ liệu được băm mã SHA-256 lưu trực tiếp trên chuỗi bảo đảm tính minh bạch, không thể chỉnh sửa hồi tố.</p>
+</div>
+</div>
+<div class="p-5 bg-surface-container-lowest/65 backdrop-blur-xl rounded-2xl border border-white/70 shadow-[0_4px_20px_rgba(0,0,0,0.02)] flex items-start gap-3.5 hover:shadow-md transition-shadow">
+<div class="w-10 h-10 rounded-xl bg-tertiary-fixed/80 backdrop-blur-md text-on-tertiary-fixed flex items-center justify-center shrink-0 border border-tertiary/20">
+<span class="material-symbols-outlined text-[20px]">sensors</span>
+</div>
+<div>
+<span class="font-label-md text-label-md font-bold text-on-surface block mb-1">Chuẩn cảm biến EC công nghiệp</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">Cảm biến bù nhiệt tự động (ATC 25°C), sai số ±0.05 g/L, kiểm chuẩn định kỳ mỗi 15 ngày tại trạm HTX.</p>
+</div>
+</div>
+<div class="p-5 bg-surface-container-lowest/65 backdrop-blur-xl rounded-2xl border border-white/70 shadow-[0_4px_20px_rgba(0,0,0,0.02)] flex items-start gap-3.5 hover:shadow-md transition-shadow">
+<div class="w-10 h-10 rounded-xl bg-primary-fixed/80 backdrop-blur-md text-on-primary-fixed flex items-center justify-center shrink-0 border border-primary-fixed-dim/50">
+<span class="material-symbols-outlined text-[20px]">workspace_premium</span>
+</div>
+<div>
+<span class="font-label-md text-label-md font-bold text-on-surface block mb-1">Thưởng LÚA đóng góp</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">Bà con tải lên file CSV đo đạc thực tế có vị trí GPS nhận ngay +15 LÚA thưởng vào ví cộng đồng HTX.</p>
+</div>
+</div>
+</div>
+</div>
+<!-- ======================================================== -->
+<!-- POPUP MODAL XEM THỬ CSV (Glassmorphism Preview Modal)   -->
+<!-- ======================================================== -->
+<div class="fixed inset-0 z-50 flex items-center justify-center px-4 bg-on-surface/40 backdrop-blur-md opacity-0 pointer-events-none transition-all duration-300" id="preview-modal">
+<div class="w-full max-w-4xl bg-surface-container-lowest/85 backdrop-blur-2xl border border-white/80 rounded-3xl p-6 sm:p-7 shadow-[0_20px_60px_rgba(0,0,0,0.15)] transform scale-95 transition-all duration-300" id="preview-content">
+<!-- Modal Header -->
+<div class="flex items-center justify-between pb-4 border-b border-surface-container/80">
+<div class="flex items-center gap-3">
+<div class="w-11 h-11 rounded-2xl bg-secondary-container/80 text-on-secondary-fixed flex items-center justify-center shrink-0 border border-secondary-fixed/50">
+<span class="material-symbols-outlined text-[24px]">table_chart</span>
+</div>
+<div>
+<h3 class="font-headline-sm text-headline-sm font-bold text-on-surface font-data-mono-md" id="modal-filename">
+              do_man_tram_muong_lo_ram_thang10.csv
+            </h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5" id="modal-meta">
+              Cống Mương Lộ · Trạm HTX | Đo mẫu 5 bản ghi mới nhất
+            </p>
+</div>
+</div>
+<button class="w-9 h-9 rounded-full bg-surface-container/80 hover:bg-surface-container-high flex items-center justify-center text-on-surface-variant transition-colors" onclick="closePreviewModal()">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+<!-- Live Preview Table (5 rows sample) -->
+<div class="mt-5 overflow-hidden rounded-2xl border border-outline-variant/30 bg-surface-container-low/60 backdrop-blur-md">
+<div class="overflow-x-auto">
+<table class="w-full text-left font-data-mono-sm text-data-mono-sm">
+<thead class="bg-surface-container/70 text-on-surface font-bold text-[12px] uppercase tracking-wider">
+<tr>
+<th class="py-3 px-4">Thời gian (UTC+7)</th>
+<th class="py-3 px-4">Vị trí trạm / Ruộng</th>
+<th class="py-3 px-4">Độ mặn (g/L)</th>
+<th class="py-3 px-4">Mực nước (cm)</th>
+<th class="py-3 px-4">Tình trạng mẫu</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container/60 text-on-surface" id="preview-table-body">
+<tr class="hover:bg-surface-container-lowest/70 transition-colors">
+<td class="py-3 px-4 text-on-surface-variant">2024-10-18 07:30:00</td>
+<td class="py-3 px-4 font-medium">Trạm Cống Mương Lộ #01</td>
+<td class="py-3 px-4 font-bold text-error">2.82</td>
+<td class="py-3 px-4">+112.5</td>
+<td class="py-3 px-4"><span class="px-2.5 py-0.5 rounded-full text-[11px] bg-error-container text-on-error-container font-semibold">Triều mặn cao</span></td>
+</tr>
+<tr class="hover:bg-surface-container-lowest/70 transition-colors">
+<td class="py-3 px-4 text-on-surface-variant">2024-10-18 07:15:00</td>
+<td class="py-3 px-4 font-medium">Trạm Cống Mương Lộ #01</td>
+<td class="py-3 px-4 font-bold text-error">2.79</td>
+<td class="py-3 px-4">+108.0</td>
+<td class="py-3 px-4"><span class="px-2.5 py-0.5 rounded-full text-[11px] bg-error-container text-on-error-container font-semibold">Cửa cống đóng</span></td>
+</tr>
+<tr class="hover:bg-surface-container-lowest/70 transition-colors">
+<td class="py-3 px-4 text-on-surface-variant">2024-10-18 07:00:00</td>
+<td class="py-3 px-4 font-medium">Trạm Cống Mương Lộ #01</td>
+<td class="py-3 px-4 font-bold text-error">2.68</td>
+<td class="py-3 px-4">+101.4</td>
+<td class="py-3 px-4"><span class="px-2.5 py-0.5 rounded-full text-[11px] bg-error-container text-on-error-container font-semibold">Đỉnh triều vào</span></td>
+</tr>
+<tr class="hover:bg-surface-container-lowest/70 transition-colors">
+<td class="py-3 px-4 text-on-surface-variant">2024-10-18 06:45:00</td>
+<td class="py-3 px-4 font-medium">Trạm Cống Mương Lộ #01</td>
+<td class="py-3 px-4 font-bold text-on-secondary-fixed">2.41</td>
+<td class="py-3 px-4">+92.0</td>
+<td class="py-3 px-4"><span class="px-2.5 py-0.5 rounded-full text-[11px] bg-secondary-container text-on-secondary-fixed font-semibold">Cảnh báo sớm</span></td>
+</tr>
+<tr class="hover:bg-surface-container-lowest/70 transition-colors">
+<td class="py-3 px-4 text-on-surface-variant">2024-10-18 06:30:00</td>
+<td class="py-3 px-4 font-medium">Trạm Cống Mương Lộ #01</td>
+<td class="py-3 px-4 font-bold text-on-secondary-fixed">2.15</td>
+<td class="py-3 px-4">+85.2</td>
+<td class="py-3 px-4"><span class="px-2.5 py-0.5 rounded-full text-[11px] bg-secondary-container text-on-secondary-fixed font-semibold">Nước bắt đầu lớn</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Modal Footer -->
+<div class="mt-6 flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-surface-container/80">
+<div class="flex items-center gap-2 text-label-sm font-label-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-primary text-[18px]">verified_user</span>
+<span>Chuỗi khối định danh: <code class="font-data-mono-sm text-[11px] bg-surface-container/80 px-2 py-0.5 rounded-md">0x8f3c...b791</code></span>
+</div>
+<div class="flex items-center gap-3">
+<button class="px-4 py-2 bg-surface-container/70 hover:bg-surface-container-high text-on-surface font-label-md text-label-md rounded-xl transition-all" onclick="closePreviewModal()">
+            Đóng
+          </button>
+<button class="flex items-center gap-2 px-4 py-2 bg-primary hover:bg-on-primary-fixed-variant text-on-primary font-label-md text-label-md rounded-xl shadow-md transition-all" id="modal-download-btn" onclick="triggerModalDownload()">
+<span class="material-symbols-outlined text-[18px]">download</span>
+<span>Tải trọn bộ CSV</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- ======================================================== -->
+<!-- POPUP MODAL TẢI LÊN CSV (+15 LÚA)                        -->
+<!-- ======================================================== -->
+<div class="fixed inset-0 z-50 flex items-center justify-center px-4 bg-on-surface/40 backdrop-blur-md opacity-0 pointer-events-none transition-all duration-300" id="upload-modal">
+<div class="w-full max-w-xl bg-surface-container-lowest/85 backdrop-blur-2xl border border-white/80 rounded-3xl p-6 sm:p-7 shadow-[0_20px_60px_rgba(0,0,0,0.15)] transform scale-95 transition-all duration-300" id="upload-content">
+<div class="flex items-center justify-between pb-4 border-b border-surface-container/80">
+<div class="flex items-center gap-3">
+<div class="w-11 h-11 rounded-2xl bg-primary-fixed/80 text-on-primary-fixed flex items-center justify-center shrink-0 border border-primary-fixed-dim/50">
+<span class="material-symbols-outlined text-[24px]">cloud_upload</span>
+</div>
+<div>
+<h3 class="font-headline-sm text-headline-sm font-bold text-on-surface">Đóng Góp Dữ Liệu CSV</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">Nhận ngay +15 hạt LÚA ghi nhận công lao vào sổ HTX</p>
+</div>
+</div>
+<button class="w-9 h-9 rounded-full bg-surface-container/80 hover:bg-surface-container-high flex items-center justify-center text-on-surface-variant transition-colors" onclick="closeUploadModal()">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+<!-- Upload Drop Area -->
+<div class="mt-5 space-y-4">
+<div class="p-8 border-2 border-dashed border-outline-variant/60 hover:border-primary rounded-2xl bg-surface-container-low/50 backdrop-blur-md flex flex-col items-center justify-center text-center cursor-pointer transition-colors group">
+<span class="material-symbols-outlined text-[42px] text-secondary group-hover:text-primary group-hover:scale-110 transition-transform mb-2">upload_file</span>
+<span class="font-label-md text-label-md font-semibold text-on-surface">Kéo thả file CSV vào đây hoặc duyệt tệp</span>
+<span class="font-body-sm text-[12px] text-on-surface-variant mt-1">Định dạng hỗ trợ: .csv, .txt (tối đa 25MB)</span>
+</div>
+<div class="space-y-3">
+<div>
+<label class="block font-label-sm text-label-sm font-semibold text-on-surface mb-1">Vị trí đo đạc / Tên trạm</label>
+<input class="w-full px-3.5 py-2.5 bg-surface-container-low/70 backdrop-blur-sm border border-outline-variant/30 rounded-xl text-body-sm font-body-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Ví dụ: Cống Bà Cữ, Ấp Hòa Bình..." type="text"/>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<div>
+<label class="block font-label-sm text-label-sm font-semibold text-on-surface mb-1">Giống lúa / Canh tác</label>
+<select class="w-full px-3.5 py-2.5 bg-surface-container-low/70 backdrop-blur-sm border border-outline-variant/30 rounded-xl text-body-sm font-body-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary">
+<option>Lúa OM5451 (Vụ Thu Đông)</option>
+<option>Lúa ST25 (Lúa - Tôm)</option>
+<option>Lúa Đài Thơm 8</option>
+<option>Nước tự nhiên Kênh Rạch</option>
+</select>
+</div>
+<div>
+<label class="block font-label-sm text-label-sm font-semibold text-on-surface mb-1">Đơn vị đo độ mặn</label>
+<select class="w-full px-3.5 py-2.5 bg-surface-container-low/70 backdrop-blur-sm border border-outline-variant/30 rounded-xl text-body-sm font-body-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary">
+<option>g/L (Gam trên Lít - ppt)</option>
+<option>EC (mS/cm)</option>
+<option>TDS (ppm)</option>
+</select>
+</div>
+</div>
+</div>
+</div>
+<!-- Upload Footer -->
+<div class="mt-6 flex items-center justify-end gap-3 pt-4 border-t border-surface-container/80">
+<button class="px-4 py-2 bg-surface-container/70 hover:bg-surface-container-high text-on-surface font-label-md text-label-md rounded-xl transition-all" onclick="closeUploadModal()">
+          Hủy bỏ
+        </button>
+<button class="flex items-center gap-2 px-5 py-2 bg-primary hover:bg-on-primary-fixed-variant text-on-primary font-label-md text-label-md rounded-xl shadow-md transition-all" onclick="submitUpload()">
+<span class="material-symbols-outlined text-[18px]">verified</span>
+<span>Xác nhận &amp; Nhận 15 LÚA</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Toast Notification -->
+<div class="fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 bg-surface-container-lowest/90 backdrop-blur-xl text-on-surface rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] border border-white/80 translate-y-16 opacity-0 pointer-events-none transition-all duration-300" id="toast-notification">
+<div class="w-7 h-7 rounded-full bg-secondary-container text-on-secondary-fixed flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[16px]">check</span>
+</div>
+<span class="font-label-md text-label-md" id="toast-text">Đang tải xuống dữ liệu...</span>
+</div>
+<!-- Embedded Client-Side JavaScript for Modals & Filtering -->
+<script>
+    // Search input filter
+    const searchInput = document.getElementById('csv-search');
+    const csvRows = document.querySelectorAll('.csv-item');
+
+    searchInput.addEventListener('input', (e) => {
+      const query = e.target.value.toLowerCase().trim();
+      csvRows.forEach(row => {
+        const text = row.innerText.toLowerCase();
+        if (text.includes(query)) {
+          row.style.display = 'flex';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+    });
+
+    // Pill Filtering
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    filterButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        filterButtons.forEach(b => {
+          b.classList.remove('bg-primary', 'text-on-primary', 'active');
+          b.classList.add('bg-surface-container-highest/60', 'text-on-surface-variant');
+        });
+        btn.classList.add('bg-primary', 'text-on-primary', 'active');
+        btn.classList.remove('bg-surface-container-highest/60', 'text-on-surface-variant');
+
+        const filter = btn.getAttribute('data-filter');
+        csvRows.forEach(row => {
+          if (filter === 'all') {
+            row.style.display = 'flex';
+          } else {
+            const categories = row.getAttribute('data-category') || '';
+            if (categories.includes(filter)) {
+              row.style.display = 'flex';
+            } else {
+              row.style.display = 'none';
+            }
+          }
+        });
+      });
+    });
+
+    // Preview Modal Logic
+    let currentPreviewFile = '';
+
+    function openPreviewModal(filename, location, statusText, statusType) {
+      currentPreviewFile = filename;
+      document.getElementById('modal-filename').innerText = filename;
+      document.getElementById('modal-meta').innerText = location + ' · Mẫu 5 dòng gần nhất';
+
+      const modal = document.getElementById('preview-modal');
+      const content = document.getElementById('preview-content');
+
+      modal.classList.remove('opacity-0', 'pointer-events-none');
+      content.classList.remove('scale-95');
+      content.classList.add('scale-100');
+    }
+
+    function closePreviewModal() {
+      const modal = document.getElementById('preview-modal');
+      const content = document.getElementById('preview-content');
+
+      modal.classList.add('opacity-0', 'pointer-events-none');
+      content.classList.remove('scale-100');
+      content.classList.add('scale-95');
+    }
+
+    function triggerModalDownload() {
+      closePreviewModal();
+      triggerDownload(currentPreviewFile);
+    }
+
+    // Upload Modal Logic
+    function openUploadModal() {
+      const modal = document.getElementById('upload-modal');
+      const content = document.getElementById('upload-content');
+
+      modal.classList.remove('opacity-0', 'pointer-events-none');
+      content.classList.remove('scale-95');
+      content.classList.add('scale-100');
+    }
+
+    function closeUploadModal() {
+      const modal = document.getElementById('upload-modal');
+      const content = document.getElementById('upload-content');
+
+      modal.classList.add('opacity-0', 'pointer-events-none');
+      content.classList.remove('scale-100');
+      content.classList.add('scale-95');
+    }
+
+    function submitUpload() {
+      closeUploadModal();
+      showToast('Tải lên thành công! +15 LÚA đã được cộng vào tài khoản Chú Năm Ruộng 🌾');
+    }
+
+    // Download Handler & Toast
+    function triggerDownload(fileName) {
+      showToast('Đang tải xuống tệp: ' + fileName);
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById('toast-notification');
+      const toastText = document.getElementById('toast-text');
+      toastText.innerText = message;
+
+      toast.classList.remove('translate-y-16', 'opacity-0', 'pointer-events-none');
+      toast.classList.add('translate-y-0', 'opacity-100');
+
+      setTimeout(() => {
+        toast.classList.add('translate-y-16', 'opacity-0', 'pointer-events-none');
+        toast.classList.remove('translate-y-0', 'opacity-100');
+      }, 3500);
+    }
+  </script>
+</div></main></div>
+</body></html>

@@ -1,9 +1,22 @@
-TOPICS = {
+import json
+
+from src.config import REFERENCE_DIR
+
+EDITORIAL_AUTHOR = "editorial:admin"
+EDITORIAL_POSTS = {
+    f"bai-tham-khao-{item['id']:02d}": item
+    for item in json.loads(
+        (REFERENCE_DIR / "forum-source-posts.json").read_text(encoding="utf-8")
+    )
+}
+
+DISCUSSION_TOPICS = {
     "water": "Trữ ngọt rãnh liếp",
     "crop-care": "Chăm sóc lúa",
     "sowing": "Lịch sạ né mặn",
     "field-alert": "Cảnh báo tại ruộng",
 }
+TOPICS = {**DISCUSSION_TOPICS, "references": "Bài tham khảo"}
 
 CULTIVARS = ("OM5451", "ST25", "OM18", "Đài Thơm 8", "Khác")
 STAGES = ("Mạ non", "Đẻ nhánh", "Làm đòng", "Trổ bông", "Chín vàng")

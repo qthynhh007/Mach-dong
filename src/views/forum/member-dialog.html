@@ -1,0 +1,35 @@
+{% from "shared/icon.html" import icon %}
+<dialog id="member-dialog" class="member-dialog" aria-labelledby="member-title">
+  <header class="member-dialog-top">
+    <div><span class="member-brand">Mạch Đồng</span><span aria-hidden="true"> / </span><h2 id="member-title">Hồ sơ thành viên</h2></div>
+    <form method="dialog"><button class="member-close" autofocus>{{ icon("close") }} Đóng</button></form>
+  </header>
+  <div class="member-dialog-scroll">
+    <p id="member-status" class="member-status" role="status" hidden></p>
+    <div id="member-content" hidden>
+      <div class="member-banner" aria-hidden="true"></div>
+      <div class="member-content">
+        <section class="member-identity" aria-labelledby="member-name">
+          <div class="member-who">
+            <div id="member-avatar" class="member-avatar" aria-hidden="true"></div>
+            <div>
+              <h3 id="member-name"></h3>
+              <p id="member-role" class="member-role"></p>
+              <p id="member-place" class="member-place">{{ icon("location_on") }} <span></span></p>
+            </div>
+          </div>
+          <dl class="member-stats">
+            <div><dt>{{ icon("description") }} Bài đã chia sẻ</dt><dd id="member-post-count"></dd></div>
+            <div><dt>{{ icon("chat") }} Câu trả lời</dt><dd id="member-reply-count"></dd></div>
+          </dl>
+        </section>
+        <section class="member-activity" aria-labelledby="member-post-heading">
+          <h3 id="member-post-heading">{{ icon("description") }} Bài chia sẻ gần đây</h3>
+          <ol id="member-posts" class="member-posts"></ol>
+          <p id="member-empty" class="member-empty" hidden>Thành viên này chưa đăng bài.</p>
+          <p id="member-post-summary" class="member-post-summary" hidden></p>
+        </section>
+      </div>
+    </div>
+  </div>
+</dialog>

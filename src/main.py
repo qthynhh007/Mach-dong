@@ -2,6 +2,7 @@ import os
 import secrets
 from pathlib import Path
 
+from dotenv import dotenv_values
 from flask import Flask, Response, redirect, request
 from werkzeug.exceptions import HTTPException
 
@@ -29,8 +30,14 @@ def createApp(testConfig: dict | None = None) -> Flask:
             "COMMUNITY_DATABASE", str(ROOT / "data" / "community.sqlite3")
         ),
         COMMUNITY_SEED_SAMPLES=True,
+        COMMUNITY_SEED_EDITORIAL=os.environ.get("COMMUNITY_SEED_EDITORIAL", "1") == "1",
         COMMUNITY_ALLOW_GUESTS=os.environ.get("COMMUNITY_ALLOW_GUESTS", "1") == "1",
         COMMUNITY_IDENTITY_PROVIDER=None,
+        GEMINI_API_KEY=(
+            os.environ.get("GEMINI_API_KEY")
+            or dotenv_values(ROOT / ".env.local").get("GEMINI_API_KEY")
+            or ""
+        ).strip(),
     )
     if testConfig:
         app.config.update(testConfig)
@@ -50,6 +57,7 @@ def createApp(testConfig: dict | None = None) -> Flask:
     app.extensions["communityService"] = communityService(
         communityModel(app.config["COMMUNITY_DATABASE"]),
         app.config["COMMUNITY_SEED_SAMPLES"],
+        app.config["COMMUNITY_SEED_EDITORIAL"],
     )
     for controller in (
         community_controller,
