@@ -133,24 +133,111 @@
 <span class="font-label-sm text-label-sm bg-on-primary/20 backdrop-blur-sm px-2 py-0.5 rounded text-on-primary">Số dư minh họa</span>
 </div>
 <div class="z-10 my-2">
-<div class="flex items-baseline gap-2">
-<span class="font-metric-display text-[36px] font-bold tracking-tight" data-profile-credits>{{ current_user.simulation_credits if current_user else 350 }}</span>
-<span class="font-headline-sm text-headline-sm font-bold text-primary-fixed">LÚA</span>
+<div class="flex flex-wrap items-baseline justify-between gap-2">
+  <div class="flex items-baseline gap-2">
+    <span class="font-metric-display text-[36px] font-bold tracking-tight" data-profile-credits>{{ current_user.simulation_credits if current_user else 350 }}</span>
+    <span class="font-headline-sm text-headline-sm font-bold text-primary-fixed">LÚA</span>
+  </div>
+  <div class="px-2.5 py-1 rounded-lg bg-on-primary/15 text-sm font-bold">
+    <span data-profile-avax>{{ '%.4f'|format(current_user.avax_balance) if current_user else '2.5000' }}</span> <span>AVAX</span>
+  </div>
 </div>
-<p class="font-body-sm text-body-sm text-on-primary/85">Điểm đóng góp cộng đồng · Avalanche Fuji (43113)</p>
-<p class="text-xs text-on-primary/90 mt-1 break-all">Ví Fuji: <code data-profile-wallet>{{ current_user.wallet_address if current_user else 'Chưa đăng nhập' }}</code></p>
+<p class="font-body-sm text-body-sm text-on-primary/85">Điểm đóng góp cộng đồng · Avalanche Fuji (Chain ID 43113)</p>
+<p class="text-xs text-on-primary/90 mt-1 break-all">
+  Ví Fuji (secp256k1): <code data-profile-wallet>{{ current_user.wallet_address if current_user else 'Đăng nhập để hiển thị địa chỉ 0x...' }}</code>
+  {% if current_user and current_user.wallet_address %}
+  · <a href="https://testnet.snowtrace.io/address/{{ current_user.wallet_address }}" target="_blank" rel="noopener" class="underline font-bold text-primary-fixed">Xem trên Snowtrace ↗</a>
+  {% endif %}
+</p>
 </div>
 <div class="z-10 flex items-center justify-between pt-2 border-t border-on-primary/15 font-label-sm text-label-sm text-on-primary/75">
 <span>Chủ thẻ · <span data-profile-value="farmer-fullname">{{ current_user.name if current_user else 'Trần Văn Năm' }}</span></span>
-<span>{{ current_user.wallet_type if current_user else 'AUTO_EMAIL' }}</span>
+<span data-profile-wallet-type>{{ current_user.wallet_type if current_user else 'AUTO_EMAIL' }}</span>
 </div>
 </div>
+
+<!-- Bind / Update Custom C-Chain Fuji Wallet Address or Export secp256k1 Private Key -->
+<form id="wallet-bind-form" class="mt-space-sm p-3 rounded-xl bg-surface-container-low border border-outline-variant/40 space-y-2">
+  <div class="flex flex-wrap items-center justify-between gap-2 text-xs">
+    <span class="font-bold text-primary uppercase">🔗 Ví C-Chain Fuji (secp256k1 · Core / MetaMask)</span>
+    <button type="button" id="btn-export-privkey" class="px-2 py-1 rounded bg-surface-container-highest text-primary font-label-sm text-label-sm font-bold hover:opacity-90">
+      🔑 Hiện Private Key (Nhập vào Core / MetaMask)
+    </button>
+  </div>
+  <div id="exported-privkey-box" class="hidden p-2 rounded bg-surface-container-lowest border border-primary/40 text-xs break-all">
+    <span class="font-semibold text-primary">Private Key (secp256k1) để Import vào Core / MetaMask:</span><br>
+    <code id="exported-privkey-value" class="font-bold text-on-surface select-all"></code>
+  </div>
+  <div class="flex flex-wrap gap-2">
+    <input id="custom-wallet-input" type="text" placeholder="Dán địa chỉ ví C-Chain Fuji của bạn (0x... 42 ký tự)" value="{{ current_user.wallet_address if current_user else '' }}" class="flex-1 min-w-[200px] h-9 px-3 rounded-lg bg-surface-container-lowest text-xs text-on-surface border border-outline-variant">
+    <button type="submit" class="h-9 px-3 rounded-lg bg-primary text-on-primary font-label-sm text-label-sm font-bold">Lưu địa chỉ ví</button>
+  </div>
+  <p id="wallet-bind-msg" role="status" class="text-xs font-semibold text-primary"></p>
+</form>
+
+<!-- Credit Changer: Transact In-App LÚA Token <-> AVAX on Avalanche Fuji -->
+<div class="mt-space-md p-space-md rounded-xl bg-surface-container-low border border-outline-variant/40 space-y-space-sm" id="credit-changer-box" data-credits-per-avax="{{ credits_per_avax or 100 }}">
+  <div class="flex flex-wrap items-center justify-between gap-2">
+    <div>
+      <h4 class="font-label-md text-label-md font-bold text-primary uppercase">⚡ Quy Đổi Điểm LÚA ↔ AVAX (Credit Changer)</h4>
+      <p class="font-label-sm text-label-sm text-on-surface-variant">Tỷ giá: 1 AVAX = {{ credits_per_avax or 100 }} LÚA (0.01 AVAX = 1 LÚA)</p>
+    </div>
+    <button type="button" id="btn-faucet-avax" class="px-2.5 py-1 rounded-lg bg-primary-fixed text-on-primary-fixed font-label-sm text-label-sm font-bold hover:opacity-90">
+      + Nhận 1.0 AVAX (Fuji Faucet)
+    </button>
+  </div>
+
+  <form id="credit-exchange-form" class="space-y-space-sm">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+      <label class="flex items-center gap-2 p-2 rounded-lg bg-surface-container-lowest cursor-pointer text-xs font-semibold">
+        <input type="radio" name="exchange_direction" value="AVAX_TO_CREDIT" checked>
+        <span>AVAX → Điểm LÚA (Nạp điểm)</span>
+      </label>
+      <label class="flex items-center gap-2 p-2 rounded-lg bg-surface-container-lowest cursor-pointer text-xs font-semibold">
+        <input type="radio" name="exchange_direction" value="CREDIT_TO_AVAX">
+        <span>Điểm LÚA → AVAX (Rút về ví)</span>
+      </label>
+    </div>
+
+    <div class="flex flex-wrap items-center gap-2">
+      <div class="relative flex-1 min-w-[160px]">
+        <input id="exchange-amount-input" type="number" step="0.01" min="0.01" value="0.50" required class="w-full h-10 px-3 rounded-lg bg-surface-container-lowest text-on-surface font-label-md text-label-md focus:outline-none focus:ring-2 focus:ring-primary">
+        <span id="exchange-unit-label" class="absolute right-3 top-2.5 font-label-sm text-label-sm font-bold text-on-surface-variant">AVAX</span>
+      </div>
+      <button type="submit" id="btn-submit-exchange" class="h-10 px-4 rounded-lg bg-primary hover:bg-primary-container text-on-primary font-label-md text-label-md font-bold transition-colors">
+        Giao dịch Fuji
+      </button>
+    </div>
+
+    <div class="flex items-center justify-between text-xs text-on-surface-variant">
+      <span>Ước tính nhận: <strong id="exchange-preview-output" class="text-primary">+50 LÚA</strong></span>
+      <span id="exchange-status-msg" role="status" class="font-semibold text-primary"></span>
+    </div>
+  </form>
+</div>
+
 <div class="mt-space-md">
 <div class="flex items-center justify-between mb-space-xs">
-<span class="font-label-sm text-label-sm font-bold uppercase text-on-surface-variant">Biến động điểm minh họa</span>
+<span class="font-label-sm text-label-sm font-bold uppercase text-on-surface-variant">Biến động điểm &amp; Giao dịch Fuji</span>
 
 </div>
-<div class="flex flex-col gap-2">
+<div class="flex flex-col gap-2" id="credit-tx-list">
+{% if credit_transactions %}
+  {% for tx in credit_transactions %}
+  <div class="p-2.5 rounded-lg bg-surface-container-low flex items-center justify-between gap-2">
+    <div class="flex items-center gap-2 min-w-0">
+      <span class="w-7 h-7 rounded-full bg-primary-fixed text-primary flex items-center justify-center font-bold text-sm shrink-0">{{ '↓' if tx.credit_delta >= 0 else '↑' }}</span>
+      <div class="flex flex-col min-w-0">
+        <span class="font-body-sm text-body-sm font-semibold text-on-surface truncate">{{ tx.note }}</span>
+        <span class="font-label-sm text-label-sm text-on-surface-variant truncate">Tx: <code>{{ tx.tx_hash[:14] }}...{{ tx.tx_hash[-6:] }}</code></span>
+      </div>
+    </div>
+    <span class="font-label-md text-label-md font-bold {{ 'text-primary' if tx.credit_delta >= 0 else 'text-secondary' }} shrink-0">
+      {% if tx.direction == 'FAUCET_TOPUP' %}+{{ '%.2f'|format(tx.avax_amount) }} AVAX{% elif tx.credit_delta >= 0 %}+{{ tx.credit_delta }} LÚA{% else %}{{ tx.credit_delta }} LÚA{% endif %}
+    </span>
+  </div>
+  {% endfor %}
+{% endif %}
 <div class="p-2.5 rounded-lg bg-surface-container-low flex items-center justify-between">
 <div class="flex items-center gap-2">
 <span class="w-7 h-7 rounded-full bg-primary-fixed text-primary flex items-center justify-center font-bold text-sm">↓</span>

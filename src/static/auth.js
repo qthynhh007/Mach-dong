@@ -4,23 +4,37 @@
 
   const messageEl = document.querySelector("[data-auth-message]");
   const loginForm = document.getElementById("loginForm");
+  const forgotPasswordForm = document.getElementById("forgotPasswordForm");
   const registerForm = document.getElementById("registerForm");
-  const emailWalletPreviewText = document.getElementById("emailWalletPreviewText");
   const autoWalletPreviewBox = document.getElementById("autoWalletPreviewBox");
   const externalWalletInputBox = document.getElementById("externalWalletInputBox");
   const walletAddressInput = document.getElementById("walletAddressInput");
   const btnConnectBrowserWallet = document.getElementById("btnConnectBrowserWallet");
 
-  const btnSendOtpLogin = document.getElementById("btnSendOtpLogin");
-  const btnSendOtpFull = document.getElementById("btnSendOtpFull");
-  const btnSendOtpRegister = document.getElementById("btnSendOtpRegister");
+  const registeredWalletRevealBox = document.getElementById("registeredWalletRevealBox");
+  const revealedWalletAddress = document.getElementById("revealedWalletAddress");
+  const revealedCredits = document.getElementById("revealedCredits");
+  const revealedAvax = document.getElementById("revealedAvax");
 
-  let signinMode = "quick";
+  const btnSendOtpLogin = document.getElementById("btnSendOtpLogin");
+  const btnSendOtpForgot = document.getElementById("btnSendOtpForgot");
+  const btnSendOtpRegister = document.getElementById("btnSendOtpRegister");
+  const btnForgotPasswordLink = document.getElementById("btnForgotPasswordLink");
 
   function setStatus(text, isError = false) {
     if (!messageEl) return;
     messageEl.textContent = text;
     messageEl.style.color = isError ? "#b84245" : "#1a654d";
+  }
+
+  function revealWalletOnRegisterSuccess(user) {
+    if (!user || !registeredWalletRevealBox) return;
+    registeredWalletRevealBox.classList.remove("hidden");
+    if (revealedWalletAddress) revealedWalletAddress.textContent = user.wallet_address || "";
+    if (revealedCredits) revealedCredits.textContent = String(user.simulation_credits ?? 0);
+    if (revealedAvax) {
+      revealedAvax.textContent = Number(user.avax_balance ?? 0).toFixed(4);
+    }
   }
 
   function saveClientSession(authData) {
@@ -56,34 +70,42 @@
     });
   });
 
-  // Toggle Quick Sign-In vs Full Sign-In on /login
-  const modeButtons = document.querySelectorAll("[data-signin-mode]");
-  const quickIdentifierGroup = document.getElementById("quickIdentifierGroup");
-  const fullSigninFields = document.getElementById("fullSigninFields");
-  const identifierInput = document.getElementById("identifierInput");
-
-  modeButtons.forEach((btn) => {
-    btn.addEventListener("click", () => {
-      signinMode = btn.dataset.signinMode;
-      modeButtons.forEach((b) => {
-        const active = b.dataset.signinMode === signinMode;
-        b.classList.toggle("bg-primary", active);
-        b.classList.toggle("text-on-primary", active);
-        b.classList.toggle("font-bold", active);
-      });
-      if (signinMode === "full") {
-        quickIdentifierGroup?.classList.add("hidden");
-        fullSigninFields?.classList.remove("hidden");
-        if (identifierInput) identifierInput.removeAttribute("required");
-      } else {
-        quickIdentifierGroup?.classList.remove("hidden");
-        fullSigninFields?.classList.add("hidden");
-        if (identifierInput) identifierInput.setAttribute("required", "required");
+  // Switch between Sign-In tab and Forgot Password tab on /login
+  const loginTabs = document.querySelectorAll("[data-login-tab]");
+  function switchLoginTab(tabName) {
+    loginTabs.forEach((btn) => {
+      const active = btn.dataset.loginTab === tabName;
+      btn.classList.toggle("bg-primary", active);
+      btn.classList.toggle("text-on-primary", active);
+      btn.classList.toggle("font-bold", active);
+    });
+    if (tabName === "forgot") {
+      loginForm?.classList.add("hidden");
+      forgotPasswordForm?.classList.remove("hidden");
+      const currentId = document.getElementById("identifierInput")?.value?.trim() || "";
+      const forgotEmail = document.getElementById("forgotEmailInput");
+      if (forgotEmail && currentId.includes("@") && !forgotEmail.value) {
+        forgotEmail.value = currentId;
       }
+      forgotEmail?.focus();
+    } else {
+      forgotPasswordForm?.classList.add("hidden");
+      loginForm?.classList.remove("hidden");
+    }
+    setStatus("");
+  }
+
+  loginTabs.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      switchLoginTab(btn.dataset.loginTab);
     });
   });
 
-  // Wallet mode radio toggle (AUTO_EMAIL vs EXTERNAL)
+  btnForgotPasswordLink?.addEventListener("click", () => {
+    switchLoginTab("forgot");
+  });
+
+  // Wallet mode radio toggle on /register (AUTO_EMAIL vs EXTERNAL)
   document.querySelectorAll("[data-wallet-mode-radio]").forEach((radio) => {
     radio.addEventListener("change", () => {
       const mode = document.querySelector("[data-wallet-mode-radio]:checked")?.value || "AUTO_EMAIL";
@@ -97,40 +119,7 @@
     });
   });
 
-  // Live preview of Email-bound Avalanche Fuji Wallet
-  async function updateWalletPreview(emailValue, targetElement) {
-    const clean = (emailValue || "").trim();
-    if (!targetElement) return;
-    if (!clean || !clean.includes("@")) {
-      targetElement.textContent = "Nhập Email để xem địa chỉ ví Avalanche Fuji 0x...";
-      return;
-    }
-    try {
-      const res = await fetch(`/api/auth/wallet-preview?email=${encodeURIComponent(clean)}`);
-      const payload = await res.json();
-      if (payload?.data?.preview_wallet_address) {
-        targetElement.textContent = payload.data.preview_wallet_address;
-      }
-    } catch {
-      // Ignore network preview error
-    }
-  }
-
-  document.querySelectorAll("[data-wallet-email-source]").forEach((input) => {
-    input.addEventListener("input", () => {
-      updateWalletPreview(input.value, emailWalletPreviewText);
-    });
-  });
-
-  if (identifierInput && loginForm) {
-    identifierInput.addEventListener("input", () => {
-      if (identifierInput.value.includes("@")) {
-        updateWalletPreview(identifierInput.value, emailWalletPreviewText);
-      }
-    });
-  }
-
-  // Send 6-digit Email Confirmation Code (OTP)
+  // Send 6-digit Email Confirmation Code (OTP) — never shows wallet code on login
   async function requestEmailOtp(emailValue, otpInputEl) {
     const cleanEmail = (emailValue || "").trim();
     if (!cleanEmail || !cleanEmail.includes("@")) {
@@ -150,16 +139,13 @@
         return;
       }
       const data = result.data;
-      if (data.preview_wallet_address && emailWalletPreviewText) {
-        emailWalletPreviewText.textContent = data.preview_wallet_address;
-      }
       if (data.smtp_sent) {
         setStatus(
           `Đã gửi mã xác nhận 6 số tới hộp thư ${data.email} (hiệu lực 5 phút). Vui lòng kiểm tra Email!`
         );
       } else if (data.dev_otp_code) {
         setStatus(
-          `Đã tạo mã xác nhận cho ${data.email}: [${data.dev_otp_code}] (Chế độ thử nghiệm chưa cấu hình SMTP_APP_PASSWORD).`
+          `Đã gửi mã xác nhận cho ${data.email}: [${data.dev_otp_code}] (Chế độ thử nghiệm chưa cấu hình SMTP_APP_PASSWORD).`
         );
       }
       otpInputEl?.focus();
@@ -169,13 +155,16 @@
   }
 
   btnSendOtpLogin?.addEventListener("click", () => {
-    requestEmailOtp(identifierInput?.value, document.getElementById("otpCodeInput"));
+    requestEmailOtp(
+      document.getElementById("identifierInput")?.value,
+      document.getElementById("otpCodeInput")
+    );
   });
 
-  btnSendOtpFull?.addEventListener("click", () => {
+  btnSendOtpForgot?.addEventListener("click", () => {
     requestEmailOtp(
-      document.getElementById("loginEmail")?.value,
-      document.getElementById("otpCodeInput")
+      document.getElementById("forgotEmailInput")?.value,
+      document.getElementById("forgotOtpInput")
     );
   });
 
@@ -186,12 +175,12 @@
     );
   });
 
-  // Connect Browser Wallet (Core / MetaMask)
+  // Connect Browser Wallet (Core / MetaMask) on /register
   btnConnectBrowserWallet?.addEventListener("click", async () => {
     const provider = window.avalanche || window.ethereum;
     if (!provider || typeof provider.request !== "function") {
       setStatus(
-        "Không tìm thấy tiện ích ví trình duyệt. Bà con hãy chọn 'Tự động tạo ví mới gắn với Email' nhé!",
+        "Không tìm thấy tiện ích ví trình duyệt. Bà con hãy chọn 'Tự động tạo địa chỉ ví mới gắn với Email' nhé!",
         true
       );
       return;
@@ -207,47 +196,23 @@
     }
   });
 
-  // Handle Login Form Submit
+  // Handle Login Form Submit (No wallet code shown on login page)
   loginForm?.addEventListener("submit", async (event) => {
     event.preventDefault();
-    const walletMode =
-      document.querySelector("[data-wallet-mode-radio]:checked")?.value || "AUTO_EMAIL";
+    const idVal = document.getElementById("identifierInput")?.value?.trim() || "";
     const password = document.getElementById("secretInput")?.value || "";
     const otpCode = document.getElementById("otpCodeInput")?.value?.trim() || "";
     const rememberMe = Boolean(document.getElementById("rememberMeInput")?.checked);
-    const walletAddress = walletAddressInput?.value?.trim() || "";
 
-    let payload = {
+    const payload = {
+      identifier: idVal,
+      email: idVal.includes("@") ? idVal : "",
       password,
       otp_code: otpCode,
-      wallet_mode: walletMode,
-      wallet_address: walletAddress,
       remember_me: rememberMe,
     };
 
-    if (signinMode === "full") {
-      const name = document.getElementById("loginFullName")?.value?.trim() || "";
-      const username = document.getElementById("loginUsername")?.value?.trim() || "";
-      const email = document.getElementById("loginEmail")?.value?.trim() || "";
-      const phone = document.getElementById("loginPhone")?.value?.trim() || "";
-      payload = {
-        ...payload,
-        identifier: email || username || phone,
-        name,
-        username,
-        email,
-        phone,
-        auto_create_on_full_profile: true,
-      };
-    } else {
-      const idVal = identifierInput?.value?.trim() || "";
-      payload.identifier = idVal;
-      if (idVal.includes("@")) {
-        payload.email = idVal;
-      }
-    }
-
-    setStatus("Đang xác thực mã Email / mật khẩu và kiểm tra ví Avalanche Fuji...");
+    setStatus("Đang xác thực đăng nhập...");
     try {
       const response = await fetch("/api/auth/login", {
         method: "POST",
@@ -262,7 +227,7 @@
       saveClientSession(result.data);
       const u = result.data.user;
       setStatus(
-        `Đăng nhập thành công! Xin chào ${u.name} (${u.role}) · Ví Fuji: ${u.wallet_address} · Điểm: ${u.simulation_credits}`
+        `Đăng nhập thành công! Xin chào ${u.name} (${u.role}) · Điểm hiện có: ${u.simulation_credits} LÚA`
       );
       setTimeout(() => {
         window.location.href = "/profile";
@@ -272,7 +237,51 @@
     }
   });
 
-  // Handle Register Form Submit
+  // Handle Forgot Password Submit (Verify 6-digit Email OTP & Set New Password)
+  forgotPasswordForm?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const email = document.getElementById("forgotEmailInput")?.value?.trim() || "";
+    const otpCode = document.getElementById("forgotOtpInput")?.value?.trim() || "";
+    const newPassword = document.getElementById("forgotNewPassword")?.value || "";
+    const confirmPassword = document.getElementById("forgotConfirmPassword")?.value || "";
+
+    if (newPassword !== confirmPassword) {
+      setStatus("Mật khẩu xác nhận chưa khớp.", true);
+      document.getElementById("forgotConfirmPassword")?.focus();
+      return;
+    }
+
+    setStatus("Đang kiểm tra mã xác nhận Email và cập nhật mật khẩu mới...");
+    try {
+      const response = await fetch("/api/auth/reset-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email,
+          otp_code: otpCode,
+          new_password: newPassword,
+        }),
+      });
+      const result = await response.json();
+      if (!response.ok || result.error) {
+        setStatus(result.error || "Không thể đặt lại mật khẩu.", true);
+        return;
+      }
+      forgotPasswordForm.reset();
+      switchLoginTab("signin");
+      const idInput = document.getElementById("identifierInput");
+      if (idInput) idInput.value = email;
+      document.getElementById("secretInput")?.focus();
+      setStatus(
+        result.data?.message ||
+          "Đã đặt lại mật khẩu thành công! Vui lòng đăng nhập bằng mật khẩu mới."
+      );
+    } catch {
+      setStatus("Lỗi kết nối máy chủ khi đặt lại mật khẩu.", true);
+    }
+  });
+
+  // Handle Register Form Submit (Shows generated Fuji wallet on screen after successful registration)
   registerForm?.addEventListener("submit", async (event) => {
     event.preventDefault();
     const name = document.getElementById("displayName")?.value?.trim() || "";
@@ -317,12 +326,13 @@
       }
       saveClientSession(result.data);
       const u = result.data.user;
+      revealWalletOnRegisterSuccess(u);
       setStatus(
-        `Xác thực Email & Tạo tài khoản thành công! Ví Avalanche Fuji gắn với ${u.email}: ${u.wallet_address}`
+        `Đăng ký thành công! Địa chỉ ví Avalanche Fuji của bạn: ${u.wallet_address}`
       );
       setTimeout(() => {
         window.location.href = "/profile";
-      }, 800);
+      }, 1500);
     } catch {
       setStatus("Lỗi kết nối máy chủ khi tạo tài khoản.", true);
     }

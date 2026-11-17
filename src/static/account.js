@@ -5,6 +5,21 @@
   const headerEl = document.querySelector(".app-header");
   const farmForm = document.getElementById("farm-info-form");
   const passwordForm = document.getElementById("password-change-form");
+  const creditChangerBox = document.getElementById("credit-changer-box");
+  const creditExchangeForm = document.getElementById("credit-exchange-form");
+  const btnFaucetAvax = document.getElementById("btn-faucet-avax");
+  const exchangeAmountInput = document.getElementById("exchange-amount-input");
+  const exchangeUnitLabel = document.getElementById("exchange-unit-label");
+  const exchangePreviewOutput = document.getElementById("exchange-preview-output");
+  const exchangeStatusMsg = document.getElementById("exchange-status-msg");
+  const creditTxList = document.getElementById("credit-tx-list");
+  const walletBindForm = document.getElementById("wallet-bind-form");
+  const customWalletInput = document.getElementById("custom-wallet-input");
+  const walletBindMsg = document.getElementById("wallet-bind-msg");
+  const btnExportPrivKey = document.getElementById("btn-export-privkey");
+  const exportedPrivKeyBox = document.getElementById("exported-privkey-box");
+  const exportedPrivKeyValue = document.getElementById("exported-privkey-value");
+
   const fields = [
     "farmer-fullname",
     "farmer-phone",
@@ -83,6 +98,281 @@
   window.addEventListener("pageshow", (event) => {
     if (event.persisted) loadProfile();
   });
+
+  // Export secp256k1 Private Key to import into Core Wallet / MetaMask
+  btnExportPrivKey?.addEventListener("click", async () => {
+    const csrf = getCsrfToken();
+    if (!csrf) {
+      if (walletBindMsg) {
+        walletBindMsg.textContent = "Vui lòng đăng nhập để xem Private Key.";
+        walletBindMsg.style.color = "#b84245";
+      }
+      return;
+    }
+    try {
+      const res = await fetch("/api/auth/export-wallet-key", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRF-Token": csrf,
+        },
+        body: JSON.stringify({}),
+      });
+      const payload = await res.json();
+      if (!res.ok || payload.error) {
+        if (walletBindMsg) {
+          walletBindMsg.textContent = payload.error || "Không thể lấy Private Key.";
+          walletBindMsg.style.color = "#b84245";
+        }
+        return;
+      }
+      if (exportedPrivKeyBox && exportedPrivKeyValue) {
+        exportedPrivKeyValue.textContent = payload.data.private_key;
+        exportedPrivKeyBox.classList.remove("hidden");
+      }
+    } catch {
+      if (walletBindMsg) {
+        walletBindMsg.textContent = "Lỗi kết nối máy chủ.";
+        walletBindMsg.style.color = "#b84245";
+      }
+    }
+  });
+
+  // Bind / Update Manually Created C-Chain Fuji Wallet Address on /profile
+  walletBindForm?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const csrf = getCsrfToken();
+    if (!csrf) {
+      if (walletBindMsg) {
+        walletBindMsg.textContent = "Vui lòng đăng nhập để lưu địa chỉ ví.";
+        walletBindMsg.style.color = "#b84245";
+      }
+      return;
+    }
+    const addr = (customWalletInput?.value || "").trim();
+    try {
+      const res = await fetch("/api/auth/profile", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRF-Token": csrf,
+        },
+        body: JSON.stringify({
+          wallet_address: addr,
+          wallet_mode: addr ? "EXTERNAL" : "AUTO_EMAIL",
+        }),
+      });
+      const payload = await res.json();
+      if (!res.ok || payload.error) {
+        if (walletBindMsg) {
+          walletBindMsg.textContent = payload.error || "Địa chỉ ví không hợp lệ.";
+          walletBindMsg.style.color = "#b84245";
+        }
+        return;
+      }
+      const updatedUser = payload.data.user;
+      document.querySelectorAll("[data-profile-wallet]").forEach((el) => {
+        el.textContent = updatedUser.wallet_address;
+      });
+      document.querySelectorAll("[data-profile-wallet-type]").forEach((el) => {
+        el.textContent = updatedUser.wallet_type;
+      });
+      if (walletBindMsg) {
+        walletBindMsg.textContent = "Đã cập nhật địa chỉ ví C-Chain Fuji!";
+        walletBindMsg.style.color = "#1a654d";
+      }
+    } catch {
+      if (walletBindMsg) {
+        walletBindMsg.textContent = "Lỗi kết nối máy chủ.";
+        walletBindMsg.style.color = "#b84245";
+      }
+    }
+  });
+
+  // Credit Changer (AVAX <-> LÚA Simulation Credits)
+  if (creditChangerBox && creditExchangeForm) {
+    const rate = Number(creditChangerBox.dataset.creditsPerAvax || 100);
+
+    function getDirection() {
+      return (
+        creditExchangeForm.querySelector('input[name="exchange_direction"]:checked')?.value ||
+        "AVAX_TO_CREDIT"
+      );
+    }
+
+    function updateExchangePreview() {
+      const dir = getDirection();
+      const rawVal = Number(exchangeAmountInput?.value || 0);
+      if (dir === "AVAX_TO_CREDIT") {
+        if (exchangeUnitLabel) exchangeUnitLabel.textContent = "AVAX";
+        if (exchangeAmountInput) {
+          exchangeAmountInput.step = "0.01";
+          exchangeAmountInput.min = "0.01";
+        }
+        const credits = Math.max(0, Math.round(rawVal * rate));
+        if (exchangePreviewOutput) {
+          exchangePreviewOutput.textContent = `+${credits} LÚA`;
+        }
+      } else {
+        if (exchangeUnitLabel) exchangeUnitLabel.textContent = "LÚA";
+        if (exchangeAmountInput) {
+          exchangeAmountInput.step = "1";
+          exchangeAmountInput.min = "1";
+        }
+        const avax = Math.max(0, rawVal / rate);
+        if (exchangePreviewOutput) {
+          exchangePreviewOutput.textContent = `+${avax.toFixed(4)} AVAX`;
+        }
+      }
+    }
+
+    creditExchangeForm
+      .querySelectorAll('input[name="exchange_direction"]')
+      .forEach((radio) => {
+        radio.addEventListener("change", () => {
+          if (getDirection() === "AVAX_TO_CREDIT") {
+            exchangeAmountInput.value = "0.50";
+          } else {
+            exchangeAmountInput.value = "10";
+          }
+          updateExchangePreview();
+        });
+      });
+
+    exchangeAmountInput?.addEventListener("input", updateExchangePreview);
+    updateExchangePreview();
+
+    function applyBalanceAndTxUpdate(data) {
+      const user = data?.user;
+      if (user) {
+        document.querySelectorAll("[data-profile-credits]").forEach((el) => {
+          el.textContent = String(user.simulation_credits);
+        });
+        document.querySelectorAll("[data-header-credits]").forEach((el) => {
+          el.textContent = `${user.simulation_credits} LÚA`;
+        });
+        document.querySelectorAll("[data-profile-avax]").forEach((el) => {
+          el.textContent = Number(user.avax_balance).toFixed(4);
+        });
+      }
+      const tx = data?.transaction;
+      if (tx && creditTxList) {
+        const row = document.createElement("div");
+        row.className =
+          "p-2.5 rounded-lg bg-surface-container-low flex items-center justify-between gap-2";
+        const isPositive = tx.credit_delta >= 0;
+        const badgeText =
+          tx.direction === "FAUCET_TOPUP"
+            ? `+${Number(tx.avax_amount).toFixed(2)} AVAX`
+            : tx.credit_delta >= 0
+            ? `+${tx.credit_delta} LÚA`
+            : `${tx.credit_delta} LÚA`;
+        row.innerHTML = `
+          <div class="flex items-center gap-2 min-w-0">
+            <span class="w-7 h-7 rounded-full bg-primary-fixed text-primary flex items-center justify-center font-bold text-sm shrink-0">${
+              isPositive ? "↓" : "↑"
+            }</span>
+            <div class="flex flex-col min-w-0">
+              <span class="font-body-sm text-body-sm font-semibold text-on-surface truncate">${tx.note}</span>
+              <span class="font-label-sm text-label-sm text-on-surface-variant truncate">Tx: <code>${tx.tx_hash.slice(
+                0,
+                14
+              )}...${tx.tx_hash.slice(-6)}</code></span>
+            </div>
+          </div>
+          <span class="font-label-md text-label-md font-bold ${
+            isPositive ? "text-primary" : "text-secondary"
+          } shrink-0">${badgeText}</span>
+        `;
+        creditTxList.prepend(row);
+      }
+    }
+
+    creditExchangeForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const csrf = getCsrfToken();
+      if (!csrf) {
+        if (exchangeStatusMsg) {
+          exchangeStatusMsg.textContent = "Vui lòng đăng nhập để giao dịch điểm với AVAX.";
+          exchangeStatusMsg.style.color = "#b84245";
+        }
+        return;
+      }
+      const direction = getDirection();
+      const amount = Number(exchangeAmountInput?.value || 0);
+      if (exchangeStatusMsg) {
+        exchangeStatusMsg.textContent = "Đang ký giao dịch Fuji...";
+        exchangeStatusMsg.style.color = "#1a654d";
+      }
+      try {
+        const res = await fetch("/api/auth/exchange-credits", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRF-Token": csrf,
+          },
+          body: JSON.stringify({ direction, amount }),
+        });
+        const payload = await res.json();
+        if (!res.ok || payload.error) {
+          if (exchangeStatusMsg) {
+            exchangeStatusMsg.textContent = payload.error || "Giao dịch thất bại.";
+            exchangeStatusMsg.style.color = "#b84245";
+          }
+          return;
+        }
+        applyBalanceAndTxUpdate(payload.data);
+        if (exchangeStatusMsg) {
+          exchangeStatusMsg.textContent = "Giao dịch thành công!";
+          exchangeStatusMsg.style.color = "#1a654d";
+        }
+      } catch {
+        if (exchangeStatusMsg) {
+          exchangeStatusMsg.textContent = "Lỗi kết nối máy chủ.";
+          exchangeStatusMsg.style.color = "#b84245";
+        }
+      }
+    });
+
+    btnFaucetAvax?.addEventListener("click", async () => {
+      const csrf = getCsrfToken();
+      if (!csrf) {
+        if (exchangeStatusMsg) {
+          exchangeStatusMsg.textContent = "Vui lòng đăng nhập để nhận AVAX thử nghiệm.";
+          exchangeStatusMsg.style.color = "#b84245";
+        }
+        return;
+      }
+      try {
+        const res = await fetch("/api/auth/exchange-credits", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRF-Token": csrf,
+          },
+          body: JSON.stringify({ direction: "FAUCET_TOPUP", amount: 1.0 }),
+        });
+        const payload = await res.json();
+        if (!res.ok || payload.error) {
+          if (exchangeStatusMsg) {
+            exchangeStatusMsg.textContent = payload.error || "Không thể nhận AVAX.";
+            exchangeStatusMsg.style.color = "#b84245";
+          }
+          return;
+        }
+        applyBalanceAndTxUpdate(payload.data);
+        if (exchangeStatusMsg) {
+          exchangeStatusMsg.textContent = "Đã nhận +1.0 AVAX Fuji Faucet!";
+          exchangeStatusMsg.style.color = "#1a654d";
+        }
+      } catch {
+        if (exchangeStatusMsg) {
+          exchangeStatusMsg.textContent = "Lỗi kết nối máy chủ.";
+          exchangeStatusMsg.style.color = "#b84245";
+        }
+      }
+    });
+  }
 
   farmForm?.addEventListener("submit", async (event) => {
     event.preventDefault();

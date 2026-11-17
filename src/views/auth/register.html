@@ -181,8 +181,13 @@
         </label>
       </div>
       <div id="autoWalletPreviewBox" class="p-2.5 rounded-lg bg-surface-container-lowest text-xs text-on-surface-variant">
-        <span>Địa chỉ ví Fuji được cấp theo Email: </span>
-        <code id="emailWalletPreviewText" class="font-bold text-primary break-all">Nhập Email ở trên để xem địa chỉ ví 0x...</code>
+        <span>Trạng thái ví Fuji: </span>
+        <span class="font-semibold text-primary">Địa chỉ ví <code>0x...</code> sẽ được khởi tạo và hiển thị trên màn hình sau khi đăng ký thành công.</span>
+      </div>
+      <div id="registeredWalletRevealBox" class="hidden p-3 rounded-lg bg-primary-fixed/40 border border-primary/40 text-xs space-y-1">
+        <div class="font-bold text-primary">✅ Đăng ký thành công! Ví Avalanche Fuji (Chain ID 43113) của bạn:</div>
+        <div>Địa chỉ ví: <code id="revealedWalletAddress" class="font-bold text-on-surface break-all"></code></div>
+        <div>Số dư khởi tạo: <strong id="revealedCredits"></strong> LÚA · <strong id="revealedAvax"></strong> AVAX</div>
       </div>
       <div id="externalWalletInputBox" class="hidden space-y-2">
         <div class="flex gap-2">

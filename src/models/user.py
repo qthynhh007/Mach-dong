@@ -11,7 +11,12 @@ from dataclasses import dataclass, field
 from enum import StrEnum
 from pathlib import Path
 
-from src.config import AVALANCHE_CHAIN_ID, DB_PATH, SECRET_KEY
+from src.config import (
+    AVALANCHE_CHAIN_ID,
+    DB_PATH,
+    DEFAULT_INITIAL_AVAX,
+    SECRET_KEY,
+)
 
 PBKDF2_ITERATIONS = 200_000
 WALLET_REGEX = re.compile(r"^0x[a-fA-F0-9]{40}$")
@@ -28,7 +33,9 @@ class UserRole(StrEnum):
 def normalize_email(email: str) -> str:
     cleaned = (email or "").strip().lower()
     if not cleaned or not EMAIL_REGEX.match(cleaned):
-        raise ValueError("Email không hợp lệ. Vui lòng nhập đúng định dạng (ví dụ: ten@gmail.com).")
+        raise ValueError(
+            "Email không hợp lệ. Vui lòng nhập đúng định dạng (ví dụ: ten@gmail.com)."
+        )
     return cleaned
 
 
@@ -55,33 +62,58 @@ def is_valid_wallet_address(address: str) -> bool:
     return bool(WALLET_REGEX.match((address or "").strip()))
 
 
-def preview_email_wallet_address(email: str, secret_key: str = SECRET_KEY) -> str:
+def _derive_private_key_hex(email: str, secret_key: str = SECRET_KEY) -> str:
     cleaned_email = (email or "").strip().lower()
-    if not cleaned_email:
-        return ""
-    digest = hmac.new(
+    return hmac.new(
         secret_key.encode("utf-8"),
-        f"avalanche-fuji-{AVALANCHE_CHAIN_ID}-addr:{cleaned_email}".encode("utf-8"),
+        f"avalanche-fuji-{AVALANCHE_CHAIN_ID}-secp256k1:{cleaned_email}".encode(
+            "utf-8"
+        ),
         hashlib.sha256,
     ).hexdigest()
-    return "0x" + digest[:40]
+
+
+def preview_email_wallet_address(email: str, secret_key: str = SECRET_KEY) -> str:
+    cleaned_email = (email or "").strip().lower()
+    if not cleaned_email or "@" not in cleaned_email:
+        return ""
+    from eth_account import Account
+
+    priv_hex = _derive_private_key_hex(cleaned_email, secret_key)
+    acct = Account.from_key("0x" + priv_hex)
+    return str(acct.address)
 
 
 def generate_email_bound_wallet(
     email: str, secret_key: str = SECRET_KEY
 ) -> tuple[str, str]:
+    from eth_account import Account
+
     normalized = normalize_email(email)
-    address = preview_email_wallet_address(normalized, secret_key)
-    priv_material = hmac.new(
-        secret_key.encode("utf-8"),
-        f"avalanche-fuji-{AVALANCHE_CHAIN_ID}-priv:{normalized}".encode("utf-8"),
-        hashlib.sha256,
-    ).hexdigest()
+    priv_hex = _derive_private_key_hex(normalized, secret_key)
+    acct = Account.from_key("0x" + priv_hex)
+    address = str(acct.address)
     mask = hashlib.sha256(f"{secret_key}:{normalized}:mask".encode("utf-8")).digest()
-    raw_priv = bytes.fromhex(priv_material)
+    raw_priv = bytes.fromhex(priv_hex)
     encrypted_bytes = bytes(b ^ mask[i % len(mask)] for i, b in enumerate(raw_priv))
     encrypted_key = f"fuji-{AVALANCHE_CHAIN_ID}:" + encrypted_bytes.hex()
     return address, encrypted_key
+
+
+def decrypt_email_bound_private_key(
+    email: str, encrypted_key: str | None, secret_key: str = SECRET_KEY
+) -> str | None:
+    if not encrypted_key or ":" not in encrypted_key:
+        return None
+    normalized = (email or "").strip().lower()
+    _, hex_payload = encrypted_key.split(":", 1)
+    try:
+        encrypted_bytes = bytes.fromhex(hex_payload)
+    except ValueError:
+        return None
+    mask = hashlib.sha256(f"{secret_key}:{normalized}:mask".encode("utf-8")).digest()
+    raw_priv = bytes(b ^ mask[i % len(mask)] for i, b in enumerate(encrypted_bytes))
+    return "0x" + raw_priv.hex()
 
 
 @dataclass
@@ -99,6 +131,7 @@ class User:
     encrypted_wallet_key: str | None = None
     google_sub: str | None = None
     simulation_credits: int = 3
+    avax_balance: float = DEFAULT_INITIAL_AVAX
     failed_login_attempts: int = 0
     locked_until: float = 0.0
     created_at: float = field(default_factory=time.time)
@@ -132,7 +165,7 @@ class User:
         current = time.time() if now is None else now
         return self.locked_until > current
 
-    def to_public_dict(self) -> dict[str, str | int]:
+    def to_public_dict(self) -> dict[str, str | int | float]:
         return {
             "user_id": self.user_id,
             "username": self.username,
@@ -144,6 +177,7 @@ class User:
             "wallet_type": self.wallet_type,
             "chain_id": AVALANCHE_CHAIN_ID,
             "simulation_credits": self.simulation_credits,
+            "avax_balance": round(float(self.avax_balance), 4),
         }
 
 
@@ -213,12 +247,22 @@ class SQLiteUserRepository:
                         encrypted_wallet_key TEXT,
                         google_sub TEXT UNIQUE,
                         simulation_credits INTEGER NOT NULL DEFAULT 3,
+                        avax_balance REAL NOT NULL DEFAULT 2.5,
                         failed_login_attempts INTEGER NOT NULL DEFAULT 0,
                         locked_until REAL NOT NULL DEFAULT 0.0,
                         created_at REAL NOT NULL
                     )
                     """
                 )
+                # Ensure avax_balance column exists if migrating an older DB
+                cols = {
+                    r["name"]
+                    for r in conn.execute("PRAGMA table_info(users)").fetchall()
+                }
+                if "avax_balance" not in cols:
+                    conn.execute(
+                        "ALTER TABLE users ADD COLUMN avax_balance REAL NOT NULL DEFAULT 2.5"
+                    )
                 conn.execute(
                     "CREATE INDEX IF NOT EXISTS idx_users_phone ON users(phone)"
                 )
@@ -250,11 +294,39 @@ class SQLiteUserRepository:
                     )
                     """
                 )
+                conn.execute(
+                    """
+                    CREATE TABLE IF NOT EXISTS credit_transactions (
+                        tx_id TEXT PRIMARY KEY,
+                        user_id TEXT NOT NULL,
+                        direction TEXT NOT NULL,
+                        avax_amount REAL NOT NULL,
+                        credit_delta INTEGER NOT NULL,
+                        tx_hash TEXT NOT NULL,
+                        note TEXT NOT NULL,
+                        created_at REAL NOT NULL,
+                        FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+                    )
+                    """
+                )
+                # Upgrade any existing AUTO_EMAIL user wallets to real secp256k1 EIP-55 addresses
+                auto_rows = conn.execute(
+                    "SELECT user_id, email, wallet_address FROM users WHERE wallet_type = 'AUTO_EMAIL'"
+                ).fetchall()
+                for r in auto_rows:
+                    real_addr, real_enc_key = generate_email_bound_wallet(r["email"])
+                    if r["wallet_address"] != real_addr:
+                        conn.execute(
+                            "UPDATE users SET wallet_address = ?, encrypted_wallet_key = ? WHERE user_id = ?",
+                            (real_addr, real_enc_key, r["user_id"]),
+                        )
         finally:
             self._close(conn)
 
     @staticmethod
     def _row_to_user(row: sqlite3.Row) -> User:
+        row_keys = row.keys()
+        avax_val = float(row["avax_balance"]) if "avax_balance" in row_keys else DEFAULT_INITIAL_AVAX
         return User(
             user_id=row["user_id"],
             username=row["username"],
@@ -269,6 +341,7 @@ class SQLiteUserRepository:
             encrypted_wallet_key=row["encrypted_wallet_key"],
             google_sub=row["google_sub"],
             simulation_credits=int(row["simulation_credits"]),
+            avax_balance=avax_val,
             failed_login_attempts=int(row["failed_login_attempts"]),
             locked_until=float(row["locked_until"]),
             created_at=float(row["created_at"]),
@@ -300,6 +373,7 @@ class SQLiteUserRepository:
         wallet_type: str = "AUTO_EMAIL",
         google_sub: str | None = None,
         simulation_credits: int = 3,
+        avax_balance: float = DEFAULT_INITIAL_AVAX,
     ) -> User:
         clean_username = username.strip()
         if not clean_username:
@@ -337,6 +411,7 @@ class SQLiteUserRepository:
             encrypted_wallet_key=encrypted_key,
             google_sub=google_sub,
             simulation_credits=simulation_credits,
+            avax_balance=avax_balance,
             failed_login_attempts=0,
             locked_until=0.0,
             created_at=time.time(),
@@ -354,9 +429,9 @@ class SQLiteUserRepository:
                         user_id, username, name, email, phone,
                         password_hash, password_salt, role,
                         wallet_address, wallet_type, encrypted_wallet_key,
-                        google_sub, simulation_credits,
+                        google_sub, simulation_credits, avax_balance,
                         failed_login_attempts, locked_until, created_at
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     ON CONFLICT(user_id) DO UPDATE SET
                         username = excluded.username,
                         name = excluded.name,
@@ -370,6 +445,7 @@ class SQLiteUserRepository:
                         encrypted_wallet_key = excluded.encrypted_wallet_key,
                         google_sub = excluded.google_sub,
                         simulation_credits = excluded.simulation_credits,
+                        avax_balance = excluded.avax_balance,
                         failed_login_attempts = excluded.failed_login_attempts,
                         locked_until = excluded.locked_until
                     """,
@@ -387,6 +463,7 @@ class SQLiteUserRepository:
                         user.encrypted_wallet_key,
                         user.google_sub,
                         user.simulation_credits,
+                        user.avax_balance,
                         user.failed_login_attempts,
                         user.locked_until,
                         user.created_at,
@@ -613,5 +690,68 @@ class SQLiteUserRepository:
                     "UPDATE email_otp_codes SET is_used = 1 WHERE email = ? COLLATE NOCASE",
                     (clean_email,),
                 )
+        finally:
+            self._close(conn)
+
+    def record_credit_transaction(
+        self,
+        user_id: str,
+        direction: str,
+        avax_amount: float,
+        credit_delta: int,
+        tx_hash: str,
+        note: str,
+    ) -> dict[str, str | int | float]:
+        tx_id = str(uuid.uuid4())
+        now = time.time()
+        conn = self._connect()
+        try:
+            with conn:
+                conn.execute(
+                    """
+                    INSERT INTO credit_transactions (
+                        tx_id, user_id, direction, avax_amount, credit_delta,
+                        tx_hash, note, created_at
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (
+                        tx_id,
+                        user_id,
+                        direction,
+                        round(float(avax_amount), 4),
+                        int(credit_delta),
+                        tx_hash,
+                        note,
+                        now,
+                    ),
+                )
+        finally:
+            self._close(conn)
+        return {
+            "tx_id": tx_id,
+            "user_id": user_id,
+            "direction": direction,
+            "avax_amount": round(float(avax_amount), 4),
+            "credit_delta": int(credit_delta),
+            "tx_hash": tx_hash,
+            "note": note,
+            "created_at": now,
+        }
+
+    def list_credit_transactions(
+        self, user_id: str, limit: int = 10
+    ) -> list[dict[str, str | int | float]]:
+        conn = self._connect()
+        try:
+            rows = conn.execute(
+                """
+                SELECT * FROM credit_transactions
+                WHERE user_id = ?
+                ORDER BY created_at DESC
+                LIMIT ?
+                """,
+                (user_id, limit),
+            ).fetchall()
+            return [dict(r) for r in rows]
         finally:
             self._close(conn)

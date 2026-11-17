@@ -31,6 +31,8 @@ LOCKOUT_DURATION_SECONDS = 300  # 5 minutes
 
 AVALANCHE_CHAIN_ID = 43113
 AVALANCHE_NETWORK_NAME = "Avalanche Fuji Testnet"
+CREDITS_PER_AVAX = 100  # 1 AVAX = 100 LÚA (0.01 AVAX = 1 LÚA)
+DEFAULT_INITIAL_AVAX = 2.5  # Testnet AVAX seeded for Fuji credit changer demo
 
 # Email OTP / SMTP Settings
 OTP_TTL_SECONDS = 300  # 5 minutes

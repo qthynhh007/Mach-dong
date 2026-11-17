@@ -13,6 +13,7 @@ from email.message import EmailMessage
 from src.config import (
     AVALANCHE_CHAIN_ID,
     AVALANCHE_NETWORK_NAME,
+    CREDITS_PER_AVAX,
     LOCKOUT_DURATION_SECONDS,
     MAX_LOGIN_ATTEMPTS,
     OTP_TTL_SECONDS,
@@ -29,11 +30,11 @@ from src.models.user import (
     User,
     UserRole,
     UserSession,
+    _derive_private_key_hex,
     generate_email_bound_wallet,
     is_valid_wallet_address,
     normalize_email,
     normalize_vn_phone,
-    preview_email_wallet_address,
 )
 
 
@@ -56,6 +57,7 @@ class AuthService:
         lockout_duration_seconds: int = LOCKOUT_DURATION_SECONDS,
         otp_ttl_seconds: int = OTP_TTL_SECONDS,
         seed_defaults: bool = True,
+        enable_smtp: bool = True,
     ) -> None:
         self.repo = repo or SQLiteUserRepository()
         self.secret_key = secret_key
@@ -64,6 +66,7 @@ class AuthService:
         self.max_login_attempts = max_login_attempts
         self.lockout_duration_seconds = lockout_duration_seconds
         self.otp_ttl_seconds = otp_ttl_seconds
+        self.enable_smtp = enable_smtp
         if seed_defaults:
             self.seed_default_accounts()
 
@@ -77,6 +80,7 @@ class AuthService:
                 "password": "admin",
                 "role": UserRole.ADMIN,
                 "credits": 99,
+                "avax": 10.0,
             },
             {
                 "username": "rev",
@@ -86,6 +90,7 @@ class AuthService:
                 "password": "reviewer",
                 "role": UserRole.REVIEWER,
                 "credits": 10,
+                "avax": 5.0,
             },
         ]
         for item in seeds:
@@ -103,7 +108,14 @@ class AuthService:
                     wallet_address=None,
                     wallet_type="AUTO_EMAIL",
                     simulation_credits=item["credits"],
+                    avax_balance=item["avax"],
                 )
+            elif existing.wallet_type == "AUTO_EMAIL":
+                addr, enc_key = generate_email_bound_wallet(existing.email)
+                if existing.wallet_address != addr:
+                    existing.wallet_address = addr
+                    existing.encrypted_wallet_key = enc_key
+                    self.repo.save_user(existing)
 
     def _sign_session_id(self, session_id: str) -> str:
         sig = hmac.new(
@@ -148,21 +160,20 @@ class AuthService:
         code_hash = self._hash_email_otp(clean_email, otp_code)
         self.repo.save_email_otp(clean_email, code_hash, expires_at)
 
-        wallet_preview = preview_email_wallet_address(clean_email, self.secret_key)
         delivery_mode = "DEV_PREVIEW"
         smtp_sent = False
 
-        if SMTP_EMAIL and SMTP_APP_PASSWORD:
+        if self.enable_smtp and SMTP_EMAIL and SMTP_APP_PASSWORD:
             msg = EmailMessage()
-            msg["Subject"] = f"[Mạch Đồng · AgriData] Mã xác nhận đăng nhập: {otp_code}"
+            msg["Subject"] = f"[Mạch Đồng · AgriData] Mã xác nhận Email: {otp_code}"
             msg["From"] = SMTP_EMAIL
             msg["To"] = clean_email
             msg.set_content(
                 f"Xin chào bà con,\n\n"
                 f"Mã xác nhận (OTP) Mạch Đồng của bạn là: {otp_code}\n"
                 f"Mã có hiệu lực trong {self.otp_ttl_seconds // 60} phút.\n\n"
-                f"Địa chỉ ví Avalanche Fuji (Chain ID {AVALANCHE_CHAIN_ID}) gắn với Email này:\n"
-                f"{wallet_preview}\n\n"
+                f"Sau khi xác thực mã thành công, hệ thống sẽ khởi tạo và hiển thị địa chỉ ví "
+                f"Avalanche Fuji (Chain ID {AVALANCHE_CHAIN_ID}) của bạn trên màn hình.\n\n"
                 f"Trân trọng,\nĐội ngũ Mạch Đồng · AgriData ĐBSCL"
             )
             try:
@@ -174,16 +185,13 @@ class AuthService:
             except Exception as exc:
                 print(f"[AgriData SMTP Fallback] Could not send via SMTP ({exc}).")
 
-        print(
-            f"[AgriData Email OTP] To: {clean_email} | Code: {otp_code} | Fuji Wallet: {wallet_preview}"
-        )
+        print(f"[AgriData Email OTP] To: {clean_email} | Code: {otp_code}")
 
         response_data: dict[str, str | int | bool] = {
             "email": clean_email,
             "expires_in_seconds": self.otp_ttl_seconds,
             "delivery_mode": delivery_mode,
             "smtp_sent": smtp_sent,
-            "preview_wallet_address": wallet_preview,
         }
         if not smtp_sent:
             response_data["dev_otp_code"] = otp_code
@@ -206,7 +214,7 @@ class AuthService:
         if record is None or record.get("is_used"):
             return (
                 False,
-                "Chưa có mã xác nhận hoặc mã đã được sử dụng. Vui lòng bấm 'Gửi mã xác nhận'.",
+                "Chưa có mã xác nhận hoặc mã đã được sử dụng. Vui lòng bấm 'Gửi mã Email'.",
             )
 
         now = time.time()
@@ -245,26 +253,24 @@ class AuthService:
             "csrf_token": session.csrf_token,
             "expires_at": session.expires_at,
             "user": user.to_public_dict(),
-            "wallet_info": self.get_wallet_guide_info(user.email, user.wallet_address),
+            "wallet_info": self.get_wallet_guide_info(user.wallet_address),
         }
 
     @staticmethod
     def get_wallet_guide_info(
-        email: str = "", wallet_address: str = ""
+        wallet_address: str = "",
     ) -> dict[str, str | int]:
-        preview_addr = wallet_address or (
-            preview_email_wallet_address(email) if email else ""
-        )
         return {
             "network_name": AVALANCHE_NETWORK_NAME,
             "chain_id": AVALANCHE_CHAIN_ID,
             "currency": "AVAX (Testnet)",
+            "credits_per_avax": CREDITS_PER_AVAX,
             "rpc_url": "https://api.avax-test.network/ext/bc/C/rpc",
             "explorer_url": "https://testnet.snowtrace.io",
-            "preview_wallet_address": preview_addr,
+            "wallet_address": wallet_address,
             "summary_vi": (
-                "Ví Avalanche Fuji (Chain ID 43113) được tạo tự động và gắn trực tiếp với "
-                "Email xác thực của bà con để nhận Điểm Đóng Góp (Simulation Credits)."
+                "Ví Avalanche Fuji (Chain ID 43113) sẽ được khởi tạo và hiển thị trên màn hình "
+                "ngay sau khi bà con xác thực mã Email và hoàn tất đăng ký/đăng nhập."
             ),
         }
 
@@ -381,7 +387,6 @@ class AuthService:
                     429,
                     error=f"Tài khoản đang tạm khóa. Vui lòng thử lại sau {remaining} giây.",
                 )
-            # If user also supplied a password, verify it; otherwise OTP alone authenticates the existing email!
             if password and password.strip():
                 if not existing.verify_password(password):
                     existing.failed_login_attempts += 1
@@ -471,7 +476,6 @@ class AuthService:
         otp_code: str | None = None,
         auto_create_on_full_profile: bool = False,
     ) -> AuthResult:
-        # If an email OTP code is provided, use the Email OTP verification flow
         target_email = (email or (identifier if "@" in (identifier or "") else "")).strip()
         if otp_code and otp_code.strip() and target_email:
             return self.sign_in_with_email_otp(
@@ -587,6 +591,157 @@ class AuthService:
             error="Tài khoản hoặc mật khẩu không đúng.",
         )
 
+    def _generate_fuji_tx_hash(
+        self, user: User, direction: str, avax_amount: float, credit_delta: int
+    ) -> str:
+        payload = (
+            f"chain:{AVALANCHE_CHAIN_ID}|wallet:{user.wallet_address}|"
+            f"dir:{direction}|avax:{avax_amount:.4f}|credits:{credit_delta}|"
+            f"ts:{time.time_ns()}"
+        )
+        try:
+            from eth_account import Account
+            from eth_account.messages import encode_defunct
+
+            priv_hex = _derive_private_key_hex(user.email, self.secret_key)
+            signed = Account.sign_message(
+                encode_defunct(text=payload), private_key="0x" + priv_hex
+            )
+            return "0x" + signed.message_hash.hex()[-64:]
+        except Exception:
+            return "0x" + hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+    def exchange_credits_with_avax(
+        self,
+        user: User,
+        direction: str,
+        amount: float,
+    ) -> AuthResult:
+        clean_dir = (direction or "AVAX_TO_CREDIT").strip().upper()
+        if clean_dir == "FAUCET_TOPUP":
+            faucet_avax = 1.0
+            user.avax_balance = round(float(user.avax_balance) + faucet_avax, 4)
+            self.repo.save_user(user)
+            tx_hash = self._generate_fuji_tx_hash(
+                user, "FAUCET_TOPUP", faucet_avax, 0
+            )
+            tx_record = self.repo.record_credit_transaction(
+                user_id=user.user_id,
+                direction="FAUCET_TOPUP",
+                avax_amount=faucet_avax,
+                credit_delta=0,
+                tx_hash=tx_hash,
+                note="Nhận 1.0 AVAX thử nghiệm từ Avalanche Fuji Faucet (43113)",
+            )
+            return AuthResult(
+                True,
+                200,
+                data={
+                    "user": user.to_public_dict(),
+                    "transaction": tx_record,
+                    "transactions": self.repo.list_credit_transactions(user.user_id),
+                },
+            )
+
+        if clean_dir == "AVAX_TO_CREDIT":
+            try:
+                avax_to_spend = round(float(amount), 4)
+            except (TypeError, ValueError):
+                return AuthResult(False, 400, error="Số lượng AVAX không hợp lệ.")
+            if avax_to_spend <= 0:
+                return AuthResult(
+                    False, 400, error="Số lượng AVAX cần lớn hơn 0 (tối thiểu 0.01 AVAX)."
+                )
+            credits_to_mint = int(round(avax_to_spend * CREDITS_PER_AVAX))
+            if credits_to_mint < 1:
+                return AuthResult(
+                    False,
+                    400,
+                    error=f"Tối thiểu cần {1 / CREDITS_PER_AVAX:.2f} AVAX để đổi 1 Điểm LÚA.",
+                )
+            exact_avax_cost = round(credits_to_mint / CREDITS_PER_AVAX, 4)
+            if float(user.avax_balance) < exact_avax_cost:
+                return AuthResult(
+                    False,
+                    400,
+                    error=(
+                        f"Số dư AVAX không đủ (cần {exact_avax_cost} AVAX, hiện có "
+                        f"{user.avax_balance:.4f} AVAX). Bạn có thể bấm 'Nhận 1.0 AVAX Fuji Faucet'."
+                    ),
+                )
+            user.avax_balance = round(float(user.avax_balance) - exact_avax_cost, 4)
+            user.simulation_credits = int(user.simulation_credits) + credits_to_mint
+            self.repo.save_user(user)
+            tx_hash = self._generate_fuji_tx_hash(
+                user, "AVAX_TO_CREDIT", exact_avax_cost, credits_to_mint
+            )
+            tx_record = self.repo.record_credit_transaction(
+                user_id=user.user_id,
+                direction="AVAX_TO_CREDIT",
+                avax_amount=exact_avax_cost,
+                credit_delta=credits_to_mint,
+                tx_hash=tx_hash,
+                note=f"Đổi {exact_avax_cost} AVAX → +{credits_to_mint} LÚA (Avalanche Fuji)",
+            )
+            return AuthResult(
+                True,
+                200,
+                data={
+                    "user": user.to_public_dict(),
+                    "transaction": tx_record,
+                    "transactions": self.repo.list_credit_transactions(user.user_id),
+                },
+            )
+
+        if clean_dir == "CREDIT_TO_AVAX":
+            try:
+                credits_to_spend = int(round(float(amount)))
+            except (TypeError, ValueError):
+                return AuthResult(False, 400, error="Số Điểm LÚA không hợp lệ.")
+            if credits_to_spend < 1:
+                return AuthResult(
+                    False, 400, error="Số Điểm LÚA cần quy đổi phải từ 1 LÚA trở lên."
+                )
+            if int(user.simulation_credits) < credits_to_spend:
+                return AuthResult(
+                    False,
+                    400,
+                    error=(
+                        f"Số dư Điểm LÚA không đủ (cần {credits_to_spend} LÚA, "
+                        f"hiện có {user.simulation_credits} LÚA)."
+                    ),
+                )
+            avax_gained = round(credits_to_spend / CREDITS_PER_AVAX, 4)
+            user.simulation_credits = int(user.simulation_credits) - credits_to_spend
+            user.avax_balance = round(float(user.avax_balance) + avax_gained, 4)
+            self.repo.save_user(user)
+            tx_hash = self._generate_fuji_tx_hash(
+                user, "CREDIT_TO_AVAX", avax_gained, -credits_to_spend
+            )
+            tx_record = self.repo.record_credit_transaction(
+                user_id=user.user_id,
+                direction="CREDIT_TO_AVAX",
+                avax_amount=avax_gained,
+                credit_delta=-credits_to_spend,
+                tx_hash=tx_hash,
+                note=f"Quy đổi {credits_to_spend} LÚA → +{avax_gained} AVAX (Avalanche Fuji)",
+            )
+            return AuthResult(
+                True,
+                200,
+                data={
+                    "user": user.to_public_dict(),
+                    "transaction": tx_record,
+                    "transactions": self.repo.list_credit_transactions(user.user_id),
+                },
+            )
+
+        return AuthResult(
+            False,
+            400,
+            error="Loại giao dịch không hợp lệ (chỉ hỗ trợ AVAX_TO_CREDIT, CREDIT_TO_AVAX, FAUCET_TOPUP).",
+        )
+
     def validate_session(
         self,
         session_token: str | None,
@@ -684,6 +839,47 @@ class AuthService:
         self.repo.save_user(user)
         return AuthResult(
             True, 200, data={"message": "Đã cập nhật mật khẩu thành công."}
+        )
+
+    def reset_password_with_email_otp(
+        self, email: str, otp_code: str, new_password: str
+    ) -> AuthResult:
+        try:
+            clean_email = normalize_email(email)
+        except ValueError as exc:
+            return AuthResult(False, 400, error=str(exc))
+
+        if not new_password or len(new_password) < 4:
+            return AuthResult(
+                False, 400, error="Mật khẩu mới cần ít nhất 4 ký tự."
+            )
+
+        user = self.repo.get_by_email(clean_email)
+        if user is None:
+            return AuthResult(
+                False,
+                404,
+                error="Không tìm thấy tài khoản nào đăng ký với địa chỉ Email này.",
+            )
+
+        ok_otp, otp_err = self.verify_email_otp(clean_email, otp_code, consume=True)
+        if not ok_otp:
+            return AuthResult(False, 400, error=otp_err)
+
+        pwd_hash, pwd_salt = User.hash_password(new_password)
+        user.password_hash = pwd_hash
+        user.password_salt = pwd_salt
+        user.failed_login_attempts = 0
+        user.locked_until = 0.0
+        self.repo.save_user(user)
+        return AuthResult(
+            True,
+            200,
+            data={
+                "email": clean_email,
+                "username": user.username,
+                "message": "Đã đặt lại mật khẩu mới thành công! Bạn có thể đăng nhập ngay.",
+            },
         )
 
 
