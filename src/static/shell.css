@@ -1,6 +1,7 @@
 :root {
   --md-green: #1a654d;
   --md-ink: #0e2c24;
+  --md-heading-color: #064e3b;
   --md-canvas: #e7efe7;
   --md-surface-solid: #f5faf5;
   --md-surface-inset: #eaf3ec;
@@ -30,6 +31,10 @@ html {
 }
 * { box-sizing: border-box; }
 body { min-height: 100vh; margin: 0; color: var(--md-ink); }
+:is(h1, h2, h3, h4, h5, h6) {
+  font-family: var(--md-font);
+  color: var(--md-heading-color);
+}
 [hidden] { display: none !important; }
 [data-alt] { background-color: #124b38; }
 .app-skip-link {
@@ -92,8 +97,9 @@ dialog { overscroll-behavior: contain; }
 .app-content .bg-surface-container-low { background-color: var(--md-surface-inset); }
 .app-content .bg-surface-container { background-color: #e2efe6; }
 .app-content :is(.bg-surface-container-high, .bg-surface-container-highest) { background-color: #d9eade; }
-.app-content .app-page-title {
+.app-page-title {
   font-size: clamp(1.65rem, 2.35vw, 2.25rem);
+  font-weight: 800;
   line-height: 1.2;
   letter-spacing: -.035em;
 }

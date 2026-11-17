@@ -16,7 +16,7 @@
 <main id="main-content" tabindex="-1" class="app-content w-full min-h-screen"><div class="flex flex-col w-full">
 <div class="mb-space-lg flex flex-col md:flex-row md:items-end justify-between gap-space-md">
 <div>
-<h1 class="app-page-title font-headline-lg text-headline-lg font-bold text-on-surface tracking-tight mt-0.5">
+<h1 class="app-page-title mt-0.5">
         Quản lý Tài khoản &amp; Bảo mật
       </h1>
 <p class="font-body-md text-body-md text-on-surface-variant mt-1">
@@ -44,7 +44,7 @@
 </div>
 <div class="flex flex-col text-center sm:text-left min-w-0 flex-1">
 <div class="flex flex-wrap items-center justify-center sm:justify-start gap-space-xs">
-<h2 class="font-headline-sm text-headline-sm font-bold text-on-surface" data-profile-value="farmer-fullname">{{ current_user.name if current_user else 'Chú Năm Ruộng' }}</h2>
+<h2 class="text-headline-sm font-bold" data-profile-value="farmer-fullname">{{ current_user.name if current_user else 'Chú Năm Ruộng' }}</h2>
 
 </div>
 <p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5" data-profile-value="farmer-address">
@@ -95,7 +95,7 @@
 <div class="flex items-center justify-between">
 <div class="flex items-center gap-space-xs">
 <div>
-<h3 class="font-headline-sm text-headline-sm font-bold text-on-surface">Ví Điểm Nông Nghiệp</h3>
+<h3 class="text-headline-sm font-bold">Ví Điểm Nông Nghiệp</h3>
 <p class="font-label-sm text-label-sm text-on-surface-variant uppercase">Quỹ hỗ trợ mùa màng</p>
 </div>
 </div>
@@ -153,7 +153,7 @@
 <div class="mt-space-md p-space-md rounded-xl bg-surface-container-low border border-outline-variant/40 space-y-space-sm" id="credit-changer-box" data-credits-per-avax="{{ credits_per_avax or 100 }}">
   <div class="flex flex-wrap items-center justify-between gap-2">
     <div>
-      <h4 class="font-label-md text-label-md font-bold text-primary uppercase">[Giả lập] Quy đổi điểm LÚA ↔ AVAX</h4>
+      <h4 class="text-label-md font-bold uppercase">[Giả lập] Quy đổi điểm LÚA ↔ AVAX</h4>
       <p class="font-label-sm text-label-sm text-on-surface-variant">Tỷ giá: 1 AVAX = {{ credits_per_avax or 100 }} LÚA (0.01 AVAX = 1 LÚA)</p>
     </div>
     <button type="button" id="btn-faucet-avax" class="app-button px-2.5 py-1 font-label-sm text-label-sm font-bold">
@@ -254,7 +254,7 @@
 <span class="app-icon-wrap text-[22px]">{{ render_icon("description") }}</span>
 </div>
 <div>
-<h3 class="font-headline-sm text-headline-sm font-bold text-on-surface">Thông tin Nông hộ &amp; Vùng canh tác</h3>
+<h3 class="text-headline-sm font-bold">Thông tin Nông hộ &amp; Vùng canh tác</h3>
 <p class="font-body-sm text-body-sm text-on-surface-variant">{{ 'Họ tên và số điện thoại được lưu vào tài khoản. Thông tin ruộng được lưu trên trình duyệt này.' if current_user else 'Dữ liệu demo được lưu trên trình duyệt này. Hãy dùng thông tin mẫu.' }}</p>
 </div>
 </div>
@@ -341,7 +341,7 @@
 <span class="app-icon-wrap text-[22px]">{{ render_icon("lock") }}</span>
 </div>
 <div>
-<h3 class="font-headline-sm text-headline-sm font-bold text-on-surface">Bảo Mật &amp; Đổi Mật Khẩu</h3>
+<h3 class="text-headline-sm font-bold">Bảo Mật &amp; Đổi Mật Khẩu</h3>
 <p class="font-body-sm text-body-sm text-on-surface-variant">Chế độ xem thử. Hãy dùng mật khẩu mẫu.</p>
 </div>
 </div>

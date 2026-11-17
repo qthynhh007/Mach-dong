@@ -108,7 +108,7 @@
 .member-stats dt { font-size: .7rem; color: #4c6458; }
 .member-stats dd { font-size: 1rem; font-weight: 800; }
 .member-activity { margin-top: 1.6rem; }
-.member-activity h3 { display: flex; align-items: center; gap: .4rem; font-size: .8rem; font-weight: 800; color: #355e50; }
+.member-activity h3 { display: flex; align-items: center; gap: .4rem; font-size: .8rem; font-weight: 800; }
 .member-posts { display: grid; gap: .3rem; margin-top: .6rem; list-style: none; }
 .member-post {
   display: flex; align-items: center; justify-content: space-between; gap: .65rem; padding: .65rem .8rem;
