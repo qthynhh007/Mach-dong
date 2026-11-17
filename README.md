@@ -25,13 +25,13 @@ Khi thêm class Tailwind vào HTML, chạy `npm install` và `npm run build:css`
 | Sửa bài | `/forum/<postId>/edit` | Chỉnh sửa bài và ảnh; kiểm tra quyền tác giả trên máy chủ |
 | Mô phỏng | `/simulation` | Bốn thanh trượt và nút đặt lại, hình cắt lớp toàn chiều ngang và tỷ lệ cây phát triển tốt mô phỏng trong khung Cò Mạ |
 | Trợ lý Cò Mạ | `/assistant` | Tra số liệu đã công bố hoặc hỏi Gemini 3.8 Flash về cách trồng, dinh dưỡng, sâu bệnh, mặn và ngập trên nhiều cây |
-| Đăng nhập | `/login` | Nhập thông tin mẫu, hiện/ẩn mật khẩu và chuyển sang đăng ký |
-| Đăng ký | `/register` | Nhập thông tin mẫu, kiểm tra mật khẩu xác nhận và quay lại đăng nhập |
-| Tài khoản | `/profile` | Mở từ avatar, lưu hồ sơ demo trên trình duyệt và xem thử biểu mẫu đổi mật khẩu |
+| Đăng nhập | `/login` | Đăng nhập bằng mật khẩu hoặc mã email, đặt lại mật khẩu |
+| Đăng ký | `/register` | Xác thực email và tạo tài khoản kèm ví Fuji |
+| Tài khoản | `/profile` | Mở từ avatar để cập nhật hồ sơ, đổi mật khẩu hoặc xem ví Fuji |
 
-Đăng nhập và đăng ký vẫn là biểu mẫu xem thử, thuộc phần tích hợp tài khoản của nhóm. CSV tải lên được đọc để xem trước. Bộ có nhãn `[Giả lập]` và bài “Dữ liệu mẫu” là dữ liệu minh họa. Bộ mặn và mực nước trạm gồm các bản ghi lịch sử tháng 4–5/2026 có nguồn đối chiếu.
+Tài khoản và phiên đăng nhập lưu tại `data/agridata.db`. Đặt `SMTP_EMAIL` và `SMTP_APP_PASSWORD` trong `.env.local` để gửi mã OTP. Khi chạy demo trên máy cá nhân, đặt `AGRIDATA_AUTH_DEMO=1` để thử với tài khoản mẫu và xem mã OTP nếu chưa có SMTP. Đặt `AGRIDATA_SECRET_KEY` cố định khi cần giữ địa chỉ ví tự tạo qua các lần triển khai. Số dư AVAX, điểm LÚA và lệnh quy đổi trên trang hồ sơ là dữ liệu giả lập. CSV tải lên được đọc để xem trước. Bộ có nhãn `[Giả lập]` và bài “Dữ liệu mẫu” là dữ liệu minh họa. Bộ mặn và mực nước trạm gồm các bản ghi lịch sử tháng 4–5/2026 có nguồn đối chiếu.
 
-Bài viết, ảnh, bản nháp, câu trả lời và lượt hữu ích được lưu vào `data/community.sqlite3`, tự tạo khi khởi động. Mặc định mỗi trình duyệt có một **phiên khách dùng thử**; giữ cookie để tiếp tục sửa bài của phiên đó. Đây chưa phải tài khoản đăng nhập. Có sẵn adapter cho tài khoản của Tân và cấu hình tắt khách.
+Bài viết, ảnh, bản nháp, câu trả lời và lượt hữu ích được lưu vào `data/community.sqlite3`, tự tạo khi khởi động. Mặc định mỗi trình duyệt có một **phiên khách dùng thử**; giữ cookie để tiếp tục sửa bài của phiên đó. Khi đăng nhập, diễn đàn dùng danh tính tài khoản. Có thể tắt chế độ khách bằng `COMMUNITY_ALLOW_GUESTS=0`.
 
 Đọc [hướng dẫn module Cộng đồng và API](docs/community.md) để xem cách nối đăng nhập, các lớp MVC, cấu hình và quy tắc nghiệp vụ. Dữ liệu và khóa phiên được loại khỏi Git. Bài demo cũ trong localStorage vẫn được giữ nguyên trong trình duyệt nhưng không tự chuyển sang cơ sở dữ liệu mới.
 

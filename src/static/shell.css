@@ -28,6 +28,10 @@ dialog { overscroll-behavior: contain; }
 .app-top-nav a, .app-side a { border-radius: .65rem; padding: .5rem .65rem; }
 .app-top-nav a:hover, .app-top-nav [aria-current], .app-side a:hover { background: #edf5ee; }
 .app-top-nav .app-nav-cta, .app-side [aria-current] { background: var(--md-green); color: #fff; }
+.app-top-nav button.app-nav-cta {
+  border: 0; border-radius: .65rem; padding: .5rem .65rem;
+  font: inherit; font-weight: 700; cursor: pointer;
+}
 .app-top-nav .app-nav-cta:hover { background: #0e523d; }
 .app-more-links { display: none; }
 .app-more-links summary { cursor: pointer; font-weight: 700; padding: .5rem .55rem; }

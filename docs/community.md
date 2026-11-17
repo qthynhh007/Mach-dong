@@ -55,7 +55,7 @@ session["displayName"] = user.displayName
 session["location"] = user.location
 ```
 
-Controller tạo định danh nội bộ `user:<userId>`. Khi đăng xuất gọi `session.clear()`. Tải lại trang diễn đàn sau đăng nhập/đăng xuất để nhận danh tính và CSRF mới. Module không tự xử lý mật khẩu hay đăng ký; hai màn hình `/login` và `/register` hiện vẫn là demo.
+Controller tạo định danh nội bộ `user:<userId>`. Khi đăng xuất gọi `session.clear()`. Tải lại trang diễn đàn sau đăng nhập/đăng xuất để nhận danh tính và CSRF mới. Luồng `/login` và `/register` của Mạch Đồng dùng cookie phiên riêng và được diễn đàn nhận diện mặc định.
 
 Nếu dùng Flask-Login hoặc cơ chế khác, truyền callback đọc người dùng đã xác thực:
 
@@ -89,7 +89,7 @@ app = createApp({
 | `COMMUNITY_DATABASE` | `data/community.sqlite3` | Đường dẫn tệp SQLite; đặt qua biến môi trường hoặc `createApp({...})` |
 | `COMMUNITY_ALLOW_GUESTS` | `True` | Dùng thử bằng khách; biến môi trường `1` hoặc `0` |
 | `COMMUNITY_SEED_SAMPLES` | `True` | Đặt `False` trong `createApp({...})` nếu muốn cơ sở dữ liệu mới trống |
-| `COMMUNITY_IDENTITY_PROVIDER` | `None` | Callback danh tính đã xác thực |
+| `COMMUNITY_IDENTITY_PROVIDER` | `None` | Mặc định dùng phiên Mạch Đồng hoặc danh tính từ Flask session. Có thể truyền callback riêng |
 | `SECRET_KEY` | Biến môi trường hoặc khóa tự sinh cục bộ | Khóa ký session; khóa cục bộ lưu tại `.community-secret` cạnh tệp SQLite |
 
 Các bảng: `communityMembers`, `communityPosts`, `communityReplies`, `communityPostVotes`, `communityReplyVotes`, `communityDrafts`, `communityMetadata`. Giao dịch ghi dùng `BEGIN IMMEDIATE`, khóa ngoại bật trên từng kết nối; ràng buộc duy nhất ngăn trùng lượt hữu ích và `requestId`.

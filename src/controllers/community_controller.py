@@ -19,6 +19,7 @@ from flask import (
 from werkzeug.exceptions import HTTPException
 
 from src.config import MAX_CSV_BYTES
+from src.controllers.session_guard import get_current_auth
 from src.models.community import communityMember
 from src.services.community_service import communityError, communityService
 from src.services.csv_library import DATASET_BY_SLUG, DATASETS
@@ -86,7 +87,12 @@ class communityController:
             )
         if member is not None and member.id == EDITORIAL_AUTHOR:
             raise RuntimeError("Danh tính Admin hệ thống dành cho bài tham khảo.")
-        if provider is None and session.get("userId"):
+        if provider is None:
+            auth = get_current_auth()
+            if auth:
+                user, _ = auth
+                member = communityMember("user:" + user.user_id, user.name)
+        if provider is None and member is None and session.get("userId"):
             member = communityMember(
                 "user:" + str(session["userId"]),
                 str(session.get("displayName", "Thành viên")),
