@@ -15,13 +15,14 @@ from src.config import (
     AVALANCHE_CHAIN_ID,
     DB_PATH,
     DEFAULT_INITIAL_AVAX,
-    SECRET_KEY,
 )
 
 PBKDF2_ITERATIONS = 200_000
 WALLET_REGEX = re.compile(r"^0x[a-fA-F0-9]{40}$")
 EMAIL_REGEX = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
-VN_PHONE_DIGITS_REGEX = re.compile(r"^\+84[0-9]{8,10}$")
+VN_MOBILE_REGEX = re.compile(
+    r"^(?:\+84|0)(?:3[2-9]|5[25689]|7[06-9]|8[1-9]|9[0-9])[0-9]{7}$"
+)
 
 
 class UserRole(StrEnum):
@@ -51,7 +52,7 @@ def normalize_vn_phone(phone: str) -> str:
         raw = "+84" + raw[1:]
     elif raw.startswith("+840") and len(raw) >= 12:
         raw = "+84" + raw[4:]
-    if not VN_PHONE_DIGITS_REGEX.match(raw):
+    if not VN_MOBILE_REGEX.match(raw):
         raise ValueError(
             "Số điện thoại phải theo chuẩn Việt Nam (+84...), ví dụ: +84911421604 hoặc 0911421604."
         )
@@ -62,7 +63,7 @@ def is_valid_wallet_address(address: str) -> bool:
     return bool(WALLET_REGEX.match((address or "").strip()))
 
 
-def _derive_private_key_hex(email: str, secret_key: str = SECRET_KEY) -> str:
+def _derive_private_key_hex(email: str, secret_key: str) -> str:
     cleaned_email = (email or "").strip().lower()
     return hmac.new(
         secret_key.encode("utf-8"),
@@ -73,7 +74,7 @@ def _derive_private_key_hex(email: str, secret_key: str = SECRET_KEY) -> str:
     ).hexdigest()
 
 
-def preview_email_wallet_address(email: str, secret_key: str = SECRET_KEY) -> str:
+def preview_email_wallet_address(email: str, secret_key: str) -> str:
     cleaned_email = (email or "").strip().lower()
     if not cleaned_email or "@" not in cleaned_email:
         return ""
@@ -85,7 +86,7 @@ def preview_email_wallet_address(email: str, secret_key: str = SECRET_KEY) -> st
 
 
 def generate_email_bound_wallet(
-    email: str, secret_key: str = SECRET_KEY
+    email: str, secret_key: str
 ) -> tuple[str, str]:
     from eth_account import Account
 
@@ -101,7 +102,7 @@ def generate_email_bound_wallet(
 
 
 def decrypt_email_bound_private_key(
-    email: str, encrypted_key: str | None, secret_key: str = SECRET_KEY
+    email: str, encrypted_key: str | None, secret_key: str
 ) -> str | None:
     if not encrypted_key or ":" not in encrypted_key:
         return None
@@ -199,7 +200,10 @@ class UserSession:
 
 
 class SQLiteUserRepository:
-    def __init__(self, db_path: str | Path = DB_PATH) -> None:
+    def __init__(
+        self, db_path: str | Path = DB_PATH, wallet_secret: str | None = None
+    ) -> None:
+        self.wallet_secret = wallet_secret or secrets.token_hex(32)
         self.db_path = str(db_path)
         self._memory_conn: sqlite3.Connection | None = None
         if self.db_path == ":memory:":
@@ -309,17 +313,6 @@ class SQLiteUserRepository:
                     )
                     """
                 )
-                # Upgrade any existing AUTO_EMAIL user wallets to real secp256k1 EIP-55 addresses
-                auto_rows = conn.execute(
-                    "SELECT user_id, email, wallet_address FROM users WHERE wallet_type = 'AUTO_EMAIL'"
-                ).fetchall()
-                for r in auto_rows:
-                    real_addr, real_enc_key = generate_email_bound_wallet(r["email"])
-                    if r["wallet_address"] != real_addr:
-                        conn.execute(
-                            "UPDATE users SET wallet_address = ?, encrypted_wallet_key = ? WHERE user_id = ?",
-                            (real_addr, real_enc_key, r["user_id"]),
-                        )
         finally:
             self._close(conn)
 
@@ -393,7 +386,7 @@ class SQLiteUserRepository:
                 )
             resolved_wallet_type = wallet_type or "EXTERNAL"
         else:
-            clean_wallet, encrypted_key = generate_email_bound_wallet(clean_email)
+            clean_wallet, encrypted_key = generate_email_bound_wallet(clean_email, self.wallet_secret)
             resolved_wallet_type = "AUTO_EMAIL"
 
         pwd_hash, pwd_salt = User.hash_password(password)

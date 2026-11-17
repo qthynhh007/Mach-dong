@@ -1,6 +1,20 @@
+# Dependencies
 .venv/
 node_modules/
+
+# Python caches
 __pycache__/
 *.py[cod]
 .ruff_cache/
 .pytest_cache/
+
+# Local environment and credentials
+.env
+.env.*
+!.env.example
+
+# Local application state
+data/*.sqlite3*
+data/.community-secret
+data/agridata.db*
+data/client_session.json

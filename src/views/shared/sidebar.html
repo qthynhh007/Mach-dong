@@ -1,10 +1,10 @@
 {% from "shared/icon.html" import icon as render_icon %}
-<aside class="app-side">
+<aside class="app-side app-glass">
   <p>Đồng bằng sông Cửu Long</p>
   <nav aria-label="Không gian làm việc">
     {% for route, title, icon in [('community', 'Kho CSV cộng đồng', 'table_view'), ('forum', 'Thảo luận bà con', 'chat'), ('simulation', 'Mô phỏng sinh lý lúa', 'grass'), ('assistant', 'Trợ lý Cò Mạ', 'chat'), ('admin', 'Duyệt dữ liệu', 'fact_check')] %}
       <a href="/{{ route }}" {% if route == current_page %}aria-current="page"{% endif %}>
-        <span class="material-symbols-outlined" aria-hidden="true">{{ render_icon(icon) }}</span>{{ title }}
+        {{ render_icon(icon) }}{{ title }}
       </a>
     {% endfor %}
   </nav>

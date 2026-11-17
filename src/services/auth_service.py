@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import hashlib
 import hmac
+import logging
+import math
 import re
 import secrets
 import smtplib
@@ -17,7 +19,6 @@ from src.config import (
     LOCKOUT_DURATION_SECONDS,
     MAX_LOGIN_ATTEMPTS,
     OTP_TTL_SECONDS,
-    SECRET_KEY,
     SESSION_SLIDING_EXPIRATION,
     SESSION_TTL_SECONDS,
     SMTP_APP_PASSWORD,
@@ -31,6 +32,7 @@ from src.models.user import (
     UserRole,
     UserSession,
     _derive_private_key_hex,
+    decrypt_email_bound_private_key,
     generate_email_bound_wallet,
     is_valid_wallet_address,
     normalize_email,
@@ -50,23 +52,25 @@ class AuthService:
     def __init__(
         self,
         repo: SQLiteUserRepository | None = None,
-        secret_key: str = SECRET_KEY,
+        secret_key: str | None = None,
         session_ttl_seconds: int = SESSION_TTL_SECONDS,
         sliding_expiration: bool = SESSION_SLIDING_EXPIRATION,
         max_login_attempts: int = MAX_LOGIN_ATTEMPTS,
         lockout_duration_seconds: int = LOCKOUT_DURATION_SECONDS,
         otp_ttl_seconds: int = OTP_TTL_SECONDS,
-        seed_defaults: bool = True,
+        seed_defaults: bool = False,
         enable_smtp: bool = True,
+        allow_dev_otp: bool = False,
     ) -> None:
-        self.repo = repo or SQLiteUserRepository()
-        self.secret_key = secret_key
+        self.repo = repo or SQLiteUserRepository(wallet_secret=secret_key)
+        self.secret_key = secret_key or self.repo.wallet_secret
         self.session_ttl_seconds = session_ttl_seconds
         self.sliding_expiration = sliding_expiration
         self.max_login_attempts = max_login_attempts
         self.lockout_duration_seconds = lockout_duration_seconds
         self.otp_ttl_seconds = otp_ttl_seconds
         self.enable_smtp = enable_smtp
+        self.allow_dev_otp = allow_dev_otp
         if seed_defaults:
             self.seed_default_accounts()
 
@@ -110,12 +114,6 @@ class AuthService:
                     simulation_credits=item["credits"],
                     avax_balance=item["avax"],
                 )
-            elif existing.wallet_type == "AUTO_EMAIL":
-                addr, enc_key = generate_email_bound_wallet(existing.email)
-                if existing.wallet_address != addr:
-                    existing.wallet_address = addr
-                    existing.encrypted_wallet_key = enc_key
-                    self.repo.save_user(existing)
 
     def _sign_session_id(self, session_id: str) -> str:
         sig = hmac.new(
@@ -158,8 +156,6 @@ class AuthService:
         otp_code = f"{secrets.randbelow(1_000_000):06d}"
         expires_at = time.time() + self.otp_ttl_seconds
         code_hash = self._hash_email_otp(clean_email, otp_code)
-        self.repo.save_email_otp(clean_email, code_hash, expires_at)
-
         delivery_mode = "DEV_PREVIEW"
         smtp_sent = False
 
@@ -182,11 +178,15 @@ class AuthService:
                     server.send_message(msg)
                 smtp_sent = True
                 delivery_mode = "SMTP"
-            except Exception as exc:
-                print(f"[AgriData SMTP Fallback] Could not send via SMTP ({exc}).")
+            except (OSError, smtplib.SMTPException):
+                logging.getLogger(__name__).warning("Không gửi được OTP qua SMTP.")
 
-        print(f"[AgriData Email OTP] To: {clean_email} | Code: {otp_code}")
+        if not smtp_sent and not self.allow_dev_otp:
+            return AuthResult(
+                False, 503, error="Chưa gửi được mã xác nhận. Vui lòng thử lại sau."
+            )
 
+        self.repo.save_email_otp(clean_email, code_hash, expires_at)
         response_data: dict[str, str | int | bool] = {
             "email": clean_email,
             "expires_in_seconds": self.otp_ttl_seconds,
@@ -406,7 +406,7 @@ class AuthService:
                 existing.wallet_address = wallet_address.strip()
                 existing.wallet_type = "EXTERNAL"
             elif not existing.wallet_address:
-                addr, enc_key = generate_email_bound_wallet(existing.email)
+                addr, enc_key = generate_email_bound_wallet(existing.email, self.repo.wallet_secret)
                 existing.wallet_address = addr
                 existing.wallet_type = "AUTO_EMAIL"
                 existing.encrypted_wallet_key = enc_key
@@ -552,7 +552,7 @@ class AuthService:
                     candidate.wallet_address = wallet_address.strip()
                     candidate.wallet_type = "EXTERNAL"
                 elif not candidate.wallet_address and candidate.email:
-                    addr, enc_key = generate_email_bound_wallet(candidate.email)
+                    addr, enc_key = generate_email_bound_wallet(candidate.email, self.repo.wallet_secret)
                     candidate.wallet_address = addr
                     candidate.wallet_type = "AUTO_EMAIL"
                     candidate.encrypted_wallet_key = enc_key
@@ -603,7 +603,7 @@ class AuthService:
             from eth_account import Account
             from eth_account.messages import encode_defunct
 
-            priv_hex = _derive_private_key_hex(user.email, self.secret_key)
+            priv_hex = _derive_private_key_hex(user.email, self.repo.wallet_secret)
             signed = Account.sign_message(
                 encode_defunct(text=payload), private_key="0x" + priv_hex
             )
@@ -617,6 +617,8 @@ class AuthService:
         direction: str,
         amount: float,
     ) -> AuthResult:
+        if not math.isfinite(amount):
+            return AuthResult(False, 400, error="Số lượng quy đổi không hợp lệ.")
         clean_dir = (direction or "AVAX_TO_CREDIT").strip().upper()
         if clean_dir == "FAUCET_TOPUP":
             faucet_avax = 1.0
@@ -631,7 +633,7 @@ class AuthService:
                 avax_amount=faucet_avax,
                 credit_delta=0,
                 tx_hash=tx_hash,
-                note="Nhận 1.0 AVAX thử nghiệm từ Avalanche Fuji Faucet (43113)",
+                note="[Giả lập] Cộng 1 AVAX",
             )
             return AuthResult(
                 True,
@@ -666,7 +668,7 @@ class AuthService:
                     400,
                     error=(
                         f"Số dư AVAX không đủ (cần {exact_avax_cost} AVAX, hiện có "
-                        f"{user.avax_balance:.4f} AVAX). Bạn có thể bấm 'Nhận 1.0 AVAX Fuji Faucet'."
+                        f"{user.avax_balance:.4f} AVAX). Bạn có thể bấm 'Cộng 1 AVAX giả lập'."
                     ),
                 )
             user.avax_balance = round(float(user.avax_balance) - exact_avax_cost, 4)
@@ -681,7 +683,7 @@ class AuthService:
                 avax_amount=exact_avax_cost,
                 credit_delta=credits_to_mint,
                 tx_hash=tx_hash,
-                note=f"Đổi {exact_avax_cost} AVAX → +{credits_to_mint} LÚA (Avalanche Fuji)",
+                note=f"Đổi {exact_avax_cost} AVAX → +{credits_to_mint} LÚA [Giả lập]",
             )
             return AuthResult(
                 True,
@@ -724,7 +726,7 @@ class AuthService:
                 avax_amount=avax_gained,
                 credit_delta=-credits_to_spend,
                 tx_hash=tx_hash,
-                note=f"Quy đổi {credits_to_spend} LÚA → +{avax_gained} AVAX (Avalanche Fuji)",
+                note=f"Quy đổi {credits_to_spend} LÚA → +{avax_gained} AVAX [Giả lập]",
             )
             return AuthResult(
                 True,
@@ -760,8 +762,10 @@ class AuthService:
         if session.is_expired(now):
             return None
         if require_csrf:
-            if not csrf_token or not hmac.compare_digest(
-                session.csrf_token, csrf_token
+            if (
+                not isinstance(csrf_token, str)
+                or not csrf_token.isascii()
+                or not hmac.compare_digest(session.csrf_token, csrf_token)
             ):
                 return None
         user = self.repo.get_by_id(session.user_id)
@@ -785,6 +789,30 @@ class AuthService:
     def revoke_all_user_sessions(self, user_id: str) -> int:
         return self.repo.revoke_all_user_sessions(user_id)
 
+    def export_wallet_key(self, user: User) -> AuthResult:
+        if user.wallet_type != "AUTO_EMAIL" or not user.encrypted_wallet_key:
+            return AuthResult(False, 400, error="Khóa riêng của ví gắn ngoài do ứng dụng ví quản lý.")
+        from eth_account import Account
+
+        private_key = decrypt_email_bound_private_key(
+            user.email, user.encrypted_wallet_key, self.repo.wallet_secret
+        )
+        try:
+            address = Account.from_key(private_key).address if private_key else ""
+        except ValueError:
+            address = ""
+        if not address or address.lower() != user.wallet_address.lower():
+            return AuthResult(False, 400, error="Không thể xác minh khóa riêng của ví.")
+        return AuthResult(
+            True,
+            200,
+            data={
+                "wallet_address": user.wallet_address,
+                "private_key": private_key,
+                "chain_id": AVALANCHE_CHAIN_ID,
+            },
+        )
+
     def update_profile(
         self,
         user: User,
@@ -801,7 +829,7 @@ class AuthService:
             except ValueError as exc:
                 return AuthResult(False, 400, error=str(exc))
         if wallet_mode and wallet_mode.upper() == "AUTO_EMAIL":
-            addr, enc_key = generate_email_bound_wallet(user.email)
+            addr, enc_key = generate_email_bound_wallet(user.email, self.repo.wallet_secret)
             user.wallet_address = addr
             user.wallet_type = "AUTO_EMAIL"
             user.encrypted_wallet_key = enc_key
@@ -881,6 +909,3 @@ class AuthService:
                 "message": "Đã đặt lại mật khẩu mới thành công! Bạn có thể đăng nhập ngay.",
             },
         )
-
-
-default_auth_service = AuthService()

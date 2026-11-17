@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "language": "vi",
+  "sources": [
+    {
+      "source_id": "ZENG-2003",
+      "citation": "Zeng, Lesch & Grieve (2003), Agricultural Water Management 59, 67–75.",
+      "url": "https://www.ars.usda.gov/arsuserfiles/20361500/pdf_pubs/P1801.pdf",
+      "doi": "10.1016/S0378-3774(02)00088-4",
+      "locator": "Tóm tắt và Phương pháp",
+      "topics": ["độ sâu nước", "độ dẫn điện của nước", "mặn kết hợp độ sâu"],
+      "finding_vi": "Thí nghiệm nhà kính thay đổi riêng hai yếu tố, với các mức nước 4–20 cm và độ dẫn điện của dung dịch tưới 0,9–6,0 dS/m. Cả hai yếu tố ảnh hưởng đến sinh trưởng và năng suất trong thí nghiệm.",
+      "scope_vi": "Ba giống M-103, M-201 và M-202 trong nhà kính. Các mức nước và EC là nghiệm thức. Dùng nguồn này để giải thích lý do cần ghi riêng độ sâu và độ mặn, trong phạm vi nghiên cứu."
+    },
+    {
+      "source_id": "SINGH-2017",
+      "citation": "Singh và cộng sự (2017), Rice 10, bài 15.",
+      "url": "https://link.springer.com/article/10.1186/s12284-017-0154-5",
+      "archive_url": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC5398972/fullTextXML",
+      "doi": "10.1186/s12284-017-0154-5",
+      "locator": "Phương pháp, bố trí thí nghiệm ngoài đồng và chỉ tiêu theo dõi",
+      "topics": ["ngập kéo dài", "độ sâu nước", "đếm cây sống"],
+      "finding_vi": "Trong thí nghiệm tại IRRI, ô ngập được nâng dần tới 50 cm rồi giữ tới lúc thu hoạch. Ô đối chứng duy trì khoảng 5 cm. Nghiên cứu ghi nhận chiều cao cây, số nhánh và tỷ lệ sống ở ô ngập.",
+      "scope_vi": "Nghiên cứu dùng các dòng lai và đối chứng tại IRRI. Mức 50 cm là cách bố trí thí nghiệm. Áp dụng kết quả tỷ lệ sống cho OM5451 cần số đếm hoặc nghiên cứu phù hợp với giống và điều kiện ruộng."
+    },
+    {
+      "source_id": "SAZALI-2021",
+      "citation": "Sazali và cộng sự (2021), Journal of Agrobiotechnology 12(2), 47–55.",
+      "url": "https://journal.unisza.edu.my/agrobiotechnology/index.php/agrobiotechnology/article/view/257",
+      "doi": "10.37231/jab.2021.12.2.257",
+      "locator": "Tóm tắt, thiết kế ngập trong bể và lịch theo dõi",
+      "topics": ["ngập kèm mặn", "ngập toàn cây", "giai đoạn mạ", "phục hồi sau ngập"],
+      "finding_vi": "Nghiên cứu ngập toàn cây mạ trong bể khoảng 1 m trong 14 ngày, ở các mức EC 0, 4, 8 và 12 dS/m. Các tác giả theo dõi trước ngập, ngay khi đưa cây ra khỏi nước và 14 ngày sau đó.",
+      "scope_vi": "Sáu kiểu gen, gồm ba giống Malaysia và ba đối chứng. Thời gian, độ sâu và EC là điều kiện thí nghiệm ở giai đoạn mạ. Giữ nguyên dS/m và chỉ diễn giải trong phạm vi các giống đã thử."
+    },
+    {
+      "source_id": "VU-2022",
+      "citation": "Vũ Thị Xuân Nhường và cộng sự, Tạp chí Khoa học Nông nghiệp Việt Nam, tập 20(8), 1008–1020 (2022).",
+      "url": "https://vie.vjas.vn/index.php/vjasvn/article/view/1042",
+      "locator": "Tóm tắt, nghiệm thức độ mặn và so sánh bốn giống",
+      "topics": ["OM5451", "mặn", "nảy mầm", "giai đoạn mạ"],
+      "finding_vi": "Tác giả so sánh OM5451, IR29, OM18 và MTL316 ở giai đoạn nảy mầm và mạ trong nhà lưới với các mức NaCl 0, 2, 4 và 6‰. OM5451 giảm khối lượng tươi thân và rễ ít hơn ba giống còn lại khi so với đối chứng của từng giống.",
+      "scope_vi": "Kết quả so sánh giới hạn ở bốn giống, hai giai đoạn và điều kiện nhà lưới trong nghiên cứu. Muốn áp dụng cho ruộng đang đẻ nhánh, làm đòng hoặc bị ngập kèm mặn cần bằng chứng tương ứng."
+    }
+  ]
+}

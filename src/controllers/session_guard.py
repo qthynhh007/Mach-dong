@@ -5,11 +5,11 @@ from dataclasses import dataclass, field
 from functools import wraps
 from typing import Any
 
-from flask import g, has_request_context, jsonify, request
+from flask import current_app, g, has_request_context, jsonify, request
 
 from src.config import SESSION_COOKIE_NAME
 from src.models.user import User, UserRole, UserSession
-from src.services.auth_service import AuthService, default_auth_service
+from src.services.auth_service import AuthService
 
 
 @dataclass
@@ -53,19 +53,30 @@ def extract_tokens_from_context(
     return None, None
 
 
+def get_auth_service() -> AuthService:
+    return current_app.extensions["auth_service"]
+
+
 def get_current_auth(
-    auth_service: AuthService = default_auth_service,
+    auth_service: AuthService | None = None,
     require_csrf: bool = False,
     req: RequestContext | None = None,
 ) -> tuple[User, UserSession] | None:
     token, csrf = extract_tokens_from_context(req)
-    return auth_service.validate_session(
-        session_token=token, csrf_token=csrf, require_csrf=require_csrf
-    )
+    if not token:
+        return None
+    cacheable = auth_service is None and req is None and not require_csrf
+    if cacheable and "current_auth" in g:
+        return g.current_auth
+    service = auth_service or get_auth_service()
+    auth = service.validate_session(token, csrf, require_csrf)
+    if cacheable:
+        g.current_auth = auth
+    return auth
 
 
 def require_session(
-    auth_service: AuthService = default_auth_service,
+    auth_service: AuthService | None = None,
     allowed_roles: list[UserRole] | None = None,
     require_csrf: bool = True,
 ) -> Callable:
@@ -90,7 +101,8 @@ def require_session(
                     401,
                 )
 
-            validated_no_csrf = auth_service.validate_session(
+            service = auth_service or get_auth_service()
+            validated_no_csrf = service.validate_session(
                 session_token=token, csrf_token=csrf, require_csrf=False
             )
             if validated_no_csrf is None:
@@ -110,7 +122,7 @@ def require_session(
 
             user, session = validated_no_csrf
             if require_csrf:
-                validated_with_csrf = auth_service.validate_session(
+                validated_with_csrf = service.validate_session(
                     session_token=token, csrf_token=csrf, require_csrf=True
                 )
                 if validated_with_csrf is None:

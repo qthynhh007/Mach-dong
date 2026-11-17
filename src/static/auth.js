@@ -1,7 +1,4 @@
 (() => {
-  const SESSION_STORAGE_KEY = "mach-dong-auth-session-v1";
-  const PROFILE_STORAGE_KEY = "mach-dong-demo-profile-v1";
-
   const messageEl = document.querySelector("[data-auth-message]");
   const loginForm = document.getElementById("loginForm");
   const forgotPasswordForm = document.getElementById("forgotPasswordForm");
@@ -37,27 +34,6 @@
     }
   }
 
-  function saveClientSession(authData) {
-    try {
-      localStorage.setItem(
-        SESSION_STORAGE_KEY,
-        JSON.stringify({
-          csrf_token: authData.csrf_token,
-          expires_at: authData.expires_at,
-          user: authData.user,
-        })
-      );
-      if (authData.user) {
-        const existingProfile = JSON.parse(localStorage.getItem(PROFILE_STORAGE_KEY) || "{}");
-        existingProfile["farmer-fullname"] = authData.user.name;
-        existingProfile["farmer-phone"] = authData.user.phone;
-        localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(existingProfile));
-      }
-    } catch {
-      // Ignore storage quota errors
-    }
-  }
-
   // Toggle password visibility
   document.querySelectorAll("[data-show-password]").forEach((button) => {
     button.addEventListener("click", () => {
@@ -75,9 +51,7 @@
   function switchLoginTab(tabName) {
     loginTabs.forEach((btn) => {
       const active = btn.dataset.loginTab === tabName;
-      btn.classList.toggle("bg-primary", active);
-      btn.classList.toggle("text-on-primary", active);
-      btn.classList.toggle("font-bold", active);
+      btn.setAttribute("aria-pressed", String(active));
     });
     if (tabName === "forgot") {
       loginForm?.classList.add("hidden");
@@ -224,7 +198,6 @@
         setStatus(result.error || "Đăng nhập thất bại.", true);
         return;
       }
-      saveClientSession(result.data);
       const u = result.data.user;
       setStatus(
         `Đăng nhập thành công! Xin chào ${u.name} (${u.role}) · Điểm hiện có: ${u.simulation_credits} LÚA`
@@ -324,7 +297,6 @@
         setStatus(result.error || "Đăng ký tài khoản thất bại.", true);
         return;
       }
-      saveClientSession(result.data);
       const u = result.data.user;
       revealWalletOnRegisterSuccess(u);
       setStatus(

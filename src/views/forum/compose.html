@@ -3,39 +3,35 @@
 {% block title %}Đăng bài chia sẻ{% endblock %}
 {% block styles %}<link rel="stylesheet" href="/static/forum-compose.css">{% endblock %}
 {% block content %}
-<div class="w-full bg-surface-container-lowest px-space-md py-space-sm shadow-sm"><a class="inline-flex items-center gap-space-xs text-secondary hover:text-primary transition-colors py-1 px-space-xs rounded font-label-md text-label-md font-semibold" href="{{ url_for('forum.index') }}">
-<span class="material-symbols-outlined text-lg">{{ icon("chevron_left") }}</span>
+<div class="forum-return"><a class="app-control inline-flex items-center gap-space-xs text-secondary hover:text-primary py-1 px-space-xs rounded font-label-md text-label-md font-semibold" href="{{ url_for('forum.index') }}">
+<span class="app-icon-wrap text-lg">{{ icon("chevron_left") }}</span>
 <span>Quay lại Thảo luận bà con</span>
 </a></div>
 <!-- Main Grid Workspace -->
-<div class="w-full max-w-[1400px] mx-auto p-space-md lg:p-space-lg">
+<div class="w-full">
 <div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter-desktop items-start">
 <!-- MAIN FORM COLUMN (Approx 68%) -->
 <section class="flex flex-col gap-space-lg lg:col-span-12">
 <!-- Page Title & Header Info -->
-<div class="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm">
+<div class="app-glass rounded-xl p-space-lg">
 <div class="flex flex-wrap items-start justify-between gap-space-md mb-space-xs">
 <div>
-<div class="inline-flex items-center gap-space-xs px-2.5 py-0.5 rounded-full bg-secondary-container text-on-secondary-fixed font-label-sm text-label-sm uppercase tracking-wider mb-2 font-bold">
-<span class="material-symbols-outlined text-sm">{{ icon("description") }}</span>
-                Ghi chép bờ liếp
-              </div>
-<h1 class="font-headline-lg text-headline-lg text-primary tracking-tight font-bold">
+<h1 class="app-page-title">
                 Đăng Bài Chia Sẻ Kinh Nghiệm Canh Tác
               </h1>
 <p class="font-body-md text-body-md text-on-surface-variant mt-1">
-                Chia sẻ kinh nghiệm và ảnh ngoài ruộng. Bản nháp và bài demo được lưu trên trình duyệt này.
+                Chia sẻ câu hỏi, kinh nghiệm và ảnh ngoài ruộng. Bài viết và bản nháp được lưu trên máy chủ.
               </p>
 </div>
 <div class="hidden sm:flex flex-col items-end text-right flex-shrink-0 bg-surface-container-low p-space-sm rounded-lg">
 <span class="font-label-sm text-[11px] text-outline uppercase tracking-wider font-semibold">Tài khoản ghi nhận</span>
-<span class="font-data-mono-md text-data-mono-md text-on-surface font-bold" data-profile-value="farmer-fullname">Chú Năm Ruộng</span>
-<span class="font-label-sm text-[11px] text-primary">Tổ 3 • HTX Long Hữu</span>
+<span class="font-data-mono-md text-data-mono-md text-on-surface font-bold">{{ forumData.member.displayName if forumData.member else 'Chưa đăng nhập' }}</span>
+<span class="font-label-sm text-[11px] text-primary">{{ forumData.member.location if forumData.member else '' }}</span>
 </div>
 </div>
 </div>
 <!-- Compose Form Container -->
-<form id="forum-compose" method="post" class="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm flex flex-col gap-space-lg">
+<form id="forum-compose" method="post" class="app-glass rounded-xl p-space-lg flex flex-col gap-space-lg">
 <!-- Category Chips -->
 <div>
 <label class="block font-label-md text-label-md font-semibold text-on-surface mb-2">
@@ -44,9 +40,9 @@
 
 <div class="grid grid-cols-2 sm:grid-cols-4 gap-space-xs" id="categoryChips" role="group" aria-label="Chủ đề kinh nghiệm">
 {% for id, label in topics.items() %}
-<label class="stitch-topic">
+<label class="app-choice">
 <input type="radio" name="topic" value="{{ id }}" {% if loop.first %}checked{% endif %}>
-<span class="flex items-center justify-center rounded-lg px-space-sm py-2.5 font-label-md text-label-md text-center">{{ label }}</span>
+<span class="font-label-md text-label-md">{{ label }}</span>
 </label>
 {% endfor %}
 </div>
@@ -54,24 +50,12 @@
 <!-- Variety & Growth Phase Selectors -->
 <div class="grid grid-cols-1 sm:grid-cols-2 gap-space-md p-space-md bg-surface-container-low rounded-lg">
 <div class="flex flex-col gap-1.5">
-<label class="font-label-sm text-label-sm font-semibold text-on-surface flex items-center gap-1">
-<span class="material-symbols-outlined text-base text-primary">{{ icon("grass") }}</span>
-                Giống lúa đang canh tác
-              </label>
-<div class="relative">
-<select class="w-full bg-surface-container-lowest text-on-surface rounded-lg px-space-md py-2.5 font-body-md text-body-md shadow-xs appearance-none focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer pr-10 font-medium" name="cultivar" aria-label="Giống lúa đang canh tác">{% for value in cultivars %}<option>{{ value }}</option>{% endfor %}</select>
-<span class="material-symbols-outlined absolute right-3 top-2.5 pointer-events-none text-outline text-xl">{{ icon("expand_more") }}</span>
-</div>
+<label class="font-label-sm text-label-sm font-semibold text-on-surface flex items-center gap-1" for="compose-cultivar">Giống lúa đang canh tác</label>
+<select class="app-select w-full font-body-md text-body-md" name="cultivar" id="compose-cultivar">{% for value in cultivars %}<option>{{ value }}</option>{% endfor %}</select>
 </div>
 <div class="flex flex-col gap-1.5">
-<label class="font-label-sm text-label-sm font-semibold text-on-surface flex items-center gap-1">
-<span class="material-symbols-outlined text-base text-primary">{{ icon("table_view") }}</span>
-                Giai đoạn sinh trưởng của ruộng
-              </label>
-<div class="relative">
-<select class="w-full bg-surface-container-lowest text-on-surface rounded-lg px-space-md py-2.5 font-body-md text-body-md shadow-xs appearance-none focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer pr-10 font-medium" name="stage" aria-label="Giai đoạn sinh trưởng">{% for value in stages %}<option>{{ value }}</option>{% endfor %}</select>
-<span class="material-symbols-outlined absolute right-3 top-2.5 pointer-events-none text-outline text-xl">{{ icon("expand_more") }}</span>
-</div>
+<label class="font-label-sm text-label-sm font-semibold text-on-surface flex items-center gap-1" for="compose-stage">Giai đoạn sinh trưởng của ruộng</label>
+<select class="app-select w-full font-body-md text-body-md" name="stage" id="compose-stage">{% for value in stages %}<option>{{ value }}</option>{% endfor %}</select>
 </div>
 </div>
 <!-- Post Title -->
@@ -115,7 +99,7 @@
 <!-- Upload Dropzone Target -->
 <label for="post-photos" id="forum-dropzone" class="min-h-36 rounded-lg bg-surface-container-low hover:bg-surface-container flex flex-col items-center justify-center p-space-md text-center cursor-pointer transition-colors shadow-xs">
 <div class="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center text-primary mb-2">
-<span class="material-symbols-outlined text-2xl">{{ icon("upload_file") }}</span>
+<span class="app-icon-wrap text-2xl">{{ icon("upload_file") }}</span>
 </div>
 <p class="font-label-md text-label-md font-semibold text-on-surface">
                   Chọn hoặc kéo thả ảnh ruộng, que đo
@@ -131,13 +115,14 @@
 <div class="pt-space-md flex flex-col gap-space-md bg-surface-container-low p-space-md rounded-xl">
 <p id="compose-status" role="status" class="font-body-sm text-body-sm text-primary"></p>
 <div class="flex flex-col-reverse sm:flex-row items-center justify-between gap-space-sm pt-2">
-<button class="w-full sm:w-auto px-space-lg py-2.5 rounded-lg bg-surface-container-highest hover:bg-surface-container-high text-on-surface-variant font-label-md text-label-md font-semibold transition-colors" type="button" id="save-draft">
+<button class="app-button w-full sm:w-auto px-space-lg py-2.5 font-label-md text-label-md font-semibold" type="button" id="save-draft">
                 Lưu bản nháp bờ ruộng
               </button>
+<button class="app-button community-button app-button--danger" type="button" id="discard-draft">Xóa bản nháp</button>
 <div class="w-full sm:w-auto flex items-center gap-space-xs">
-<button class="w-full sm:w-auto inline-flex items-center justify-center gap-space-xs px-space-xl py-3 rounded-lg bg-primary hover:bg-[#0e2c24] text-on-primary font-label-md text-label-md font-bold shadow-md transition-colors active:scale-[0.99] cursor-pointer" type="submit" id="publish-post">
+<button class="app-button app-button--primary w-full sm:w-auto inline-flex items-center justify-center gap-space-xs px-space-xl py-3 font-label-md text-label-md font-bold cursor-pointer" type="submit" id="publish-post">
 <span>Đăng bài chia sẻ ngay</span>
-<span class="material-symbols-outlined text-lg">{{ icon("arrow_forward") }}</span>
+<span class="app-icon-wrap text-lg">{{ icon("arrow_forward") }}</span>
 </button>
 </div>
 </div>

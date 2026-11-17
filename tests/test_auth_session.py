@@ -4,6 +4,8 @@ import tempfile
 from pathlib import Path
 from unittest import TestCase
 
+from flask.testing import FlaskClient
+
 from main import create_app
 from src.controllers.auth_controller import AuthController
 from src.models.user import (
@@ -13,16 +15,15 @@ from src.models.user import (
     is_valid_wallet_address,
     normalize_vn_phone,
 )
-from src.services.auth_service import AuthService, default_auth_service
+from src.services.auth_service import AuthService
 from src.services.session_client import ClientSessionManager
 
 
 class TestAuthAndSession(TestCase):
     def setUp(self) -> None:
-        default_auth_service.enable_smtp = False
         self.repo = SQLiteUserRepository(":memory:")
         self.auth_service = AuthService(
-            repo=self.repo, seed_defaults=True, enable_smtp=False
+            repo=self.repo, seed_defaults=True, enable_smtp=False, allow_dev_otp=True
         )
         self.controller = AuthController(auth_service=self.auth_service)
 
@@ -45,7 +46,7 @@ class TestAuthAndSession(TestCase):
         from eth_account import Account
 
         priv_key = decrypt_email_bound_private_key(
-            admin.email, admin.encrypted_wallet_key
+            admin.email, admin.encrypted_wallet_key, self.repo.wallet_secret
         )
         self.assertIsNotNone(priv_key)
         assert priv_key is not None
@@ -248,7 +249,24 @@ class TestAuthAndSession(TestCase):
             self.assertFalse(cache_path.exists())
 
     def test_flask_auth_api_endpoints(self) -> None:
-        client = create_app().test_client()
+        directory = tempfile.TemporaryDirectory()
+        self.addCleanup(directory.cleanup)
+        app = create_app(
+            {
+                "TESTING": True,
+                "SECRET_KEY": "auth-tests-only",
+                "COMMUNITY_DATABASE": str(Path(directory.name) / "community.sqlite3"),
+                "AGRIDATA_AUTH_DEMO": True,
+            }
+        )
+        app.extensions["auth_service"].enable_smtp = False
+        self.check_flask_auth_api(app.test_client())
+        other_client = app.test_client()
+        self.assertFalse(
+            other_client.get("/api/auth/session").json["data"]["authenticated"]
+        )
+
+    def check_flask_auth_api(self, client: FlaskClient) -> None:
 
         # Ensure /login page does NOT show wallet address or wallet attachment box
         login_page = client.get("/login").get_data(as_text=True)
@@ -278,6 +296,15 @@ class TestAuthAndSession(TestCase):
         self.assertEqual(login.status_code, 200)
         self.assertEqual(login.json["data"]["user"]["role"], "ADMIN")
         csrf_token = login.json["data"]["csrf_token"]
+        cookie = client.get_cookie("agridata_session")
+        assert cookie is not None
+        self.assertTrue(cookie.http_only)
+        assistant_page = client.get("/assistant").get_data(as_text=True)
+        self.assertIn("Đăng xuất", assistant_page)
+        self.assertIn("Trợ lý Cò Mạ", assistant_page)
+        member = client.get("/api/community/session").json["data"]["member"]
+        self.assertEqual(member["id"], "user:" + login.json["data"]["user"]["user_id"])
+        self.assertFalse(member["isGuest"])
 
         # Test Credit Changer API endpoint with CSRF token
         ex_resp = client.post(
@@ -299,4 +326,6 @@ class TestAuthAndSession(TestCase):
             json={},
         )
         self.assertEqual(ok_logout.status_code, 200)
+        self.assertFalse(client.get("/api/auth/session").json["data"]["authenticated"])
+        self.assertTrue(client.get("/api/community/session").json["data"]["member"]["isGuest"])
         self.assertEqual(normalize_vn_phone("0911421604"), "+84911421604")

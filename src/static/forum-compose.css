@@ -141,7 +141,7 @@ html,
   -webkit-text-size-adjust: 100%; /* 2 */
   -moz-tab-size: 4; /* 3 */
   tab-size: 4; /* 3 */
-  font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"; /* 4 */
+  font-family: var(--md-font); /* 4 */
   font-feature-settings: normal; /* 5 */
   font-variation-settings: normal; /* 6 */
   -webkit-tap-highlight-color: transparent; /* 7 */
@@ -220,7 +220,7 @@ code,
 kbd,
 samp,
 pre {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; /* 1 */
+  font-family: var(--md-font); /* 1 */
   font-feature-settings: normal; /* 2 */
   font-variation-settings: normal; /* 3 */
   font-size: 1em; /* 4 */
@@ -734,22 +734,22 @@ video {
   text-align: right;
 }
 .font-body-md {
-  font-family: Be Vietnam Pro, sans-serif;
+  font-family: var(--md-font);
 }
 .font-body-sm {
-  font-family: Be Vietnam Pro, sans-serif;
+  font-family: var(--md-font);
 }
 .font-headline-lg {
-  font-family: Be Vietnam Pro, sans-serif;
+  font-family: var(--md-font);
 }
 .font-headline-sm {
-  font-family: Be Vietnam Pro, sans-serif;
+  font-family: var(--md-font);
 }
 .font-label-md {
-  font-family: JetBrains Mono;
+  font-family: var(--md-font);
 }
 .font-label-sm {
-  font-family: JetBrains Mono;
+  font-family: var(--md-font);
 }
 .text-2xl {
   font-size: 1.5rem;

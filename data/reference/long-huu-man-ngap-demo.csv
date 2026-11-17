@@ -1,0 +1,17 @@
+﻿measured_at,site_type,metric,unit,value,is_simulated,case_id,case_type,site_id,locality,variety,day_after_sowing,growth_stage,canopy_status,source_id
+2026-11-15T08:00:00+07:00,field,water_depth,cm,3.5,true,LH-01,routine_water,LH-F01,"Long Hữu, Vĩnh Long",OM5451,28,Đẻ nhánh,above_water,MD-DEMO-MAN-NGAP-01
+2026-11-15T08:00:00+07:00,field,salinity,g/L,0.2,true,LH-01,routine_water,LH-F01,"Long Hữu, Vĩnh Long",OM5451,28,Đẻ nhánh,above_water,MD-DEMO-MAN-NGAP-01
+2026-11-15T08:00:00+07:00,field,water_depth,cm,35,true,LH-02,freshwater_flood,LH-F02,"Long Hữu, Vĩnh Long",OM5451,28,Đẻ nhánh,partial,MD-DEMO-MAN-NGAP-01
+2026-11-15T08:00:00+07:00,field,salinity,g/L,0.2,true,LH-02,freshwater_flood,LH-F02,"Long Hữu, Vĩnh Long",OM5451,28,Đẻ nhánh,partial,MD-DEMO-MAN-NGAP-01
+2026-11-15T08:00:00+07:00,field,flood_duration,h,24,true,LH-02,freshwater_flood,LH-F02,"Long Hữu, Vĩnh Long",OM5451,28,Đẻ nhánh,partial,MD-DEMO-MAN-NGAP-01
+2026-11-15T08:00:00+07:00,field,water_depth,cm,35,true,LH-03,saline_flood,LH-F03,"Long Hữu, Vĩnh Long",OM5451,28,Đẻ nhánh,partial,MD-DEMO-MAN-NGAP-01
+2026-11-15T08:00:00+07:00,field,salinity,g/L,2.8,true,LH-03,saline_flood,LH-F03,"Long Hữu, Vĩnh Long",OM5451,28,Đẻ nhánh,partial,MD-DEMO-MAN-NGAP-01
+2026-11-15T08:00:00+07:00,field,flood_duration,h,24,true,LH-03,saline_flood,LH-F03,"Long Hữu, Vĩnh Long",OM5451,28,Đẻ nhánh,partial,MD-DEMO-MAN-NGAP-01
+2026-11-15T08:00:00+07:00,canal,salinity,g/L,4.1,true,LH-03,saline_flood,LH-C01,"Long Hữu, Vĩnh Long",,,,,MD-DEMO-MAN-NGAP-01
+2026-11-16T08:00:00+07:00,field,water_depth,cm,22,true,LH-03,saline_flood,LH-F03,"Long Hữu, Vĩnh Long",OM5451,29,Đẻ nhánh,partial,MD-DEMO-MAN-NGAP-01
+2026-11-16T08:00:00+07:00,field,salinity,g/L,1.7,true,LH-03,saline_flood,LH-F03,"Long Hữu, Vĩnh Long",OM5451,29,Đẻ nhánh,partial,MD-DEMO-MAN-NGAP-01
+2026-11-16T08:00:00+07:00,field,flood_duration,h,48,true,LH-03,saline_flood,LH-F03,"Long Hữu, Vĩnh Long",OM5451,29,Đẻ nhánh,partial,MD-DEMO-MAN-NGAP-01
+2026-11-15T08:00:00+07:00,field,water_depth,cm,55,true,LH-04,freshwater_flood,LH-F04,"Long Hữu, Vĩnh Long",OM5451,28,Đẻ nhánh,full,MD-DEMO-MAN-NGAP-01
+2026-11-15T08:00:00+07:00,field,salinity,g/L,0.2,true,LH-04,freshwater_flood,LH-F04,"Long Hữu, Vĩnh Long",OM5451,28,Đẻ nhánh,full,MD-DEMO-MAN-NGAP-01
+2026-11-15T08:00:00+07:00,field,flood_duration,h,12,true,LH-04,freshwater_flood,LH-F04,"Long Hữu, Vĩnh Long",OM5451,28,Đẻ nhánh,full,MD-DEMO-MAN-NGAP-01
+2026-11-16T08:00:00+07:00,canal,salinity,g/L,3.6,true,LH-05,canal_context,LH-C01,"Long Hữu, Vĩnh Long",,,,,MD-DEMO-MAN-NGAP-01

@@ -1,9 +1,8 @@
-{% set active_user = current_user or auth_user %}
-{% set demo_name = active_user.name if active_user else "Chú Năm Ruộng" %}
-{% set demo_cooperative = (active_user.role ~ " · " ~ active_user.wallet_address[:6] ~ "..." ~ active_user.wallet_address[-4:]) if active_user and active_user.wallet_address else ("HTX Long Hữu") %}
-{% set demo_balance = active_user.simulation_credits if active_user else 350 %}
+{% set demo_name = "Chú Năm Ruộng" %}
+{% set demo_cooperative = "HTX Long Hữu" %}
+{% set demo_balance = 350 %}
 <a class="app-skip-link" href="{{ '#simContentWrapper' if current_page == 'simulation' else '#main-content' }}">Đến nội dung chính</a>
-<header class="app-header" data-csrf-token="{{ auth_csrf_token }}">
+<header class="app-header app-glass"{% if auth_user %} data-csrf-token="{{ auth_csrf_token }}" data-user-id="{{ auth_user.user_id }}"{% endif %}>
   <a href="/community" class="app-brand">
     <img src="/static/assets/stitch-simulation/co-ma-logo.png" alt="" width="32" height="32">
     <span translate="no">Mạch Đồng</span>
@@ -12,16 +11,15 @@
     <a href="/community" {% if current_page == "community" %}aria-current="page"{% endif %}>Kho CSV</a>
     <a href="{{ url_for('forum.index') }}" {% if current_page == "forum" %}aria-current="page"{% endif %}>Diễn đàn</a>
     <a href="/simulation" {% if current_page == "simulation" %}aria-current="page"{% endif %}>Mô phỏng</a>
-    {% if not active_user %}
-    <a href="/login" {% if current_page == "login" %}aria-current="page"{% endif %} data-nav-guest>Đăng nhập</a>
-    <a class="app-nav-cta" href="/register" {% if current_page == "register" %}aria-current="page"{% endif %} data-nav-guest>Đăng ký</a>
+    {% if auth_user %}
+    <button type="button" class="app-button app-button--primary" data-logout-btn>Đăng xuất</button>
     {% else %}
-    <a href="/profile" {% if current_page == "profile" %}aria-current="page"{% endif %}>Tài khoản ({{ active_user.username }})</a>
-    <button type="button" class="app-nav-cta" data-logout-btn style="cursor:pointer;border:none;">Đăng xuất</button>
+    <a href="/login" {% if current_page == "login" %}aria-current="page"{% endif %}>Đăng nhập</a>
+    <a class="app-button app-button--primary" href="/register" {% if current_page == "register" %}aria-current="page"{% endif %}>Đăng ký</a>
     {% endif %}
     <details class="app-more-links">
       <summary>Thêm</summary>
-      <div class="app-more-panel">
+      <div class="app-more-panel app-glass">
         <a href="/assistant" {% if current_page == "assistant" %}aria-current="page"{% endif %}>Trợ lý Cò Mạ</a>
         <a href="/admin" {% if current_page == "admin" %}aria-current="page"{% endif %}>Duyệt dữ liệu</a>
       </div>
@@ -29,15 +27,22 @@
   </nav>
   <div class="app-header-account">
     <div class="app-coin-balance">
-      <span aria-hidden="true">🌾</span>
-      <strong data-header-credits>{{ demo_balance }} LÚA</strong>
-      <span class="app-account-label" data-header-badge>{{ active_user.role if active_user else "Demo" }}</span>
+      <strong data-header-credits>{{ auth_user.simulation_credits if auth_user else demo_balance }} LÚA</strong>
+      <span class="app-account-label">{{ 'Giả lập' if auth_user else 'Demo' }}</span>
     </div>
     <a class="app-account-trigger" href="{{ url_for('auth.profile') }}" aria-label="Chỉnh sửa hồ sơ và mật khẩu" {% if current_page == "profile" %}aria-current="page"{% endif %}>
         <img class="app-avatar" src="/static/assets/stitch-profile-portrait.jpg" width="32" height="32" alt="">
         <span class="app-account-name">
+          {% if auth_user %}
+          <strong data-profile-value="farmer-fullname">{{ auth_user.name }}</strong>
+          <small>@{{ auth_user.username }}</small>
+          {% elif forumData is defined and forumData.member %}
+          <strong>{{ forumData.member.displayName }}</strong>
+          <small>{{ 'Phiên khách' if forumData.member.isGuest else forumData.member.location }}</small>
+          {% else %}
           <strong data-profile-value="farmer-fullname">{{ demo_name }}</strong>
-          <small data-header-sub>{{ demo_cooperative }}</small>
+          <small>{{ demo_cooperative }}</small>
+          {% endif %}
         </span>
         <svg class="app-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
           <path d="m6 4 4 4-4 4" stroke-linecap="round" stroke-linejoin="round"/>

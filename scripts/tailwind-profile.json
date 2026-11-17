@@ -68,59 +68,6 @@
         "gutter-desktop": "1.5rem",
         "margin-desktop": "2rem"
       },
-      "fontFamily": {
-        "body-sm": [
-          "Be Vietnam Pro",
-          "sans-serif"
-        ],
-        "label-md": [
-          "JetBrains Mono"
-        ],
-        "metric-display-mobile": [
-          "JetBrains Mono"
-        ],
-        "headline-lg-mobile": [
-          "Be Vietnam Pro",
-          "sans-serif"
-        ],
-        "headline-xl": [
-          "Be Vietnam Pro",
-          "sans-serif"
-        ],
-        "label-lg": [
-          "JetBrains Mono"
-        ],
-        "headline-lg": [
-          "Be Vietnam Pro",
-          "sans-serif"
-        ],
-        "headline-md": [
-          "Be Vietnam Pro",
-          "sans-serif"
-        ],
-        "headline-sm": [
-          "Be Vietnam Pro",
-          "sans-serif"
-        ],
-        "metric-display": [
-          "JetBrains Mono"
-        ],
-        "label-sm": [
-          "JetBrains Mono"
-        ],
-        "body-lg": [
-          "Be Vietnam Pro",
-          "sans-serif"
-        ],
-        "headline-xl-mobile": [
-          "Be Vietnam Pro",
-          "sans-serif"
-        ],
-        "body-md": [
-          "Be Vietnam Pro",
-          "sans-serif"
-        ]
-      },
       "fontSize": {
         "body-sm": [
           "12px",

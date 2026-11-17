@@ -1,8 +1,8 @@
 (() => {
-  const PROFILE_KEY = "mach-dong-demo-profile-v1";
-  const SESSION_KEY = "mach-dong-auth-session-v1";
-
   const headerEl = document.querySelector(".app-header");
+  const moreLinks = headerEl?.querySelector(".app-more-links");
+  const userId = headerEl?.dataset.userId;
+  const profileKey = userId ? `mach-dong-farm-profile-v1:${userId}` : "mach-dong-demo-profile-v1";
   const farmForm = document.getElementById("farm-info-form");
   const passwordForm = document.getElementById("password-change-form");
   const creditChangerBox = document.getElementById("credit-changer-box");
@@ -30,20 +30,24 @@
   ];
   const field = (id) => document.getElementById(id);
 
+  if (moreLinks) {
+    document.addEventListener("pointerdown", (event) => {
+      if (moreLinks.open && !moreLinks.contains(event.target)) moreLinks.open = false;
+    });
+    document.addEventListener("keydown", (event) => {
+      if (event.key !== "Escape" || !moreLinks.open) return;
+      moreLinks.open = false;
+      moreLinks.querySelector("summary").focus();
+    });
+  }
+
   function getCsrfToken() {
-    const fromHeader = headerEl?.dataset?.csrfToken;
-    if (fromHeader) return fromHeader;
-    try {
-      const saved = JSON.parse(localStorage.getItem(SESSION_KEY) || "{}");
-      return saved.csrf_token || "";
-    } catch {
-      return "";
-    }
+    return headerEl?.dataset.csrfToken || "";
   }
 
   function readProfile() {
     try {
-      return JSON.parse(localStorage.getItem(PROFILE_KEY)) || {};
+      return JSON.parse(localStorage.getItem(profileKey)) || {};
     } catch {
       return {};
     }
@@ -52,8 +56,8 @@
   function renderProfile(profile) {
     for (const node of document.querySelectorAll("[data-profile-value]")) {
       const value = profile[node.dataset.profileValue];
-      if (typeof value === "string" && value.trim()) {
-        node.textContent = value;
+      if (typeof value === "string") {
+        node.textContent = value || "—";
       }
     }
   }
@@ -63,7 +67,7 @@
     renderProfile(profile);
     if (!farmForm) return;
     for (const id of fields) {
-      if (typeof profile[id] === "string" && field(id) && !headerEl?.dataset?.csrfToken) {
+      if (typeof profile[id] === "string" && field(id)) {
         field(id).value = profile[id];
       }
     }
@@ -73,8 +77,10 @@
   document.querySelectorAll("[data-logout-btn]").forEach((btn) => {
     btn.addEventListener("click", async () => {
       const csrf = getCsrfToken();
+      btn.disabled = true;
+      btn.setAttribute("aria-busy", "true");
       try {
-        await fetch("/api/auth/logout", {
+        const response = await fetch("/api/auth/logout", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -82,15 +88,17 @@
           },
           body: JSON.stringify({ csrf_token: csrf }),
         });
+        if (!response.ok && response.status !== 401) {
+          btn.textContent = "Thử lại đăng xuất";
+          return;
+        }
+        window.location.href = "/login";
       } catch {
-        // Ignore network errors on logout cleanup
+        btn.textContent = "Thử lại đăng xuất";
+      } finally {
+        btn.removeAttribute("aria-busy");
+        btn.disabled = false;
       }
-      try {
-        localStorage.removeItem(SESSION_KEY);
-      } catch {
-        // Ignore
-      }
-      window.location.href = "/login";
     });
   });
 
@@ -274,7 +282,7 @@
             }</span>
             <div class="flex flex-col min-w-0">
               <span class="font-body-sm text-body-sm font-semibold text-on-surface truncate">${tx.note}</span>
-              <span class="font-label-sm text-label-sm text-on-surface-variant truncate">Tx: <code>${tx.tx_hash.slice(
+              <span class="font-label-sm text-label-sm text-on-surface-variant truncate">Mã mô phỏng: <code>${tx.tx_hash.slice(
                 0,
                 14
               )}...${tx.tx_hash.slice(-6)}</code></span>
@@ -301,7 +309,7 @@
       const direction = getDirection();
       const amount = Number(exchangeAmountInput?.value || 0);
       if (exchangeStatusMsg) {
-        exchangeStatusMsg.textContent = "Đang ký giao dịch Fuji...";
+        exchangeStatusMsg.textContent = "Đang quy đổi giả lập…";
         exchangeStatusMsg.style.color = "#1a654d";
       }
       try {
@@ -323,7 +331,7 @@
         }
         applyBalanceAndTxUpdate(payload.data);
         if (exchangeStatusMsg) {
-          exchangeStatusMsg.textContent = "Giao dịch thành công!";
+          exchangeStatusMsg.textContent = "Đã quy đổi số dư giả lập.";
           exchangeStatusMsg.style.color = "#1a654d";
         }
       } catch {
@@ -362,7 +370,7 @@
         }
         applyBalanceAndTxUpdate(payload.data);
         if (exchangeStatusMsg) {
-          exchangeStatusMsg.textContent = "Đã nhận +1.0 AVAX Fuji Faucet!";
+          exchangeStatusMsg.textContent = "Đã cộng 1 AVAX giả lập.";
           exchangeStatusMsg.style.color = "#1a654d";
         }
       } catch {
@@ -415,10 +423,15 @@
     }
 
     try {
-      localStorage.setItem(PROFILE_KEY, JSON.stringify(profile));
+      const localProfile = { ...profile };
+      if (userId) {
+        delete localProfile["farmer-fullname"];
+        delete localProfile["farmer-phone"];
+      }
+      localStorage.setItem(profileKey, JSON.stringify(localProfile));
       renderProfile(profile);
       status.textContent = csrf
-        ? "Đã lưu hồ sơ nông hộ vào cơ sở dữ liệu hệ thống."
+        ? "Đã lưu hồ sơ tài khoản và thông tin ruộng trên trình duyệt này."
         : "Đã lưu hồ sơ demo trên trình duyệt này.";
     } catch {
       status.textContent = "Trình duyệt đang chặn lưu hồ sơ.";

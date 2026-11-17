@@ -1,13 +1,11 @@
 {% from "shared/icon.html" import icon as render_icon -%}
-<!DOCTYPE html><html lang="vi"><head>{% include "shared/navigation-head.html" %}<link rel="icon" href="/static/assets/stitch-simulation/co-ma-logo.png"><link rel="stylesheet" href="/static/assets/stitch-simulation/fonts.css"><link rel="stylesheet" href="/static/auth.css"><link rel="stylesheet" href="/static/shell.css"><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><meta content="web_standard" name="shell-type"><title>Đăng nhập · Mạch Đồng</title>
+<!DOCTYPE html><html lang="vi"><head>{% include "shared/navigation-head.html" %}<link rel="icon" href="/static/assets/stitch-simulation/co-ma-logo.png"><link rel="stylesheet" href="/static/auth.css"><link rel="stylesheet" href="/static/shell.css"><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><meta content="web_standard" name="shell-type"><title>Đăng nhập · Mạch Đồng</title>
 <style>
   @layer base {
     html, body { margin: 0; padding: 0; }
-    body { overscroll-behavior: none; }
     main > :first-child { margin-top: 0 !important; }
     main > :last-child { margin-bottom: 0 !important; }
   }
-  ::-webkit-scrollbar { display: none; }
   .auth-card-grid {
     display: flex;
     flex-direction: column;
@@ -34,63 +32,32 @@
     gap: 0.35rem;
     padding: 0.3rem;
     border-radius: 0.5rem;
-    background-color: #f0f3ff;
+    background-color: var(--md-surface-inset);
   }
   .auth-otp-row {
     display: flex;
     gap: 0.5rem;
     align-items: stretch;
   }
-</style></head><body class="bg-surface font-body-md text-body-md text-on-surface antialiased">{% include "shared/header.html" %}<main id="main-content" tabindex="-1" class="w-full bg-surface min-h-[calc(100vh-4rem)]"><div class="flex flex-col w-full">
+</style></head><body class="auth-workspace font-body-md text-body-md text-on-surface antialiased">{% include "shared/header.html" %}<main id="main-content" tabindex="-1" class="w-full min-h-[calc(100vh-4rem)]"><div class="flex flex-col w-full">
 
-<div class="w-full max-w-[1440px] mx-auto px-space-md lg:px-margin-desktop py-space-lg lg:py-space-xl flex-1 flex items-center justify-center">
-<div class="w-full grid grid-cols-1 lg:grid-cols-12 rounded-xl bg-surface-container-lowest shadow-md overflow-hidden min-h-[660px]">
+<div class="app-content flex-1 flex items-center justify-center">
+<div class="app-glass auth-split w-full grid grid-cols-1 lg:grid-cols-12 rounded-xl overflow-hidden">
 
-<!-- Column 1: Cinematic Visual & Brand Identity (7 cols) -->
-<div class="lg:col-span-7 relative flex flex-col justify-between p-space-lg lg:p-space-xl min-h-[400px] lg:min-h-[660px] text-on-primary overflow-hidden">
-<div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 ease-out hover:scale-105" style="background-image: url('/static/assets/stitch-login-hero.jpg')"></div>
-<div class="absolute inset-0 bg-gradient-to-t from-primary/95 via-primary/55 to-primary/20"></div>
-<div class="absolute inset-0 bg-gradient-to-r from-primary/75 via-transparent to-transparent"></div>
-
-<div class="relative z-10 flex flex-wrap items-center gap-2">
-  <span class="px-3 py-1 rounded-full bg-surface-container-lowest/20 backdrop-blur-md text-on-primary font-label-sm font-semibold tracking-wide uppercase">
-    Hệ sinh thái số hóa nông dân ĐBSCL
-  </span>
-</div>
-
-<div class="relative z-10 my-auto py-space-lg max-w-xl space-y-space-md">
-  <div class="w-10 h-1 bg-primary-fixed rounded-full"></div>
-  <blockquote class="font-headline-lg lg:text-headline-xl text-on-primary font-bold tracking-tight leading-snug drop-shadow-sm">
-    “Mạch Đồng – Kết nối nông hộ, đo mặn giữ ngọt nước, bảo vệ vụ mùa ĐBSCL.”
-  </blockquote>
-  <p class="font-body-md text-surface-container-low/95 max-w-lg leading-relaxed">
-    Đăng nhập bằng <strong>Email</strong> (kèm mã xác nhận 6 số gửi qua hộp thư), <strong>Username</strong> hoặc <strong>Số điện thoại (+84)</strong>. Hỗ trợ khôi phục mật khẩu nhanh qua mã xác nhận Email.
-  </p>
-</div>
-
-<div class="relative z-10 pt-space-md flex flex-wrap items-center gap-space-sm font-label-sm">
-  <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-container-lowest/15 backdrop-blur-md">
-    <span class="w-2 h-2 rounded-full bg-primary-fixed animate-pulse"></span>
-    <span>Ruộng lúa OM5451</span>
+<aside class="auth-hero lg:col-span-7" aria-label="Giới thiệu Mạch Đồng">
+  <div class="auth-hero-copy">
+    <strong>Chăm ruộng lúa cùng Mạch Đồng</strong>
+    <p>Tra cứu số đo và theo dõi kịch bản mặn, ngập cho ruộng lúa ĐBSCL.</p>
   </div>
-  <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-container-lowest/15 backdrop-blur-md">
-    <span class="material-symbols-outlined text-[14px]">{{ render_icon("sensors") }}</span>
-    <span>Địa bàn demo · Long Hữu</span>
-  </div>
-</div>
-</div>
+</aside>
 
 <!-- Column 2: Login & Forgot Password Card (5 cols) — No Wallet Code Shown Here -->
-<div class="lg:col-span-5 flex flex-col justify-between p-space-lg lg:p-space-xl bg-surface-container-lowest">
+<div class="lg:col-span-5 flex flex-col justify-between p-space-lg lg:p-space-xl">
 <div class="w-full auth-card-grid">
 
   <!-- Header of Form -->
   <div>
-    <div class="flex items-center justify-between mb-space-xs">
-      <span class="font-label-sm uppercase tracking-wider text-primary font-bold">Xác thực hệ thống</span>
-      <span class="font-label-sm px-2.5 py-1 rounded bg-primary-fixed text-on-primary-fixed font-semibold">Email OTP &amp; Bảo mật</span>
-    </div>
-    <h1 class="font-headline-md text-on-surface font-bold">Đăng Nhập Nông Hộ</h1>
+    <h1 class="app-page-title">Đăng Nhập Nông Hộ</h1>
     <p class="font-body-sm text-on-surface-variant mt-1 leading-relaxed">
       Đăng nhập tài khoản Mạch Đồng hoặc nhận mã xác nhận 6 số qua Email khi quên mật khẩu.
     </p>
@@ -109,10 +76,10 @@
 
   <!-- Mode Toggle: Sign-In vs Forgot Password -->
   <div class="auth-mode-tabs">
-    <button type="button" data-login-tab="signin" class="py-2 px-3 rounded-lg bg-primary text-on-primary font-label-sm font-bold transition-colors text-center">
+    <button type="button" data-login-tab="signin" aria-pressed="true" class="app-button app-button--toggle font-label-sm">
       Đăng nhập tài khoản
     </button>
-    <button type="button" data-login-tab="forgot" class="py-2 px-3 rounded-lg text-on-surface font-label-sm font-semibold transition-colors text-center">
+    <button type="button" data-login-tab="forgot" aria-pressed="false" class="app-button app-button--toggle font-label-sm">
       Quên mật khẩu (Email OTP)
     </button>
   </div>
@@ -125,10 +92,10 @@
       </label>
       <div class="auth-otp-row">
         <div class="relative flex items-center flex-1">
-          <span class="absolute left-3 text-outline material-symbols-outlined text-[18px]">{{ render_icon("account_circle") }}</span>
+          <span class="absolute left-3 text-outline app-icon-wrap text-[18px]">{{ render_icon("account_circle") }}</span>
           <input class="w-full pl-10 pr-3 py-2.5 bg-surface-container-low rounded-lg font-body-md text-on-surface placeholder:text-outline focus:outline-none focus:bg-surface focus:ring-2 focus:ring-primary-container transition-colors" required autocomplete="username" id="identifierInput" name="identifier" placeholder="ten@gmail.com / admin / +84911421604" type="text">
         </div>
-        <button type="button" id="btnSendOtpLogin" class="px-3 py-2 rounded-lg bg-primary-fixed hover:bg-primary-fixed-dim text-on-primary-fixed font-label-sm font-bold shrink-0 transition-colors">
+        <button type="button" id="btnSendOtpLogin" class="app-button px-3 py-2 font-label-sm font-bold shrink-0">
           Gửi mã Email
         </button>
       </div>
@@ -145,9 +112,9 @@
           </button>
         </div>
         <div class="relative flex items-center">
-          <span class="absolute left-3 text-outline material-symbols-outlined text-[18px]">{{ render_icon("lock") }}</span>
+          <span class="absolute left-3 text-outline app-icon-wrap text-[18px]">{{ render_icon("lock") }}</span>
           <input class="w-full pl-10 pr-10 py-2.5 bg-surface-container-low rounded-lg font-body-md text-on-surface placeholder:text-outline focus:outline-none focus:bg-surface focus:ring-2 focus:ring-primary-container transition-colors" autocomplete="current-password" id="secretInput" name="password" placeholder="Nhập mật khẩu" type="password">
-          <button class="absolute right-3 text-outline hover:text-on-surface material-symbols-outlined text-[18px]" data-show-password="secretInput" aria-label="Hiện mật khẩu" aria-pressed="false" type="button">{{ render_icon("visibility") }}</button>
+          <button class="absolute right-3 text-outline hover:text-on-surface app-icon-wrap text-[18px]" data-show-password="secretInput" aria-label="Hiện mật khẩu" aria-pressed="false" type="button">{{ render_icon("visibility") }}</button>
         </div>
       </div>
 
@@ -160,16 +127,15 @@
     </div>
 
     <div class="flex flex-wrap items-center justify-between gap-2 text-xs pt-1">
-      <label class="flex items-center gap-2 cursor-pointer text-on-surface-variant">
+      <label class="app-choice">
         <input type="checkbox" id="rememberMeInput" name="remember_me" checked>
         <span>Duy trì phiên đăng nhập (7 ngày)</span>
       </label>
-      <a href="/register" class="text-primary font-semibold hover:underline">Tạo tài khoản nông hộ mới →</a>
     </div>
 
-    <button class="w-full py-3 px-space-md rounded-lg bg-primary hover:bg-primary-container text-on-primary font-headline-sm font-semibold shadow-sm hover:shadow transition-colors flex items-center justify-center gap-2 group" type="submit">
+    <button class="app-button app-button--primary w-full py-3 px-space-md font-headline-sm font-semibold flex items-center justify-center gap-2 group" type="submit">
       <span>Đăng Nhập Vào Ruộng</span>
-      <span class="material-symbols-outlined text-[20px] group-hover:translate-x-1 transition-transform">{{ render_icon("arrow_forward") }}</span>
+      <span class="app-icon-wrap text-[20px]">{{ render_icon("arrow_forward") }}</span>
     </button>
   </form>
 
@@ -185,7 +151,7 @@
       </label>
       <div class="auth-otp-row">
         <input id="forgotEmailInput" type="email" required placeholder="nhap-email-cua-ban@gmail.com" class="flex-1 min-w-0 px-3 py-2.5 bg-surface-container-low rounded-lg text-on-surface focus:ring-2 focus:ring-primary-container">
-        <button type="button" id="btnSendOtpForgot" class="px-3 py-2 rounded-lg bg-primary-fixed hover:bg-primary-fixed-dim text-on-primary-fixed font-label-sm font-bold shrink-0 transition-colors">
+        <button type="button" id="btnSendOtpForgot" class="app-button px-3 py-2 font-label-sm font-bold shrink-0">
           Gửi mã xác nhận
         </button>
       </div>
@@ -205,7 +171,7 @@
         </label>
         <div class="relative flex items-center">
           <input id="forgotNewPassword" type="password" required minlength="4" placeholder="Tối thiểu 4 ký tự" class="w-full pl-3 pr-10 py-2.5 bg-surface-container-low rounded-lg text-on-surface focus:ring-2 focus:ring-primary-container">
-          <button class="absolute right-3 text-outline hover:text-on-surface material-symbols-outlined text-[18px]" data-show-password="forgotNewPassword" aria-label="Hiện mật khẩu" aria-pressed="false" type="button">{{ render_icon("visibility") }}</button>
+          <button class="absolute right-3 text-outline hover:text-on-surface app-icon-wrap text-[18px]" data-show-password="forgotNewPassword" aria-label="Hiện mật khẩu" aria-pressed="false" type="button">{{ render_icon("visibility") }}</button>
         </div>
       </div>
       <div class="auth-field-group">
@@ -216,32 +182,18 @@
       </div>
     </div>
 
-    <button class="w-full py-3 px-space-md rounded-lg bg-primary hover:bg-primary-container text-on-primary font-headline-sm font-semibold shadow-sm hover:shadow transition-colors flex items-center justify-center gap-2 group" type="submit">
+    <button class="app-button app-button--primary w-full py-3 px-space-md font-headline-sm font-semibold flex items-center justify-center gap-2 group" type="submit">
       <span>Xác nhận Mã &amp; Đặt Lại Mật Khẩu</span>
-      <span class="material-symbols-outlined text-[20px] group-hover:translate-x-1 transition-transform">{{ render_icon("arrow_forward") }}</span>
+      <span class="app-icon-wrap text-[20px] group-hover:translate-x-1 transition-transform">{{ render_icon("arrow_forward") }}</span>
     </button>
   </form>
 
   <p role="status" class="text-sm font-medium" data-auth-message></p>
 </div>
 
-<!-- Footer Incentive Banner -->
-<div class="pt-space-md mt-space-md border-t border-surface-container/60">
-  <div class="p-space-sm rounded-lg bg-primary-fixed/30 flex items-center justify-between gap-space-sm">
-    <div class="flex items-center gap-space-sm min-w-0">
-      <span class="text-2xl leading-none shrink-0">🎁</span>
-      <div class="flex flex-col min-w-0">
-        <span class="font-body-sm text-on-surface font-medium leading-tight">
-          Chưa có tài khoản nông hộ Mạch Đồng?
-        </span>
-        <a class="font-label-sm text-primary font-bold hover:underline flex items-center gap-0.5 mt-0.5" href="/register">
-          <span>Đăng ký tài khoản mới</span>
-          <span class="material-symbols-outlined text-[14px]">{{ render_icon("chevron_right") }}</span>
-        </a>
-      </div>
-    </div>
-    <a href="/community" class="text-xs text-primary font-semibold shrink-0 hover:underline">Mở Kho CSV</a>
-  </div>
+<div class="auth-footnote">
+  <span>Chưa có tài khoản?</span>
+  <a href="/register">Đăng ký</a>
 </div>
 </div>
 

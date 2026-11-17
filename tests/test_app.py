@@ -1,4 +1,6 @@
 from io import BytesIO
+from pathlib import Path
+from tempfile import TemporaryDirectory
 from unittest import TestCase
 
 from main import create_app
@@ -8,7 +10,15 @@ from src.services.simulation_service import evaluate
 
 class TestApp(TestCase):
     def setUp(self) -> None:
-        self.client = create_app().test_client()
+        directory = TemporaryDirectory()
+        self.addCleanup(directory.cleanup)
+        self.client = create_app(
+            {
+                "TESTING": True,
+                "SECRET_KEY": "app-tests-only",
+                "COMMUNITY_DATABASE": str(Path(directory.name) / "community.sqlite3"),
+            }
+        ).test_client()
 
     def test_views_render(self) -> None:
         for route, title in (
@@ -45,6 +55,26 @@ class TestApp(TestCase):
             data={"file": (BytesIO(b"site,unit,value\nfield,g/L"), "invalid.csv")},
         )
         self.assertEqual(response.status_code, 400)
+
+    def test_catalog_previews_and_downloads_the_same_published_data(self) -> None:
+        for slug, count, flag in (
+            ("dbscl-stations", 22, "false"),
+            ("long-huu-man-ngap", 16, "true"),
+        ):
+            with self.subTest(slug=slug):
+                published = self.client.get("/api/community/datasets/" + slug).json["data"]
+                self.assertEqual(len(published["rows"]), count)
+                self.assertEqual(published["row_count"], count)
+                index = published["columns"].index("is_simulated")
+                self.assertTrue(all(row[index] == flag for row in published["rows"]))
+                with self.client.get("/community/samples/" + slug) as download:
+                    raw = download.get_data()
+                    self.assertIn("attachment", download.headers["Content-Disposition"])
+                upload = self.client.post(
+                    "/api/community/preview", data={"file": (BytesIO(raw), "reference.csv")}
+                ).json["data"]
+                self.assertEqual(upload["rows"], published["rows"][:5])
+        self.assertEqual(self.client.get("/api/community/datasets/unlisted").status_code, 404)
 
     def test_simulation_matches_demo_chi(self) -> None:
         payload = {
