@@ -25,29 +25,23 @@
       </div>
     </details>
   </nav>
+  {% if auth_user %}
   <div class="app-header-account">
     <div class="app-coin-balance">
-      <strong data-header-credits>{{ auth_user.simulation_credits if auth_user else demo_balance }} LÚA</strong>
-      <span class="app-account-label">{{ 'Giả lập' if auth_user else 'Demo' }}</span>
+      <strong data-header-credits>{{ auth_user.simulation_credits }} LÚA</strong>
+      <span class="app-account-label">{{ auth_user.role }}</span>
     </div>
     <a class="app-account-trigger" href="{{ url_for('auth.profile') }}" aria-label="Chỉnh sửa hồ sơ và mật khẩu" {% if current_page == "profile" %}aria-current="page"{% endif %}>
         <img class="app-avatar" src="/static/assets/stitch-profile-portrait.jpg" width="32" height="32" alt="">
         <span class="app-account-name">
-          {% if auth_user %}
           <strong data-profile-value="farmer-fullname">{{ auth_user.name }}</strong>
           <small>@{{ auth_user.username }}</small>
-          {% elif forumData is defined and forumData.member %}
-          <strong>{{ forumData.member.displayName }}</strong>
-          <small>{{ 'Phiên khách' if forumData.member.isGuest else forumData.member.location }}</small>
-          {% else %}
-          <strong data-profile-value="farmer-fullname">{{ demo_name }}</strong>
-          <small>{{ demo_cooperative }}</small>
-          {% endif %}
         </span>
         <svg class="app-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
           <path d="m6 4 4 4-4 4" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
     </a>
   </div>
+  {% endif %}
 </header>
 <script src="/static/account.js" defer></script>

@@ -92,7 +92,12 @@ def createApp(testConfig: dict | None = None) -> Flask:
         admin_controller,
     ):
         app.register_blueprint(controller.blueprint)
-    app.add_url_rule("/", view_func=lambda: redirect("/community"))
+
+    @app.get("/")
+    def home() -> Response:
+        if get_current_auth() is None:
+            return redirect("/login")
+        return redirect("/community")
 
     @app.errorhandler(HTTPException)
     def handleRoutingError(

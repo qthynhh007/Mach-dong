@@ -38,6 +38,7 @@ from src.models.user import (
     normalize_email,
     normalize_vn_phone,
 )
+from src.services.credit_service import default_credit_service
 
 
 @dataclass
@@ -78,10 +79,10 @@ class AuthService:
         seeds = [
             {
                 "username": "admin",
-                "name": "Quản trị viên Mạch Đồng",
+                "name": "Vũ Thanh Tân",
                 "email": "tanvuthanh313130911@gmail.com",
                 "phone": "+84911421604",
-                "password": "admin",
+                "password": "adminadmin",
                 "role": UserRole.ADMIN,
                 "credits": 99,
                 "avax": 10.0,
@@ -147,11 +148,37 @@ class AuthService:
             hashlib.sha256,
         ).hexdigest()
 
-    def send_email_otp(self, email: str) -> AuthResult:
-        try:
-            clean_email = normalize_email(email)
-        except ValueError as exc:
-            return AuthResult(False, 400, error=str(exc))
+    def send_email_otp(
+        self, email: str, require_existing: bool = False
+    ) -> AuthResult:
+        raw_input = (email or "").strip()
+        if not raw_input:
+            return AuthResult(
+                False, 400, error="Vui lòng nhập Email hoặc Tên đăng nhập."
+            )
+
+        resolved_user: User | None = None
+        if require_existing:
+            if "@" in raw_input:
+                try:
+                    clean_email = normalize_email(raw_input)
+                except ValueError as exc:
+                    return AuthResult(False, 400, error=str(exc))
+                resolved_user = self.repo.get_by_email(clean_email)
+            else:
+                resolved_user = self.repo.get_by_username(raw_input)
+            if resolved_user is None:
+                return AuthResult(
+                    False,
+                    404,
+                    error="Không tìm thấy tài khoản nào đăng ký với Email hoặc Tên đăng nhập này.",
+                )
+            clean_email = resolved_user.email
+        else:
+            try:
+                clean_email = normalize_email(raw_input)
+            except ValueError as exc:
+                return AuthResult(False, 400, error=str(exc))
 
         otp_code = f"{secrets.randbelow(1_000_000):06d}"
         expires_at = time.time() + self.otp_ttl_seconds
@@ -674,16 +701,25 @@ class AuthService:
             user.avax_balance = round(float(user.avax_balance) - exact_avax_cost, 4)
             user.simulation_credits = int(user.simulation_credits) + credits_to_mint
             self.repo.save_user(user)
-            tx_hash = self._generate_fuji_tx_hash(
-                user, "AVAX_TO_CREDIT", exact_avax_cost, credits_to_mint
+            onchain_res = default_credit_service.buy_credits_onchain(
+                beneficiary_wallet=user.wallet_address,
+                avax_amount=exact_avax_cost,
             )
+            if onchain_res.get("onchain") and onchain_res.get("tx_hash"):
+                tx_hash = str(onchain_res["tx_hash"])
+                tx_note = f"Đổi {exact_avax_cost} AVAX → +{credits_to_mint} LÚA (On-chain Fuji)"
+            else:
+                tx_hash = self._generate_fuji_tx_hash(
+                    user, "AVAX_TO_CREDIT", exact_avax_cost, credits_to_mint
+                )
+                tx_note = f"Đổi {exact_avax_cost} AVAX → +{credits_to_mint} LÚA [Giả lập]"
             tx_record = self.repo.record_credit_transaction(
                 user_id=user.user_id,
                 direction="AVAX_TO_CREDIT",
                 avax_amount=exact_avax_cost,
                 credit_delta=credits_to_mint,
                 tx_hash=tx_hash,
-                note=f"Đổi {exact_avax_cost} AVAX → +{credits_to_mint} LÚA [Giả lập]",
+                note=tx_note,
             )
             return AuthResult(
                 True,
@@ -820,6 +856,8 @@ class AuthService:
         phone: str | None = None,
         wallet_address: str | None = None,
         wallet_mode: str | None = None,
+        otp_code: str | None = None,
+        require_wallet_otp: bool = True,
     ) -> AuthResult:
         if name is not None and name.strip():
             user.name = name.strip()
@@ -828,6 +866,27 @@ class AuthService:
                 user.phone = normalize_vn_phone(phone)
             except ValueError as exc:
                 return AuthResult(False, 400, error=str(exc))
+
+        wants_wallet_change = bool(
+            (wallet_mode and wallet_mode.upper() == "AUTO_EMAIL")
+            or (
+                wallet_address is not None
+                and wallet_address.strip()
+                and wallet_address.strip() != user.wallet_address
+            )
+        )
+        if wants_wallet_change and require_wallet_otp:
+            ok_otp, otp_err = self.verify_email_otp(
+                user.email, otp_code or "", consume=True
+            )
+            if not ok_otp:
+                return AuthResult(
+                    False,
+                    400,
+                    error=otp_err
+                    or "Vui lòng xác thực mã 6 số qua Email trước khi đổi địa chỉ ví.",
+                )
+
         if wallet_mode and wallet_mode.upper() == "AUTO_EMAIL":
             addr, enc_key = generate_email_bound_wallet(user.email, self.repo.wallet_secret)
             user.wallet_address = addr
@@ -872,23 +931,35 @@ class AuthService:
     def reset_password_with_email_otp(
         self, email: str, otp_code: str, new_password: str
     ) -> AuthResult:
-        try:
-            clean_email = normalize_email(email)
-        except ValueError as exc:
-            return AuthResult(False, 400, error=str(exc))
+        raw_input = (email or "").strip()
+        if not raw_input:
+            return AuthResult(
+                False, 400, error="Vui lòng nhập Email hoặc Tên đăng nhập."
+            )
 
         if not new_password or len(new_password) < 4:
             return AuthResult(
                 False, 400, error="Mật khẩu mới cần ít nhất 4 ký tự."
             )
 
-        user = self.repo.get_by_email(clean_email)
+        user: User | None = None
+        if "@" in raw_input:
+            try:
+                clean_email = normalize_email(raw_input)
+            except ValueError as exc:
+                return AuthResult(False, 400, error=str(exc))
+            user = self.repo.get_by_email(clean_email)
+        else:
+            user = self.repo.get_by_username(raw_input)
+
         if user is None:
             return AuthResult(
                 False,
                 404,
-                error="Không tìm thấy tài khoản nào đăng ký với địa chỉ Email này.",
+                error="Không tìm thấy tài khoản nào đăng ký với Email hoặc Tên đăng nhập này.",
             )
+
+        clean_email = user.email
 
         ok_otp, otp_err = self.verify_email_otp(clean_email, otp_code, consume=True)
         if not ok_otp:

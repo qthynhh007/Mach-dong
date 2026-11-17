@@ -142,15 +142,15 @@
   <!-- 2. Forgot Password Form (Receive 6-digit confirmation code via Email & Set New Password) -->
   <form class="space-y-space-md hidden" id="forgotPasswordForm">
     <div class="p-3 rounded-lg bg-surface-container-low text-xs text-on-surface-variant leading-relaxed">
-      Nhập địa chỉ <strong>Email</strong> đã đăng ký và bấm <strong>"Gửi mã xác nhận"</strong>. Kiểm tra hộp thư để lấy mã 6 chữ số và đặt lại mật khẩu mới.
+      Nhập <strong>Email</strong> hoặc <strong>Tên đăng nhập (Username)</strong> đã đăng ký và bấm <strong>"Gửi mã xác nhận"</strong>. Hệ thống sẽ kiểm tra tài khoản tồn tại rồi gửi mã 6 chữ số tới Email của bạn.
     </div>
 
     <div class="auth-field-group">
       <label class="font-label-sm text-on-surface font-semibold" for="forgotEmailInput">
-        Email tài khoản cần khôi phục *
+        Email hoặc Tên đăng nhập (Username) *
       </label>
       <div class="auth-otp-row">
-        <input id="forgotEmailInput" type="email" required placeholder="nhap-email-cua-ban@gmail.com" class="flex-1 min-w-0 px-3 py-2.5 bg-surface-container-low rounded-lg text-on-surface focus:ring-2 focus:ring-primary-container">
+        <input id="forgotEmailInput" type="text" required placeholder="email@gmail.com hoặc tên đăng nhập (VD: admin)" class="flex-1 min-w-0 px-3 py-2.5 bg-surface-container-low rounded-lg text-on-surface focus:ring-2 focus:ring-primary-container">
         <button type="button" id="btnSendOtpForgot" class="app-button px-3 py-2 font-label-sm font-bold shrink-0">
           Gửi mã xác nhận
         </button>
