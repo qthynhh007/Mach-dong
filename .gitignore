@@ -2,7 +2,5 @@
 node_modules/
 __pycache__/
 *.py[cod]
-.env
-.env.local
 .ruff_cache/
 .pytest_cache/
