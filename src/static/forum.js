@@ -43,14 +43,18 @@
 
     async action(button, operation, statusId = "forum-status") {
       button.disabled = true;
+      button.setAttribute("aria-busy", "true");
       this.status("", statusId);
       try { await operation(); }
       catch (error) { this.status(error.message, statusId); }
-      finally { button.disabled = false; }
+      finally {
+        button.removeAttribute("aria-busy");
+        button.disabled = false;
+      }
     }
 
     button(label, operation) {
-      const button = this.element("button", label, "community-button");
+      const button = this.element("button", label, "app-button community-button");
       button.type = "button";
       button.addEventListener("click", () => this.action(button, () => operation(button)));
       return button;
@@ -223,7 +227,9 @@
       }
       this.feed.setAttribute("aria-busy", "true");
       find("forum-previous").disabled = find("forum-next").disabled = true;
-      this.status("Đang tải bài viết…");
+      find("forum-refresh").disabled = true;
+      find("forum-loading").textContent = "Đang tải bài viết…";
+      this.status("");
       try {
         const result = await this.api.request("posts?" + params);
         if (sequence !== this.sequence) return;
@@ -252,7 +258,11 @@
       } catch (error) {
         if (sequence === this.sequence) this.status(error.message);
       } finally {
-        if (sequence === this.sequence) this.feed.setAttribute("aria-busy", "false");
+        if (sequence === this.sequence) {
+          this.feed.setAttribute("aria-busy", "false");
+          find("forum-loading").textContent = "";
+          find("forum-refresh").disabled = false;
+        }
       }
     }
   }
@@ -549,7 +559,7 @@
       const input = this.element("textarea");
       input.value = reply.body; input.maxLength = 5000; input.required = true;
       input.setAttribute("aria-label", "Sửa câu trả lời");
-      const save = this.element("button", "Lưu câu trả lời", "community-button");
+      const save = this.element("button", "Lưu câu trả lời", "app-button community-button");
       save.type = "submit";
       const cancel = this.button("Hủy sửa", () => editor.remove());
       editor.append(input, save, cancel);

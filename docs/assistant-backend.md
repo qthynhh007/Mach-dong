@@ -43,11 +43,15 @@ Khi có lỗi, trả `{"data":null,"error":"Thông báo cho người dùng"}`.
 | 200 | Có câu trả lời |
 | 400 | JSON hoặc lịch sử sai định dạng, câu hỏi trống hay vượt giới hạn |
 | 413 | Nội dung gửi quá lớn |
+| 422 | Gemini từ chối tạo câu trả lời |
 | 429 | Hết hạn mức Gemini |
-| 502 | Gemini lỗi, hết thời gian chờ, JSON sai hoặc xuất hiện mã nguồn ngoài phần căn cứ đã gửi |
-| 503 | Câu hỏi cần Gemini nhưng máy chủ chưa cấu hình khóa |
+| 502 | Lỗi kết nối, phản hồi thiếu nội dung hoặc trích mã nguồn ngoài phần căn cứ đã gửi |
+| 503 | Máy chủ chưa cấu hình khóa Gemini hoặc các model được gọi đang quá tải |
+| 504 | Gemini hết thời gian chờ |
 
-Server gửi `systemInstruction` và `contents` có căn cứ lên `POST /v1beta/models/gemini-3.8-flash:generateContent`. Khóa `GEMINI_API_KEY` đọc từ biến môi trường hoặc `.env.local` và gửi qua header `x-goog-api-key`. Client đặt thời gian chờ 20 giây, mức suy luận `LOW` và schema JSON cho `reply`, `source_ids`. [Tài liệu model](https://ai.google.dev/gemini-api/docs/models/gemini-3.8-flash) · [REST generateContent](https://aistudio.google.com/api-reference/generate-content/generate-content)
+Server gửi `systemInstruction` và `contents` có căn cứ lên `POST /v1beta/models/gemini-3.5-flash:generateContent`. Khóa `GEMINI_API_KEY` đọc từ biến môi trường hoặc `.env.local` và gửi qua header `x-goog-api-key`. Client dùng mức suy luận `LOW`, giới hạn 2.048 token đầu ra và schema JSON cho `reply`, `source_ids`. [REST generateContent](https://aistudio.google.com/api-reference/generate-content/generate-content)
+
+Trình duyệt chờ tối đa 180 giây và cho phép dừng chờ hoặc gửi lại câu hỏi. Server cấp tối đa 150 giây thời gian chờ cho Gemini 3.5 Flash. Nếu model quá tải, hết thời gian chờ hoặc trả phản hồi chưa hoàn chỉnh, server gọi Gemini 3.1 Flash-Lite một lần trong thời gian còn lại, giữ cùng câu hỏi, lịch sử và căn cứ. [Tài liệu Gemini 3.1 Flash-Lite](https://aistudio.google.com/docs/models/gemini-3.1-flash-lite)
 
 ## Thứ tự triển khai
 
@@ -79,7 +83,7 @@ Làm việc trong K:\Unihack\Mach-dong trên nhánh feature/AIAssistant.
 và docs/assistant-backend.md trước khi sửa. Kiểm tra git status để biết
 những thay đổi đang có và bảo toàn thay đổi của người dùng.
 
-Mục tiêu là hoàn thiện backend hỏi đáp Cò Mạ qua Flask với Gemini 3.8 Flash.
+Mục tiêu là hoàn thiện backend hỏi đáp Cò Mạ qua Flask với Gemini 3.5 Flash.
 Đọc luồng /assistant và POST /api/assistant/chat hiện tại cùng các test
 trước khi cài đặt thêm. Chọn bước đầu tiên chưa đạt trong kế hoạch.
 

@@ -7,13 +7,18 @@
   <link rel="icon" href="/static/assets/stitch-simulation/co-ma-logo.png">
   <link rel="stylesheet" href="/static/shell.css">
 </head>
-<body>
+<body class="app-workspace">
 {% include "shared/header.html" %}
 {% include "shared/sidebar.html" %}
-<main id="main-content" tabindex="-1" class="app-status">
-  <h1>{{ self.title() }}</h1>
-  <p>{% block description %}{% endblock %}</p>
-  <a href="/simulation">Mở mô phỏng</a> · <a href="/community">Mở kho CSV</a>
+<main id="main-content" tabindex="-1" class="app-content app-status">
+  <section class="app-status-card app-glass" aria-labelledby="status-title">
+    <h1 id="status-title" class="app-page-title">{{ self.title() }}</h1>
+    <p>{% block description %}{% endblock %}</p>
+    <div class="app-status-actions">
+      <a href="/simulation" class="app-control">Mở mô phỏng</a>
+      <a href="/community" class="app-control">Mở kho CSV</a>
+    </div>
+  </section>
 </main>
 </body>
 </html>

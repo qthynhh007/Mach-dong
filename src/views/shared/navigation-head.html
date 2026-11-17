@@ -1,8 +1,8 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='assets/stitch-simulation/fonts.css') }}">
+<meta name="theme-color" content="#e7efe7">
 <style>
   @view-transition { navigation: auto; }
   @media (prefers-reduced-motion: reduce) {
-    ::view-transition-group(root) { animation-duration: 0s; }
-    ::view-transition-old(root), ::view-transition-new(root) { animation: none; }
+    ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none; }
   }
 </style>

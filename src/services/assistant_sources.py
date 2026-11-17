@@ -85,21 +85,20 @@ def select_knowledge(messages: Sequence[ChatMessage]) -> list[dict]:
     if not crops and "water" in topics and matches(question, ("ruộng", "tỷ lệ cây sống")):
         crops = {"lúa"}
 
+    default_topics = topics or {"planting"}
     ranked = []
     for item in knowledge():
         direct = crops.intersection(item["crops"])
         if not direct and ("*" not in item["crops"] or item["topic"] not in topics):
             continue
         hits = sum(contains(context, term) for term in item["terms"])
-        if topics and item["topic"] not in topics and not hits:
-            continue
-        if not topics and item["topic"] != "planting":
+        if not hits and item["topic"] not in default_topics:
             continue
         scope = (
             part for key in ("region", "setting", "stage")
             for part in item.get(key, "").split("|") if part
         )
-        score = 4 * bool(direct) + 3 * (item["topic"] in topics) + 2 * hits
+        score = 4 * bool(direct) + 3 * (item["topic"] in topics) + 4 * hits
         score += 2 * sum(contains(question, term) for term in scope)
         if item["source_id"] == "UMN-TOMATO-DISORDERS" and not matches(
             context, ("quả", "trái", "thối đít", "đáy")

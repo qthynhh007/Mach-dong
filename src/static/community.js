@@ -4,11 +4,18 @@ const result = document.querySelector("#csv-result");
 const output = document.querySelector("#csv-preview");
 const search = document.querySelector("#csv-search");
 const filters = [...document.querySelectorAll("[data-filter]")];
-const cards = [...document.querySelectorAll("[data-dataset]")];
+const cards = Array.from(document.querySelectorAll("[data-dataset]"), (card) => ({
+  card,
+  categories: card.dataset.dataset.split(" "),
+  text: normalizeSearch(card.textContent),
+}));
 const count = document.querySelector("#csv-count span");
+const clear = document.querySelector("#csv-clear");
+const empty = document.querySelector("#csv-empty");
 const modalTitle = document.querySelector("#csv-modal-title");
 const modalFile = document.querySelector("#csv-modal-file");
 const modalDownload = document.querySelector("#csv-modal-download");
+const modalActions = document.querySelector("#csv-modal-actions");
 const dropzone = document.querySelector("[data-dropzone]");
 let activeFilter = "all";
 let previewRequest;
@@ -20,25 +27,50 @@ function normalizeSearch(value) {
 function filterCards() {
   const query = normalizeSearch(search.value);
   let visible = 0;
-  for (const card of cards) {
-    const inCategory = activeFilter === "all" || card.dataset.dataset.split(" ").includes(activeFilter);
-    card.hidden = !(inCategory && normalizeSearch(card.textContent).includes(query));
+  for (const {card, categories, text} of cards) {
+    const inCategory = activeFilter === "all" || categories.includes(activeFilter);
+    card.hidden = !(inCategory && text.includes(query));
     if (!card.hidden) visible++;
   }
-  count.textContent = activeFilter === "all" && !query
+  clear.disabled = activeFilter === "all" && !search.value.trim();
+  count.textContent = clear.disabled
     ? `${visible} bộ dữ liệu`
     : `${visible}/${cards.length} bộ dữ liệu`;
-  document.querySelector("#csv-empty").hidden = visible > 0;
+  empty.hidden = visible > 0;
+  for (const filter of filters) {
+    filter.setAttribute("aria-pressed", String(filter.dataset.filter === activeFilter));
+  }
+  const url = new URL(window.location.href);
+  if (search.value.trim()) url.searchParams.set("q", search.value.trim());
+  else url.searchParams.delete("q");
+  if (activeFilter !== "all") url.searchParams.set("filter", activeFilter);
+  else url.searchParams.delete("filter");
+  if (url.href !== window.location.href) history.replaceState(history.state, "", url);
+}
+
+function readFilters() {
+  const params = new URLSearchParams(window.location.search);
+  const category = params.get("filter");
+  activeFilter = filters.some((button) => button.dataset.filter === category) ? category : "all";
+  search.value = params.get("q") || "";
+  filterCards();
 }
 
 search.addEventListener("input", filterCards);
+clear.addEventListener("click", () => {
+  activeFilter = "all";
+  search.value = "";
+  filterCards();
+  search.focus({preventScroll: true});
+});
 filters.forEach((button) => {
   button.addEventListener("click", () => {
     activeFilter = button.dataset.filter;
-    for (const filter of filters) filter.setAttribute("aria-pressed", String(filter === button));
     filterCards();
   });
 });
+window.addEventListener("popstate", readFilters);
+readFilters();
 
 function openPreview(dataset) {
   previewRequest?.abort();
@@ -49,7 +81,7 @@ function openPreview(dataset) {
   dropzone.hidden = Boolean(dataset);
   modalTitle.textContent = dataset ? "Xem trước bộ dữ liệu CSV" : "Kiểm tra tệp CSV";
   modalFile.textContent = dataset?.csvFile ?? "";
-  modalDownload.hidden = !dataset;
+  modalActions.hidden = !dataset;
   if (dataset) modalDownload.href = dataset.csvDownload;
   else modalDownload.removeAttribute("href");
   if (!modal.open) modal.showModal();
@@ -78,6 +110,7 @@ async function loadPreview(url, options = {}) {
   const request = new AbortController();
   previewRequest = request;
   result.textContent = "Đang đọc tệp…";
+  output.setAttribute("aria-busy", "true");
   output.hidden = true;
   output.replaceChildren();
   try {
@@ -98,6 +131,8 @@ async function loadPreview(url, options = {}) {
     );
   } catch (error) {
     if (!request.signal.aborted) result.textContent = error.message || "Chưa xem được tệp.";
+  } finally {
+    if (previewRequest === request) output.removeAttribute("aria-busy");
   }
 }
 

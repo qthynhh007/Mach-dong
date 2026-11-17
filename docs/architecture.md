@@ -29,7 +29,7 @@ Flask nạp template từ `src/views/` và phục vụ `src/static/` qua URL `/s
 - **Diễn đàn** · `views/forum/` + các lớp View trong `src/static/forum.js` → `communityController` → `communityService` → `communityModel`/`communityStore` → SQLite. Controller kiểm tra request và CSRF; service kiểm tra nghiệp vụ, quyền tác giả, phiên bản; model chịu trách nhiệm SQL và giao dịch. Giữ các URL `/forum` cùng giao diện sẵn có. `forum_controller.py` chỉ xuất Blueprint tương thích, `forum_service.py` giữ các chủ đề và dữ liệu mẫu. Xem [tài liệu module](community.md).
 - **Mô phỏng** · Bốn thanh trượt → `POST /api/simulation` → `SimulationInput` → `simulation_service` → kết quả và nhận xét cục bộ. Dùng các mốc hiện có của SIM-PHYSIOLOGY-V1 cho CHI, rủi ro mặn/ngập và tỷ lệ thui chột hoa đòng minh họa. Các lớp và số liệu có nhãn minh họa trên tranh Stitch dùng để giải thích.
 - **Tài khoản** · Form đăng nhập và đăng ký gọi API `/api/auth/`. Service kiểm tra mật khẩu hoặc OTP và ghi phiên vào SQLite. Cookie HttpOnly nhận diện tài khoản trên header và diễn đàn.
-- **Trợ lý** · `POST /api/assistant/chat` tra đúng nguồn trong `assistant_sources`. Câu hỏi về một trạm hoặc ca giả lập được trả trực tiếp từ CSV. Câu hỏi canh tác dùng căn cứ JSON đã duyệt trong request Gemini 3.8 Flash. Flask kiểm tra mã căn cứ và gắn URL trước khi trả `data.sources`.
+- **Trợ lý** · `POST /api/assistant/chat` tra đúng nguồn trong `assistant_sources`. Câu hỏi về một trạm hoặc ca giả lập được trả trực tiếp từ CSV. Câu hỏi canh tác dùng căn cứ JSON đã duyệt trong request Gemini 3.5 Flash. Flask kiểm tra mã căn cứ và gắn URL trước khi trả `data.sources`.
 
 ## Vị trí tích hợp tiếp theo
 

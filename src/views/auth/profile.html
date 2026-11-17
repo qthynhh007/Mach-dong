@@ -10,17 +10,13 @@
 <link rel="stylesheet" href="/static/profile.css">
 <link rel="stylesheet" href="/static/shell.css">
 </head>
-<body class="app-workspace bg-surface text-on-surface antialiased">
+<body class="app-workspace profile-page text-on-surface antialiased">
 {% include "shared/header.html" %}
 {% include "shared/sidebar.html" %}
-<main id="main-content" tabindex="-1" class="w-full bg-surface min-h-screen px-4 md:px-gutter-desktop py-space-lg"><div class="flex flex-col w-full">
+<main id="main-content" tabindex="-1" class="app-content w-full min-h-screen"><div class="flex flex-col w-full">
 <div class="mb-space-lg flex flex-col md:flex-row md:items-end justify-between gap-space-md">
 <div>
-<div class="flex items-center gap-space-xs font-label-sm text-label-sm uppercase tracking-wider text-primary font-bold">
-<span class="material-symbols-outlined text-[16px]">{{ render_icon("fact_check") }}</span>
-<span>Hồ sơ thành viên Hợp tác xã</span>
-</div>
-<h1 class="font-headline-lg text-headline-lg font-bold text-on-surface tracking-tight mt-0.5">
+<h1 class="app-page-title font-headline-lg text-headline-lg font-bold text-on-surface tracking-tight mt-0.5">
         Quản lý Tài khoản &amp; Bảo mật
       </h1>
 <p class="font-body-md text-body-md text-on-surface-variant mt-1">
@@ -29,7 +25,7 @@
 </div>
 <div class="flex items-center gap-space-sm self-start md:self-auto">
 <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary-fixed text-on-primary-fixed font-label-md text-label-md font-semibold">
-<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+<span class="w-2 h-2 rounded-full bg-primary"></span>
         {{ 'Hồ sơ tài khoản' if current_user else 'Hồ sơ demo · HTX Long Hữu' }}
       </span>
 <span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm">
@@ -39,16 +35,11 @@
 </div>
 <div class="grid grid-cols-1 xl:grid-cols-12 gap-space-lg items-start">
 <div class="xl:col-span-5 flex flex-col gap-space-lg">
-<div class="bg-surface-container-lowest rounded-xl shadow-sm p-space-lg relative overflow-hidden">
-<div class="absolute -right-10 -top-10 w-44 h-44 rounded-full bg-primary-fixed/30 pointer-events-none blur-2xl"></div>
-<div class="absolute -left-8 bottom-0 w-36 h-36 rounded-full bg-surface-container-high/60 pointer-events-none blur-xl"></div>
+<div class="app-glass rounded-xl p-space-lg relative overflow-hidden">
 <div class="relative flex flex-col sm:flex-row items-center sm:items-start gap-space-md">
 <div class="relative shrink-0">
 <div class="w-24 h-24 rounded-full overflow-hidden shadow-md bg-surface-container-high">
 <img class="w-full h-full object-cover" src="/static/assets/stitch-profile-portrait.jpg" width="96" height="96" alt="">
-</div>
-<div class="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-primary text-on-primary flex items-center justify-center shadow-sm" title="Hồ sơ minh họa">
-<span class="material-symbols-outlined text-[16px]">{{ render_icon("fact_check") }}</span>
 </div>
 </div>
 <div class="flex flex-col text-center sm:text-left min-w-0 flex-1">
@@ -60,23 +51,8 @@
               {% if current_user %}Email: {{ current_user.email }} · SĐT: {{ current_user.phone }}{% else %}Ấp 3, Xã Long Hữu, Huyện Duyên Hải, Tỉnh Trà Vinh{% endif %}
             </p>
 <div class="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-surface-container-high w-fit mx-auto sm:mx-0">
-<span class="material-symbols-outlined text-[16px] text-primary">{{ render_icon("grass") }}</span>
 <span class="font-label-sm text-label-sm font-semibold text-primary">{{ ('Vai trò: ' ~ current_user.role ~ ' · @' ~ current_user.username) if current_user else 'Thành viên HTX Long Hữu' }}</span>
 </div>
-</div>
-</div>
-<div class="mt-space-md p-space-md rounded-xl bg-surface-container-low flex items-start gap-space-sm relative">
-<div class="w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center text-xl shrink-0 shadow-sm">
-            🪿
-          </div>
-<div class="flex-1">
-<div class="flex items-center justify-between">
-<span class="font-label-sm text-label-sm font-bold text-primary uppercase">Cò Mạ trợ lý đồng</span>
-<span class="font-label-sm text-label-sm text-on-surface-variant">Demo</span>
-</div>
-<p class="font-body-sm text-body-sm text-on-surface mt-0.5 leading-relaxed">
-              Bà con có thể cập nhật diện tích và giống lúa để hoàn thiện hồ sơ ruộng mẫu.
-            </p>
 </div>
 </div>
 <div class="mt-space-md grid grid-cols-2 gap-space-sm">
@@ -94,18 +70,18 @@
 <div class="mt-space-md pt-space-md flex flex-col gap-space-xs">
 <span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-bold">Huy hiệu đóng góp cộng đồng</span>
 <div class="grid grid-cols-2 gap-space-sm mt-1">
-<div class="flex items-center gap-space-xs p-2 rounded-lg bg-surface-container-high/70">
+<div class="flex items-center gap-space-xs p-2 rounded-lg bg-surface-container-high">
 <div class="w-8 h-8 rounded-lg bg-surface-container-highest flex items-center justify-center text-primary shrink-0">
-<span class="material-symbols-outlined text-[18px]">{{ render_icon("upload_file") }}</span>
+<span class="app-icon-wrap text-[18px]">{{ render_icon("upload_file") }}</span>
 </div>
 <div class="flex flex-col min-w-0">
 <span class="font-label-md text-label-md font-bold text-on-surface">12 Tệp CSV</span>
 <span class="font-label-sm text-label-sm text-on-surface-variant truncate">Đo mặn tại cống</span>
 </div>
 </div>
-<div class="flex items-center gap-space-xs p-2 rounded-lg bg-surface-container-high/70">
+<div class="flex items-center gap-space-xs p-2 rounded-lg bg-surface-container-high">
 <div class="w-8 h-8 rounded-lg bg-surface-container-highest flex items-center justify-center text-secondary shrink-0">
-<span class="material-symbols-outlined text-[18px]">{{ render_icon("chat") }}</span>
+<span class="app-icon-wrap text-[18px]">{{ render_icon("chat") }}</span>
 </div>
 <div class="flex flex-col min-w-0">
 <span class="font-label-md text-label-md font-bold text-on-surface">28 Bài viết</span>
@@ -115,10 +91,9 @@
 </div>
 </div>
 </div>
-<div class="bg-surface-container-lowest rounded-xl shadow-sm p-space-lg relative overflow-hidden">
+<div class="app-glass rounded-xl p-space-lg relative overflow-hidden">
 <div class="flex items-center justify-between">
 <div class="flex items-center gap-space-xs">
-<span class="w-8 h-8 rounded-lg bg-primary-fixed flex items-center justify-center text-base">🌾</span>
 <div>
 <h3 class="font-headline-sm text-headline-sm font-bold text-on-surface">Ví Điểm Nông Nghiệp</h3>
 <p class="font-label-sm text-label-sm text-on-surface-variant uppercase">Quỹ hỗ trợ mùa màng</p>
@@ -126,8 +101,7 @@
 </div>
 <span class="px-2.5 py-1 rounded-full bg-surface-container-high font-label-sm text-label-sm font-semibold text-primary">Demo</span>
 </div>
-<div class="mt-space-md p-space-md rounded-xl bg-gradient-to-br from-primary to-primary-container text-on-primary shadow-sm flex flex-col justify-between relative overflow-hidden min-h-[130px]">
-<div class="absolute -right-6 -bottom-6 text-[100px] opacity-10 select-none pointer-events-none">🌾</div>
+<div class="mt-space-md p-space-md rounded-xl bg-primary text-on-primary flex flex-col justify-between relative overflow-hidden min-h-[130px]">
 <div class="flex items-center justify-between z-10">
 <span class="font-label-sm text-label-sm tracking-widest uppercase text-on-primary/80">Số Dư Hiện Có</span>
 <span class="font-label-sm text-label-sm bg-on-primary/20 backdrop-blur-sm px-2 py-0.5 rounded text-on-primary">Số dư minh họa</span>
@@ -159,9 +133,9 @@
 <!-- Bind / Update Custom C-Chain Fuji Wallet Address or Export secp256k1 Private Key -->
 <form id="wallet-bind-form" class="mt-space-sm p-3 rounded-xl bg-surface-container-low border border-outline-variant/40 space-y-2">
   <div class="flex flex-wrap items-center justify-between gap-2 text-xs">
-    <span class="font-bold text-primary uppercase">🔗 Ví C-Chain Fuji (secp256k1 · Core / MetaMask)</span>
-    <button type="button" id="btn-export-privkey" class="px-2 py-1 rounded bg-surface-container-highest text-primary font-label-sm text-label-sm font-bold hover:opacity-90">
-      🔑 Hiện Private Key (Nhập vào Core / MetaMask)
+    <span class="font-bold text-primary uppercase">Ví C-Chain Fuji (secp256k1 · Core / MetaMask)</span>
+    <button type="button" id="btn-export-privkey" class="app-button px-2 py-1 font-label-sm text-label-sm font-bold">
+      Hiện Private Key (Nhập vào Core / MetaMask)
     </button>
   </div>
   <div id="exported-privkey-box" class="hidden p-2 rounded bg-surface-container-lowest border border-primary/40 text-xs break-all">
@@ -170,7 +144,7 @@
   </div>
   <div class="flex flex-wrap gap-2">
     <input id="custom-wallet-input" type="text" placeholder="Dán địa chỉ ví C-Chain Fuji của bạn (0x... 42 ký tự)" value="{{ current_user.wallet_address if current_user else '' }}" class="flex-1 min-w-[200px] h-9 px-3 rounded-lg bg-surface-container-lowest text-xs text-on-surface border border-outline-variant">
-    <button type="submit" class="h-9 px-3 rounded-lg bg-primary text-on-primary font-label-sm text-label-sm font-bold">Lưu địa chỉ ví</button>
+    <button type="submit" class="app-button app-button--primary h-9 px-3 font-label-sm text-label-sm font-bold">Lưu địa chỉ ví</button>
   </div>
   <p id="wallet-bind-msg" role="status" class="text-xs font-semibold text-primary"></p>
 </form>
@@ -179,21 +153,21 @@
 <div class="mt-space-md p-space-md rounded-xl bg-surface-container-low border border-outline-variant/40 space-y-space-sm" id="credit-changer-box" data-credits-per-avax="{{ credits_per_avax or 100 }}">
   <div class="flex flex-wrap items-center justify-between gap-2">
     <div>
-      <h4 class="font-label-md text-label-md font-bold text-primary uppercase">⚡ [Giả lập] Quy đổi điểm LÚA ↔ AVAX</h4>
+      <h4 class="font-label-md text-label-md font-bold text-primary uppercase">[Giả lập] Quy đổi điểm LÚA ↔ AVAX</h4>
       <p class="font-label-sm text-label-sm text-on-surface-variant">Tỷ giá: 1 AVAX = {{ credits_per_avax or 100 }} LÚA (0.01 AVAX = 1 LÚA)</p>
     </div>
-    <button type="button" id="btn-faucet-avax" class="px-2.5 py-1 rounded-lg bg-primary-fixed text-on-primary-fixed font-label-sm text-label-sm font-bold hover:opacity-90">
+    <button type="button" id="btn-faucet-avax" class="app-button px-2.5 py-1 font-label-sm text-label-sm font-bold">
       + Cộng 1 AVAX giả lập
     </button>
   </div>
 
   <form id="credit-exchange-form" class="space-y-space-sm">
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-      <label class="flex items-center gap-2 p-2 rounded-lg bg-surface-container-lowest cursor-pointer text-xs font-semibold">
+      <label class="app-choice text-xs font-semibold">
         <input type="radio" name="exchange_direction" value="AVAX_TO_CREDIT" checked>
         <span>AVAX → Điểm LÚA (Nạp điểm)</span>
       </label>
-      <label class="flex items-center gap-2 p-2 rounded-lg bg-surface-container-lowest cursor-pointer text-xs font-semibold">
+      <label class="app-choice text-xs font-semibold">
         <input type="radio" name="exchange_direction" value="CREDIT_TO_AVAX">
         <span>Điểm LÚA → AVAX (Rút về ví)</span>
       </label>
@@ -204,7 +178,7 @@
         <input id="exchange-amount-input" type="number" step="0.01" min="0.01" value="0.50" required class="w-full h-10 px-3 rounded-lg bg-surface-container-lowest text-on-surface font-label-md text-label-md focus:outline-none focus:ring-2 focus:ring-primary">
         <span id="exchange-unit-label" class="absolute right-3 top-2.5 font-label-sm text-label-sm font-bold text-on-surface-variant">AVAX</span>
       </div>
-      <button type="submit" id="btn-submit-exchange" class="h-10 px-4 rounded-lg bg-primary hover:bg-primary-container text-on-primary font-label-md text-label-md font-bold transition-colors">
+      <button type="submit" id="btn-submit-exchange" class="app-button app-button--primary h-10 px-4 font-label-md text-label-md font-bold">
         Quy đổi giả lập
       </button>
     </div>
@@ -273,11 +247,11 @@
 </div>
 </div>
 <div class="xl:col-span-7 flex flex-col gap-space-lg">
-<div class="bg-surface-container-lowest rounded-xl shadow-sm p-space-lg">
+<div class="app-glass rounded-xl p-space-lg">
 <div class="flex items-center justify-between pb-space-sm">
 <div class="flex items-center gap-space-xs">
 <div class="w-9 h-9 rounded-xl bg-primary-fixed flex items-center justify-center text-primary">
-<span class="material-symbols-outlined text-[22px]">{{ render_icon("description") }}</span>
+<span class="app-icon-wrap text-[22px]">{{ render_icon("description") }}</span>
 </div>
 <div>
 <h3 class="font-headline-sm text-headline-sm font-bold text-on-surface">Thông tin Nông hộ &amp; Vùng canh tác</h3>
@@ -294,7 +268,7 @@
 </label>
 <div class="relative">
 <input class="w-full h-11 px-3.5 rounded-lg bg-surface-container-low text-on-surface font-body-md text-body-md focus:bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary shadow-inner" id="farmer-fullname" required maxlength="80" autocomplete="off" type="text" value="{{ current_user.name if current_user else 'Trần Văn Năm (Chú Năm Ruộng)' }}">
-<span class="material-symbols-outlined absolute right-3 top-3 text-[18px] text-on-surface-variant">{{ render_icon("account_circle") }}</span>
+<span class="app-icon-wrap absolute right-3 top-3 text-[18px] text-on-surface-variant">{{ render_icon("account_circle") }}</span>
 </div>
 </div>
 <div class="flex flex-col gap-1.5">
@@ -303,7 +277,7 @@
 </label>
 <div class="relative">
 <input class="w-full h-11 px-3.5 rounded-lg bg-surface-container-low text-on-surface font-body-md text-body-md focus:bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary shadow-inner" id="farmer-phone" required maxlength="24" autocomplete="off" type="tel" value="{{ current_user.phone if current_user else '+84918245889' }}">
-<span class="material-symbols-outlined absolute right-3 top-3 text-[18px] text-on-surface-variant">{{ render_icon("phone_iphone") }}</span>
+<span class="app-icon-wrap absolute right-3 top-3 text-[18px] text-on-surface-variant">{{ render_icon("phone_iphone") }}</span>
 </div>
 </div>
 </div>
@@ -313,7 +287,7 @@
             </label>
 <div class="relative">
 <input class="w-full h-11 px-3.5 rounded-lg bg-surface-container-low text-on-surface font-body-md text-body-md focus:bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary shadow-inner" id="farmer-address" maxlength="160" autocomplete="off" type="text" value="Ấp 3, Xã Long Hữu, Huyện Duyên Hải, Tỉnh Trà Vinh">
-<span class="material-symbols-outlined absolute right-3 top-3 text-[18px] text-on-surface-variant">{{ render_icon("location_on") }}</span>
+<span class="app-icon-wrap absolute right-3 top-3 text-[18px] text-on-surface-variant">{{ render_icon("location_on") }}</span>
 </div>
 </div>
 <div class="grid grid-cols-1 md:grid-cols-2 gap-space-md">
@@ -321,15 +295,12 @@
 <label class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-bold" for="farmer-cultivar">
                 Giống lúa gieo trồng chủ lực
               </label>
-<div class="relative">
-<select class="w-full h-11 px-3.5 rounded-lg bg-surface-container-low text-on-surface font-body-md text-body-md focus:bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary appearance-none cursor-pointer shadow-inner" id="farmer-cultivar">
+<select class="app-select w-full font-body-md text-body-md" id="farmer-cultivar">
 <option selected="" value="om5451">OM5451</option>
 <option value="daithom8">Đài Thơm 8</option>
 <option value="st25">ST25</option>
 <option value="om18">OM18</option>
 </select>
-<span class="material-symbols-outlined absolute right-3 top-3 text-[18px] text-on-surface-variant pointer-events-none">{{ render_icon("expand_more") }}</span>
-</div>
 </div>
 <div class="flex flex-col gap-1.5">
 <label class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-bold" for="farmer-area">
@@ -345,32 +316,29 @@
 <label class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-bold" for="hydrology-station">
               Trạm đo thủy văn / Cống liên kết gần nhất
             </label>
-<div class="relative">
-<select class="w-full h-11 px-3.5 rounded-lg bg-surface-container-low text-on-surface font-body-md text-body-md focus:bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary appearance-none cursor-pointer shadow-inner" id="hydrology-station">
+<select class="app-select w-full font-body-md text-body-md" id="hydrology-station">
 <option selected="" value="muong-lo">Cống Mương Lộ (Kênh Cầu Vồng - Cách 850m)</option>
 <option value="lang-the">Cống Láng Thé (Sông Tiền)</option>
 <option value="ben-gia">Trạm Bến Giá (Sông Cổ Chiên)</option>
 <option value="long-toan">Cống Long Toàn (Trục thoát triều)</option>
 </select>
-<span class="material-symbols-outlined absolute right-3 top-3 text-[18px] text-on-surface-variant pointer-events-none">{{ render_icon("water_drop") }}</span>
-</div>
 <p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
               Chọn trạm gần ruộng để ghi vào hồ sơ mẫu.</p>
 </div>
 <div class="pt-space-sm flex items-center justify-between flex-wrap gap-space-sm">
 <p id="save-info-msg" role="status" class="font-body-sm text-body-sm text-primary font-semibold"></p>
-<button class="ml-auto px-space-lg py-2.5 rounded-lg bg-primary hover:bg-primary-container text-on-primary font-headline-sm text-body-md font-bold transition-colors shadow-sm flex items-center gap-2" id="btn-save-farmer-info" type="submit">
-<span class="material-symbols-outlined text-[18px]">{{ render_icon("save") }}</span>
+<button class="app-button app-button--primary ml-auto px-space-lg py-2.5 font-headline-sm text-body-md font-bold flex items-center gap-2" id="btn-save-farmer-info" type="submit">
+<span class="app-icon-wrap text-[18px]">{{ render_icon("save") }}</span>
 <span>Lưu Thông Tin Canh Tác</span>
 </button>
 </div>
 </form>
 </div>
-<div class="bg-surface-container-lowest rounded-xl shadow-sm p-space-lg">
+<div class="app-glass rounded-xl p-space-lg">
 <div class="flex items-center justify-between pb-space-sm">
 <div class="flex items-center gap-space-xs">
 <div class="w-9 h-9 rounded-xl bg-secondary-fixed flex items-center justify-center text-secondary">
-<span class="material-symbols-outlined text-[22px]">{{ render_icon("lock") }}</span>
+<span class="app-icon-wrap text-[22px]">{{ render_icon("lock") }}</span>
 </div>
 <div>
 <h3 class="font-headline-sm text-headline-sm font-bold text-on-surface">Bảo Mật &amp; Đổi Mật Khẩu</h3>
@@ -387,7 +355,7 @@
 <div class="relative">
 <input class="w-full h-11 pl-3.5 pr-11 rounded-lg bg-surface-container-low text-on-surface font-body-md text-body-md focus:bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary shadow-inner" id="current-password" required maxlength="128" autocomplete="off" placeholder="Nhập mật khẩu chú đang dùng" type="password">
 <button class="btn-toggle-eye absolute right-3 top-2.5 text-on-surface-variant hover:text-on-surface" data-target="current-password" type="button" aria-label="Hiện hoặc ẩn mật khẩu" aria-pressed="false">
-<span class="material-symbols-outlined text-[20px]">{{ render_icon("visibility") }}</span>
+<span class="app-icon-wrap text-[20px]">{{ render_icon("visibility") }}</span>
 </button>
 </div>
 </div>
@@ -399,7 +367,7 @@
 <div class="relative">
 <input class="w-full h-11 pl-3.5 pr-11 rounded-lg bg-surface-container-low text-on-surface font-body-md text-body-md focus:bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary shadow-inner" id="new-password" required minlength="8" maxlength="128" autocomplete="off" placeholder="Ít nhất 8 ký tự" type="password">
 <button class="btn-toggle-eye absolute right-3 top-2.5 text-on-surface-variant hover:text-on-surface" data-target="new-password" type="button" aria-label="Hiện hoặc ẩn mật khẩu" aria-pressed="false">
-<span class="material-symbols-outlined text-[20px]">{{ render_icon("visibility") }}</span>
+<span class="app-icon-wrap text-[20px]">{{ render_icon("visibility") }}</span>
 </button>
 </div>
 <div class="mt-1 flex flex-col gap-1">
@@ -421,7 +389,7 @@
 <div class="relative">
 <input class="w-full h-11 pl-3.5 pr-11 rounded-lg bg-surface-container-low text-on-surface font-body-md text-body-md focus:bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary shadow-inner" id="confirm-password" required minlength="8" maxlength="128" autocomplete="off" placeholder="Nhập lại mật khẩu mới" type="password">
 <button class="btn-toggle-eye absolute right-3 top-2.5 text-on-surface-variant hover:text-on-surface" data-target="confirm-password" type="button" aria-label="Hiện hoặc ẩn mật khẩu" aria-pressed="false">
-<span class="material-symbols-outlined text-[20px]">{{ render_icon("visibility") }}</span>
+<span class="app-icon-wrap text-[20px]">{{ render_icon("visibility") }}</span>
 </button>
 </div>
 <span class="font-label-sm text-label-sm text-on-surface-variant mt-1" id="confirm-hint">Phải trùng khớp hoàn toàn với mật khẩu mới</span>
@@ -429,8 +397,8 @@
 </div>
 <div class="pt-space-xs flex items-center justify-between flex-wrap gap-space-sm">
 <p id="password-message" role="status" class="font-body-sm text-body-sm text-on-surface-variant"></p>
-<button class="px-space-xl py-3 rounded-xl bg-primary hover:bg-primary-container text-on-primary font-headline-sm text-body-md font-bold transition-colors shadow-md flex items-center gap-2" id="btn-submit-password" type="submit">
-<span class="material-symbols-outlined text-[20px]">{{ render_icon("lock") }}</span>
+<button class="app-button app-button--primary px-space-xl py-3 font-headline-sm text-body-md font-bold flex items-center gap-2" id="btn-submit-password" type="submit">
+<span class="app-icon-wrap text-[20px]">{{ render_icon("lock") }}</span>
 <span>Cập Nhật Mật Khẩu Mới</span>
 </button>
 </div>

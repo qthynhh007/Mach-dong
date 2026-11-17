@@ -7,6 +7,8 @@ const controls = {
 };
 let timer;
 let activeRequest;
+let hasResult = false;
+const status = byId("simulation-status");
 const initial = [2.8, 4.5, 48, 28.5];
 const storageKey = "mach-dong-simulation";
 const format = (number) => number.toLocaleString("vi-VN", {maximumFractionDigits: 1});
@@ -43,14 +45,20 @@ async function getResult(values) {
     if (!response.ok) throw new Error();
     const {data} = await response.json();
     if (request.signal.aborted) return;
-    byId("valStage").textContent += " · " + data.stage;
+    byId("valStage").textContent = "Ngày " + values.day_after_sowing + "/95 · " + data.stage;
     byId("sceneStage").textContent = data.stage + " · ngày " + values.day_after_sowing;
     byId("growthRate").textContent = format(data.chi) + "%";
     byId("illustrativeYield").textContent = format(data.illustrative_yield_tonnes_ha);
     byId("riskSummary").textContent = "Mặn " + data.salinity_risk.toLowerCase() + " · Ngập " + data.flood_risk.toLowerCase();
     byId("assistantAdvice").textContent = data.advice;
+    hasResult = true;
+    status.textContent = "Đã cập nhật kết quả.";
   } catch (error) {
-    if (!request.signal.aborted) byId("assistantAdvice").textContent = "Chưa tải được kết quả. Hãy đổi thông số để thử lại.";
+    if (!request.signal.aborted) {
+      status.textContent = hasResult
+        ? "Chưa thể tính lại. Kết quả đang hiển thị thuộc lần tính trước."
+        : "Chưa tải được kết quả. Hãy đổi thông số hoặc đặt lại để thử lại.";
+    }
   }
 }
 
@@ -59,8 +67,8 @@ function scheduleUpdate() {
   try { sessionStorage.setItem(storageKey, JSON.stringify(values)); } catch { /* The sliders work without storage. */ }
   clearTimeout(timer);
   activeRequest?.abort();
-  for (const id of ["growthRate", "riskSummary", "illustrativeYield"]) byId(id).textContent = "—";
-  byId("assistantAdvice").textContent = "Đang cập nhật kịch bản…";
+  const pending = hasResult ? "Đang tính lại. Kết quả đang hiển thị thuộc lần tính trước." : "Đang tính kết quả…";
+  if (status.textContent !== pending) status.textContent = pending;
   timer = setTimeout(() => getResult(values), 120);
 }
 

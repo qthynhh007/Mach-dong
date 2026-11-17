@@ -20,7 +20,9 @@ from src.config import (
 PBKDF2_ITERATIONS = 200_000
 WALLET_REGEX = re.compile(r"^0x[a-fA-F0-9]{40}$")
 EMAIL_REGEX = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
-VN_PHONE_DIGITS_REGEX = re.compile(r"^\+84[0-9]{8,10}$")
+VN_MOBILE_REGEX = re.compile(
+    r"^(?:\+84|0)(?:3[2-9]|5[25689]|7[06-9]|8[1-9]|9[0-9])[0-9]{7}$"
+)
 
 
 class UserRole(StrEnum):
@@ -50,7 +52,7 @@ def normalize_vn_phone(phone: str) -> str:
         raw = "+84" + raw[1:]
     elif raw.startswith("+840") and len(raw) >= 12:
         raw = "+84" + raw[4:]
-    if not VN_PHONE_DIGITS_REGEX.match(raw):
+    if not VN_MOBILE_REGEX.match(raw):
         raise ValueError(
             "Số điện thoại phải theo chuẩn Việt Nam (+84...), ví dụ: +84911421604 hoặc 0911421604."
         )

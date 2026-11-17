@@ -24,7 +24,7 @@ Khi thêm class Tailwind vào HTML, chạy `npm install` và `npm run build:css`
 | Chi tiết bài | `/forum/<postId>` | Trả lời theo chuỗi, đánh dấu hữu ích, chọn giải đáp, sửa/xóa nội dung của mình |
 | Sửa bài | `/forum/<postId>/edit` | Chỉnh sửa bài và ảnh; kiểm tra quyền tác giả trên máy chủ |
 | Mô phỏng | `/simulation` | Bốn thanh trượt và nút đặt lại, hình cắt lớp toàn chiều ngang và tỷ lệ cây phát triển tốt mô phỏng trong khung Cò Mạ |
-| Trợ lý Cò Mạ | `/assistant` | Tra số liệu đã công bố hoặc hỏi Gemini 3.8 Flash về cách trồng, dinh dưỡng, sâu bệnh, mặn và ngập trên nhiều cây |
+| Trợ lý Cò Mạ | `/assistant` | Tra số liệu đã công bố hoặc hỏi Gemini 3.5 Flash về cách trồng, dinh dưỡng, sâu bệnh, mặn và ngập trên nhiều cây |
 | Đăng nhập | `/login` | Đăng nhập bằng mật khẩu hoặc mã email, đặt lại mật khẩu |
 | Đăng ký | `/register` | Xác thực email và tạo tài khoản kèm ví Fuji |
 | Tài khoản | `/profile` | Mở từ avatar để cập nhật hồ sơ, đổi mật khẩu hoặc xem ví Fuji |

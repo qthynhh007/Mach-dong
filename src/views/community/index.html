@@ -12,54 +12,49 @@
   <link rel="stylesheet" href="/static/shell.css">
   <link rel="stylesheet" href="/static/csv-library.css">
 </head>
-<body class="app-workspace csv-page">
+<body class="app-workspace">
   {% include "shared/header.html" %}
   {% include "shared/sidebar.html" %}
-  <main id="main-content" class="csv-main" tabindex="-1">
-    <div class="csv-section-path"><strong>Mạch Đồng</strong><span aria-hidden="true">/</span> Kho CSV cộng đồng</div>
+  <main id="main-content" class="csv-main app-content" tabindex="-1">
     <header class="csv-hero">
       <div>
-        <h1>Kho Dữ Liệu CSV<br class="csv-desktop-break"> Quan Trắc Cộng Đồng</h1>
-        <p>Tra cứu số liệu độ mặn, mực nước và các chỉ tiêu tại ruộng. Xem nguồn, kỳ số liệu và đơn vị trước khi sử dụng.</p>
+        <h1 class="app-page-title">Kho CSV cộng đồng</h1>
+        <p>Tra cứu số đo độ mặn, mực nước và các chỉ tiêu tại ruộng theo địa bàn và kỳ dữ liệu.</p>
       </div>
       <div class="csv-tools">
         <label class="csv-search">{{ icon("search") }}<input type="search" id="csv-search" aria-label="Tìm bộ dữ liệu CSV" placeholder="Tìm theo tên tệp, địa bàn, trạm…"></label>
-        <button class="csv-button csv-primary" type="button" data-csv-open aria-haspopup="dialog">{{ icon("upload_file") }} Tải lên CSV</button>
+        <button class="csv-button app-button app-button--primary" type="button" data-csv-open aria-haspopup="dialog">{{ icon("upload_file") }} Tải lên CSV</button>
       </div>
     </header>
 
-    <div class="csv-filter-bar">
+    <div class="csv-filter-bar app-glass">
       <div class="csv-filters" role="group" aria-label="Lọc bộ dữ liệu">
         {% for key, label in (('all', 'Tất cả'), ('long-huu', 'Long Hữu'), ('om5451', 'OM5451'), ('salinity', 'Độ mặn'), ('water', 'Mực nước'), ('weather', 'Vi khí hậu'), ('ph', 'Độ pH')) %}
-        <button type="button" data-filter="{{ key }}" aria-pressed="{{ 'true' if key == 'all' else 'false' }}">
+        <button type="button" class="app-button app-button--toggle" data-filter="{{ key }}" aria-pressed="{{ 'true' if key == 'all' else 'false' }}">
           {{ label }}{% if key == 'all' %} ({{ datasets | length }}){% endif %}
         </button>
         {% endfor %}
       </div>
-      <p id="csv-count" role="status">{{ icon("folder_open") }} <span>{{ datasets | length }} bộ dữ liệu</span></p>
+      <div class="csv-filter-summary">
+        <p id="csv-count" role="status"><span>{{ datasets | length }} bộ dữ liệu</span></p>
+        <button type="button" id="csv-clear" class="csv-button app-button" disabled>Xóa bộ lọc</button>
+      </div>
     </div>
 
     {% include "community/datasets.html" %}
-    <p id="csv-empty" class="csv-empty" hidden>Không tìm thấy bộ dữ liệu phù hợp.</p>
-
-    <aside class="csv-notes" aria-label="Thông tin sử dụng dữ liệu">
-      <div>{{ icon("fact_check") }}<div><h2>Bản tin trạm</h2><p>Thực đo và dự báo có kỳ số liệu và liên kết tới bản tin gốc.</p></div></div>
-      <div>{{ icon("water_drop") }}<div><h2>Dữ liệu giả lập</h2><p>Các bộ có nhãn [Giả lập] dùng để thử luồng và đọc cấu trúc số đo.</p></div></div>
-      <div>{{ icon("table_view") }}<div><h2>Kiểm tra tệp của bạn</h2><p>Chọn tệp CSV UTF-8 tối đa 1 MB để kiểm tra cột và xem trước các dòng đầu.</p></div></div>
-    </aside>
+    <p id="csv-empty" class="csv-empty app-pane" hidden>Không tìm thấy bộ dữ liệu phù hợp.</p>
   </main>
 
-  <dialog id="upload-csv-modal" class="csv-dialog" aria-labelledby="csv-modal-title">
+  <dialog id="upload-csv-modal" class="csv-dialog app-glass" aria-labelledby="csv-modal-title">
     <header class="csv-dialog-header">
       <div>
         <h2 id="csv-modal-title">Xem trước bộ dữ liệu CSV</h2>
         <p id="csv-modal-file"></p>
       </div>
-      <form method="dialog"><button type="submit" class="csv-button csv-secondary" autofocus aria-label="Đóng">{{ icon("close") }}</button></form>
+      <form method="dialog"><button type="submit" class="csv-button app-button" autofocus aria-label="Đóng">{{ icon("close") }}</button></form>
     </header>
     <div class="csv-dialog-body">
       <div data-dropzone hidden>
-        {{ icon("upload_file") }}
         <label for="csv-file">Kéo thả tệp CSV vào đây hoặc chọn tệp</label>
         <p>Tệp UTF-8, tối đa 1 MB. Tệp được đọc để xem trước.</p>
         <input id="csv-file" type="file" accept=".csv,text/csv">
@@ -67,9 +62,8 @@
       <p id="csv-result" role="status"></p>
       <div id="csv-preview" class="app-csv-results" role="region" aria-label="Bảng xem trước" tabindex="0" hidden></div>
     </div>
-    <footer class="csv-dialog-footer">
-      <form method="dialog"><button type="submit" class="csv-button csv-secondary">Đóng</button></form>
-      <a class="csv-button csv-primary" id="csv-modal-download" hidden>{{ icon("download") }} Tải trọn bộ CSV</a>
+    <footer class="csv-dialog-footer" id="csv-modal-actions" hidden>
+      <a class="csv-button app-button app-button--primary" id="csv-modal-download">{{ icon("download") }} Tải trọn bộ CSV</a>
     </footer>
   </dialog>
   <script src="/static/community.js" defer></script>

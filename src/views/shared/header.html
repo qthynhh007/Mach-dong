@@ -2,7 +2,7 @@
 {% set demo_cooperative = "HTX Long Hữu" %}
 {% set demo_balance = 350 %}
 <a class="app-skip-link" href="{{ '#simContentWrapper' if current_page == 'simulation' else '#main-content' }}">Đến nội dung chính</a>
-<header class="app-header"{% if auth_user %} data-csrf-token="{{ auth_csrf_token }}" data-user-id="{{ auth_user.user_id }}"{% endif %}>
+<header class="app-header app-glass"{% if auth_user %} data-csrf-token="{{ auth_csrf_token }}" data-user-id="{{ auth_user.user_id }}"{% endif %}>
   <a href="/community" class="app-brand">
     <img src="/static/assets/stitch-simulation/co-ma-logo.png" alt="" width="32" height="32">
     <span translate="no">Mạch Đồng</span>
@@ -12,14 +12,14 @@
     <a href="{{ url_for('forum.index') }}" {% if current_page == "forum" %}aria-current="page"{% endif %}>Diễn đàn</a>
     <a href="/simulation" {% if current_page == "simulation" %}aria-current="page"{% endif %}>Mô phỏng</a>
     {% if auth_user %}
-    <button type="button" class="app-nav-cta" data-logout-btn>Đăng xuất</button>
+    <button type="button" class="app-button app-button--primary" data-logout-btn>Đăng xuất</button>
     {% else %}
     <a href="/login" {% if current_page == "login" %}aria-current="page"{% endif %}>Đăng nhập</a>
-    <a class="app-nav-cta" href="/register" {% if current_page == "register" %}aria-current="page"{% endif %}>Đăng ký</a>
+    <a class="app-button app-button--primary" href="/register" {% if current_page == "register" %}aria-current="page"{% endif %}>Đăng ký</a>
     {% endif %}
     <details class="app-more-links">
       <summary>Thêm</summary>
-      <div class="app-more-panel">
+      <div class="app-more-panel app-glass">
         <a href="/assistant" {% if current_page == "assistant" %}aria-current="page"{% endif %}>Trợ lý Cò Mạ</a>
         <a href="/admin" {% if current_page == "admin" %}aria-current="page"{% endif %}>Duyệt dữ liệu</a>
       </div>
@@ -27,7 +27,6 @@
   </nav>
   <div class="app-header-account">
     <div class="app-coin-balance">
-      <span aria-hidden="true">🌾</span>
       <strong data-header-credits>{{ auth_user.simulation_credits if auth_user else demo_balance }} LÚA</strong>
       <span class="app-account-label">{{ 'Giả lập' if auth_user else 'Demo' }}</span>
     </div>

@@ -31,4 +31,4 @@ OTP_TTL_SECONDS = 300  # 5 minutes
 SMTP_HOST = os.environ.get("SMTP_HOST", "smtp.gmail.com")
 SMTP_PORT = int(os.environ.get("SMTP_PORT", "465"))
 SMTP_EMAIL = os.environ.get("SMTP_EMAIL", "")
-SMTP_APP_PASSWORD = os.environ.get("SMTP_APP_PASSWORD", "")
+SMTP_APP_PASSWORD = "".join(os.environ.get("SMTP_APP_PASSWORD", "").split())

@@ -1,5 +1,6 @@
 (() => {
   const headerEl = document.querySelector(".app-header");
+  const moreLinks = headerEl?.querySelector(".app-more-links");
   const userId = headerEl?.dataset.userId;
   const profileKey = userId ? `mach-dong-farm-profile-v1:${userId}` : "mach-dong-demo-profile-v1";
   const farmForm = document.getElementById("farm-info-form");
@@ -28,6 +29,17 @@
     "hydrology-station",
   ];
   const field = (id) => document.getElementById(id);
+
+  if (moreLinks) {
+    document.addEventListener("pointerdown", (event) => {
+      if (moreLinks.open && !moreLinks.contains(event.target)) moreLinks.open = false;
+    });
+    document.addEventListener("keydown", (event) => {
+      if (event.key !== "Escape" || !moreLinks.open) return;
+      moreLinks.open = false;
+      moreLinks.querySelector("summary").focus();
+    });
+  }
 
   function getCsrfToken() {
     return headerEl?.dataset.csrfToken || "";
@@ -65,6 +77,8 @@
   document.querySelectorAll("[data-logout-btn]").forEach((btn) => {
     btn.addEventListener("click", async () => {
       const csrf = getCsrfToken();
+      btn.disabled = true;
+      btn.setAttribute("aria-busy", "true");
       try {
         const response = await fetch("/api/auth/logout", {
           method: "POST",
@@ -81,6 +95,9 @@
         window.location.href = "/login";
       } catch {
         btn.textContent = "Thử lại đăng xuất";
+      } finally {
+        btn.removeAttribute("aria-busy");
+        btn.disabled = false;
       }
     });
   });

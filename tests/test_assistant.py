@@ -4,7 +4,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
-from urllib.error import HTTPError
+from urllib.error import HTTPError, URLError
 
 from main import create_app
 from src.services.assistant_sources import select_knowledge
@@ -35,8 +35,10 @@ class TestAssistant(TestCase):
     ) -> None:
         self.client.application.config["GEMINI_API_KEY"] = "test-key"
         page = self.client.get("/assistant").text
-        self.assertIn("Gemini 3.8 Flash", page)
+        self.assertIn("Gemini 3.5 Flash", page)
+        self.assertIn('data-wait-seconds="180"', page)
         self.assertNotIn("test-key", page)
+        source_id = "KN-RICE-SALINITY-SOC-TRANG"
         urlopen.return_value = BytesIO(
             json.dumps(
                 {
@@ -47,7 +49,7 @@ class TestAssistant(TestCase):
                                     {"text": "Private thought", "thought": True},
                                     {"text": json.dumps({
                                         "reply": "Bà con đo mặn tại ruộng nha.",
-                                        "source_ids": ["VU-2022"],
+                                        "source_ids": [source_id],
                                     })},
                                 ]
                             }
@@ -67,17 +69,17 @@ class TestAssistant(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json["data"]["reply"], "Bà con đo mặn tại ruộng nha.")
         request = urlopen.call_args.args[0]
-        self.assertTrue(request.full_url.endswith("/gemini-3.8-flash:generateContent"))
+        self.assertTrue(request.full_url.endswith("/gemini-3.5-flash:generateContent"))
         self.assertEqual(request.get_header("X-goog-api-key"), "test-key")
         body = json.loads(request.data)
         self.assertEqual(
             [turn["role"] for turn in body["contents"]], ["user", "model", "user"]
         )
         evidence, question = body["contents"][-1]["parts"]
-        self.assertIn("VU-2022", evidence["text"])
+        self.assertIn(source_id, evidence["text"])
         self.assertEqual(question, {"text": "Tui đo ở cống."})
         self.assertEqual(body["generationConfig"]["responseMimeType"], "application/json")
-        self.assertEqual(response.json["data"]["sources"][0]["source_id"], "VU-2022")
+        self.assertEqual(response.json["data"]["sources"][0]["source_id"], source_id)
 
     def test_rejects_invalid_chat_payload(self) -> None:
         for payload in (
@@ -105,6 +107,65 @@ class TestAssistant(TestCase):
         response = self.client.post("/api/assistant/chat", json={"message": "Cách trồng ớt?"})
         self.assertEqual(response.status_code, 429)
         self.assertNotIn("private upstream detail", response.text)
+        urlopen.assert_called_once()
+
+    @patch("src.services.ai_client.urlopen")
+    def test_uses_fallback_when_primary_model_is_unavailable(self, urlopen: MagicMock) -> None:
+        self.client.application.config["GEMINI_API_KEY"] = "test-key"
+        source_id = "KN-RICE-BLAST"
+        answer = json.dumps({
+            "reply": "Bà con xem vết trên lá có hình thoi nha.",
+            "source_ids": [source_id],
+        })
+        fallback_body = json.dumps({"candidates": [{"content": {"parts": [{"text": answer}]}}]})
+        for failure in (
+            HTTPError("", 503, "primary unavailable", {}, None),
+            TimeoutError(),
+            URLError(TimeoutError()),
+            BytesIO(json.dumps({"candidates": [{"finishReason": "MAX_TOKENS"}]}).encode()),
+            BytesIO(b'{"candidates":[{"content":{"parts":[{"text":"{"}]}}]}'),
+        ):
+            with self.subTest(failure=type(failure).__name__):
+                urlopen.reset_mock()
+                urlopen.side_effect = [failure, BytesIO(fallback_body.encode())]
+
+                response = self.client.post(
+                    "/api/assistant/chat", json={"message": "Lúa có vết hình thoi, nghi đạo ôn?"}
+                )
+
+                self.assertEqual(response.status_code, 200)
+                self.assertEqual(response.json["data"]["sources"][0]["source_id"], source_id)
+                self.assertEqual(urlopen.call_count, 2)
+                primary, fallback = (call.args[0] for call in urlopen.call_args_list)
+                self.assertTrue(primary.full_url.endswith("/gemini-3.5-flash:generateContent"))
+                self.assertTrue(fallback.full_url.endswith("/gemini-3.1-flash-lite:generateContent"))
+                self.assertEqual(primary.data, fallback.data)
+
+    @patch("src.services.ai_client.urlopen")
+    def test_reports_blocked_response_without_calling_fallback(self, urlopen: MagicMock) -> None:
+        self.client.application.config["GEMINI_API_KEY"] = "test-key"
+        urlopen.return_value = BytesIO(b'{"promptFeedback":{"blockReason":"SAFETY"}}')
+
+        response = self.client.post("/api/assistant/chat", json={"message": "Cách trồng ớt?"})
+
+        self.assertEqual(response.status_code, 422)
+        self.assertIsNone(response.json["data"])
+        urlopen.assert_called_once()
+
+    @patch("src.services.ai_client.urlopen")
+    def test_reports_unavailable_when_both_models_are_busy(self, urlopen: MagicMock) -> None:
+        self.client.application.config["GEMINI_API_KEY"] = "test-key"
+        urlopen.side_effect = [
+            HTTPError("", 503, "primary unavailable", {}, None),
+            HTTPError("", 503, "fallback unavailable", {}, None),
+        ]
+
+        response = self.client.post("/api/assistant/chat", json={"message": "Cách trồng ớt?"})
+
+        self.assertEqual(response.status_code, 503)
+        self.assertIsNone(response.json["data"])
+        self.assertIn("Gemini đang bận", response.json["error"])
+        self.assertEqual(urlopen.call_count, 2)
 
     def test_retrieval_for_planting_nutrition_disease_and_crop_switch(self) -> None:
         for question, expected in (
@@ -125,6 +186,22 @@ class TestAssistant(TestCase):
         ])
         self.assertIn("KN-MANGO-VIETGAP", {item["source_id"] for item in switched})
         self.assertTrue(all("dưa chuột" not in item["crops"] for item in switched))
+
+    def test_retrieval_for_specific_terms_in_expanded_knowledge(self) -> None:
+        for question, expected in (
+            ("Lúa bị ốc bươu vàng", "KN-RICE-GOLDEN-SNAIL"),
+            ("Lúa cỏ xử lý thế nào?", "KN-RICE-WEEDY-RICE"),
+            ("Lúa có vết hình thoi, nghi đạo ôn", "KN-RICE-BLAST"),
+            ("Lúa sau ngập cần kiểm tra gì?", "KN-RICE-FLOOD-RECOVERY"),
+            ("Lúa OM5451 giai đoạn mạ bị mặn thì sao?", "VU-2022"),
+            ("Cách xử lý sầu riêng sau ngập?", "KN-DURIAN-FLOOD-RECOVERY"),
+            ("Dưa leo có hoa cái mà không đậu trái", "UMN-CUCUMBER-POLLINATION"),
+            ("Bưởi vàng lá gân xanh", "KN-POMELO-GREENING"),
+        ):
+            with self.subTest(question=question):
+                result = select_knowledge([{"role": "user", "text": question}])
+                self.assertIn(expected, {item["source_id"] for item in result})
+                self.assertLessEqual(len(result), 4)
 
     @patch("src.services.ai_client.urlopen")
     def test_rejects_unknown_or_unselected_source(self, urlopen: MagicMock) -> None:

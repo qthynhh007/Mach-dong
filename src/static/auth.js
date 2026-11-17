@@ -51,9 +51,7 @@
   function switchLoginTab(tabName) {
     loginTabs.forEach((btn) => {
       const active = btn.dataset.loginTab === tabName;
-      btn.classList.toggle("bg-primary", active);
-      btn.classList.toggle("text-on-primary", active);
-      btn.classList.toggle("font-bold", active);
+      btn.setAttribute("aria-pressed", String(active));
     });
     if (tabName === "forgot") {
       loginForm?.classList.add("hidden");

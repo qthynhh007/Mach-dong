@@ -1,7 +1,7 @@
 from flask import Blueprint, Response, current_app, jsonify, render_template, request
 from werkzeug.exceptions import RequestEntityTooLarge
 
-from src.services.ai_client import ChatMessage, GeminiError
+from src.services.ai_client import GEMINI_MODEL_LABEL, GEMINI_TIMEOUT_SECONDS, ChatMessage, GeminiError
 from src.services.assistant_service import answer_question
 
 blueprint = Blueprint("assistant", __name__)
@@ -17,6 +17,8 @@ def assistant() -> str:
         "assistant/index.html",
         current_page="assistant",
         gemini_enabled=bool(current_app.config["GEMINI_API_KEY"]),
+        gemini_model_label=GEMINI_MODEL_LABEL,
+        wait_seconds=GEMINI_TIMEOUT_SECONDS,
         max_message_length=MAX_MESSAGE_LENGTH,
         max_history_turns=MAX_HISTORY_TURNS,
     )

@@ -5,7 +5,6 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#f2f5ef">
   <meta name="description" content="Lời khuyên Cò Mạ về trồng cây, dinh dưỡng, sâu bệnh, mặn và ngập.">
   <link rel="preload" as="image" href="{{ url_for('static', filename='assets/co-ma/emotions.png') }}">
   <title>Trợ lý Cò Mạ · Mạch Đồng</title>
@@ -16,33 +15,33 @@
   {% include "shared/navigation-head.html" %}
   <script src="{{ url_for('static', filename='assistant.js') }}" defer></script>
 </head>
-<body class="app-workspace assistant-workspace">
+<body class="app-workspace">
 {% include "shared/header.html" %}
 {% include "shared/sidebar.html" %}
-<main id="main-content" class="assistant-main" tabindex="-1">
+<main id="main-content" class="assistant-main app-content" tabindex="-1">
   <div class="assistant-heading">
     <div>
-      <h1>Trợ lý Cò Mạ</h1>
+      <h1 class="app-page-title">Trợ lý Cò Mạ</h1>
       <p>Hỏi về cách trồng, cải tạo đất, sâu bệnh, mặn và ngập.</p>
     </div>
-    <a class="assistant-secondary" href="{{ url_for('simulation.simulation') }}">
-      {{ icon("grass") }} Mở mô phỏng {{ icon("arrow_forward") }}
+    <a class="assistant-secondary app-button app-control" href="{{ url_for('simulation.simulation') }}">
+      Mở mô phỏng {{ icon("arrow_forward") }}
     </a>
   </div>
 
   <div class="assistant-layout">
-    <section class="assistant-chat" aria-labelledby="assistant-chat-title">
+    <section class="assistant-chat app-glass" aria-labelledby="assistant-chat-title">
       <div class="assistant-chat-header">
         <div class="assistant-chat-identity">
           <div class="assistant-avatar">{{ co_ma() }}</div>
           <div>
             <h2 id="assistant-chat-title">Trò chuyện với Cò Mạ</h2>
             <span class="assistant-mode" id="assistant-status" role="status">
-              {{ "Gemini 3.8 Flash" if gemini_enabled else "Tra cứu dữ liệu · Chưa kết nối Gemini" }}
+              {{ gemini_model_label if gemini_enabled else "Tra cứu dữ liệu · Chưa kết nối Gemini" }}
             </span>
           </div>
         </div>
-        <button class="assistant-reset" id="assistant-reset" type="button" hidden>Bắt đầu lại</button>
+        <button class="assistant-reset app-button" id="assistant-reset" type="button" hidden>Bắt đầu lại</button>
       </div>
 
       <div class="assistant-transcript" id="assistant-transcript" role="log"
@@ -55,48 +54,69 @@
             </div>
           </li>
         </ol>
-        <div class="assistant-pending" id="assistant-pending" aria-hidden="true" hidden>
-          <span></span><span></span><span></span>
-        </div>
       </div>
 
       <div class="assistant-chat-footer">
-        <div class="assistant-starters" aria-label="Câu hỏi gợi ý" role="group">
+        <section class="assistant-pending" id="assistant-pending" aria-labelledby="assistant-pending-title" hidden>
+          <div class="assistant-pending-avatar" aria-hidden="true">{{ co_ma() }}</div>
+          <div class="assistant-pending-copy">
+            <h3 id="assistant-pending-title"><span aria-hidden="true"></span>Cò Mạ đang soạn lời đáp</h3>
+            <p id="assistant-pending-detail">Bà con có thể soạn câu hỏi tiếp theo trong lúc chờ.</p>
+          </div>
+          <div class="assistant-pending-actions">
+            <span class="assistant-wait-time" role="timer" aria-live="off">
+              <span>Đã chờ</span>
+              <time id="assistant-elapsed" datetime="PT0S">00:00</time>
+              <span class="assistant-wait-limit">/ {{ '%02d:%02d'|format(wait_seconds // 60, wait_seconds % 60) }}</span>
+            </span>
+            <button class="assistant-stop" id="assistant-stop" type="button">
+              {{ icon("stop_circle") }} Dừng chờ
+            </button>
+          </div>
+          <div class="assistant-wait-track" aria-hidden="true"><span id="assistant-wait-fill"></span></div>
+        </section>
+        <div class="assistant-starters" id="assistant-starters" aria-label="Câu hỏi gợi ý" role="group">
           {% if gemini_enabled %}
-          <button type="button" data-question="Trồng dưa leo trong chậu bắt đầu thế nào?">Trồng dưa leo</button>
-          <button type="button" data-question="Làm sao cải tạo đất để trồng rau cải?">Cải tạo đất</button>
-          <button type="button" data-question="Cà chua trồng chậu bị đen ở đáy quả. Có cần bón canxi ngay không?">Cà chua đen đáy quả</button>
+          <button type="button" class="app-button" data-question="Trồng dưa leo trong chậu bắt đầu thế nào?">Trồng dưa leo</button>
+          <button type="button" class="app-button" data-question="Làm sao cải tạo đất để trồng rau cải?">Cải tạo đất</button>
+          <button type="button" class="app-button" data-question="Cà chua trồng chậu bị đen ở đáy quả. Có cần bón canxi ngay không?">Cà chua đen đáy quả</button>
           {% endif %}
-          <button type="button" data-question="Đọc số đo mặn và ngập tại LH-03">Ca ngập mẫu LH-03</button>
-          <button type="button" data-question="Độ mặn thực đo tại Cầu Quan là bao nhiêu?">Độ mặn Cầu Quan</button>
+          <button type="button" class="app-button" data-question="Đọc số đo mặn và ngập tại LH-03">Ca ngập mẫu LH-03</button>
+          <button type="button" class="app-button" data-question="Độ mặn thực đo tại Cầu Quan là bao nhiêu?">Độ mặn Cầu Quan</button>
         </div>
         <form class="assistant-composer" id="assistant-form"
               data-chat-url="{{ url_for('assistant.chat') }}"
+              data-wait-seconds="{{ wait_seconds }}"
               data-history-limit="{{ max_history_turns }}">
           <label for="assistant-input" class="assistant-visually-hidden">Câu hỏi của bạn</label>
           <textarea id="assistant-input" name="message" rows="2" maxlength="{{ max_message_length }}"
                     placeholder="{{ 'Ví dụ, ớt bị vàng lá thì kiểm tra gì trước?' if gemini_enabled else 'Ví dụ, độ mặn trạm Cầu Quan hoặc ca LH-03' }}" autocomplete="off" required disabled></textarea>
-          <button type="submit" id="assistant-send" aria-disabled="true" disabled>Gửi {{ icon("arrow_forward") }}</button>
+          <button type="submit" class="app-button app-button--primary" id="assistant-send" disabled>Gửi {{ icon("arrow_forward") }}</button>
         </form>
-        <p class="assistant-error" id="assistant-error" role="alert"></p>
+        <div class="assistant-feedback" id="assistant-feedback" hidden>
+          <div>
+            <p class="assistant-error" id="assistant-error" role="alert"></p>
+            <p id="assistant-notice" role="status"></p>
+          </div>
+          <button class="assistant-retry app-button" id="assistant-retry" type="button">Gửi lại câu hỏi {{ icon("refresh") }}</button>
+        </div>
         <noscript><p>Bật JavaScript để trò chuyện với Cò Mạ.</p></noscript>
       </div>
     </section>
 
-    <aside class="assistant-mascot" aria-label="Linh vật Cò Mạ">
-      <figure class="assistant-stage">
+    <aside class="assistant-mascot app-glass" aria-label="Linh vật Cò Mạ">
+      <div class="assistant-stage">
         {{ co_ma("Cò nông dân đội nón lá, quàng khăn rằn và cầm cuốc") }}
-        <figcaption>Cò Mạ</figcaption>
-      </figure>
+      </div>
     </aside>
   </div>
 
-  <dialog id="assistant-reset-dialog" class="assistant-dialog" aria-labelledby="assistant-reset-title">
+  <dialog id="assistant-reset-dialog" class="assistant-dialog app-glass" aria-labelledby="assistant-reset-title">
     <h2 id="assistant-reset-title">Bắt đầu cuộc trò chuyện mới?</h2>
     <p>Các tin nhắn đang hiển thị sẽ được xóa.</p>
     <form method="dialog">
-      <button class="assistant-secondary" type="submit" value="cancel" autofocus>Quay lại</button>
-      <button class="assistant-confirm" type="submit" value="reset">Bắt đầu lại</button>
+      <button class="assistant-secondary app-button" type="submit" value="cancel" autofocus>Quay lại</button>
+      <button class="app-button app-button--primary" type="submit" value="reset">Bắt đầu lại</button>
     </form>
   </dialog>
 </main>
