@@ -5,7 +5,7 @@ from pathlib import Path
 from flask import Flask, Response, redirect, request
 from werkzeug.exceptions import HTTPException
 
-from src.config import MAX_CSV_BYTES, SIMULATION_API_URL, STATE_DIR
+from src.config import DB_PATH, MAX_CSV_BYTES, SIMULATION_API_URL, STATE_DIR
 from src.controllers import (
     admin_controller,
     assistant_controller,
@@ -14,7 +14,10 @@ from src.controllers import (
     forum_controller,
     simulation_controller,
 )
+from src.controllers.session_guard import get_current_auth
 from src.models.community import communityModel
+from src.models.user import SQLiteUserRepository
+from src.services.auth_service import AuthService
 from src.services.cloud_client import cloudClient
 from src.services.community_service import communityService
 from src.services.simulation_service import simulationService
@@ -27,12 +30,18 @@ def createApp(testConfig: dict | None = None) -> Flask:
         SECRET_KEY=os.environ.get("SECRET_KEY"),
         SESSION_COOKIE_HTTPONLY=True,
         SESSION_COOKIE_SAMESITE="Lax",
+        SESSION_COOKIE_SECURE=os.environ.get("SESSION_COOKIE_SECURE") == "1",
+        AGRIDATA_DB_PATH=os.environ.get("AGRIDATA_DB_PATH", str(DB_PATH)),
+        AGRIDATA_SECRET_KEY=os.environ.get("AGRIDATA_SECRET_KEY"),
+        AGRIDATA_AUTH_DEMO=os.environ.get("AGRIDATA_AUTH_DEMO") == "1",
         COMMUNITY_DATABASE=os.environ.get(
             "COMMUNITY_DATABASE", str(STATE_DIR / "community.sqlite3")
         ),
         COMMUNITY_SEED_SAMPLES=True,
+        COMMUNITY_SEED_EDITORIAL=os.environ.get("COMMUNITY_SEED_EDITORIAL", "1") == "1",
         COMMUNITY_ALLOW_GUESTS=os.environ.get("COMMUNITY_ALLOW_GUESTS", "1") == "1",
         COMMUNITY_IDENTITY_PROVIDER=None,
+        GEMINI_API_KEY=os.environ.get("GEMINI_API_KEY", "").strip(),
         SIMULATION_API_URL=os.environ.get("SIMULATION_API_URL", SIMULATION_API_URL),
         SIMULATION_TRANSPORT=None,
     )
@@ -51,9 +60,32 @@ def createApp(testConfig: dict | None = None) -> Flask:
             raise RuntimeError(
                 "Community session secret is empty; configure SECRET_KEY"
             )
+    auth_db_path = app.config["AGRIDATA_DB_PATH"]
+    if app.testing and "AGRIDATA_DB_PATH" not in (testConfig or {}):
+        auth_db_path = Path(app.config["COMMUNITY_DATABASE"]).with_name("auth-test.sqlite3")
+    app.extensions["auth_service"] = AuthService(
+        repo=SQLiteUserRepository(
+            auth_db_path, app.config["AGRIDATA_SECRET_KEY"] or app.secret_key
+        ),
+        seed_defaults=app.config["AGRIDATA_AUTH_DEMO"],
+        allow_dev_otp=app.config["AGRIDATA_AUTH_DEMO"],
+    )
+
+    @app.context_processor
+    def inject_auth_context() -> dict:
+        auth = get_current_auth()
+        if auth is None:
+            return {"auth_user": None, "auth_csrf_token": ""}
+        user, auth_session = auth
+        return {
+            "auth_user": user.to_public_dict(),
+            "auth_csrf_token": auth_session.csrf_token,
+        }
+
     app.extensions["communityService"] = communityService(
         communityModel(app.config["COMMUNITY_DATABASE"]),
         app.config["COMMUNITY_SEED_SAMPLES"],
+        app.config["COMMUNITY_SEED_EDITORIAL"],
     )
     app.extensions["simulationService"] = simulationService(
         cloudClient(app.config["SIMULATION_API_URL"], app.config["SIMULATION_TRANSPORT"])
@@ -67,7 +99,12 @@ def createApp(testConfig: dict | None = None) -> Flask:
         admin_controller,
     ):
         app.register_blueprint(controller.blueprint)
-    app.add_url_rule("/", view_func=lambda: redirect("/community"))
+
+    @app.get("/")
+    def home() -> Response:
+        if get_current_auth() is None:
+            return redirect("/login")
+        return redirect("/community")
 
     @app.errorhandler(HTTPException)
     def handleRoutingError(
