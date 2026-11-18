@@ -2,6 +2,7 @@ from typing import TypedDict
 
 from src.models.simulation import SimulationInput
 from src.services.assistant_service import explain_risk
+from src.services.simulation_physiology import Physiology, describe_physiology
 
 STAGES = (
     (15, "Mạ non", (0, 1, 2, 2, 3), (0, 1, 2)),
@@ -11,6 +12,11 @@ STAGES = (
     (95, "Chín vàng", (0, 0, 1, 1, 2), (0, 1, 2)),
 )
 RISK_LABELS = ("Thấp", "Vừa", "Cao", "Nguy hiểm")
+
+
+class AdviceStep(TypedDict):
+    title: str
+    body: str
 
 
 class SimulationResult(TypedDict):
@@ -24,6 +30,56 @@ class SimulationResult(TypedDict):
     spikelet_abortion_pct: float | None
     illustrative_yield_tonnes_ha: float
     advice: str
+    advice_steps: list[AdviceStep]
+    physiology: Physiology
+
+
+def detailed_advice(inputs: SimulationInput, stage: str, salt_risk: str) -> list[AdviceStep]:
+    salt_step: AdviceStep = {
+        "title": "Kiểm tra mặn tại ruộng",
+        "body": (
+            "Đo trực tiếp nước trong ruộng và ghi giờ, đơn vị đo. Ghi riêng số đo "
+            "ở kênh hoặc cống để đánh giá nguồn nước trước khi lấy nước vào ruộng."
+            if salt_risk != "Thấp"
+            else "Ghi độ mặn thực đo tại ruộng và theo dõi khi nguồn nước thay đổi. "
+            "Nếu định lấy nước, kiểm tra riêng độ mặn ở kênh hoặc cống."
+        ),
+    }
+    depth = inputs.water_depth_cm
+    if depth > 15:
+        water_step: AdviceStep = {
+            "title": "Đo mức ngập và thời gian ngập",
+            "body": "Đo từ mặt đất ruộng ở cả chỗ thấp và chỗ cao, ghi giờ bắt đầu ngập. "
+            "Kiểm tra khả năng tiêu nước và quan sát cây có bị ngập ngọn hoặc đổ rạp.",
+        }
+        if stage == "Mạ non":
+            water_step["body"] += " Khi nước rút, quan sát rễ mới trước khi quyết định bón thúc."
+    elif depth < -5:
+        water_step = {
+            "title": "Kiểm tra chỗ ruộng khô",
+            "body": "Kiểm tra độ ẩm đất gần gốc và so sánh chỗ cao với chỗ trũng. "
+            "Nếu cần bổ sung nước, đo riêng độ mặn nguồn nước trước khi lấy vào.",
+        }
+    else:
+        water_step = {
+            "title": "Theo dõi mực nước",
+            "body": "Đo theo mặt đất tại ruộng sau mưa hoặc khi lấy nước. Ghi riêng các "
+            "chỗ trũng nếu độ sâu khác nhau giữa các vị trí.",
+        }
+
+    steps = [water_step, salt_step] if depth > 15 or depth < -5 else [salt_step, water_step]
+    if inputs.temp_c > 35:
+        steps.append({
+            "title": "Quan sát dấu hiệu stress nhiệt",
+            "body": "Ghi giờ và nhiệt độ thực đo. Quan sát lá cuốn hoặc héo lúc nóng, "
+            "rồi kiểm tra lại khi dịu nhiệt để đối chiếu.",
+        })
+    steps.append({
+        "title": "Theo dõi sau khi điều kiện thay đổi",
+        "body": "Ghi tình trạng lá và gốc lúa ở cùng vị trí qua các lần quan sát. "
+        "Nếu cần tính tỷ lệ cây sống, đếm lại trên cùng ô mẫu.",
+    })
+    return steps
 
 
 def evaluate(inputs: SimulationInput) -> SimulationResult:
@@ -54,4 +110,6 @@ def evaluate(inputs: SimulationInput) -> SimulationResult:
         if stage == "Làm đòng" and salt > 2
         else None,
         "advice": explain_risk(stage, salt_risk, flood_risk, depth, inputs.temp_c),
+        "advice_steps": detailed_advice(inputs, stage, salt_risk),
+        "physiology": describe_physiology(inputs, stage, salt_risk),
     }

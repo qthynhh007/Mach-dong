@@ -14,6 +14,8 @@ py -3 -m venv .venv
 
 Mở [Mạch Đồng](http://127.0.0.1:5000/community). CSS, phông chữ và ảnh ruộng gốc từ Stitch đã đi kèm.
 
+Xem [hướng dẫn deploy Flask](docs/deployment.md) và [kế hoạch nâng cấp giao diện và độ chính xác](docs/ui-upgrade-plan.md).
+
 Khi thêm class Tailwind vào HTML, chạy `npm install` và `npm run build:css` để cập nhật CSS trong `src/static/`. Node.js chỉ cần cho bước dựng lại CSS.
 
 | Trang | Đường dẫn | Xem thử |
@@ -23,7 +25,7 @@ Khi thêm class Tailwind vào HTML, chạy `npm install` và `npm run build:css`
 | Đăng bài | `/forum/new` | Soạn bài, đính kèm tối đa 4 ảnh, lưu/khôi phục/xóa bản nháp riêng |
 | Chi tiết bài | `/forum/<postId>` | Trả lời theo chuỗi, đánh dấu hữu ích, chọn giải đáp, sửa/xóa nội dung của mình |
 | Sửa bài | `/forum/<postId>/edit` | Chỉnh sửa bài và ảnh; kiểm tra quyền tác giả trên máy chủ |
-| Mô phỏng | `/simulation` | Bốn thanh trượt và nút đặt lại, hình cắt lớp toàn chiều ngang và tỷ lệ cây phát triển tốt mô phỏng trong khung Cò Mạ |
+| Mô phỏng | `/simulation` | Cánh đồng SVG nhìn xéo, bốn thanh trượt, điểm CHI trên thang 100 và các bước kiểm tra của Cò Mạ |
 | Trợ lý Cò Mạ | `/assistant` | Tra số liệu đã công bố hoặc hỏi Gemini 3.5 Flash về cách trồng, dinh dưỡng, sâu bệnh, mặn và ngập trên nhiều cây |
 | Đăng nhập | `/login` | Đăng nhập bằng mật khẩu hoặc mã email, đặt lại mật khẩu |
 | Đăng ký | `/register` | Xác thực email và tạo tài khoản kèm ví Fuji |

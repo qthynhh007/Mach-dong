@@ -27,9 +27,21 @@ TOPIC_TERMS = {
     "diagnostic": ("bệnh", "sâu", "đốm", "héo", "thối", "lõm", "lá vàng", "vàng lá", "đen", "xì mủ", "rụng"),
     "water": ("mặn", "ngập", "úng", "mực nước", "độ sâu", "cây sống", "nước rút", "ec", "cống"),
 }
+GROWING_SETTINGS = ("chậu", "luống", "thủy canh", "ngoài đất", "vườn", "ruộng", "nhà màng")
 FIELD_CLARIFICATION = (
     "Cò Mạ cần số đo ngay tại ruộng. Bà con cho Cò biết độ sâu nước tính từ mặt ruộng, "
     "ngập bao lâu và cây đang ở giai đoạn nào nha. Nếu đo mặn, ghi thêm đơn vị và vị trí đo."
+)
+RELATIVE_PERIOD_TERMS = (
+    "hôm nay", "hôm qua", "hôm kia", "bây giờ", "hiện tại", "mới nhất", "gần đây",
+    "ngày mai", "ngày kia", "tuần này", "tuần trước", "tuần sau", "tuần tới",
+    "tháng này", "tháng trước", "tháng sau", "tháng tới", "năm nay",
+)
+RELATIVE_PERIOD_PATTERN = re.compile(r"\b\d+\s+(?:gio|ngay|tuan|thang)\s+(?:truoc|qua|toi|sau|gan day)\b")
+ELABORATION_REQUEST = re.compile(
+    r"(?:(?:co|co ma) )?(?:(?:giai thich|noi|phan tich|huong dan|tra loi)"
+    r" (?:ky|ro|chi tiet)(?: hon)?|(?:ky|ro|chi tiet) hon)"
+    r"(?: (?:di|nha|nhe|voi|duoc khong))?[.!?…]*"
 )
 
 
@@ -66,27 +78,52 @@ def crop_names(text: str) -> set[str]:
     }
 
 
+def growing_settings(text: str) -> set[str]:
+    return {term for term in GROWING_SETTINGS if contains(text, term)}
+
+
 def select_knowledge(messages: Sequence[ChatMessage]) -> list[dict]:
-    question = normalizeText(messages[-1]["text"])
+    question_index = len(messages) - 1
+    question = normalizeText(messages[question_index]["text"])
+    if ELABORATION_REQUEST.fullmatch(question):
+        for index in range(question_index - 1, -1, -1):
+            if messages[index]["role"] != "user":
+                continue
+            previous_question = normalizeText(messages[index]["text"])
+            if not ELABORATION_REQUEST.fullmatch(previous_question):
+                question_index, question = index, previous_question
+                break
     crops = crop_names(question)
     topics = {topic for topic, terms in TOPIC_TERMS.items() if matches(question, terms)}
     context = question
-    if not crops:
-        for turn in reversed(messages[:-1]):
-            if turn["role"] != "user":
-                continue
-            previous = normalizeText(turn["text"])
-            crops = crop_names(previous)
-            if crops:
+    previous = ""
+    previous_settings: set[str] = set()
+    for turn in reversed(messages[:question_index]):
+        if turn["role"] != "user":
+            continue
+        candidate = normalizeText(turn["text"])
+        previous_crops = crop_names(candidate)
+        if previous_crops:
+            if crops and crops != previous_crops:
                 break
-        if crops and not topics:
-            context = previous + " " + question
-            topics = {topic for topic, terms in TOPIC_TERMS.items() if matches(context, terms)}
+            crops = previous_crops
+            previous = previous or candidate
+        previous_settings = previous_settings or growing_settings(candidate)
+        if previous and previous_settings:
+            break
+    if previous and not topics:
+        context = previous + " " + question
+        topics = {topic for topic, terms in TOPIC_TERMS.items() if matches(context, terms)}
     if not crops and "water" in topics and matches(question, ("ruộng", "tỷ lệ cây sống")):
         crops = {"lúa"}
+    if not crops and "diagnostic" in topics:
+        return []
+
+    settings = growing_settings(question) or (previous_settings if previous else set())
 
     default_topics = topics or {"planting"}
     ranked = []
+    topics_with_matching_settings: set[str] = set()
     for item in knowledge():
         direct = crops.intersection(item["crops"])
         if not direct and ("*" not in item["crops"] or item["topic"] not in topics):
@@ -95,7 +132,7 @@ def select_knowledge(messages: Sequence[ChatMessage]) -> list[dict]:
         if not hits and item["topic"] not in default_topics:
             continue
         scope = (
-            part for key in ("region", "setting", "stage")
+            part for key in ("region", "stage")
             for part in item.get(key, "").split("|") if part
         )
         score = 4 * bool(direct) + 3 * (item["topic"] in topics) + 4 * hits
@@ -104,9 +141,20 @@ def select_knowledge(messages: Sequence[ChatMessage]) -> list[dict]:
             context, ("quả", "trái", "thối đít", "đáy")
         ):
             continue
-        ranked.append((score, item["source_id"], item))
+        source_settings = growing_settings(normalizeText(item.get("setting", ""))) if settings else set()
+        conflicting_setting = bool(source_settings and settings.isdisjoint(source_settings))
+        if settings.intersection(source_settings):
+            score += 6
+            if direct:
+                topics_with_matching_settings.add(item["topic"])
+        elif conflicting_setting:
+            score -= 6
+        ranked.append((score, item["source_id"], item, conflicting_setting))
     ranked.sort(key=lambda entry: (-entry[0], entry[1]))
-    return [item for _, _, item in ranked[:4]]
+    return [
+        item for _, _, item, conflicting_setting in ranked
+        if not (conflicting_setting and item["topic"] in topics_with_matching_settings)
+    ][:4]
 
 
 @lru_cache(maxsize=2)
@@ -151,7 +199,7 @@ def station_answer(question: str) -> dict | None:
         return None
     if matches(question, ("ruộng", "thửa", "dùng tưới", "tưới được", "bơm vào")):
         return {"reply": FIELD_CLARIFICATION, "sources": []}
-    if matches(question, ("hôm nay", "bây giờ", "hiện tại", "mới nhất", "tuần này", "ngày mai")):
+    if matches(question, RELATIVE_PERIOD_TERMS) or RELATIVE_PERIOD_PATTERN.search(question):
         return {
             "reply": "Kho hiện có bản tin lịch sử tháng 4–5/2026. Cò Mạ cần bản tin mới để trả lời ở thời điểm bà con hỏi.",
             "sources": [],

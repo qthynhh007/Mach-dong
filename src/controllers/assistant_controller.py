@@ -1,10 +1,13 @@
+from time import perf_counter
+
 from flask import Blueprint, Response, current_app, jsonify, render_template, request
 from werkzeug.exceptions import RequestEntityTooLarge
 
-from src.services.ai_client import GEMINI_MODEL_LABEL, GEMINI_TIMEOUT_SECONDS, ChatMessage, GeminiError
+from src.services.ai_client import GEMINI_MODEL_LABEL, ChatMessage, GeminiError
 from src.services.assistant_service import answer_question
 
 blueprint = Blueprint("assistant", __name__)
+ASSISTANT_WAIT_SECONDS = 180
 MAX_MESSAGE_LENGTH = 400
 MAX_REPLY_LENGTH = 4096
 MAX_HISTORY_TURNS = 8
@@ -18,7 +21,7 @@ def assistant() -> str:
         current_page="assistant",
         gemini_enabled=bool(current_app.config["GEMINI_API_KEY"]),
         gemini_model_label=GEMINI_MODEL_LABEL,
-        wait_seconds=GEMINI_TIMEOUT_SECONDS,
+        wait_seconds=ASSISTANT_WAIT_SECONDS,
         max_message_length=MAX_MESSAGE_LENGTH,
         max_history_turns=MAX_HISTORY_TURNS,
     )
@@ -62,9 +65,13 @@ def chat() -> tuple[Response, int]:
     messages.append({"role": "user", "text": message.strip()})
 
     api_key = current_app.config["GEMINI_API_KEY"]
+    started = perf_counter()
     try:
         answer = answer_question(api_key, messages)
     except GeminiError as error:
-        return jsonify(data=None, error=str(error)), error.status
-    answer["reply"] = answer["reply"][:MAX_REPLY_LENGTH]
-    return jsonify(data=answer, error=None), 200
+        response, status = jsonify(data=None, error=str(error)), error.status
+    else:
+        answer["reply"] = answer["reply"][:MAX_REPLY_LENGTH]
+        response, status = jsonify(data=answer, error=None), 200
+    response.headers["Server-Timing"] = f"assistant;dur={(perf_counter() - started) * 1_000:.1f}"
+    return response, status

@@ -25,9 +25,13 @@ class TestAssistant(TestCase):
 
     def test_local_mode_and_missing_api_key(self) -> None:
         self.assertIn("Chưa kết nối Gemini", self.client.get("/assistant").text)
-        response = self.client.post("/api/assistant/chat", json={"message": "Chào Cò"})
+        greeting = self.client.post("/api/assistant/chat", json={"message": "Chào Cò"})
+        self.assertEqual(greeting.status_code, 200)
+        self.assertEqual(greeting.json["data"]["sources"], [])
+        response = self.client.post("/api/assistant/chat", json={"message": "Cách trồng ớt?"})
         self.assertEqual(response.status_code, 503)
         self.assertIsNone(response.json["data"])
+        self.assertRegex(response.headers["Server-Timing"], r"^assistant;dur=\d+\.\d$")
 
     @patch("src.services.ai_client.urlopen")
     def test_chat_sends_recent_turns_and_returns_visible_text(
@@ -79,6 +83,9 @@ class TestAssistant(TestCase):
         self.assertIn(source_id, evidence["text"])
         self.assertEqual(question, {"text": "Tui đo ở cống."})
         self.assertEqual(body["generationConfig"]["responseMimeType"], "application/json")
+        citation_items = body["generationConfig"]["responseSchema"]["properties"]["source_ids"]["items"]
+        self.assertIn(source_id, citation_items["enum"])
+        self.assertNotIn("FAKE-SOURCE", citation_items["enum"])
         self.assertEqual(response.json["data"]["sources"][0]["source_id"], source_id)
 
     def test_rejects_invalid_chat_payload(self) -> None:
@@ -139,7 +146,24 @@ class TestAssistant(TestCase):
                 primary, fallback = (call.args[0] for call in urlopen.call_args_list)
                 self.assertTrue(primary.full_url.endswith("/gemini-3.5-flash:generateContent"))
                 self.assertTrue(fallback.full_url.endswith("/gemini-3.1-flash-lite:generateContent"))
-                self.assertEqual(primary.data, fallback.data)
+                primary_body, fallback_payload = json.loads(primary.data), json.loads(fallback.data)
+                self.assertEqual(primary_body["generationConfig"].pop("thinkingConfig"), {"thinkingLevel": "LOW"})
+                self.assertEqual(fallback_payload["generationConfig"].pop("thinkingConfig"), {"thinkingLevel": "MINIMAL"})
+                self.assertEqual(primary_body, fallback_payload)
+                primary_call, fallback_call = urlopen.call_args_list
+                self.assertLessEqual(primary_call.kwargs["timeout"], 12)
+                self.assertLessEqual(fallback_call.kwargs["timeout"], 15)
+
+    @patch("src.services.ai_client.urlopen")
+    def test_asks_for_crop_before_calling_gemini(self, urlopen: MagicMock) -> None:
+        self.client.application.config["GEMINI_API_KEY"] = "test-key"
+        result = self.client.post(
+            "/api/assistant/chat", json={"message": "Cây bị vàng lá, dùng thuốc gì?"}
+        )
+        self.assertEqual(result.status_code, 200)
+        self.assertIn("cây gì", result.json["data"]["reply"])
+        self.assertEqual(result.json["data"]["sources"], [])
+        urlopen.assert_not_called()
 
     @patch("src.services.ai_client.urlopen")
     def test_reports_blocked_response_without_calling_fallback(self, urlopen: MagicMock) -> None:
@@ -203,6 +227,42 @@ class TestAssistant(TestCase):
                 self.assertIn(expected, {item["source_id"] for item in result})
                 self.assertLessEqual(len(result), 4)
 
+    def test_retrieval_carries_growing_setting_and_prefers_latest_update(self) -> None:
+        history = [
+            {"role": "user", "text": "Tui trồng dưa leo trong chậu."},
+            {"role": "model", "text": "Bà con cho Cò biết đang tưới thế nào nha."},
+        ]
+        for question in ("Nên tưới và bón phân ra sao?", "Dưa leo nên tưới và bón phân ra sao?"):
+            with self.subTest(question=question):
+                result = select_knowledge([*history, {"role": "user", "text": question}])
+                self.assertEqual(result[0]["source_id"], "UMN-CONTAINER-WATER-NUTRIENTS")
+                self.assertNotIn("KN-SOIL-VEGETABLES", {item["source_id"] for item in result})
+        switched = select_knowledge([
+            *history,
+            {"role": "user", "text": "Nếu chuyển sang lên luống, nên tưới và bón phân ra sao?"},
+        ])
+        self.assertEqual(switched[0]["source_id"], "KN-SOIL-VEGETABLES")
+        self.assertNotIn("UMN-CONTAINER-WATER-NUTRIENTS", [item["source_id"] for item in switched[:2]])
+
+        corrected = select_knowledge([
+            *history,
+            {"role": "user", "text": "Tui chuyển sang lên luống rồi."},
+            {"role": "model", "text": "Cò đã rõ."},
+            {"role": "user", "text": "Nên tưới và bón phân ra sao?"},
+        ])
+        self.assertEqual(corrected[0]["source_id"], "KN-SOIL-VEGETABLES")
+
+    def test_elaboration_reuses_last_specific_observation(self) -> None:
+        messages = [
+            {"role": "user", "text": "Tui trồng cà chua trong chậu."},
+            {"role": "model", "text": "Bà con đang gặp dấu hiệu nào?"},
+            {"role": "user", "text": "Quả có vết đen lõm ở đáy."},
+            {"role": "model", "text": "Cò nghi có hiện tượng thối đít quả."},
+            {"role": "user", "text": "Phân tích kỹ hơn đi."},
+        ]
+        sources = select_knowledge(messages)
+        self.assertIn("UMN-TOMATO-DISORDERS", {item["source_id"] for item in sources})
+
     @patch("src.services.ai_client.urlopen")
     def test_rejects_unknown_or_unselected_source(self, urlopen: MagicMock) -> None:
         self.client.application.config["GEMINI_API_KEY"] = "test-key"
@@ -238,6 +298,22 @@ class TestAssistant(TestCase):
         self.assertNotIn("‰", missing["reply"])
         self.assertEqual(ask("Mặn Cầu Quan tháng 7/2026?")["sources"], [])
         self.assertEqual(ask("Mặn trạm Cầu Quan hôm nay?")["sources"], [])
+
+    @patch("src.services.ai_client.urlopen")
+    def test_recent_station_questions_do_not_return_historical_values(
+        self, urlopen: MagicMock
+    ) -> None:
+        self.client.application.config["GEMINI_API_KEY"] = "test-key"
+        for period in ("hôm qua", "tuần trước", "tháng này", "2 ngày trước", "3 ngày tới"):
+            with self.subTest(period=period):
+                response = self.client.post(
+                    "/api/assistant/chat",
+                    json={"message": f"Độ mặn trạm Cầu Quan {period} bao nhiêu?"},
+                )
+                self.assertEqual(response.status_code, 200)
+                self.assertIn("cần bản tin mới", response.json["data"]["reply"])
+                self.assertEqual(response.json["data"]["sources"], [])
+        urlopen.assert_not_called()
 
     def test_field_and_demo_data_keep_measurement_sites_separate(self) -> None:
         for message in (

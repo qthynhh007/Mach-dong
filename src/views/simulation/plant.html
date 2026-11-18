@@ -1,0 +1,36 @@
+<svg id="plant-study" class="sim-plant-svg" viewBox="0 0 320 250" role="img"
+     aria-labelledby="plant-title plant-description">
+  <title id="plant-title">Cận cảnh khóm lúa và vùng rễ</title>
+  <desc id="plant-description">Hình minh họa sự thay đổi của lá, bông, nước và nền đất theo kịch bản.</desc>
+  <defs>
+    <linearGradient id="plant-air-gradient" x2="0" y2="1">
+      <stop stop-color="#e9f3df"/><stop offset="1" stop-color="#c6dfbe"/>
+    </linearGradient>
+    <linearGradient id="plant-soil-gradient" x2="0" y2="1">
+      <stop stop-color="#987d5b"/><stop offset="1" stop-color="#635446"/>
+    </linearGradient>
+    <linearGradient id="plant-water-gradient" x2="0" y2="1">
+      <stop stop-color="#8cd2d0" stop-opacity=".55"/><stop offset="1" stop-color="#458d9b" stop-opacity=".68"/>
+    </linearGradient>
+    <pattern id="plant-soil-pattern" width="49" height="27" patternUnits="userSpaceOnUse">
+      <path d="M2 8l8-1m15 9h5m8-10 6 1M11 23l8-2" stroke="#dcc49a" stroke-width="1.5" opacity=".42"/>
+    </pattern>
+  </defs>
+  <rect width="320" height="250" fill="url(#plant-air-gradient)"/>
+  <path d="M0 165q75-16 151-1t169 0v86H0Z" fill="#b1c6a3" opacity=".68"/>
+  <rect y="181" width="320" height="69" fill="url(#plant-soil-gradient)"/>
+  <rect y="181" width="320" height="69" fill="url(#plant-soil-pattern)"/>
+  <path class="sim-study-cracks" d="m8 181 3 12 15 3 5 13m33-28-4 14 11 8m163-22 5 12 15 8m30-20 6 14-15 9 6 13"
+        fill="none" stroke="#594231" stroke-width="2"/>
+  <path class="sim-study-roots" d="M157 179q5 22 1 53m3-53q-15 21-21 47m16-46q-22 11-32 35m38-35q19 16 23 46m-20-45q23 6 36 33m-40-28q2 13 17 22m-22-19q-5 13-19 15"
+        fill="none" stroke="#e6cda6" stroke-width="2" stroke-linecap="round"/>
+  <path id="study-leaves" class="sim-field-leaves" stroke-width="1" stroke-linejoin="round"/>
+  <path id="study-tips" class="sim-field-tips" fill="none" stroke-width="1.8" stroke-linecap="round"/>
+  <path id="study-burn" class="sim-field-burn sim-study-burn" fill="none" stroke-linecap="round"/>
+  <path id="study-grain" class="sim-field-grain" fill="none" stroke-width="3" stroke-linecap="round"/>
+  <g id="study-water">
+    <rect id="study-water-body" width="320" fill="url(#plant-water-gradient)"/>
+    <path id="study-water-line" fill="none" stroke="#d3f3e2" stroke-width="2"/>
+  </g>
+  <path d="M0 181H320" stroke="#6e7556" stroke-width="1.5"/>
+</svg>

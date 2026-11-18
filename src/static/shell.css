@@ -103,33 +103,6 @@ dialog { overscroll-behavior: contain; }
   line-height: 1.2;
   letter-spacing: -.035em;
 }
-.auth-split { max-width: 76rem; }
-.auth-hero {
-  display: flex;
-  align-items: end;
-  min-height: 12rem;
-  padding: clamp(1.2rem, 4vw, 3rem);
-  background-color: #234c3b;
-  background-image:
-    linear-gradient(165deg, rgb(10 39 29 / .21), rgb(10 39 29 / .61) 46%, rgb(10 39 29 / .95)),
-    url("/static/assets/stitch-login-hero.jpg");
-  background-position: center;
-  background-size: cover;
-  color: #f7fbf7;
-}
-.auth-hero-copy { max-width: 28rem; }
-.auth-hero-copy strong { display: block; font-size: clamp(1.2rem, 3vw, 2.45rem); line-height: 1.2; }
-.auth-hero-copy p { margin-top: .45rem; color: #e9f3e9; line-height: 1.5; }
-.auth-footnote {
-  display: flex;
-  flex-wrap: wrap;
-  gap: .25rem .5rem;
-  margin-top: 1.35rem;
-  padding-top: .8rem;
-  border-top: 1px solid var(--md-surface-line);
-  font-size: .85rem;
-}
-.auth-footnote a { color: var(--md-green); font-weight: 700; text-decoration: underline; text-underline-offset: .18em; }
 .app-control { min-block-size: 44px; }
 .app-button, .app-select, .app-choice {
   --control-bg: var(--md-control-fill);

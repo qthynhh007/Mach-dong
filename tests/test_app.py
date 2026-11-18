@@ -26,7 +26,7 @@ class TestApp(TestCase):
             ("/forum", "Thảo Luận Bà Con"),
             ("/forum/new", "Đăng Bài Chia Sẻ Kinh Nghiệm Canh Tác"),
             ("/forum/muong-lo", "Khung trao đổi"),
-            ("/simulation", "Tỷ lệ cây phát triển tốt"),
+            ("/simulation", "Điểm sức khỏe lúa (CHI)"),
             ("/login", "Đăng Nhập Nông Hộ"),
             ("/register", "Đăng ký nông hộ"),
             ("/profile", "Bảo Mật &amp; Đổi Mật Khẩu"),
@@ -88,6 +88,27 @@ class TestApp(TestCase):
         self.assertEqual(response.json["data"]["chi"], 72)
         self.assertEqual(response.json["data"]["stage"], "Làm đòng")
         self.assertIsNone(response.json["data"]["survival_rate_pct"])
+        steps = response.json["data"]["advice_steps"]
+        self.assertEqual(steps[0]["title"], "Kiểm tra mặn tại ruộng")
+        self.assertIn("kênh hoặc cống", steps[0]["body"])
+
+    def test_simulation_advice_changes_for_flooding_and_heat(self) -> None:
+        data = evaluate(SimulationInput(2.8, 25, 72, 38))
+        titles = [step["title"] for step in data["advice_steps"]]
+        self.assertEqual(titles[0], "Đo mức ngập và thời gian ngập")
+        self.assertIn("Quan sát dấu hiệu stress nhiệt", titles)
+        self.assertIn("cùng ô mẫu", data["advice_steps"][-1]["body"])
+        seedlings = evaluate(SimulationInput(0.8, 22, 10, 26))
+        self.assertIn("quan sát rễ mới", seedlings["advice_steps"][0]["body"])
+        dry = evaluate(SimulationInput(0.2, -8, 15, 26))
+        self.assertEqual(dry["advice_steps"][0]["title"], "Kiểm tra chỗ ruộng khô")
+        self.assertNotIn("Quan sát dấu hiệu stress nhiệt", [step["title"] for step in dry["advice_steps"]])
+
+    def test_simulation_labels_chi_as_a_score(self) -> None:
+        page = self.client.get("/simulation").text
+        self.assertIn("Điểm sức khỏe lúa (CHI)", page)
+        self.assertIn("thang 100", page)
+        self.assertNotIn("Tỷ lệ cây phát triển tốt", page)
 
     def test_simulation_rejects_invalid_values(self) -> None:
         response = self.client.post(
@@ -100,6 +121,25 @@ class TestApp(TestCase):
             },
         )
         self.assertEqual(response.status_code, 400)
+
+    def test_simulation_physiology_distinguishes_stress_signals(self) -> None:
+        def signals(salt: float, depth: float, day: int, temp: float = 28) -> dict:
+            return evaluate(SimulationInput(salt, depth, day, temp))["physiology"]["signals"]
+
+        baseline = signals(0.5, 4.5, 48)
+        salty = signals(6, 4.5, 48)
+        dry = signals(0.5, -10, 48)
+        flooded_seedling = signals(0.5, 28, 10)
+        flooded_mature = signals(0.5, 28, 90)
+        self.assertEqual(baseline["soil"], "moist")
+        self.assertGreater(salty["tip_burn"], baseline["tip_burn"])
+        self.assertEqual(dry["soil"], "dry")
+        self.assertEqual(dry["water_cover"], 0)
+        self.assertGreater(dry["leaf_roll"], baseline["leaf_roll"])
+        self.assertGreater(dry["leaf_droop"], baseline["leaf_droop"])
+        self.assertGreater(signals(0.5, 4.5, 48, 42)["leaf_droop"], baseline["leaf_droop"])
+        self.assertEqual(flooded_seedling["soil"], "flooded")
+        self.assertGreater(flooded_seedling["water_cover"], flooded_mature["water_cover"])
 
     def test_stage_boundary_and_determinism(self) -> None:
         before = SimulationInput(2.8, 4.5, 42, 28.5)

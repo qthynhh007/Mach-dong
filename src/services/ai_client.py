@@ -1,6 +1,7 @@
 """Gemini Developer API client used by the Cò Mạ assistant."""
 
 import json
+import logging
 from collections.abc import Sequence
 from time import monotonic
 from typing import Literal, TypedDict
@@ -11,8 +12,9 @@ GEMINI_MODEL = "gemini-3.5-flash"
 GEMINI_MODEL_LABEL = "Gemini 3.5 Flash"
 GEMINI_FALLBACK_MODEL = "gemini-3.1-flash-lite"
 GEMINI_MODELS_URL = "https://generativelanguage.googleapis.com/v1beta/models"
-GEMINI_PRIMARY_TIMEOUT_SECONDS = 150
-GEMINI_TIMEOUT_SECONDS = 180
+GEMINI_PRIMARY_TIMEOUT_SECONDS = 12
+GEMINI_FALLBACK_TIMEOUT_SECONDS = 15
+logger = logging.getLogger(__name__)
 
 
 class ChatMessage(TypedDict):
@@ -51,70 +53,89 @@ def _parse_reply(raw: bytes) -> tuple[str, list[str]]:
     return reply.strip(), source_ids
 
 
-def _fetch_reply(api_key: str, payload: bytes) -> tuple[str, list[str]]:
-    deadline = monotonic() + GEMINI_TIMEOUT_SECONDS
+def _fetch_reply(api_key: str, payload: dict) -> tuple[str, list[str]]:
+    deadline = monotonic() + GEMINI_PRIMARY_TIMEOUT_SECONDS + GEMINI_FALLBACK_TIMEOUT_SECONDS
     busy = GeminiError("Gemini đang bận. Bà con thử lại sau nha.", 503)
     failure = busy
-    for model in (GEMINI_MODEL, GEMINI_FALLBACK_MODEL):
-        remaining = deadline - monotonic()
+    for model, limit, thinking in (
+        (GEMINI_MODEL, GEMINI_PRIMARY_TIMEOUT_SECONDS, "LOW"),
+        (GEMINI_FALLBACK_MODEL, GEMINI_FALLBACK_TIMEOUT_SECONDS, "MINIMAL"),
+    ):
+        started = monotonic()
+        remaining = deadline - started
         if remaining <= 0:
             break
-        timeout = remaining
-        if model == GEMINI_MODEL:
-            timeout = min(timeout, GEMINI_PRIMARY_TIMEOUT_SECONDS)
+        payload["generationConfig"]["thinkingConfig"] = {"thinkingLevel": thinking}
         request = Request(
             f"{GEMINI_MODELS_URL}/{model}:generateContent",
-            data=payload,
+            data=json.dumps(payload).encode("utf-8"),
             headers={"Content-Type": "application/json", "x-goog-api-key": api_key},
             method="POST",
         )
+        outcome: str | int = "ok"
         try:
-            with urlopen(request, timeout=timeout) as response:
+            with urlopen(request, timeout=min(remaining, limit)) as response:
                 return _parse_reply(response.read())
         except HTTPError as error:
+            outcome = error.code
             if error.code != 503:
                 raise
             error.close()
             failure = busy
         except OSError as error:
+            outcome = "connection_error"
             reason = error.reason if isinstance(error, URLError) else error
             if not isinstance(reason, TimeoutError):
                 raise
+            outcome = "timeout"
             failure = GeminiError("Gemini phản hồi quá lâu. Bà con có thể gửi lại câu hỏi.", 504)
         except (ValueError, KeyError, IndexError, TypeError, AttributeError):
+            outcome = "invalid_response"
             failure = GeminiError(
                 "Cò Mạ chưa nhận được câu trả lời đầy đủ. Bà con có thể gửi lại câu hỏi."
+            )
+        except GeminiError as error:
+            outcome = error.status
+            raise
+        finally:
+            logger.info(
+                "Gemini model=%s outcome=%s duration_ms=%.0f",
+                model, outcome, (monotonic() - started) * 1_000,
             )
     raise failure
 
 
 def generate_reply(
-    api_key: str, instruction: str, messages: Sequence[ChatMessage], evidence: str
+    api_key: str,
+    instruction: str,
+    messages: Sequence[ChatMessage],
+    evidence: str,
+    allowed_source_ids: Sequence[str],
 ) -> tuple[str, list[str]]:
     contents = [
         {"role": turn["role"], "parts": [{"text": turn["text"]}]}
         for turn in messages
     ]
     contents[-1]["parts"].insert(0, {"text": evidence})
-    payload = json.dumps(
-        {
-            "systemInstruction": {"parts": [{"text": instruction}]},
-            "contents": contents,
-            "generationConfig": {
-                "maxOutputTokens": 2048,
-                "thinkingConfig": {"thinkingLevel": "LOW"},
-                "responseMimeType": "application/json",
-                "responseSchema": {
-                    "type": "OBJECT",
-                    "properties": {
-                        "reply": {"type": "STRING"},
-                        "source_ids": {"type": "ARRAY", "items": {"type": "STRING"}},
+    payload = {
+        "systemInstruction": {"parts": [{"text": instruction}]},
+        "contents": contents,
+        "generationConfig": {
+            "maxOutputTokens": 2048,
+            "responseMimeType": "application/json",
+            "responseSchema": {
+                "type": "OBJECT",
+                "properties": {
+                    "reply": {"type": "STRING"},
+                    "source_ids": {
+                        "type": "ARRAY",
+                        "items": {"type": "STRING", "enum": list(allowed_source_ids)},
                     },
-                    "required": ["reply", "source_ids"],
                 },
+                "required": ["reply", "source_ids"],
             },
-        }
-    ).encode("utf-8")
+        },
+    }
     try:
         return _fetch_reply(api_key, payload)
     except HTTPError as error:

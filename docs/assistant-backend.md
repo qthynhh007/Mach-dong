@@ -4,9 +4,11 @@
 
 Bà con mở `/assistant` để hỏi cách trồng, đất và dinh dưỡng, sâu bệnh, mặn và ngập cho lúa, rau màu và cây ăn trái. Cò Mạ nhớ tối đa bốn lượt hỏi đáp gần nhất và gắn liên kết tới tài liệu đã dùng.
 
-Luồng đi từ `assistant.js` → Flask `POST /api/assistant/chat` → `assistant_service.py` → `assistant_sources.py`. Tra cứu số liệu lịch sử theo trạm và ca giả lập dùng CSV cục bộ. Câu hỏi canh tác gọi `ai_client.py` với căn cứ đã chọn và khóa Gemini. Trình duyệt giữ lịch sử trong bộ nhớ của tab. F5 hoặc “Bắt đầu lại” xóa lịch sử đó.
+Luồng đi từ `assistant.js` → Flask `POST /api/assistant/chat` → `assistant_service.py` → `assistant_sources.py`. Tra cứu lịch sử theo trạm, ca giả lập, chào hỏi và hỏi lại khi thiếu thông tin chẩn đoán được xử lý tại Flask. Câu hỏi canh tác có căn cứ gọi `ai_client.py` với tài liệu đã chọn và khóa Gemini. Khi hỏi tiếp về cùng cây, Flask ưu tiên điều kiện trồng được nêu gần nhất. Khi có nguồn đúng cây, đúng chủ đề và đúng điều kiện trồng, Flask bỏ nguồn cùng chủ đề ghi điều kiện khác. Trình duyệt giữ lịch sử trong bộ nhớ của tab. F5 hoặc “Bắt đầu lại” xóa lịch sử đó.
 
 ## Hợp đồng API
+
+Với câu hỏi canh tác có đủ căn cứ, Cò Mạ đưa nhận định, giải thích, các bước kiểm tra hoặc xử lý theo thứ tự, và dấu hiệu nên theo dõi. Khi người dùng yêu cầu “phân tích kỹ hơn” mà không nêu chủ đề mới, Flask dùng câu hỏi cụ thể gần nhất để tìm lại đoạn căn cứ và gửi nguyên văn yêu cầu mới cho Gemini.
 
 `POST /api/assistant/chat` nhận `Content-Type: application/json`. Trường `history` có thể bỏ qua ở câu hỏi đầu tiên.
 
@@ -49,9 +51,11 @@ Khi có lỗi, trả `{"data":null,"error":"Thông báo cho người dùng"}`.
 | 503 | Máy chủ chưa cấu hình khóa Gemini hoặc các model được gọi đang quá tải |
 | 504 | Gemini hết thời gian chờ |
 
-Server gửi `systemInstruction` và `contents` có căn cứ lên `POST /v1beta/models/gemini-3.5-flash:generateContent`. Khóa `GEMINI_API_KEY` đọc từ biến môi trường hoặc `.env.local` và gửi qua header `x-goog-api-key`. Client dùng mức suy luận `LOW`, giới hạn 2.048 token đầu ra và schema JSON cho `reply`, `source_ids`. [REST generateContent](https://aistudio.google.com/api-reference/generate-content/generate-content)
+Server gửi `systemInstruction` và `contents` có căn cứ lên `POST /v1beta/models/gemini-3.5-flash:generateContent`. Khóa `GEMINI_API_KEY` đọc từ biến môi trường hoặc `.env.local` và gửi qua header `x-goog-api-key`. Client dùng mức suy luận `LOW`, giới hạn 2.048 token đầu ra và schema JSON cho `reply`, `source_ids`. Schema liệt kê các mã căn cứ được chọn cho lượt hiện tại. Flask kiểm tra lại mã trước khi gắn URL. [REST generateContent](https://aistudio.google.com/api-reference/generate-content/generate-content)
 
-Trình duyệt chờ tối đa 180 giây và cho phép dừng chờ hoặc gửi lại câu hỏi. Server cấp tối đa 150 giây thời gian chờ cho Gemini 3.5 Flash. Nếu model quá tải, hết thời gian chờ hoặc trả phản hồi chưa hoàn chỉnh, server gọi Gemini 3.1 Flash-Lite một lần trong thời gian còn lại, giữ cùng câu hỏi, lịch sử và căn cứ. [Tài liệu Gemini 3.1 Flash-Lite](https://aistudio.google.com/docs/models/gemini-3.1-flash-lite)
+Trình duyệt chờ tối đa 180 giây và cho phép dừng chờ hoặc gửi lại câu hỏi. Server đặt timeout kết nối/đọc 12 giây cho Gemini 3.5 Flash. Nếu model quá tải, hết thời gian chờ hoặc trả phản hồi chưa hoàn chỉnh, server thử Gemini 3.1 Flash-Lite một lần với mức suy luận `MINIMAL` và timeout tối đa 15 giây. Hai lần gọi dùng cùng câu hỏi, lịch sử và căn cứ. [Tài liệu Gemini 3.1 Flash-Lite](https://aistudio.google.com/docs/models/gemini-3.1-flash-lite)
+
+Header `Server-Timing` đo thời gian Flask xử lý câu hỏi qua mục **Network → Timing** của trình duyệt. Bật mức log INFO cho logger `src.services.ai_client` để thấy model, thời gian và kết quả của mỗi lần gọi. Các dòng log chỉ chứa ba trường này.
 
 ## Thứ tự triển khai
 
