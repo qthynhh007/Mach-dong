@@ -6,33 +6,21 @@ import json
 import re
 from datetime import UTC, datetime
 from io import BytesIO
-from pathlib import Path
 from uuid import uuid4
 
 from PIL import Image, UnidentifiedImageError
 
-from src.config import REFERENCE_DIR
 from src.models.community import communityMember, communityModel, communityStore
 from src.services.forum_service import (
     CULTIVARS,
+    DISCUSSION_TOPICS,
+    EDITORIAL_AUTHOR,
+    EDITORIAL_POSTS,
     SAMPLE_POSTS,
     SAMPLE_REPLIES,
     STAGES,
     TOPICS,
 )
-
-SAMPLES = {
-    "salinity": "long-huu-man-ruong.csv",
-    "water": "ba-tri-muc-nuoc.csv",
-    "weather": "go-cong-nhiet-do.csv",
-    "ph": "cu-lao-dung-do-ph.csv",
-}
-
-
-def sampleCsv(name: str) -> Path | None:
-    filename = SAMPLES.get(name)
-    return REFERENCE_DIR / filename if filename else None
-
 
 class communityError(ValueError):
     def __init__(self, message: str, statusCode: int = 400) -> None:
@@ -41,10 +29,14 @@ class communityError(ValueError):
 
 
 class communityService:
-    def __init__(self, model: communityModel, seedSamples: bool = True) -> None:
+    def __init__(
+        self, model: communityModel, seedSamples: bool = True, seedEditorial: bool = True
+    ) -> None:
         self.model = model
         if seedSamples:
             self.seedSamples()
+        if seedEditorial:
+            self.seedEditorial()
 
     def now(self) -> str:
         return datetime.now(UTC).isoformat(timespec="microseconds")
@@ -89,9 +81,49 @@ class communityService:
                     )
             store.markSeeded()
 
+    def seedEditorial(self) -> None:
+        with self.model.transaction() as store:
+            if store.isSeeded("editorial-v1"):
+                return
+            store.saveMember(communityMember(EDITORIAL_AUTHOR, "Admin"))
+            createdAt = self.now()
+            for postId, source in EDITORIAL_POSTS.items():
+                store.insertPost(
+                    {
+                        "id": postId,
+                        "requestId": postId,
+                        "authorId": EDITORIAL_AUTHOR,
+                        "topic": "references",
+                        "title": source["title"],
+                        "body": f"Tài liệu của {source['byline']}.\n{source['date']}.",
+                        "cultivar": "",
+                        "stage": "",
+                        "photos": "[]",
+                        "isSample": False,
+                        "baseScore": 0,
+                        "createdAt": createdAt,
+                        "updatedAt": createdAt,
+                    }
+                )
+            store.markSeeded("editorial-v1")
+
     def registerMember(self, member: communityMember) -> None:
         with self.model.transaction() as store:
             store.saveMember(member)
+
+    def member_profile(self, member_id: str) -> dict:
+        with self.model.transaction(write=False) as store:
+            profile = store.member_profile(member_id)
+        if profile is None:
+            raise communityError("Chưa tìm thấy hồ sơ công khai của thành viên.", 404)
+        if member_id == EDITORIAL_AUTHOR:
+            role = "Admin diễn đàn"
+        elif member_id.startswith("sample-"):
+            role = "Hồ sơ minh họa"
+        else:
+            role = "Khách diễn đàn" if profile["isGuest"] else "Thành viên diễn đàn"
+        profile.pop("isGuest")
+        return {**profile, "role": role}
 
     def textField(
         self, payload: dict, field: str, label: str, limit: int, required: bool = True
@@ -163,7 +195,7 @@ class communityService:
             "photos": json.dumps(self.validatePhotos(payload.get("photos", []))),
         }
         for field, options, label in (
-            ("topic", TOPICS, "Chủ đề"),
+            ("topic", DISCUSSION_TOPICS, "Chủ đề"),
             ("cultivar", CULTIVARS, "Giống lúa"),
             ("stage", STAGES, "Giai đoạn"),
         ):
@@ -215,6 +247,8 @@ class communityService:
         post["canVote"] = bool(memberId) and not post["canEdit"]
         post["voted"] = bool(post["voted"])
         post["isSample"] = bool(post["isSample"])
+        if post["authorId"] == EDITORIAL_AUTHOR and post["id"] in EDITORIAL_POSTS:
+            post["sourceUrl"] = EDITORIAL_POSTS[post["id"]]["url"]
         post.pop("requestId", None)
         if summary:
             post["body"] = post["body"][:300] + ("…" if len(post["body"]) > 300 else "")

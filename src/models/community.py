@@ -119,16 +119,42 @@ class communityStore:
             member.toDict(),
         )
 
-    def isSeeded(self) -> bool:
+    def isSeeded(self, key: str = "seeded") -> bool:
         return (
             self.connection.execute(
-                "SELECT 1 FROM communityMetadata WHERE key='seeded'"
+                "SELECT 1 FROM communityMetadata WHERE key=?", (key,)
             ).fetchone()
             is not None
         )
 
-    def markSeeded(self) -> None:
-        self.connection.execute("INSERT INTO communityMetadata VALUES ('seeded', '1')")
+    def markSeeded(self, key: str = "seeded") -> None:
+        self.connection.execute("INSERT INTO communityMetadata VALUES (?, '1')", (key,))
+
+    def member_profile(self, member_id: str) -> dict | None:
+        member = self.connection.execute(
+            """
+            SELECT displayName, location, isGuest,
+                   (SELECT count(*) FROM communityPosts WHERE authorId=m.id) AS postCount,
+                   (SELECT count(*) FROM communityReplies
+                    WHERE authorId=m.id AND isDeleted=0) AS replyCount
+            FROM communityMembers m WHERE id=?
+            """,
+            (member_id,),
+        ).fetchone()
+        if member is None or not (member["postCount"] or member["replyCount"]):
+            return None
+        posts = self.connection.execute(
+            """
+            SELECT p.id, p.title, p.topic, p.cultivar, p.createdAt, p.isSample,
+                   p.baseScore + (SELECT count(*) FROM communityPostVotes v
+                                  WHERE v.postId=p.id) AS score
+            FROM communityPosts p
+            WHERE p.authorId=?
+            ORDER BY p.createdAt DESC, p.id DESC LIMIT 6
+            """,
+            (member_id,),
+        ).fetchall()
+        return {**dict(member), "posts": [dict(post) for post in posts]}
 
     def insertPost(self, post: dict) -> None:
         self.connection.execute(

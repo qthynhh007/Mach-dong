@@ -24,6 +24,7 @@ class communityTests(TestCase):
             "SECRET_KEY": "community-tests-only",
             "COMMUNITY_DATABASE": str(Path(self.directory.name) / "community.sqlite3"),
             "COMMUNITY_SEED_SAMPLES": False,
+            "COMMUNITY_SEED_EDITORIAL": False,
             "COMMUNITY_ALLOW_GUESTS": True,
         }
         self.app = createApp(self.config)
@@ -540,6 +541,42 @@ class communityTests(TestCase):
             self.assertEqual(self.owner.get(path).status_code, 404)
         response = self.owner.get("/api/community/posts")
         self.assertEqual(response.headers["Cache-Control"], "no-store")
+
+    def test_member_profile_only_lists_public_activity_for_that_member(self) -> None:
+        post = self.createPost(title="Quan trắc ruộng")
+        other = self.createPost(self.reader, title="Bài của thành viên khác")
+        self.send(self.owner, "draft", "PUT", self.payload(title="Bản nháp riêng", version=0))
+        self.send(self.owner, "posts/" + other["id"] + "/replies", "POST", {"body": "Đã xem số đo."})
+        self.send(self.reader, "posts/" + post["id"] + "/vote", "PUT", {"active": True})
+        response = self.app.test_client().get("/api/community/members/" + post["authorId"])
+        self.assertEqual(response.status_code, 200)
+        profile = response.json["data"]
+        self.assertEqual(profile["displayName"], post["author"])
+        self.assertEqual((profile["postCount"], profile["replyCount"]), (1, 1))
+        self.assertEqual([item["id"] for item in profile["posts"]], [post["id"]])
+        self.assertEqual(profile["posts"][0]["score"], 1)
+        self.assertNotIn("Bản nháp riêng", response.text)
+        self.assertNotIn("requestId", response.text)
+        unknown = self.reader.get("/api/community/members/unknown")
+        self.assertEqual(unknown.status_code, 404)
+        self.assertIsNone(unknown.json["data"])
+
+    def testEditorialPostsAreSourcedAndSeededOnceOnAnExistingDatabase(self) -> None:
+        config = {**self.config, "COMMUNITY_SEED_SAMPLES": True}
+        createApp(config)
+        config["COMMUNITY_SEED_EDITORIAL"] = True
+        for _ in range(2):
+            client = createApp(config).test_client()
+            listing = client.get("/api/community/posts?topic=references&pageSize=25").json["data"]
+            self.assertEqual(listing["total"], 20)
+            items = listing["items"]
+            self.assertEqual(len({item["sourceUrl"] for item in items}), 20)
+            self.assertTrue(all(item["author"] == "Admin" for item in items))
+            self.assertTrue(all(not item["isSample"] and not item["canEdit"] for item in items))
+            first = client.get("/api/community/posts/bai-tham-khao-01").json["data"]["post"]
+            self.assertIn("Trần Khắc Thi", first["body"])
+            self.assertIn("19/12/2012", first["body"])
+            self.assertIn("ky-thuat-trong-va-cham-soc-cay-ca-chua", first["sourceUrl"])
 
     def testDraftDeleteDoesNotResetVersion(self) -> None:
         self.send(self.owner, "draft", "PUT", self.payload(version=0))

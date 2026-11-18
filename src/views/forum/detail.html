@@ -3,17 +3,17 @@
 {% block title %}Chi tiết bài chia sẻ{% endblock %}
 {% block styles %}<link rel="stylesheet" href="/static/forum-detail.css">{% endblock %}
 {% block content %}
-<section class="w-full bg-surface-container-lowest px-space-md py-space-sm shadow-sm"><a class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-body-sm text-body-sm font-semibold transition-colors" href="{{ url_for('forum.index') }}">
-<span class="material-symbols-outlined text-[18px]">{{ icon("chevron_left") }}</span>
+<div class="forum-return"><a class="app-control inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-body-sm text-body-sm font-semibold" href="{{ url_for('forum.index') }}">
+<span class="app-icon-wrap text-[18px]">{{ icon("chevron_left") }}</span>
 <span>Quay lại Thảo luận bà con</span>
-</a></section>
+</a></div>
 <!-- Main 2-Column Responsive Workspace -->
-<div class="w-full max-w-[1400px] mx-auto px-space-md py-space-md lg:py-space-lg">
+<div class="w-full">
 <div id="forum-detail" hidden class="grid grid-cols-1 lg:grid-cols-12 gap-space-md lg:gap-space-lg items-start">
 <!-- Left Column: Article & Telemetry (~66% / 8 cols) -->
 <article class="lg:col-span-8 flex flex-col gap-space-md">
 <!-- Post Header Plate -->
-<div class="bg-surface-container-lowest rounded-xl p-space-md lg:p-space-lg shadow-sm flex flex-col gap-space-md">
+<div class="app-pane rounded-xl p-space-md lg:p-space-lg flex flex-col gap-space-md">
 <!-- Category & Variety Tags -->
 <div class="flex flex-wrap items-center justify-between gap-space-xs">
 <div class="flex items-center gap-space-xs flex-wrap">
@@ -23,67 +23,52 @@
 <span class="font-label-sm text-label-sm text-outline" data-meta></span>
 </div>
 <!-- Headline -->
-<h1 class="font-headline-md text-headline-md sm:text-headline-lg lg:text-headline-lg text-on-surface font-bold leading-tight tracking-tight" data-title></h1>
+<h1 class="app-page-title" data-title></h1>
 <!-- Author Info & Timeline -->
 <div class="flex flex-wrap items-center justify-between gap-space-sm pt-space-xs">
 <div class="flex items-center gap-space-sm">
 <img class="w-11 h-11 rounded-full object-cover" src="/static/assets/stitch-profile-portrait.jpg" width="44" height="44" alt="">
 <div class="flex flex-col leading-tight">
 <div class="flex items-center gap-1.5">
-<span class="font-body-md text-body-md font-bold text-on-surface" data-author></span>
-<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-primary text-on-primary">Tác giả</span>
+<button type="button" class="member-trigger font-body-md text-body-md font-bold" aria-haspopup="dialog" data-author></button>
+<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-primary text-on-primary" data-author-role>Tác giả</span>
 </div>
 <span class="font-label-sm text-label-sm text-on-surface-variant" data-location></span>
 </div>
 </div>
 
 <button class="forum-vote inline-flex items-center gap-1 px-2.5 py-1 rounded bg-surface-container-low text-primary font-data-mono-md text-data-mono-md font-bold" type="button" aria-label="Đánh dấu bài hữu ích" aria-pressed="false">
-  <span class="material-symbols-outlined text-base">{{ icon("expand_less") }}</span><strong data-score></strong>
+  <span class="app-icon-wrap text-base">{{ icon("expand_less") }}</span><strong data-score></strong>
 </button>
 </div>
 </div>
 <div class="stitch-photos stitch-detail-photos" data-photos hidden></div>
 <!-- Article Body Content -->
-<div class="bg-surface-container-lowest rounded-xl p-space-md lg:p-space-lg shadow-sm flex flex-col gap-space-md">
+<div class="app-pane rounded-xl p-space-md lg:p-space-lg flex flex-col gap-space-md">
 <p data-body class="stitch-article-body font-body-md text-body-md text-on-surface leading-relaxed"></p>
+<a data-source-url hidden class="text-primary underline font-semibold" rel="noopener noreferrer" target="_blank">Đọc bài gốc</a>
 <div id="post-actions" class="community-actions" hidden>
-  <a id="edit-post" class="community-button">Sửa bài</a>
-  <button id="delete-post" type="button" class="community-button community-danger">Xóa bài</button>
+  <a id="edit-post" class="app-button community-button">Sửa bài</a>
+  <button id="delete-post" type="button" class="app-button community-button app-button--danger">Xóa bài</button>
 </div>
 </div>
 </article>
 <!-- Right Column: Live Community Discussion Chat (~34% / 4 cols) -->
 <aside class="lg:col-span-4 lg:sticky lg:top-20 flex flex-col gap-space-md">
-<div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden flex flex-col min-h-[380px] lg:h-[calc(100vh-110px)] lg:min-h-[500px]">
+<div class="app-glass rounded-xl overflow-hidden flex flex-col min-h-[380px] lg:h-[calc(100vh-110px)] lg:min-h-[500px]">
 <!-- Chat Panel Header -->
-<div class="p-space-md bg-surface-container-low flex flex-col gap-space-xs shadow-xs">
-<div class="flex items-center justify-between">
-<div class="flex items-center gap-2">
-<span class="relative flex h-3 w-3">
-<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-<span class="relative inline-flex rounded-full h-3 w-3 bg-primary"></span>
-</span>
-<h3 class="font-headline-sm text-headline-sm text-on-surface font-bold" id="forum-chat-title">Khung trao đổi</h3>
+<div class="p-space-md bg-surface-container-low flex flex-wrap items-center justify-between gap-space-sm">
+<h3 class="text-headline-sm font-bold" id="forum-chat-title">Khung trao đổi</h3>
+<button id="refresh-replies" class="app-button community-button" type="button">Tải trao đổi mới</button>
 </div>
-<span class="px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-fixed-variant font-label-sm text-[11px] font-bold">
-                Hỏi đáp
-              </span>
-</div>
-<div class="flex items-center justify-between text-on-surface-variant">
-<div class="flex items-center gap-1 font-label-sm text-label-sm font-semibold text-primary">
-<span>Thảo luận bài chia sẻ</span>
-</div>
-<button id="refresh-replies" class="community-button" type="button">Tải trao đổi mới</button>
-</div>
-</div>
-<label class="community-reply-sort">Thứ tự trả lời <select id="reply-sort"><option value="helpful">Hữu ích nhất</option><option value="oldest">Cũ nhất</option><option value="newest">Mới nhất</option></select></label>
+<label class="community-reply-sort">Thứ tự trả lời <select class="app-select" id="reply-sort"><option value="helpful">Hữu ích nhất</option><option value="oldest">Cũ nhất</option><option value="newest">Mới nhất</option></select></label>
 <div id="forum-replies" class="stitch-replies overflow-y-auto p-space-md flex flex-col gap-space-sm" role="log" aria-label="Nội dung trao đổi"></div>
-<div class="p-space-sm bg-surface-container-lowest flex flex-col gap-space-xs shadow-md"><!-- Composer Form -->
-<div id="reply-context" class="community-actions" hidden><span id="reply-target"></span><button id="cancel-reply" class="community-button" type="button">Hủy</button></div>
+<div class="p-space-sm bg-surface-container-low flex flex-col gap-space-xs"><!-- Composer Form -->
+<div id="reply-context" class="community-actions" hidden><span id="reply-target"></span><button id="cancel-reply" class="app-button community-button" type="button">Hủy</button></div>
 <form id="forum-reply-form" method="post" class="relative flex items-center gap-1.5 bg-surface-container-low rounded-xl p-1.5">
 <textarea class="w-full bg-transparent px-2 py-1 text-on-surface font-body-sm text-body-sm focus:outline-none placeholder:text-outline" id="forum-reply" aria-label="Câu trả lời" maxlength="5000" rows="3" required placeholder="Viết câu trả lời cho bà con..."></textarea>
-<button class="px-3 py-2 rounded-lg bg-primary hover:bg-primary-container text-on-primary font-bold transition-colors flex items-center justify-center flex-shrink-0 shadow-xs" type="submit" aria-label="Gửi">
-<span class="material-symbols-outlined text-[18px]">{{ icon("arrow_forward") }}</span>
+<button class="app-button app-button--primary px-3 py-2 font-bold flex items-center justify-center flex-shrink-0" type="submit" aria-label="Gửi">
+<span class="app-icon-wrap text-[18px]">{{ icon("arrow_forward") }}</span>
 </button>
 </form>
 <p id="reply-status" role="status" class="text-label-sm text-on-surface-variant"></p>

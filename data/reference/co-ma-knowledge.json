@@ -1,0 +1,1782 @@
+{
+  "version": 1,
+  "sources": [
+    {
+      "source_id": "KN-TOMATO-PLANT",
+      "citation": "Kỹ thuật trồng và chăm sóc cây cà chua · Trần Khắc Thi · Trung tâm Khuyến nông Quốc gia",
+      "url": "https://khuyennongvn.gov.vn/khoa-hoc-cong-nghe/khcn-trong-nuoc/ky-thuat-trong-va-cham-soc-cay-ca-chua-3430.html",
+      "source_date": "Cập nhật 19/12/2012",
+      "crops": [
+        "cà chua"
+      ],
+      "topic": "planting",
+      "terms": [
+        "trồng",
+        "làm giàn",
+        "lên luống"
+      ],
+      "locator": "Kỹ thuật trồng và chăm sóc",
+      "finding_vi": "Tài liệu hướng dẫn trồng cà chua trên đất thoát nước, chăm sóc và làm giàn. Hỏi vùng, vụ và trồng chậu hay ngoài đất để chọn cách áp dụng.",
+      "scope_vi": "Hướng dẫn kỹ thuật ngoài đồng, các thông số của tài liệu phụ thuộc giống và vụ.",
+      "region": "Việt Nam",
+      "setting": "ngoài đất",
+      "stage": "",
+      "status": "reviewed"
+    },
+    {
+      "source_id": "KN-SWEET-MUSTARD",
+      "citation": "Kỹ thuật trồng rau cải ngọt an toàn · Hoàng Văn Hồng · Bản tin Khuyến nông Việt Nam số 7/2017 · Trung tâm Khuyến nông Quốc gia",
+      "url": "https://khuyennongvn.gov.vn/khoa-hoc-cong-nghe/khcn-trong-nuoc/ky-thuat-trong-rau-cai-ngot-an-toan-16235.html",
+      "source_date": "Cập nhật 03/11/2017",
+      "crops": [
+        "cải"
+      ],
+      "topic": "planting",
+      "terms": [
+        "trồng",
+        "gieo",
+        "thu hoạch",
+        "cải ngọt"
+      ],
+      "locator": "Làm đất, gieo trồng và chăm sóc",
+      "finding_vi": "Với cải ngọt, làm đất nhỏ, lên luống phù hợp độ thoát nước và duy trì ẩm khi gieo. Cần biết trồng chậu hay trên luống trước khi đưa khoảng cách.",
+      "scope_vi": "Quy trình dành cho cải ngọt. Khi người hỏi nói chung là rau cải, hỏi họ trồng giống nào.",
+      "region": "Việt Nam",
+      "setting": "luống",
+      "stage": "gieo",
+      "status": "reviewed"
+    },
+    {
+      "source_id": "KN-CUCUMBER-SPRING",
+      "citation": "Một số biện pháp kỹ thuật trồng dưa chuột vụ xuân sớm · Bùi Văn Viện, Trạm Khuyến nông huyện Gia Lộc, Hải Dương · Trung tâm Khuyến nông Quốc gia",
+      "url": "https://khuyennongvn.gov.vn/khoa-hoc-cong-nghe/khcn-trong-nuoc/mot-so-bien-phap-ky-thuat-trong-dua-chuot-vu-xuan-som-16489.html",
+      "source_date": "Cập nhật 24/01/2018",
+      "crops": [
+        "dưa chuột"
+      ],
+      "topic": "planting",
+      "terms": [
+        "trồng",
+        "gieo",
+        "làm giàn",
+        "dưa leo"
+      ],
+      "locator": "Kỹ thuật trồng và chăm sóc dưa chuột vụ xuân sớm",
+      "finding_vi": "Tài liệu mô tả việc chuẩn bị cây con, lên luống để thoát nước và làm giàn cho dưa chuột.",
+      "scope_vi": "Vụ xuân sớm ở Gia Lộc, Hải Dương. Có thể tham khảo nguyên lý thoát nước và làm giàn. Lịch, mật độ và lượng vật tư cần nguồn phù hợp nếu trồng chậu hoặc ở vùng khác.",
+      "region": "Hải Dương",
+      "setting": "luống",
+      "stage": "",
+      "status": "reviewed"
+    },
+    {
+      "source_id": "KN-SOYBEAN",
+      "citation": "Kỹ thuật trồng và chăm sóc đậu tương đông · Trung tâm Khuyến nông Quốc gia",
+      "url": "https://khuyennongvn.gov.vn/khoa-hoc-cong-nghe/khcn-trong-nuoc/ky-thuat-trong-va-cham-soc-dau-tuong-dong-17624.html",
+      "source_date": "Cập nhật 04/10/2018",
+      "crops": [
+        "đậu tương"
+      ],
+      "topic": "planting",
+      "terms": [
+        "trồng",
+        "gieo",
+        "vụ đông"
+      ],
+      "locator": "Kỹ thuật trồng và chăm sóc đậu tương đông",
+      "finding_vi": "Nguồn hướng dẫn bố trí gieo và tiêu nước khi trồng đậu tương vụ đông, có phương án gieo trên nền đất sau thu hoạch lúa.",
+      "scope_vi": "Chỉ dùng ở mức tham khảo cho vụ đông và hình thức trồng trong tài liệu.",
+      "region": "miền Bắc",
+      "setting": "ngoài đất",
+      "stage": "gieo",
+      "status": "reviewed"
+    },
+    {
+      "source_id": "KN-FRUIT-VIETGAP",
+      "citation": "Sổ tay hướng dẫn kỹ thuật canh tác theo VietGAP cho 10 loại cây ăn quả chủ lực · Cục Trồng trọt phối hợp GIZ và chuyên gia kỹ thuật Việt Nam · Trung tâm Khuyến nông Quốc gia",
+      "url": "https://khuyennongvn.gov.vn/thu-vien-khuyen-nong/thu-vien-sach-kn/so-tay-huong-dan-ky-thuat-canh-tac-theo-vietgap-cho-10-loai-cay-an-qua-chu-luc-21683.html",
+      "source_date": "Cập nhật 19/01/2022",
+      "crops": [
+        "xoài",
+        "sầu riêng",
+        "chuối",
+        "dứa",
+        "thanh long",
+        "cam",
+        "bưởi",
+        "nhãn",
+        "vải",
+        "chôm chôm"
+      ],
+      "topic": "planting",
+      "terms": [
+        "trồng",
+        "chăm sóc",
+        "quy trình",
+        "vietgap"
+      ],
+      "locator": "Danh mục sổ tay theo từng cây",
+      "finding_vi": "Cục Trồng trọt công bố sổ tay VietGAP riêng cho 10 cây ăn quả. Hỏi khu vực, giống và tuổi cây để tìm đúng quy trình.",
+      "scope_vi": "Đây là trang giới thiệu và dẫn tới các sổ tay. Không có liều hoặc lịch chăm sóc cho từng vườn tại trang này.",
+      "region": "Việt Nam",
+      "setting": "vườn",
+      "stage": "",
+      "status": "reviewed"
+    },
+    {
+      "source_id": "KN-MANGO-VIETGAP",
+      "citation": "Bản tin Khuyến nông số 11 · Trung tâm Khuyến nông Quốc gia",
+      "url": "https://khuyennongvn.gov.vn/data/documents/0/2025/01/10/hangweb/bantin-khuyennong-so11.pdf",
+      "source_date": "Đối chiếu 16/11/2026",
+      "crops": [
+        "xoài"
+      ],
+      "topic": "planting",
+      "terms": [
+        "trồng",
+        "chăm sóc",
+        "tỉa cành",
+        "tạo tán"
+      ],
+      "locator": "Bản tin Khuyến nông số 11, mô hình xoài VietGAP ở Cát Hanh",
+      "finding_vi": "Mô hình xoài ở Cát Hanh theo dõi tưới nước, tỉa cành và tạo tán, rồi tỉa và bao trái khi nuôi trái. Giai đoạn cây quyết định khâu cần tập trung.",
+      "scope_vi": "Ví dụ ngoài vườn tại Bình Định. Lịch tưới, khoảng cách và xử lý ra hoa cần thông tin riêng của vườn.",
+      "region": "Bình Định",
+      "setting": "vườn",
+      "stage": "",
+      "status": "reviewed"
+    },
+    {
+      "source_id": "UMN-PEPPERS",
+      "citation": "Growing peppers · Marissa Schuh và Cindy Tong · University of Minnesota Extension",
+      "url": "https://extension.umn.edu/garden-and-home/yard-and-garden/gardening-in-minnesota/growing-peppers",
+      "source_date": "Rà soát 2026",
+      "crops": [
+        "ớt"
+      ],
+      "topic": "planting",
+      "terms": [
+        "trồng",
+        "gieo",
+        "chậu",
+        "tưới"
+      ],
+      "locator": "Soil pH and fertility; planting; watering",
+      "finding_vi": "Ớt cần đất thoát nước, đủ nắng và độ ẩm ổn định. Trước khi chỉnh dinh dưỡng, tài liệu khuyên dựa vào xét nghiệm đất.",
+      "scope_vi": "Hướng dẫn vườn hộ Minnesota. Chỉ dùng các nguyên lý, lịch mùa vụ và nhiệt độ địa phương cần nguồn phù hợp.",
+      "region": "Minnesota",
+      "setting": "vườn",
+      "stage": "",
+      "status": "reviewed"
+    },
+    {
+      "source_id": "KN-SOIL-VEGETABLES",
+      "citation": "Quy trình sử dụng phân bón hữu cơ phối hợp phân vô cơ cho sản xuất rau an toàn ở các tỉnh phía Bắc · BBT (gt) · Trung tâm Khuyến nông Quốc gia",
+      "url": "https://khuyennongvn.gov.vn/khoa-hoc-cong-nghe/khcn-trong-nuoc/quy-trinh-su-dung-phan-bon-huu-co-phoi-hop-phan-vo-co-cho-san-xuat-rau-an-toan-o-cac-tinh-phia-bac-21055.html",
+      "source_date": "Cập nhật 12/05/2021",
+      "crops": [
+        "cải",
+        "cà chua",
+        "dưa chuột",
+        "ớt"
+      ],
+      "topic": "nutrition",
+      "terms": [
+        "đất",
+        "phân",
+        "bón",
+        "hữu cơ",
+        "dinh dưỡng",
+        "cải tạo"
+      ],
+      "locator": "Quy trình phối hợp phân bón",
+      "finding_vi": "Tài liệu tách phân hữu cơ và vô cơ theo cây và theo bón lót hoặc bón thúc, thay vì dùng một mức chung. Hỏi diện tích hoặc thể tích chậu, loại phân và giai đoạn cây trước khi cân nhắc lượng bón.",
+      "scope_vi": "Quy trình rau an toàn ở các tỉnh phía Bắc. Kiểm tra chất lượng đất, vùng và vụ trước khi cân nhắc liều.",
+      "region": "miền Bắc",
+      "setting": "luống",
+      "stage": "",
+      "status": "reviewed"
+    },
+    {
+      "source_id": "KN-COMPOST",
+      "citation": "Tập huấn, hướng dẫn kỹ thuật làm phân ủ · Quỳnh Anh · Trung tâm Khuyến nông Quốc gia",
+      "url": "https://khuyennongvn.gov.vn/hoat-dong-khuyen-nong/thong-tin-huan-luyen/tap-huan-huong-dan-ky-thuat-lam-phan-u-22579.html",
+      "source_date": "Cập nhật 03/07/2023",
+      "crops": [
+        "*"
+      ],
+      "topic": "nutrition",
+      "terms": [
+        "phân ủ",
+        "compost",
+        "phân hữu cơ",
+        "cải tạo đất"
+      ],
+      "locator": "Thực hành làm phân ủ",
+      "finding_vi": "Buổi tập huấn hướng dẫn dùng nguồn nguyên liệu hữu cơ sẵn có và quản lý quá trình ủ trước khi dùng. Với đất trồng, cần biết nguồn phân, độ hoai, loại đất và cây trồng.",
+      "scope_vi": "Tài liệu hướng dẫn thực hành ủ, không đưa lượng bón thích hợp cho mọi cây.",
+      "region": "Việt Nam",
+      "setting": "",
+      "stage": "",
+      "status": "reviewed"
+    },
+    {
+      "source_id": "UMN-LEAF-NUTRIENTS",
+      "citation": "Foliar testing for fruit and vegetable crops · Natalie Hoidal và Annie Klodd · University of Minnesota Extension",
+      "url": "https://extension.umn.edu/agriculture/specialty-crops/foliar-testing-for-fruit-and-vegetable-crops",
+      "source_date": "Rà soát 2026",
+      "crops": [
+        "cà chua",
+        "ớt",
+        "dưa chuột"
+      ],
+      "topic": "nutrition",
+      "terms": [
+        "lá vàng",
+        "vàng lá",
+        "phân",
+        "dinh dưỡng",
+        "xét nghiệm lá"
+      ],
+      "locator": "Foliar test recommendations",
+      "finding_vi": "Khi lá đổi màu, có thể lấy mẫu riêng ở vùng có triệu chứng và vùng cây khỏe để so sánh. Chọn phần lá và thời điểm lấy mẫu theo từng cây, kết hợp trao đổi với phòng xét nghiệm.",
+      "scope_vi": "Các bảng lấy mẫu và ngưỡng của Minnesota. Triệu chứng nhìn thấy chỉ là một phần của chẩn đoán.",
+      "region": "Minnesota",
+      "setting": "",
+      "stage": "",
+      "status": "reviewed"
+    },
+    {
+      "source_id": "UMN-TOMATO-DISORDERS",
+      "citation": "Tomato disorders · Marissa Schuh, Michelle Grabowski, Frank Pfleger và Sandy Gould · University of Minnesota Extension",
+      "url": "https://extension.umn.edu/garden-and-home/yard-and-garden/gardening-in-minnesota/yard-and-garden-problems/tomato-disorders",
+      "source_date": "Rà soát 2022",
+      "crops": [
+        "cà chua"
+      ],
+      "topic": "diagnostic",
+      "terms": [
+        "đen đáy",
+        "đáy quả",
+        "đít quả",
+        "thối đít",
+        "canxi",
+        "lõm"
+      ],
+      "locator": "Blossom-end rot",
+      "finding_vi": "Vết nâu đến đen, phẳng hoặc lõm ở đầu quả đối diện cuống là dấu hiệu phù hợp với thối đít quả. Vi khuẩn hoặc nấm có thể xâm nhập vết tổn thương và làm quả thối thêm. Ẩm độ dao động, bón nhiều đạm hoặc tổn thương rễ có thể làm giảm canxi đến quả đang lớn. Dấu hiệu trên quả chưa đủ để kết luận đất thiếu canxi. Kiểm tra vị trí vết và lịch tưới trước, sau đó giữ ẩm đều, tránh làm tổn thương rễ và tỉa bỏ quả bị thối. Theo dõi các quả ra sau để đánh giá tình trạng.",
+      "scope_vi": "Hướng dẫn vườn hộ Minnesota. Dùng để nhận diện khả năng và giải thích cơ chế.",
+      "region": "Minnesota",
+      "setting": "chậu|vườn",
+      "stage": "nuôi quả",
+      "status": "reviewed"
+    },
+    {
+      "source_id": "UMN-PEPPER-ROOT-ROT",
+      "citation": "Fusarium crown and root rot · University of Minnesota Extension",
+      "url": "https://extension.umn.edu/agriculture/specialty-crops/vegetable-farming/disease-management/fusarium-crown-and-root-rot",
+      "source_date": "Đối chiếu 16/11/2026",
+      "crops": [
+        "ớt",
+        "cà chua"
+      ],
+      "topic": "diagnostic",
+      "terms": [
+        "vàng lá",
+        "lá vàng",
+        "rụng lá",
+        "héo",
+        "rễ"
+      ],
+      "locator": "Identification",
+      "finding_vi": "Vàng lá phía dưới, héo và tổn thương sát gốc hoặc rễ có thể gợi ý vấn đề ở vùng rễ. Đây chỉ là một khả năng. Hỏi lá già hay lá non vàng trước, đất có úng không, và gốc/rễ có đổi màu không.",
+      "scope_vi": "Tài liệu về một bệnh cụ thể ở Minnesota; cần kiểm tra cây hoặc mẫu để xác nhận trong vườn khác.",
+      "region": "Minnesota",
+      "setting": "",
+      "stage": "",
+      "status": "reviewed"
+    },
+    {
+      "source_id": "KN-GUAVA-ANTHRACNOSE",
+      "citation": "Phòng trị bệnh thán thư trên cây ổi · Trung tâm Khuyến nông Quốc gia",
+      "url": "https://khuyennongvn.gov.vn/tu-van-hoi-dap/phong-tri-benh-than-thu-tren-cay-oi-9616.html",
+      "source_date": "Cập nhật 28/04/2014",
+      "crops": [
+        "ổi"
+      ],
+      "topic": "diagnostic",
+      "terms": [
+        "bệnh",
+        "thán thư",
+        "đốm đen",
+        "thối quả",
+        "đốm"
+      ],
+      "locator": "Hỏi đáp đốm đen trên quả ổi",
+      "finding_vi": "Nguồn ghi nhận thán thư là một khả năng ở ca có đốm đen trên quả ổi. Hỏi vị trí và diễn tiến vết đốm, quả non hay quả chín, và có lỗ hay dòi không trước khi hướng dẫn xử lý.",
+      "scope_vi": "Một ca hỏi đáp từ năm 2014. Chỉ dùng dấu hiệu mô tả; bỏ qua phần thuốc trong bài cũ.",
+      "region": "Việt Nam",
+      "setting": "vườn",
+      "stage": "nuôi quả",
+      "status": "reviewed"
+    },
+    {
+      "source_id": "KN-DURIAN-IPM",
+      "citation": "Lâm Đồng: Tập huấn quản lý tổng hợp sâu, bệnh hại trên cây sầu riêng · Nguyễn Thị Thảo, Trung tâm Khuyến nông Lâm Đồng · Trung tâm Khuyến nông Quốc gia",
+      "url": "https://khuyennongvn.gov.vn/hoat-dong-khuyen-nong/thong-tin-huan-luyen/lam-dong-tap-huan-quan-ly-tong-hop-sau-benh-hai-tren-cay-sau-rieng-32172.html",
+      "source_date": "Cập nhật 15/06/2026",
+      "crops": [
+        "sầu riêng"
+      ],
+      "topic": "diagnostic",
+      "terms": [
+        "sâu",
+        "bệnh",
+        "xì mủ",
+        "thối rễ",
+        "đốm",
+        "ipm"
+      ],
+      "locator": "Quản lý tổng hợp sâu bệnh hại",
+      "finding_vi": "Nguồn khuyến nông hướng dẫn tiếp cận IPM cho sầu riêng. Xác định bộ phận bị hại, kiểm tra vườn và điều kiện chăm sóc trước khi chọn biện pháp.",
+      "scope_vi": "Nội dung tập huấn tại Lâm Đồng. Cần thông tin cây và vườn để xác định nguyên nhân.",
+      "region": "Lâm Đồng",
+      "setting": "vườn",
+      "stage": "",
+      "status": "reviewed"
+    },
+    {
+      "source_id": "KN-DURIAN-FRUIT-DROP",
+      "citation": "Hiện tượng rụng quả non ở sầu riêng – Nguyên nhân và biện pháp khắc phục · Phạm Thanh Sơn, Trung tâm Khuyến nông Lâm Đồng · Trung tâm Khuyến nông Quốc gia",
+      "url": "https://khuyennongvn.gov.vn/khoa-hoc-cong-nghe/khcn-trong-nuoc/hien-tuong-rung-qua-non-o-sau-rieng--nguyen-nhan-va-bien-phap-khac-phuc-18851.html",
+      "source_date": "Cập nhật 27/06/2019",
+      "crops": [
+        "sầu riêng"
+      ],
+      "topic": "diagnostic",
+      "terms": [
+        "rụng quả",
+        "rụng trái",
+        "trái non",
+        "quả non"
+      ],
+      "locator": "Nguyên nhân rụng quả non",
+      "finding_vi": "Rụng quả non ở sầu riêng có nhiều nguyên nhân. Hỏi trái bao nhiêu ngày, đọt non có ra cùng lúc không, tình trạng tưới và mưa gần đây, cùng dấu hiệu ở cuống và trái.",
+      "scope_vi": "Nguồn khuyến nông năm 2019. Không suy ra thiếu chất hay chỉ định lượng phân từ triệu chứng rụng đơn lẻ.",
+      "region": "Lâm Đồng",
+      "setting": "vườn",
+      "stage": "quả non",
+      "status": "reviewed"
+    },
+    {
+      "source_id": "UMN-DIAGNOSTIC",
+      "citation": "Diagnostic help for fruit and vegetable farmers · University of Minnesota Extension",
+      "url": "https://extension.umn.edu/agriculture/specialty-crops/diagnostic-help-for-fruit-and-vegetable-farmers",
+      "source_date": "Rà soát 2026",
+      "crops": [
+        "*"
+      ],
+      "topic": "diagnostic",
+      "terms": [
+        "bệnh",
+        "sâu",
+        "héo",
+        "đốm",
+        "vàng lá",
+        "lá vàng",
+        "thối"
+      ],
+      "locator": "Diagnostic resources and photos",
+      "finding_vi": "Ghi bộ phận bị hại, triệu chứng, cách lan và điều kiện tưới. Nếu có vết trên lá, chụp cả mặt trên và dưới để cơ quan chẩn đoán so sánh.",
+      "scope_vi": "Cách thu thập thông tin cho chẩn đoán rau quả. Loại bệnh cần nguồn phù hợp theo từng cây.",
+      "region": "Minnesota",
+      "setting": "",
+      "stage": "",
+      "status": "reviewed"
+    },
+    {
+      "source_id": "KN-FRUIT-SALINITY",
+      "citation": "Sổ tay hạn và xâm nhập mặn mùa khô 2026–2027 · Trung tâm Khuyến nông Quốc gia",
+      "url": "https://khuyennongvn.gov.vn/data/documents/0/2026/10/06/hangweb/st-hanhan-muakho-2026-2027-full.pdf",
+      "source_date": "2026",
+      "crops": [
+        "xoài",
+        "sầu riêng",
+        "chôm chôm",
+        "cải"
+      ],
+      "topic": "water",
+      "terms": [
+        "mặn",
+        "lấy nước",
+        "tưới",
+        "hạn"
+      ],
+      "locator": "Mục 5.2 và 7.3",
+      "finding_vi": "Sổ tay hướng dẫn đo độ mặn ở vị trí dự kiến lấy nước, ghi ngày giờ và vị trí, rồi đối chiếu với điều kiện của cây. Trong vườn cây ăn quả, theo dõi chất lượng nước mương và nước cấp trước mỗi lần lấy.",
+      "scope_vi": "Sổ tay cho đợt khô hạn và xâm nhập mặn ở ĐBSCL. Cần số đo nguồn tưới và thông tin cây cụ thể trước khi quyết định lấy nước.",
+      "region": "ĐBSCL",
+      "setting": "vườn",
+      "stage": "",
+      "status": "reviewed"
+    },
+    {
+      "source_id": "UMN-CUCURBIT-MILDEW",
+      "citation": "Powdery mildew of cucurbits · University of Minnesota Extension",
+      "url": "https://extension.umn.edu/agriculture/specialty-crops/vegetable-farming/disease-management/powdery-mildew-of-cucurbits",
+      "source_date": "Đối chiếu 16/11/2026",
+      "crops": [
+        "dưa chuột"
+      ],
+      "topic": "diagnostic",
+      "terms": [
+        "bệnh",
+        "phấn trắng",
+        "lá trắng",
+        "đốm trắng",
+        "mốc trắng"
+      ],
+      "locator": "Identification",
+      "finding_vi": "Phấn trắng có thể tạo các đốm trắng dạng bột trên mặt trên hoặc dưới lá và lan thành mảng. Khi thấy đốm vàng góc cạnh, cần so sánh với triệu chứng bệnh khác hoặc nhờ kiểm tra mẫu.",
+      "scope_vi": "Tài liệu nhận diện ở Minnesota. Dấu hiệu là cơ sở để kiểm tra tiếp, chưa xác nhận được bệnh trên cây người hỏi.",
+      "region": "Minnesota",
+      "setting": "",
+      "stage": "",
+      "status": "reviewed"
+    },
+    {
+      "source_id": "KN-DURIAN-STEM-FRUIT-ROT",
+      "citation": "Hiện tượng rụng quả non ở sầu riêng – Nguyên nhân và biện pháp khắc phục · Phạm Thanh Sơn, Trung tâm Khuyến nông Lâm Đồng · Trung tâm Khuyến nông Quốc gia",
+      "url": "https://khuyennongvn.gov.vn/khoa-hoc-cong-nghe/khcn-trong-nuoc/hien-tuong-rung-qua-non-o-sau-rieng--nguyen-nhan-va-bien-phap-khac-phuc-18851.html",
+      "source_date": "Cập nhật 27/06/2019",
+      "crops": [
+        "sầu riêng"
+      ],
+      "topic": "diagnostic",
+      "terms": [
+        "xì mủ",
+        "thân",
+        "thối quả",
+        "thối trái",
+        "bệnh"
+      ],
+      "locator": "Các sâu bệnh hại chính, xì mủ thân và thối quả",
+      "finding_vi": "Tài liệu liệt kê xì mủ thân và thối quả liên quan Phytophthora trong nhóm bệnh sầu riêng giai đoạn nuôi quả. Hỏi vết nằm ở thân hay trái, màu mô ở vết và dấu hiệu có lan sau ẩm mưa hay không.",
+      "scope_vi": "Nguồn từ Lâm Đồng năm 2019. Chỉ dùng để phân biệt triệu chứng và định hướng kiểm tra, bỏ qua nội dung thuốc cũ.",
+      "region": "Lâm Đồng",
+      "setting": "vườn",
+      "stage": "nuôi quả",
+      "status": "reviewed"
+    },
+    {
+      "source_id": "KN-RICE-LOW-EMISSION",
+      "citation": "Kỹ thuật canh tác lúa chất lượng cao và phát thải thấp vùng đồng bằng sông Cửu Long · Trung tâm Khuyến nông Quốc gia",
+      "url": "https://khuyennongvn.gov.vn/khoa-hoc-cong-nghe/khcn-trong-nuoc/ky-thuat-canh-tac-lua-chat-luong-cao-va-phat-thai-thap-vung-dong-bang-song-cuu-long-31656.html",
+      "source_date": "Cập nhật 18/11/2025",
+      "crops": [
+        "lúa"
+      ],
+      "topic": "planting",
+      "terms": [
+        "gieo sạ",
+        "sạ hàng",
+        "sạ cụm",
+        "đất phèn",
+        "1 triệu ha",
+        "làm đất",
+        "thoát nước"
+      ],
+      "locator": "Kỹ thuật canh tác, mục 1–4",
+      "finding_vi": "San phẳng mặt ruộng để điều tiết nước đồng đều. Hướng dẫn khuyến khích giống xác nhận và sạ đồng loạt theo lịch địa phương. Với đất phèn hoặc đất mặn, tránh xới sâu làm đưa tầng đất bất lợi lên mặt.",
+      "scope_vi": "Quy trình lúa chất lượng cao, phát thải thấp ở ĐBSCL. Chọn lịch theo xã và vụ cụ thể.",
+      "region": "ĐBSCL|đồng bằng sông Cửu Long",
+      "setting": "ruộng",
+      "stage": "trước sạ",
+      "status": "reviewed",
+      "verified_on": "2026-11-17"
+    },
+    {
+      "source_id": "KN-RICE-FLOOD-RECOVERY",
+      "citation": "Biện pháp khắc phục úng ngập sau mưa bão đối với lúa · Trung tâm Khuyến nông Quốc gia",
+      "url": "https://khuyennongvn.gov.vn/khoa-hoc-cong-nghe/khcn-trong-nuoc/bien-phap-khac-phuc-ung-ngap-sau-mua-bao-doi-voi-lua-28205.html",
+      "source_date": "Cập nhật 13/09/2024",
+      "crops": [
+        "lúa"
+      ],
+      "topic": "water",
+      "terms": [
+        "ngập",
+        "úng",
+        "rút nước",
+        "sau ngập",
+        "rễ non",
+        "đứng cái",
+        "làm đòng"
+      ],
+      "locator": "Hướng dẫn theo giai đoạn lúa, mục 1–3",
+      "finding_vi": "Sau mưa lớn, kiểm tra giai đoạn, tình trạng đổ rạp và khả năng tiêu nước. Ở lúa non, quan sát rễ mới để đánh giá phục hồi trước khi quyết định bón thúc. Lúa làm đòng và lúa sắp thu hoạch cần xử lý theo tình trạng khác nhau.",
+      "scope_vi": "Khuyến nông sau mưa bão. Quyết định tại ruộng cần độ sâu so mặt ruộng, thời gian ngập và quan sát rễ.",
+      "region": "Việt Nam",
+      "setting": "ruộng",
+      "stage": "",
+      "status": "reviewed",
+      "verified_on": "2026-11-17"
+    },
+    {
+      "source_id": "KN-RICE-SALINITY-SOC-TRANG",
+      "citation": "Sóc Trăng: Diễn đàn Khuyến nông Nông nghiệp “Biện pháp canh tác lúa thích ứng xâm nhập mặn” · Trung tâm Khuyến nông Quốc gia",
+      "url": "https://khuyennongvn.gov.vn/su-kien-khuyen-nong/soc-trang-dien-dan-khuyen-nong--nong-nghiep-bien-phap-canh-tac-lua-thich-ung-xam-nhap-man-18452.html",
+      "source_date": "Cập nhật 09/04/2019",
+      "crops": [
+        "lúa"
+      ],
+      "topic": "water",
+      "terms": [
+        "xâm nhập mặn",
+        "mặn",
+        "cống",
+        "nguồn nước",
+        "làm đòng",
+        "trổ bông",
+        "om5451"
+      ],
+      "locator": "Khuyến cáo của Viện Lúa ĐBSCL tại diễn đàn",
+      "finding_vi": "Bố trí thời vụ để tránh đỉnh mặn lúc trổ, chọn giống theo tiểu vùng và tranh thủ nguồn nước ngọt khi có thể. Khả năng chịu mặn và nhu cầu nước thay đổi theo giai đoạn, đặc biệt lúc làm đòng và trổ.",
+      "scope_vi": "Diễn đàn Sóc Trăng năm 2019. Không dùng số mặn kênh làm số mặn ruộng hoặc suy ra ngưỡng tưới chung.",
+      "region": "Sóc Trăng|ĐBSCL",
+      "setting": "ruộng",
+      "stage": "làm đòng|trổ bông",
+      "status": "reviewed",
+      "verified_on": "2026-11-17"
+    },
+    {
+      "source_id": "KN-RICE-AWD-INFRASTRUCTURE",
+      "citation": "Thủy lợi thông minh - điều kiện để Đề án 1 triệu ha lúa phát huy hiệu quả · Trung tâm Khuyến nông Quốc gia",
+      "url": "https://khuyennongvn.gov.vn/1-trieu-hecta-chuyen-canh-lua-chat-luong-cao/thuy-loi-thong-minh-dieu-kien-de-de-an-1-trieu-ha-lua-phat-huy-hieu-qua-32286.html",
+      "source_date": "Cập nhật 21/07/2026",
+      "crops": [
+        "lúa"
+      ],
+      "topic": "water",
+      "terms": [
+        "tưới ướt khô xen kẽ",
+        "awd",
+        "thủy lợi",
+        "cấp nước",
+        "thoát nước",
+        "kênh",
+        "cống"
+      ],
+      "locator": "Hạ tầng thủy lợi và khả năng triển khai AWD",
+      "finding_vi": "Tưới ngập khô xen kẽ cần khả năng tháo và cấp nước đúng lúc. Ở nơi cấp và thoát nước dùng chung hoặc nông hộ khó chủ động cấp lại nước, cần xem điều kiện thủy lợi trước khi áp dụng lịch rút nước.",
+      "scope_vi": "Bối cảnh hạ tầng cho đề án lúa ở ĐBSCL.",
+      "region": "ĐBSCL|đồng bằng sông Cửu Long",
+      "setting": "ruộng",
+      "stage": "",
+      "status": "reviewed",
+      "verified_on": "2026-11-17"
+    },
+    {
+      "source_id": "KN-RICE-CLUSTER-SEEDING",
+      "citation": "Kết quả một số mô hình ứng dụng giải pháp sạ cụm, sạ cụm kết hợp bón vùi phân tại các tỉnh Đồng bằng sông Cửu Long · Trung tâm Khuyến nông Quốc gia",
+      "url": "https://khuyennongvn.gov.vn/chuong-trinh-nganh-nong-nghiep/tai-co-cau-nganh-nong-nghiep/ket-qua-mot-so-mo-hinh-ung-dung-giai-phap-sa-cum-sa-cum-ket-hop-bon-vui-phan-tai-cac-tinh-dbscl-30990.html",
+      "source_date": "Cập nhật 27/03/2025",
+      "crops": [
+        "lúa"
+      ],
+      "topic": "planting",
+      "terms": [
+        "sạ cụm",
+        "sạ khóm",
+        "vùi phân",
+        "sạ lan",
+        "mật độ sạ"
+      ],
+      "locator": "Kết quả mô hình sạ cụm và kết hợp bón vùi",
+      "finding_vi": "Các mô hình ĐBSCL thử sạ theo cụm và đưa phân xuống đất khi sạ. Chương trình ghi nhận có thể giảm giống và một số đầu vào so với đối chứng địa phương. Cần xem khả năng san phẳng ruộng, thiết bị và quy trình đi kèm.",
+      "scope_vi": "Kết quả mô hình tại các điểm cụ thể, mức tiết kiệm thay đổi theo ruộng và cách làm.",
+      "region": "ĐBSCL",
+      "setting": "ruộng",
+      "stage": "gieo sạ",
+      "status": "reviewed",
+      "verified_on": "2026-11-17"
+    },
+    {
+      "source_id": "KN-RICE-SHRIMP-DESALINATION",
+      "citation": "Phương pháp rửa mặn trong canh tác lúa, tôm · Trung tâm Khuyến nông Quốc gia",
+      "url": "https://khuyennongvn.gov.vn/khoa-hoc-cong-nghe/khcn-trong-nuoc/phuong-phap-rua-man-trong-canh-tac-lua-tom-14486.html",
+      "source_date": "Cập nhật 04/08/2016",
+      "crops": [
+        "lúa"
+      ],
+      "topic": "water",
+      "terms": [
+        "lúa tôm",
+        "rửa mặn",
+        "nước mưa",
+        "mặn",
+        "xổ nước"
+      ],
+      "locator": "Khuyến cáo rửa mặn trước vụ lúa",
+      "finding_vi": "Trong mô hình tôm–lúa luân canh, cần dành thời gian rửa mặn trước khi gieo. Tận dụng mưa và nguồn nước phù hợp để rửa, theo dõi mưa và đo lại độ mặn trước khi xuống giống.",
+      "scope_vi": "Chỉ dùng cho chuyển từ vụ nuôi tôm sang vụ lúa trên đất nhiễm mặn. Lịch cụ thể theo địa phương.",
+      "region": "ĐBSCL",
+      "setting": "ruộng tôm lúa|ruộng lúa tôm",
+      "stage": "trước sạ",
+      "status": "reviewed",
+      "verified_on": "2026-11-17"
+    },
+    {
+      "source_id": "KN-RICE-WEEDY-RICE",
+      "citation": "Hướng dẫn biện pháp kỹ thuật quản lý lúa cỏ (lúa ma) · Trung tâm Khuyến nông Quốc gia",
+      "url": "https://khuyennongvn.gov.vn/khoa-hoc-cong-nghe/khcn-trong-nuoc/huong-dan-bien-phap-ky-thuat-quan-ly-lua-co-lua-ma-22126.html",
+      "source_date": "Cập nhật 16/09/2022",
+      "crops": [
+        "lúa"
+      ],
+      "topic": "diagnostic",
+      "terms": [
+        "lúa cỏ",
+        "lúa ma",
+        "hạt rụng",
+        "sạ lan"
+      ],
+      "locator": "Mục 1–2, nguồn lây và biện pháp phòng chống",
+      "finding_vi": "Hạt lúa cỏ có thể theo giống, dòng nước và máy gặt sang ruộng khác. Dùng giống đạt chuẩn, giữ máy và nông cụ sạch; ở ruộng nhiễm nặng có thể xem xét sạ hàng hoặc cấy để nhận biết và nhổ bỏ dễ hơn.",
+      "scope_vi": "Hướng dẫn quản lý tổng hợp của Cục Bảo vệ thực vật cho lúa cỏ.",
+      "region": "Việt Nam",
+      "setting": "ruộng",
+      "stage": "",
+      "status": "reviewed",
+      "verified_on": "2026-11-17"
+    },
+    {
+      "source_id": "KN-RICE-GOLDEN-SNAIL",
+      "citation": "Các biện pháp phòng trừ ốc bươu vàng hại lúa · Trung tâm Khuyến nông Quốc gia",
+      "url": "https://khuyennongvn.gov.vn/khoa-hoc-cong-nghe/khcn-trong-nuoc/cac-bien-phap-phong-tru-oc-buou-vang-hai-lua-18909.html",
+      "source_date": "Cập nhật 08/07/2019",
+      "crops": [
+        "lúa"
+      ],
+      "topic": "diagnostic",
+      "terms": [
+        "ốc bươu vàng",
+        "ốc ăn mạ",
+        "ổ trứng",
+        "mạ bị cắn",
+        "lưới chắn ốc"
+      ],
+      "locator": "Đặc điểm gây hại và biện pháp phòng trừ tổng hợp",
+      "finding_vi": "Ốc bươu vàng có thể cắn sát gốc mạ và làm trống từng đám sau sạ hoặc cấy. Thăm chỗ nước đọng và cửa nước, gom ốc và ổ trứng, kết hợp lưới chắn ở đường nước vào khi phù hợp.",
+      "scope_vi": "Bài kỹ thuật vụ Mùa miền Bắc. Dùng dấu hiệu và biện pháp cơ học, đối chiếu lịch địa phương.",
+      "region": "miền Bắc",
+      "setting": "ruộng",
+      "stage": "mạ|mới sạ",
+      "status": "reviewed",
+      "verified_on": "2026-11-17"
+    },
+    {
+      "source_id": "KN-RICE-GOLDEN-SNAIL-MEKONG",
+      "citation": "Đồng Tháp: Tìm giải pháp quản lý ốc bươu vàng theo hướng nông nghiệp sinh thái · Trung tâm Khuyến nông Quốc gia",
+      "url": "https://khuyennongvn.gov.vn/hoat-dong-khuyen-nong/thong-tin-huan-luyen/dong-thap-tim-giai-phap-quan-ly-oc-buou-vang-theo-huong-nong-nghiep-sinh-thai-32138.html",
+      "source_date": "Cập nhật 01/06/2026",
+      "crops": [
+        "lúa"
+      ],
+      "topic": "diagnostic",
+      "terms": [
+        "ốc bươu vàng",
+        "kênh rạch",
+        "quản lý sinh thái",
+        "vệ sinh bờ ruộng",
+        "phát quang"
+      ],
+      "locator": "Hội thảo Đồng Tháp, khuyến cáo quản lý tổng hợp",
+      "finding_vi": "Ốc có thể lan theo kênh rạch và gây hại mạnh khi lúa còn non. Vệ sinh đồng ruộng, quản lý bờ và đường nước giúp giảm nơi trú ẩn và nguồn ốc vào ruộng. Khảo sát ruộng để chọn biện pháp phù hợp.",
+      "scope_vi": "Tổng hợp hội thảo tại Đồng Tháp, tập trung phương pháp sinh thái.",
+      "region": "Đồng Tháp|ĐBSCL",
+      "setting": "ruộng",
+      "stage": "mạ|mới sạ",
+      "status": "reviewed",
+      "verified_on": "2026-11-17"
+    },
+    {
+      "source_id": "KN-RICE-PLANTHOPPER-IPM",
+      "citation": "Quy trình quản lý tính kháng thuốc bảo vệ thực vật của rầy nâu, rầy lưng trắng hại lúa · Trung tâm Khuyến nông Quốc gia",
+      "url": "https://khuyennongvn.gov.vn/khoa-hoc-cong-nghe/khcn-trong-nuoc/quy-trinh-quan-ly-tinh-khang-thuoc-bao-ve-thuc-vat-cua-ray-nau-ray-lung-trang-hai-lua-17329.html",
+      "source_date": "Cập nhật 06/08/2018",
+      "crops": [
+        "lúa"
+      ],
+      "topic": "diagnostic",
+      "terms": [
+        "rầy nâu",
+        "rầy lưng trắng",
+        "kháng thuốc",
+        "thiên địch",
+        "quản lý dịch hại"
+      ],
+      "locator": "Nguyên tắc và biện pháp quản lý tính kháng",
+      "finding_vi": "Giảm áp lực kháng thuốc bằng quản lý dịch hại tổng hợp, theo dõi rầy và thiên địch và tránh xử lý theo lịch cố định. Khi cần can thiệp, xác định loài, mật số và kiểm tra hướng dẫn đang áp dụng ở địa phương.",
+      "scope_vi": "Quy trình công nhận năm 2018. Chỉ dùng nguyên tắc quản lý, không lấy sản phẩm hoặc liều từ bài này.",
+      "region": "Việt Nam",
+      "setting": "ruộng",
+      "stage": "",
+      "status": "reviewed",
+      "verified_on": "2026-11-17"
+    },
+    {
+      "source_id": "KN-RICE-YELLOW-STUNT",
+      "citation": "Cần Thơ: Diễn đàn Khuyến nông Nông nghiệp “Biện pháp phòng chống rầy nâu và bệnh vàng lùn, lùn xoắn lá trên lúa tại các tỉnh Nam Bộ” · Trung tâm Khuyến nông Quốc gia",
+      "url": "https://khuyennongvn.gov.vn/su-kien-khuyen-nong/can-tho-dien-dan-khuyen-nong--nong-nghiep-bien-phap-phong-chong-ray-nau-va-benh-vang-lun-lun-xoan-la-tren-lua-tai-cac-tinh-nam-bo-15814.html",
+      "source_date": "Cập nhật 06/07/2017",
+      "crops": [
+        "lúa"
+      ],
+      "topic": "diagnostic",
+      "terms": [
+        "vàng lùn",
+        "lùn xoắn lá",
+        "rầy nâu",
+        "né rầy",
+        "sạ đồng loạt"
+      ],
+      "locator": "Khuyến cáo cuối diễn đàn phòng chống rầy và bệnh vàng lùn",
+      "finding_vi": "Kiểm tra ruộng thường xuyên để phát hiện ổ rầy và cây có biểu hiện vàng lùn hoặc xoắn lá. Bố trí gieo đồng loạt, né rầy theo thông báo địa phương và bón đạm cân đối để giảm nguy cơ.",
+      "scope_vi": "Kinh nghiệm Nam Bộ năm 2017. Lịch né rầy và mật số cần đối chiếu bản tin theo vụ.",
+      "region": "Nam Bộ|Cần Thơ|ĐBSCL",
+      "setting": "ruộng",
+      "stage": "đầu vụ",
+      "status": "reviewed",
+      "verified_on": "2026-11-17"
+    },
+    {
+      "source_id": "KN-RICE-ORGANIC-TOXICITY",
+      "citation": "Khắc phục bệnh vàng lá do ngộ độc hữu cơ trong vụ lúa mùa 2020 · Trung tâm Khuyến nông Quốc gia",
+      "url": "https://khuyennongvn.gov.vn/khoa-hoc-cong-nghe/khcn-trong-nuoc/khac-phuc-benh-vang-la-do-ngo-doc-huu-co-trong-vu-lua-mua-2020-20225.html",
+      "source_date": "Cập nhật 24/06/2020",
+      "crops": [
+        "lúa"
+      ],
+      "topic": "diagnostic",
+      "terms": [
+        "ngộ độc hữu cơ",
+        "nghẹt rễ",
+        "rễ thối đen",
+        "mùi tanh",
+        "vàng lá",
+        "rơm rạ"
+      ],
+      "locator": "Nguyên nhân, triệu chứng và biện pháp canh tác",
+      "finding_vi": "Lúa vàng, ngừng lớn, có rễ đen hôi và ít rễ mới sau khi vùi rơm trên đất ướt là dấu hiệu gợi ý nghẹt rễ do ngộ độc hữu cơ. Kiểm tra cụm bị vàng và khóm khỏe để so sánh rễ, rồi xem tình trạng thoát nước.",
+      "scope_vi": "Bài về lúa vụ Mùa. Dấu hiệu dùng để phân biệt nguyên nhân, cần kiểm tra thực địa.",
+      "region": "Việt Nam",
+      "setting": "ruộng",
+      "stage": "",
+      "status": "reviewed",
+      "verified_on": "2026-11-17"
+    },
+    {
+      "source_id": "KN-RICE-STRAW-RECYCLING",
+      "citation": "Xử lý rơm rạ sau thu hoạch thành phân bón hữu cơ · Trung tâm Khuyến nông Quốc gia",
+      "url": "https://khuyennongvn.gov.vn/anh-dep-khuyen-nong/xu-ly-rom-ra-sau-thu-hoach-thanh-phan-bon-huu-co-25781.html",
+      "source_date": "",
+      "crops": [
+        "lúa"
+      ],
+      "topic": "nutrition",
+      "terms": [
+        "rơm rạ",
+        "xử lý rạ",
+        "ngộ độc hữu cơ",
+        "phân hủy rơm",
+        "đốt rơm"
+      ],
+      "locator": "Phần giải thích rơm rạ tồn dư và mô hình xử lý",
+      "finding_vi": "Rơm chưa phân hủy trong đất thiếu oxy có thể góp phần gây ngộ độc hữu cơ ở vụ kế. Cần chủ động xử lý rơm sớm theo điều kiện ruộng, thay vì vùi rơm sát ngày sạ khi khó tháo nước.",
+      "scope_vi": "Mô hình Thái Nguyên. Dùng nguyên lý phân hủy, không chuyển liều chế phẩm hoặc đơn vị sào sang ĐBSCL.",
+      "region": "Thái Nguyên",
+      "setting": "ruộng",
+      "stage": "sau thu hoạch|trước sạ",
+      "status": "reviewed",
+      "verified_on": "2026-11-17"
+    },
+    {
+      "source_id": "KN-RICE-LEAFFOLDER-SCOUTING",
+      "citation": "Phòng trừ sâu cuốn lá nhỏ lứa 6 và một số sinh vật gây hại cuối vụ trên lúa vụ Mùa tại các tỉnh thành phố phía Bắc · Trung tâm Khuyến nông Quốc gia",
+      "url": "https://khuyennongvn.gov.vn/thien-tai-dich-hai/phong-tru-sau-cuon-la-nho-lua-6-va-mot-so-sinh-vat-gay-hai-cuoi-vu-tren-lua-vu-mua-tai-cac-tinh-thanh-pho-phia-bac-32369.html",
+      "source_date": "Cập nhật 19/08/2026",
+      "crops": [
+        "lúa"
+      ],
+      "topic": "diagnostic",
+      "terms": [
+        "sâu cuốn lá",
+        "sâu cuốn lá nhỏ",
+        "lá cuốn",
+        "mật số sâu",
+        "thừa đạm"
+      ],
+      "locator": "Mục 1, sâu cuốn lá nhỏ",
+      "finding_vi": "Tăng thăm đồng khi bản tin địa phương dự báo sâu non nở rộ, ưu tiên ruộng xanh tốt bón thừa đạm và diện tích dễ nhiễm. Ghi mật số và giai đoạn lúa để chọn thời điểm đánh giá lại.",
+      "scope_vi": "Bản tin vụ Mùa phía Bắc năm 2026. Không chuyển nguyên lịch lứa, ngưỡng hoặc chỉ định thuốc theo vùng khác.",
+      "region": "miền Bắc",
+      "setting": "ruộng",
+      "stage": "",
+      "status": "reviewed",
+      "verified_on": "2026-11-17"
+    },
+    {
+      "source_id": "KN-RICE-SMART-PACKAGE",
+      "citation": "“Gói” kỹ thuật trong canh tác lúa thông minh · Trung tâm Khuyến nông Quốc gia",
+      "url": "https://khuyennongvn.gov.vn/hoat-dong-khuyen-nong/chuyen-giao-tbkt/goi-ky-thuat-trong-canh-tac-lua-thong-minh-21736.html",
+      "source_date": "Cập nhật 30/03/2022",
+      "crops": [
+        "lúa"
+      ],
+      "topic": "planting",
+      "terms": [
+        "canh tác lúa thông minh",
+        "sạ thưa",
+        "làm đất",
+        "gieo sạ",
+        "kỹ thuật sạ cụm"
+      ],
+      "locator": "Phần giới thiệu gói kỹ thuật và kỹ thuật xuống giống",
+      "finding_vi": "Chuẩn bị đất, cách gieo, bón phân, phòng sâu bệnh và quản lý nước cần phối hợp với nhau. Mật độ và cự ly cụm có thể điều chỉnh theo vụ, giống và độ phì của đất.",
+      "scope_vi": "Kinh nghiệm chương trình ĐBSCL, không áp một mật độ chung cho mọi chân ruộng.",
+      "region": "ĐBSCL",
+      "setting": "ruộng",
+      "stage": "gieo sạ",
+      "status": "reviewed",
+      "verified_on": "2026-11-17"
+    },
+    {
+      "source_id": "KN-MANGO-CANOPY-FRUIT",
+      "citation": "Bản tin Khuyến nông Việt Nam số 07/2024, phần kỹ thuật canh tác xoài · Trung tâm Khuyến nông Quốc gia",
+      "url": "https://khuyennongvn.gov.vn/data/documents/0/2024/12/05/hangweb/ban-tin-khuyen-nong-so-7.pdf",
+      "source_date": "Số 07/2024",
+      "crops": [
+        "xoài"
+      ],
+      "topic": "diagnostic",
+      "terms": [
+        "thán thư xoài",
+        "rầy bông xoài",
+        "đốm đen vi khuẩn",
+        "ruồi đục quả",
+        "bao quả",
+        "tỉa cành"
+      ],
+      "locator": "Bản tin số 07/2024, mục a, c và d của bài về xoài, khoảng trang in 25–26",
+      "finding_vi": "Sau thu hoạch, tỉa cành giao nhau, cành yếu và cành bệnh. Khi ra hoa, theo dõi rầy bông và dấu hiệu bệnh trên phát hoa. Khi nuôi trái, loại trái bệnh hoặc dị dạng và xem xét bao trái khỏe bằng túi phù hợp.",
+      "scope_vi": "Vườn xoài và các giống nêu trong quy trình. Nguồn giúp chọn bước quan sát và biện pháp canh tác.",
+      "region": "Việt Nam",
+      "setting": "vườn",
+      "stage": "sau thu hoạch|ra hoa|nuôi trái",
+      "status": "reviewed",
+      "verified_on": "2026-11-17"
+    },
+    {
+      "source_id": "KN-RICE-FLOOD-LODGING",
+      "citation": "Hà Tĩnh khẩn trương khắc phục lúa Hè Thu bị đổ ngã, ngập úng · Trung tâm Khuyến nông Quốc gia",
+      "url": "https://khuyennongvn.gov.vn/thien-tai-dich-hai/ha-tinh-khan-truong-khac-phuc-lua-he-thu-bi-do-nga-ngap-ung-32390.html",
+      "source_date": "Cập nhật 24/08/2026",
+      "crops": [
+        "lúa"
+      ],
+      "topic": "water",
+      "terms": [
+        "mưa bão",
+        "đổ ngã",
+        "đổ rạp",
+        "ngập",
+        "tiêu nước",
+        "lúa chín"
+      ],
+      "locator": "Ưu tiên tiêu nước, hạn chế lúa ngâm ruộng",
+      "finding_vi": "Ưu tiên khơi dòng tiêu ở vùng trũng. Sau khi nước rút, kiểm tra lúa đổ, tình trạng cây và dấu hiệu sâu bệnh. Với lúa chưa chín, hạn chế tác động làm gãy thân hoặc rụng hạt. Chờ đánh giá tình trạng rễ và giai đoạn cây trước khi bón.",
+      "scope_vi": "Hướng dẫn xử lý lúa Hè Thu sau mưa lớn tại Hà Tĩnh năm 2026. Dùng cho việc quan sát sau ngập và cân nhắc thu hoạch theo độ chín.",
+      "region": "Hà Tĩnh",
+      "setting": "ruộng",
+      "stage": "lúa chín",
+      "status": "reviewed",
+      "verified_on": "2026-11-17"
+    },
+    {
+      "source_id": "KN-RICE-SEASON-2026-2027",
+      "citation": "Khu vực phía Nam chủ động thời vụ lúa Đông Xuân 2026 - 2027 để né hạn mặn · Trung tâm Khuyến nông Quốc gia",
+      "url": "https://khuyennongvn.gov.vn/hoat-dong-khuyen-nong/thong-tin-huan-luyen/khu-vuc-phia-nam-chu-dong-thoi-vu-lua-dong-xuan-2026-2027-de-ne-han-man-32569.html",
+      "source_date": "Cập nhật 13/10/2026",
+      "crops": [
+        "lúa"
+      ],
+      "topic": "planting",
+      "terms": [
+        "đông xuân 2026",
+        "cơ cấu mùa vụ",
+        "lịch xuống giống",
+        "lịch gieo sạ",
+        "né hạn mặn"
+      ],
+      "locator": "Hội nghị ngày 09/10/2026 về chuẩn bị vụ Đông Xuân",
+      "finding_vi": "Kế hoạch vụ Đông Xuân 2026–2027 nhấn mạnh xuống giống theo điều kiện từng vùng và chủ động né hạn mặn. Với câu hỏi chọn ngày sạ, cần biết địa bàn và tra lịch chính thức của địa phương theo đúng vụ.",
+      "scope_vi": "Bản tin kế hoạch năm 2026–2027. Không dùng cho vụ khác hoặc coi là số đo mặn hiện tại.",
+      "region": "ĐBSCL|Nam Bộ",
+      "setting": "ruộng",
+      "stage": "trước sạ",
+      "status": "reviewed",
+      "verified_on": "2026-11-17"
+    },
+    {
+      "source_id": "KN-RICE-SALINITY-2016",
+      "citation": "Hướng dẫn kỹ thuật canh tác lúa và cây ăn trái cho vùng đất bị nhiễm mặn đồng bằng sông Cửu Long năm 2016 · Trung tâm Khuyến nông Quốc gia",
+      "url": "https://khuyennongvn.gov.vn/khoa-hoc-cong-nghe/khcn-trong-nuoc/huong-dan-ky-thuat-canh-tac-lua-va-cay-an-trai-cho-vung-dat-bi-nhiem-man-dong-bang-song-cuu-long-nam-2016-13652.html",
+      "source_date": "Cập nhật 23/02/2016",
+      "crops": [
+        "lúa"
+      ],
+      "topic": "water",
+      "terms": [
+        "hạn mặn",
+        "mặn",
+        "làm đòng",
+        "trỗ",
+        "rửa mặn",
+        "nước ngọt"
+      ],
+      "locator": "Phần I, lúa Đông Xuân muộn và lúa Hè Thu",
+      "finding_vi": "Tài liệu tách cách quản lý nước cho lúa Đông Xuân đang làm đòng–trổ với chuẩn bị lúa Hè Thu trên đất mặn. Chọn giống, tranh thủ nước ngọt và xem kết quả đo tại nơi liên quan trước khi áp dụng.",
+      "scope_vi": "Hướng dẫn ĐBSCL năm 2016, dùng nguyên lý theo giai đoạn và mùa vụ. Không chuyển ngưỡng cũ thành chỉ định tưới hiện hành.",
+      "region": "ĐBSCL",
+      "setting": "ruộng",
+      "stage": "làm đòng|trổ bông",
+      "status": "reviewed",
+      "verified_on": "2026-11-17"
+    },
+    {
+      "source_id": "KN-RICE-LOW-EMISSION-PILOT",
+      "citation": "Sơ kết dự án xây dựng mô hình canh tác lúa giảm phát thải tại Đồng bằng Sông Cửu Long · Trung tâm Khuyến nông Quốc gia",
+      "url": "https://khuyennongvn.gov.vn/hoat-dong-khuyen-nong/chuyen-giao-tbkt/so-ket-du-an-xay-dung-mo-hinh-canh-tac-lua-giam-phat-thai-tai-dong-bang-song-cuu-long-30538.html",
+      "source_date": "Cập nhật 19/02/2025",
+      "crops": [
+        "lúa"
+      ],
+      "topic": "nutrition",
+      "terms": [
+        "sạ cụm",
+        "bón vùi",
+        "phân hữu cơ",
+        "1 phải 5 giảm",
+        "giảm phát thải"
+      ],
+      "locator": "Kết quả dự án tại 5 tỉnh, các kỹ thuật đã áp dụng",
+      "finding_vi": "Mô hình kết hợp sạ cụm, bón vùi, quản lý dịch hại tổng hợp và tưới ngập khô xen kẽ. Khi hỏi về bón vùi, cần biết cách sạ, thiết bị và nguồn phân để xem ruộng có điều kiện tương tự mô hình hay không.",
+      "scope_vi": "Báo cáo mô hình tại 5 tỉnh ĐBSCL. Không dùng kết quả mô hình để tính liều cho ruộng khác.",
+      "region": "ĐBSCL|Cần Thơ",
+      "setting": "ruộng",
+      "stage": "gieo sạ",
+      "status": "reviewed",
+      "verified_on": "2026-11-17"
+    },
+    {
+      "source_id": "IRRI-RICE-AWD",
+      "citation": "Alternate Wetting and Drying · IRRI",
+      "url": "https://ghgmitigation.irri.org/mitigation-technologies/alternate-wetting-and-drying",
+      "source_date": "",
+      "crops": [
+        "lúa"
+      ],
+      "topic": "water",
+      "terms": [
+        "awd",
+        "tưới ngập khô xen kẽ",
+        "tưới ướt khô xen kẽ",
+        "ống theo dõi",
+        "mực nước"
+      ],
+      "locator": "Mô tả kỹ thuật AWD và ống đo",
+      "finding_vi": "Sau giai đoạn giữ nước, để nước hạ theo ngưỡng quản lý rồi tưới lại. Dùng ống đục lỗ để quan sát mực nước dưới mặt đất. Chỉ áp dụng theo lịch phù hợp với giai đoạn lúa và khả năng cấp lại nước.",
+      "scope_vi": "Tài liệu kỹ thuật IRRI cho ruộng lúa có kiểm soát tưới. Cần đối chiếu đất phèn, đất mặn và giai đoạn mẫn cảm.",
+      "region": "Quốc tế",
+      "setting": "ruộng có tưới",
+      "stage": "",
+      "status": "reviewed",
+      "verified_on": "2026-11-17"
+    },
+    {
+      "source_id": "IRRI-RICE-SEED-QUALITY",
+      "citation": "Seed Quality Management · IRRI",
+      "url": "https://www.knowledgebank.irri.org/images/docs/seed-quality-management.pdf",
+      "source_date": "",
+      "crops": [
+        "lúa"
+      ],
+      "topic": "planting",
+      "terms": [
+        "chất lượng giống",
+        "thử nảy mầm",
+        "thử lên mộng",
+        "hạt giống",
+        "độ ẩm hạt"
+      ],
+      "locator": "Seed Quality, chỉ tiêu Germination percentage và Moisture content",
+      "finding_vi": "Đánh giá lô hạt giống bằng độ sạch, khả năng nảy mầm và sức nảy mầm. Thử trên một mẫu đại diện và đếm hạt nảy mầm để ước tính tỷ lệ. Độ ẩm khi lưu kho ảnh hưởng đến sức sống của hạt.",
+      "scope_vi": "Tài liệu IRRI về lúa giống. Tỷ lệ nảy mầm của mẫu hạt khác tỷ lệ cây sống ngoài ruộng.",
+      "region": "Quốc tế",
+      "setting": "",
+      "stage": "trước sạ",
+      "status": "reviewed",
+      "verified_on": "2026-11-17"
+    },
+    {
+      "source_id": "IRRI-RICE-PADDY-MOISTURE",
+      "citation": "Dried to perfection · IRRI",
+      "url": "https://www.ricetoday.irri.org/dried-to-perfection/",
+      "source_date": "October 23, 2012",
+      "crops": [
+        "lúa"
+      ],
+      "topic": "planting",
+      "terms": [
+        "phơi lúa",
+        "sấy lúa",
+        "bảo quản lúa",
+        "độ ẩm hạt",
+        "độ ẩm lúa",
+        "ẩm kế"
+      ],
+      "locator": "Phần đo độ ẩm lúa sau thu hoạch",
+      "finding_vi": "Dùng máy đo độ ẩm để kiểm tra lúa thóc trước khi quyết định sấy thêm, xay xát hoặc nhập kho. Người dùng cần nêu mục đích sử dụng và điều kiện bảo quản khi hỏi mức ẩm cần đạt.",
+      "scope_vi": "Bài Rice Today về cách kiểm tra ẩm hạt. Không dùng để đánh giá độ ẩm đất.",
+      "region": "Quốc tế",
+      "setting": "",
+      "stage": "sau thu hoạch",
+      "status": "reviewed",
+      "verified_on": "2026-11-17"
+    },
+    {
+      "source_id": "IRRI-RICE-LEAF-COLOR-N",
+      "citation": "Crop nutrient management using Nutrient Expert improves yield, increases farmers’ income, and reduces greenhouse gas emissions · IRRI",
+      "url": "https://ricetoday.irri.org/crop-nutrient-management-using-nutrient-expert-improves-yield-increases-farmers-income-and-reduces-greenhouse-gas-emissions/",
+      "source_date": "October 21, 2026",
+      "crops": [
+        "lúa"
+      ],
+      "topic": "nutrition",
+      "terms": [
+        "bảng so màu lá",
+        "bảng màu lá",
+        "bón đạm",
+        "nhu cầu đạm",
+        "lcc"
+      ],
+      "locator": "Chú thích và mô tả Leaf Color Chart, phần Nutrient Expert",
+      "finding_vi": "Bảng so màu lá giúp theo dõi sắc xanh của lá lúa để hỗ trợ quyết định bón đạm. Quản lý dinh dưỡng theo ruộng xem xét nhu cầu cây và nguồn cung sẵn có thay vì áp cùng một công thức cho mọi ruộng.",
+      "scope_vi": "Kinh nghiệm IRRI về quản lý dinh dưỡng theo địa điểm. Chọn ngưỡng bảng màu theo hướng dẫn địa phương và giống.",
+      "region": "Quốc tế",
+      "setting": "ruộng",
+      "stage": "",
+      "status": "reviewed",
+      "verified_on": "2026-11-17"
+    },
+    {
+      "source_id": "IRRI-RICE-SPLIT-N",
+      "citation": "Fertile progress · IRRI",
+      "url": "https://www.ricetoday.irri.org/fertile-progress/",
+      "source_date": "September 28, 2026",
+      "crops": [
+        "lúa"
+      ],
+      "topic": "nutrition",
+      "terms": [
+        "chia lần bón",
+        "bón đạm",
+        "bón lót",
+        "bón thúc",
+        "mất đạm"
+      ],
+      "locator": "Phần nghiên cứu về thời điểm và số lần bón đạm",
+      "finding_vi": "Chia đạm qua nhiều thời điểm giúp điều chỉnh lượng bón theo đồng ruộng và giai đoạn cây. Đưa đạm bón lót vào đất trong điều kiện phù hợp có thể giảm thất thoát. Cần định lượng theo loại phân và diện tích thực tế.",
+      "scope_vi": "Tổng quan nghiên cứu IRRI về đạm trên lúa, các tỷ lệ bón cố định có bối cảnh lịch sử.",
+      "region": "Quốc tế",
+      "setting": "ruộng",
+      "stage": "bón lót|bón thúc",
+      "status": "reviewed",
+      "verified_on": "2026-11-17"
+    },
+    {
+      "source_id": "IRRI-RICE-FLOOD-ODISHA",
+      "citation": "Variety-based climate-smart intervention helps smallholder farmers cope with floods in the lowlands of Odisha · IRRI",
+      "url": "https://www.ricetoday.irri.org/variety-based-climate-smart-intervention-helps-smallholder-farmers-cope-with-flood-in-the-lowlands-of-odisha/",
+      "source_date": "",
+      "crops": [
+        "lúa"
+      ],
+      "topic": "water",
+      "terms": [
+        "ngập kéo dài",
+        "trồng lại",
+        "ngập lũ",
+        "giống chịu ngập",
+        "nước rút"
+      ],
+      "locator": "Recommended contingency plan for the flood crisis",
+      "finding_vi": "Sau khi nước rút, đánh giá thiệt hại và thời gian còn lại của vụ trước khi quyết định trồng lại. Báo cáo Odisha nhấn mạnh rằng giống chịu ngập thoáng qua vẫn có thể thất bại khi nước tù kéo dài.",
+      "scope_vi": "Nghiên cứu tình huống ở Odisha, Ấn Độ. Lịch vụ và giống ở đó không đại diện cho OM5451 hoặc ĐBSCL.",
+      "region": "Odisha|Ấn Độ",
+      "setting": "vùng trũng",
+      "stage": "",
+      "status": "reviewed",
+      "verified_on": "2026-11-17"
+    },
+    {
+      "source_id": "IRRI-RICE-SUB1-LIMITS",
+      "citation": "Thinking beyond the SUB1 gene: Making rice varieties that can survive longer floods and produce higher yields · IRRI",
+      "url": "https://ricetoday.irri.org/thinking-beyond-the-sub1-gene-making-rice-survive-longer-and-yield-more/",
+      "source_date": "November 7, 2023",
+      "crops": [
+        "lúa"
+      ],
+      "topic": "water",
+      "terms": [
+        "sub1",
+        "swarna sub1",
+        "chìm hoàn toàn",
+        "ngập đọt",
+        "giống chịu ngập",
+        "ngập kéo dài"
+      ],
+      "locator": "Phần mở đầu và giới hạn chịu ngập của giống SUB1",
+      "finding_vi": "Khả năng chịu chìm của một số giống mang SUB1 là tính trạng giống trong điều kiện cụ thể. Cây chịu được một đợt ngập thoáng qua vẫn có thể mất sức hoặc chết khi ngập kéo dài. Dùng giống, thời gian và kiểu ngập để đánh giá.",
+      "scope_vi": "Bài IRRI về các giống mang SUB1, không gán ngưỡng hoặc tỷ lệ sống đó cho OM5451.",
+      "region": "Quốc tế",
+      "setting": "ruộng",
+      "stage": "",
+      "status": "reviewed",
+      "verified_on": "2026-11-17"
+    },
+    {
+      "source_id": "IRRI-RICE-RAINFED-CAMBODIA",
+      "citation": "Best Management Practices for Rainfed Lowland Rice in Cambodia · IRRI",
+      "url": "https://www.knowledgebank.irri.org/images/docs/Best-Management-Practices-for-rainfed-lowland-rice-in-Cambodia-Kampong-Cham-and-Siem-Reap-province.pdf",
+      "source_date": "",
+      "crops": [
+        "lúa"
+      ],
+      "topic": "water",
+      "terms": [
+        "lúa nhờ mưa",
+        "ruộng trũng",
+        "quản lý nước",
+        "awd",
+        "nguồn tưới"
+      ],
+      "locator": "Phụ lục về Alternate Wetting and Drying",
+      "finding_vi": "Tài liệu phân biệt ruộng nhờ mưa với các ruộng có thể tưới bổ sung. Tưới ngập khô xen kẽ có thể tiết kiệm nước khi người trồng kiểm soát được thời điểm đưa nước trở lại. Cần biết ruộng có nguồn tưới chủ động hay không.",
+      "scope_vi": "Hướng dẫn lúa vùng thấp ở Kampong Cham và Siem Reap, Campuchia. Không áp lịch điều tiết nước của vùng nghiên cứu sang ĐBSCL.",
+      "region": "Campuchia",
+      "setting": "ruộng nhờ mưa",
+      "stage": "",
+      "status": "reviewed",
+      "verified_on": "2026-11-17"
+    },
+    {
+      "source_id": "KN-DURIAN-DRY-SEASON-SALT",
+      "citation": "Phòng chống hạn mặn cho cây sầu riêng trong mùa khô · Trung tâm Khuyến nông Quốc gia",
+      "url": "https://khuyennongvn.gov.vn/khoa-hoc-cong-nghe/khcn-trong-nuoc/phong-chong-han-man-cho-cay-sau-rieng-trong-mua-kho-23220.html",
+      "source_date": "Cập nhật 03/01/2024",
+      "crops": [
+        "sầu riêng"
+      ],
+      "topic": "water",
+      "terms": [
+        "mặn",
+        "hạn",
+        "mùa khô",
+        "nguồn nước",
+        "trữ ngọt",
+        "sầu riêng ra hoa"
+      ],
+      "locator": "Mục 1–3, trước, trong và sau hạn mặn",
+      "finding_vi": "Trong vùng có rủi ro mặn, theo dõi bản tin địa phương, đo mặn ở nguồn trước khi lấy nước và chuẩn bị nguồn ngọt. Giai đoạn ra hoa và nuôi trái cần xem khả năng cấp nước trước khi quyết định điều tiết cây.",
+      "scope_vi": "Khuyến nông ĐBSCL mùa khô 2023–2024. Chỉ dùng nguyên lý chuẩn bị nguồn nước, không coi dự báo cũ là số liệu hôm nay.",
+      "region": "ĐBSCL",
+      "setting": "vườn",
+      "stage": "ra hoa|nuôi trái",
+      "status": "reviewed",
+      "verified_on": "2026-11-17"
+    },
+    {
+      "source_id": "KN-LEAFY-RECIRCULATING",
+      "citation": "Quy trình kỹ thuật sản xuất rau thủy canh tuần hoàn · Trung tâm Khuyến nông Quốc gia",
+      "url": "https://khuyennongvn.gov.vn/ky-thuat-trong-trot/quy-trinh-ky-thuat-san-xuat-rau-thuy-canh-tuan-hoan-759.html",
+      "source_date": "Cập nhật 26/12/2011",
+      "crops": [
+        "cải",
+        "xà lách",
+        "rau muống",
+        "cần tây"
+      ],
+      "topic": "planting",
+      "terms": [
+        "thủy canh",
+        "thủy canh tuần hoàn",
+        "nft",
+        "ươm cây",
+        "giá thể",
+        "lá thật"
+      ],
+      "locator": "Công đoạn ươm cây con và đưa lên hệ thống",
+      "finding_vi": "Ươm cây trong cốc giá thể ẩm. Khi cây có lá thật và bộ rễ phát triển, chuyển cốc lên hệ thống tuần hoàn rồi theo dõi hoạt động dòng dinh dưỡng. Kiểm tra giống và thiết kế trước khi chọn cách chăm sóc.",
+      "scope_vi": "Quy trình cho rau ăn lá trong hệ thống tuần hoàn, không sử dụng nguyên công thức cho thủy canh tĩnh hoặc đất.",
+      "region": "Việt Nam",
+      "setting": "thủy canh",
+      "stage": "ươm cây",
+      "status": "reviewed",
+      "verified_on": "2026-11-17"
+    },
+    {
+      "source_id": "KN-DURIAN-STORM-DAMAGE",
+      "citation": "Kinh nghiệm chăm sóc cây sầu riêng sau mưa bão tại Lâm Đồng · Trung tâm Khuyến nông Quốc gia",
+      "url": "https://khuyennongvn.gov.vn/khoa-hoc-cong-nghe/khcn-trong-nuoc/kinh-nghiem-cham-soc-cay-sau-rieng-sau-mua-bao-tai-lam-dong-19088.html",
+      "source_date": "Cập nhật 14/08/2019",
+      "crops": [
+        "sầu riêng"
+      ],
+      "topic": "water",
+      "terms": [
+        "mưa bão",
+        "gió lớn",
+        "cây nghiêng",
+        "cành gãy",
+        "vườn ngập"
+      ],
+      "locator": "Chăm sóc cây gãy cành, nghiêng gốc sau bão",
+      "finding_vi": "Sau gió lớn, kiểm tra cây nghiêng, gốc bị lay, cành gãy và gốc bị bùn lấp. Cố định cây nghiêng khi an toàn, tỉa cành gãy, dọn quả rụng và kiểm tra thoát nước trước khi chăm sóc tiếp.",
+      "scope_vi": "Kinh nghiệm nhà vườn Lâm Đồng sau mưa bão. Cần kiểm tra mức hư hại của từng cây.",
+      "region": "Lâm Đồng",
+      "setting": "vườn",
+      "stage": "",
+      "status": "reviewed",
+      "verified_on": "2026-11-17"
+    },
+    {
+      "source_id": "KN-DURIAN-FLOOD-RECOVERY",
+      "citation": "Hướng dẫn khắc phục nhanh sau ngập úng cho vườn sầu riêng · Trung tâm Khuyến nông Quốc gia",
+      "url": "https://khuyennongvn.gov.vn/khoa-hoc-cong-nghe/khcn-trong-nuoc/huong-dan-khac-phuc-nhanh-sau-ngap-ung-cho-vuon-sau-rieng-31681.html",
+      "source_date": "Cập nhật 25/11/2025",
+      "crops": [
+        "sầu riêng"
+      ],
+      "topic": "water",
+      "terms": [
+        "ngập",
+        "úng",
+        "thối rễ",
+        "rút nước",
+        "bùn bám",
+        "phá váng",
+        "đọng nước"
+      ],
+      "locator": "Các bước 1–5, xử lý sau khi nước rút",
+      "finding_vi": "Ưu tiên dẫn nước khỏi vùng gốc, dọn vật cản và kiểm tra bùn bám thân, lá và mặt đất. Khi đất đủ điều kiện, phá lớp váng nông cẩn thận để cải thiện thông khí và tránh làm đứt rễ.",
+      "scope_vi": "Hướng dẫn phục hồi vườn sầu riêng sau ngập. Cần biết thời gian ngập và tình trạng rễ trước khi quyết định bón phân.",
+      "region": "Việt Nam",
+      "setting": "vườn",
+      "stage": "sau ngập",
+      "status": "reviewed",
+      "verified_on": "2026-11-17"
+    },
+    {
+      "source_id": "KN-WINTER-VEGETABLE-CARE",
+      "citation": "Một số biện pháp kỹ thuật chăm sóc cây rau vụ đông · Trung tâm Khuyến nông Quốc gia",
+      "url": "https://khuyennongvn.gov.vn/khoa-hoc-cong-nghe/khcn-trong-nuoc/mot-so-bien-phap-ky-thuat-cham-soc-cay-rau-vu-dong-13340.html",
+      "source_date": "Cập nhật 14/12/2015",
+      "crops": [
+        "cải",
+        "cà chua",
+        "dưa chuột"
+      ],
+      "topic": "water",
+      "terms": [
+        "tưới rau",
+        "thoát nước",
+        "vụ đông",
+        "giữ ẩm",
+        "đọng nước"
+      ],
+      "locator": "Phần tưới và điều tiết nước cho rau vụ đông",
+      "finding_vi": "Nhu cầu nước khác nhau giữa cây và giai đoạn. Xem độ ẩm đất và đặc tính thoát nước của từng luống trước khi chọn cách tưới. Khi có mưa kéo dài, kiểm tra các chỗ trũng dễ đọng nước.",
+      "scope_vi": "Rau vụ đông miền Bắc. Chỉ dùng nguyên lý theo dõi ẩm, không chuyển thông số thời vụ sang miền Nam.",
+      "region": "miền Bắc",
+      "setting": "lên luống",
+      "stage": "",
+      "status": "reviewed",
+      "verified_on": "2026-11-17"
+    },
+    {
+      "source_id": "KN-SWEET-PEPPER-TRANSPLANT",
+      "citation": "Kỹ thuật trồng ớt ngọt (Capsicum annum L.) theo hướng an toàn · Trung tâm Khuyến nông Quốc gia",
+      "url": "https://khuyennongvn.gov.vn/khoa-hoc-cong-nghe/khcn-trong-nuoc/ky-thuat-trong-ot-ngot-capsicum-annum-l-theo-huong-an-toan-9759.html",
+      "source_date": "Cập nhật 21/05/2014",
+      "crops": [
+        "ớt"
+      ],
+      "topic": "planting",
+      "terms": [
+        "ớt ngọt",
+        "ớt chuông",
+        "cây con",
+        "ươm ớt",
+        "lá thật",
+        "lên luống"
+      ],
+      "locator": "Mục 3–4, làm cây giống và làm đất",
+      "finding_vi": "Tỉa bỏ cây con yếu trong vườn ươm. Chọn cây con phát triển khỏe, có nhiều lá thật rồi mới trồng vào đất thoát nước. Lên luống và bố trí mật độ theo điều kiện ruộng.",
+      "scope_vi": "Quy trình cho ớt ngọt, giữ riêng với ớt cay khi hỏi về lịch, mật độ hay liều bón.",
+      "region": "Việt Nam",
+      "setting": "lên luống",
+      "stage": "cây con",
+      "status": "reviewed",
+      "verified_on": "2026-11-17"
+    },
+    {
+      "source_id": "KN-POMELO-GREENING",
+      "citation": "Cách giám định nhanh và xử lý bệnh vàng lá gân xanh trên cây bưởi da xanh · Trung tâm Khuyến nông Quốc gia",
+      "url": "https://khuyennongvn.gov.vn/khoa-hoc-cong-nghe/khcn-trong-nuoc/cach-giam-dinh-nhanh-va-xu-ly-benh-vang-la-gan-xanh-tren-cay-buoi-da-xanh-15844.html",
+      "source_date": "Cập nhật 17/07/2017",
+      "crops": [
+        "bưởi"
+      ],
+      "topic": "diagnostic",
+      "terms": [
+        "vàng lá gân xanh",
+        "greening",
+        "bưởi da xanh",
+        "trái méo",
+        "hạt lép"
+      ],
+      "locator": "Triệu chứng điển hình trên lá và trái",
+      "finding_vi": "Khi nghi vàng lá gân xanh, xem biểu hiện giữa các cành và kiểm tra trái nhỏ, lệch dạng hoặc hạt lép. Vàng lá có nhiều nguyên nhân, cần đối chiếu cả lá, trái và phân bố trong vườn trước khi kết luận.",
+      "scope_vi": "Tài liệu bưởi da xanh dùng để sàng lọc triệu chứng. Ca nghi ngờ cần giám định tại địa phương.",
+      "region": "Việt Nam",
+      "setting": "vườn",
+      "stage": "",
+      "status": "reviewed",
+      "verified_on": "2026-11-17"
+    },
+    {
+      "source_id": "KN-GUAVA-ORCHARD-DRAINAGE",
+      "citation": "Đà Nẵng: Mô hình trồng ổi Đài Loan đem lại hiệu quả kinh tế cao · Trung tâm Khuyến nông Quốc gia",
+      "url": "https://khuyennongvn.gov.vn/chuong-trinh-nganh-nong-nghiep/tai-co-cau-nganh-nong-nghiep/da-nang-mo-hinh-trong-oi-dai-loan-dem-lai-hieu-qua-kinh-te-cao-22028.html",
+      "source_date": "Cập nhật 04/08/2022",
+      "crops": [
+        "ổi"
+      ],
+      "topic": "planting",
+      "terms": [
+        "ổi đài loan",
+        "trồng ổi",
+        "đất trũng",
+        "lên luống",
+        "thoát nước",
+        "tỉa trái non"
+      ],
+      "locator": "Kinh nghiệm kỹ thuật của mô hình ổi Đài Loan",
+      "finding_vi": "Mô hình chọn đất thoát nước và dùng luống cao ở vị trí thấp. Với cây chiết mới cho trái bói, có thể giảm trái để cây phát triển cành lá. Hỏi tuổi cây, giống và điều kiện thoát nước trước khi áp dụng.",
+      "scope_vi": "Kinh nghiệm một mô hình Đà Nẵng với ổi Đài Loan, xử lý đất thấp và trái bói tùy tình trạng vườn.",
+      "region": "Đà Nẵng",
+      "setting": "vườn",
+      "stage": "cây mới trồng",
+      "status": "reviewed",
+      "verified_on": "2026-11-17"
+    },
+    {
+      "source_id": "KN-DURIAN-ROOTSTOCK-TRIAL",
+      "citation": "Tiền Giang: Tọa đàm “Quy trình canh tác bền vững quản lý dư lượng thuốc bảo vệ thực vật trên cây sầu riêng” · Trung tâm Khuyến nông Quốc gia",
+      "url": "https://khuyennongvn.gov.vn/hoat-dong-khuyen-nong/thong-tin-huan-luyen/tien-giang-toa-dam-quy-trinh-canh-tac-ben-vung-quan-ly-du-luong-thuoc-bao-ve-thuc-vat-tren-cay-sau-rieng-27675.html",
+      "source_date": "Cập nhật 13/08/2024",
+      "crops": [
+        "sầu riêng"
+      ],
+      "topic": "diagnostic",
+      "terms": [
+        "gốc ghép",
+        "phytophthora",
+        "xì mủ",
+        "thối rễ",
+        "chọn giống"
+      ],
+      "locator": "Kết quả nghiên cứu gốc ghép trình bày tại tọa đàm",
+      "finding_vi": "Viện Cây ăn quả miền Nam báo cáo sự khác nhau giữa các dòng gốc ghép khi đánh giá khả năng chống chịu tác nhân gây xì mủ và thối rễ. Hỏi giống gốc ghép và xem triệu chứng ở thân, rễ và điều kiện thoát nước của vườn.",
+      "scope_vi": "Kết quả khảo nghiệm được báo cáo tại Tiền Giang. Không suy rộng sang cả cây ngoài vườn hoặc coi là xác nhận bệnh từ một triệu chứng.",
+      "region": "Tiền Giang|ĐBSCL",
+      "setting": "vườn",
+      "stage": "",
+      "status": "reviewed",
+      "verified_on": "2026-11-17"
+    },
+    {
+      "source_id": "UMN-VEGETABLE-WATERING",
+      "citation": "Watering the vegetable garden · University of Minnesota Extension",
+      "url": "https://extension.umn.edu/garden-and-home/yard-and-garden/gardening-in-minnesota/watering-the-vegetable-garden",
+      "source_date": "Rà soát năm 2026",
+      "crops": [
+        "cải",
+        "cà chua",
+        "dưa chuột",
+        "ớt",
+        "xà lách"
+      ],
+      "topic": "water",
+      "terms": [
+        "tưới nước",
+        "tưới rau",
+        "độ ẩm đất",
+        "đất cát",
+        "đất sét",
+        "phủ gốc"
+      ],
+      "locator": "Watering the vegetable garden",
+      "finding_vi": "Đất cát thoát nhanh hơn đất giữ ẩm tốt. Phủ bề mặt giảm bốc hơi. Kiểm tra độ ẩm vùng rễ và điều chỉnh theo mưa, đất và độ che phủ trước khi tăng số lần tưới.",
+      "scope_vi": "Khuyến nông Minnesota, dùng nguyên lý quản lý ẩm. Tần suất tưới thay đổi theo khí hậu và luống.",
+      "region": "Minnesota",
+      "setting": "lên luống",
+      "stage": "",
+      "status": "reviewed",
+      "verified_on": "2026-11-17"
+    },
+    {
+      "source_id": "UMN-VEGETABLE-RAISED-BEDS",
+      "citation": "Raised bed gardens · University of Minnesota Extension",
+      "url": "https://extension.umn.edu/garden-and-home/yard-and-garden/gardening-in-minnesota/raised-bed-gardens",
+      "source_date": "Rà soát năm 2026",
+      "crops": [
+        "cải",
+        "cà chua",
+        "dưa chuột",
+        "ớt",
+        "xà lách"
+      ],
+      "topic": "planting",
+      "terms": [
+        "luống cao",
+        "lên luống",
+        "đất trồng rau",
+        "đất thịt",
+        "giá thể luống"
+      ],
+      "locator": "Mục cách chọn đất và hỗn hợp cho luống cao",
+      "finding_vi": "Luống cao cần hỗn hợp có kết cấu và khả năng giữ ẩm phù hợp. Phân ủ có thể bổ sung chất hữu cơ nhưng quá nhiều có thể làm khó giữ ẩm hoặc tích lũy dinh dưỡng. Xem cả thoát nước bên dưới luống khi chọn vị trí.",
+      "scope_vi": "Hướng dẫn vườn rau luống cao ở Minnesota. Tỷ lệ phối đất cần điều chỉnh theo vật liệu tại chỗ.",
+      "region": "Minnesota",
+      "setting": "luống cao|lên luống",
+      "stage": "",
+      "status": "reviewed",
+      "verified_on": "2026-11-17"
+    },
+    {
+      "source_id": "UMN-VEGETABLE-PHYTOPHTHORA",
+      "citation": "Managing phytophthora on farms · University of Minnesota Extension",
+      "url": "https://extension.umn.edu/agriculture/specialty-crops/vegetable-farming/disease-management/phytophthora",
+      "source_date": "Rà soát năm 2024",
+      "crops": [
+        "cà chua",
+        "dưa chuột",
+        "ớt",
+        "bí đỏ"
+      ],
+      "topic": "diagnostic",
+      "terms": [
+        "phytophthora",
+        "héo nhanh",
+        "thối gốc",
+        "thối quả",
+        "đọng nước"
+      ],
+      "locator": "Quick facts và phần phòng ngừa",
+      "finding_vi": "Phytophthora phát triển thuận lợi ở nơi ẩm và có thể lan theo nước. Cây có thể héo nhanh hoặc thối trên các bộ phận khác nhau. Kiểm tra luống đọng nước và vùng bệnh, ưu tiên thoát nước và tránh mang đất ướt từ vùng bệnh sang vùng khỏe.",
+      "scope_vi": "Hướng dẫn rau thương mại ở Minnesota. Dấu hiệu gợi ý cần xác minh, không suy ra tác nhân từ héo hoặc thối đơn lẻ.",
+      "region": "Minnesota",
+      "setting": "ngoài đất",
+      "stage": "",
+      "status": "reviewed",
+      "verified_on": "2026-11-17"
+    },
+    {
+      "source_id": "UMN-CONTAINER-WATER-NUTRIENTS",
+      "citation": "Fertilizing and watering container plants · University of Minnesota Extension",
+      "url": "https://extension.umn.edu/garden-and-home/yard-and-garden/gardening-in-minnesota/fertilizing-and-watering-container-plants",
+      "source_date": "Rà soát năm 2026",
+      "crops": [
+        "cải",
+        "cà chua",
+        "dưa chuột",
+        "ớt",
+        "xà lách"
+      ],
+      "topic": "nutrition",
+      "terms": [
+        "trồng chậu",
+        "bón phân",
+        "phân chậm tan",
+        "rửa trôi",
+        "giá thể",
+        "thoát nước"
+      ],
+      "locator": "Watering và Fertilizing",
+      "finding_vi": "Giữ giá thể ẩm đều và tránh để chậu ngâm trong nước đọng ở đĩa hứng. Chậu nhỏ và thời tiết nóng, khô làm chậu nhanh mất ẩm hơn. Có thể phủ mặt giá thể nếu phù hợp với chậu để giảm bốc hơi. Tưới thường xuyên có thể làm rửa trôi dinh dưỡng, kể cả khi giá thể ban đầu có phân tan chậm. Trước khi bón thêm, kiểm tra phân đã trộn trong giá thể, tốc độ sinh trưởng và hướng dẫn trên nhãn sản phẩm. Phân hòa tan cung cấp dưỡng chất nhanh, còn phân tan chậm giải phóng dần theo các lần tưới.",
+      "scope_vi": "Khuyến nông Minnesota về cây trồng chậu. Không quy đổi lượng phân ngoài ruộng trực tiếp sang mỗi chậu.",
+      "region": "Minnesota",
+      "setting": "trồng chậu",
+      "stage": "",
+      "status": "reviewed",
+      "verified_on": "2026-11-17"
+    },
+    {
+      "source_id": "UC-CUCURBIT-THRIPS",
+      "citation": "Thrips / Cucurbits · University of California Statewide IPM Program",
+      "url": "https://ipm.ucanr.edu/agriculture/cucurbits/thrips/",
+      "source_date": "",
+      "crops": [
+        "dưa chuột",
+        "bí đỏ",
+        "dưa hấu"
+      ],
+      "topic": "diagnostic",
+      "terms": [
+        "bọ trĩ",
+        "lá bạc",
+        "lá ánh bạc",
+        "quăn mép lá",
+        "bẫy dính"
+      ],
+      "locator": "Description of the pest, Damage và Management",
+      "finding_vi": "Bọ trĩ có thể làm lá có vệt bạc và biến dạng trên cây họ bầu bí. Quan sát ngọn non, hoa và mặt lá, có thể dùng bẫy dính để hỗ trợ theo dõi. So sánh lá khỏe và lá bị hại trước khi kết luận.",
+      "scope_vi": "Tài liệu IPM California. Dùng dấu hiệu và cách theo dõi, không áp lịch hoặc danh mục thuốc của nguồn tại Việt Nam.",
+      "region": "California",
+      "setting": "ngoài đất",
+      "stage": "cây non|ra hoa",
+      "status": "reviewed",
+      "verified_on": "2026-11-17"
+    },
+    {
+      "source_id": "KN-RICE-BLAST",
+      "citation": "Phòng trừ bệnh đạo ôn hại lúa · Trung tâm Khuyến nông Quốc gia",
+      "url": "https://khuyennongvn.gov.vn/khoa-hoc-cong-nghe/khcn-trong-nuoc/phong-tru-benh-dao-on-hai-lua-21414.html",
+      "source_date": "Cập nhật 20/08/2021",
+      "crops": [
+        "lúa"
+      ],
+      "topic": "diagnostic",
+      "terms": [
+        "đạo ôn",
+        "đạo ôn cổ bông",
+        "đạo ôn lá",
+        "vết hình thoi",
+        "cổ bông",
+        "lép trắng"
+      ],
+      "locator": "Mục 1–3, triệu chứng, điều kiện phát sinh và thăm đồng",
+      "finding_vi": "Đạo ôn lá có thể tạo vết hình thoi, phần giữa khô xám. Tổn thương ở cổ bông thường sẫm nâu, teo lại, có thể kèm bông lép. Quan sát vị trí và dạng vết, tăng thăm đồng khi lúa làm đòng–trổ và trời ẩm kéo dài.",
+      "scope_vi": "Hướng dẫn lúa phía Nam năm 2021. Chỉ dùng nhận diện và theo dõi, đối chiếu cán bộ địa phương khi xác định bệnh.",
+      "region": "Nam Bộ|ĐBSCL",
+      "setting": "ruộng",
+      "stage": "làm đòng|trổ bông",
+      "status": "reviewed",
+      "verified_on": "2026-11-17"
+    },
+    {
+      "source_id": "UMN-CUCUMBER-POLLINATION",
+      "citation": "Growing cucumbers in home gardens · University of Minnesota Extension",
+      "url": "https://extension.umn.edu/garden-and-home/yard-and-garden/gardening-in-minnesota/growing-cucumbers",
+      "source_date": "Rà soát năm 2026",
+      "crops": [
+        "dưa chuột"
+      ],
+      "topic": "planting",
+      "terms": [
+        "hoa đực",
+        "hoa cái",
+        "rụng hoa",
+        "không đậu trái",
+        "thụ phấn",
+        "làm giàn"
+      ],
+      "locator": "Common problems, poor fruit set",
+      "finding_vi": "Lứa hoa đầu thường là hoa đực nên có thể rụng tự nhiên. Hoa cái có phần bầu nhỏ dưới cánh hoa. Khi đã có hoa cái mà đậu trái kém, kiểm tra hoạt động côn trùng thụ phấn và thời tiết lúc ra hoa.",
+      "scope_vi": "Hướng dẫn dưa leo vườn nhà Minnesota. Một số giống có đặc điểm đậu trái khác, hỏi giống nếu trồng nhà màng.",
+      "region": "Minnesota",
+      "setting": "vườn",
+      "stage": "ra hoa",
+      "status": "reviewed",
+      "verified_on": "2026-11-17"
+    },
+    {
+      "source_id": "UMN-CUCURBIT-WILT",
+      "citation": "Bacterial wilt of cucurbits · University of Minnesota Extension",
+      "url": "https://extension.umn.edu/agriculture/specialty-crops/vegetable-farming/disease-management/bacterial-wilt",
+      "source_date": "Rà soát năm 2022",
+      "crops": [
+        "dưa chuột",
+        "bí đỏ"
+      ],
+      "topic": "diagnostic",
+      "terms": [
+        "héo vi khuẩn",
+        "héo ban ngày",
+        "hồi ban đêm",
+        "lá héo",
+        "héo dây"
+      ],
+      "locator": "Signs and symptoms, mục cách nhận biết",
+      "finding_vi": "Một số cây họ bầu bí khi bị héo vi khuẩn có thể héo ban ngày rồi hồi lúc đầu vào ban đêm, sau đó héo kéo dài. Kiểm tra vùng rễ, tình trạng ẩm và dấu vết côn trùng, vì héo cũng có thể do thiếu nước hoặc bệnh khác.",
+      "scope_vi": "Tài liệu Minnesota, cần xác nhận tác nhân và loài môi giới tại Việt Nam. Không suy ra bệnh chỉ từ một dấu hiệu.",
+      "region": "Minnesota",
+      "setting": "ngoài đất",
+      "stage": "",
+      "status": "reviewed",
+      "verified_on": "2026-11-17"
+    },
+    {
+      "source_id": "UC-CUCURBIT-VIRUS-SYMPTOMS",
+      "citation": "Cucurbit Viruses · University of California Statewide IPM Program",
+      "url": "https://ipm.ucanr.edu/home-and-landscape/cucurbit-viruses/",
+      "source_date": "",
+      "crops": [
+        "dưa chuột",
+        "bí đỏ",
+        "dưa hấu"
+      ],
+      "topic": "diagnostic",
+      "terms": [
+        "khảm lá",
+        "lá loang màu",
+        "gân trong",
+        "trái dị dạng",
+        "virus"
+      ],
+      "locator": "Identification và Damage",
+      "finding_vi": "Bệnh virus trên họ bầu bí có thể làm lá loang sáng tối, biến dạng, cây chậm lớn hoặc trái méo. Triệu chứng chồng lấn giữa nhiều bệnh. Kiểm tra kiểu lan trong luống và nhờ xác định tác nhân nếu hiện tượng tăng lên.",
+      "scope_vi": "Tài liệu IPM California cho họ bầu bí. Dùng nhận diện sơ bộ, không kết luận tên virus từ mô tả.",
+      "region": "California",
+      "setting": "ngoài đất",
+      "stage": "",
+      "status": "reviewed",
+      "verified_on": "2026-11-17"
+    },
+    {
+      "source_id": "UMN-TOMATO-PEPPER-BACTERIAL-SPOT",
+      "citation": "Bacterial spot of tomato and pepper · University of Minnesota Extension",
+      "url": "https://extension.umn.edu/agriculture/specialty-crops/vegetable-farming/disease-management/bacterial-spot-of-tomato-and-pepper",
+      "source_date": "",
+      "crops": [
+        "cà chua",
+        "ớt"
+      ],
+      "topic": "diagnostic",
+      "terms": [
+        "đốm vi khuẩn",
+        "đốm lá",
+        "đốm trên trái",
+        "vết sần",
+        "vết đốm ướt"
+      ],
+      "locator": "Quick facts, Identification và phần quản lý",
+      "finding_vi": "Đốm vi khuẩn có thể xuất hiện ở lá, thân và trái cà chua hoặc ớt trong điều kiện ấm ẩm. Kiểm tra lá và trái cùng lúc vì vết lá ban đầu dễ nhầm với bệnh khác. Hạn chế làm việc khi cây ướt và kiểm tra lô cây giống.",
+      "scope_vi": "Tài liệu rau thương mại Minnesota, chẩn đoán cây bệnh cần xác nhận tại địa phương.",
+      "region": "Minnesota",
+      "setting": "ngoài đất",
+      "stage": "",
+      "status": "reviewed",
+      "verified_on": "2026-11-17"
+    },
+    {
+      "source_id": "UMN-VEGETABLE-SOIL-TEST",
+      "citation": "Interpreting soil tests for fruit and vegetable crops · University of Minnesota Extension",
+      "url": "https://extension.umn.edu/agriculture/specialty-crops/interpreting-soil-tests-for-fruit-and-vegetable-crops",
+      "source_date": "",
+      "crops": [
+        "cải",
+        "cà chua",
+        "dưa chuột",
+        "ớt",
+        "xà lách",
+        "xoài",
+        "ổi",
+        "bưởi"
+      ],
+      "topic": "nutrition",
+      "terms": [
+        "xét nghiệm đất",
+        "phân tích đất",
+        "ph đất",
+        "hàm lượng phân",
+        "bón bao nhiêu",
+        "đạm lân kali"
+      ],
+      "locator": "Steps for calculating fertilizer rates based on a soil test",
+      "finding_vi": "Lấy kết quả đất và nhu cầu của cây, tính phần dinh dưỡng có sẵn từ lần bón trước rồi chọn loại phân. Tính khối lượng sản phẩm từ lượng chất dinh dưỡng cần bổ sung và tỷ lệ ghi trên bao bì, theo cùng đơn vị diện tích.",
+      "scope_vi": "Hướng dẫn Minnesota. Dùng phương pháp tính và đọc nhãn, mức bón cần số liệu đất và khuyến cáo tại Việt Nam.",
+      "region": "Minnesota",
+      "setting": "ngoài đất",
+      "stage": "",
+      "status": "reviewed",
+      "verified_on": "2026-11-17"
+    },
+    {
+      "source_id": "UMN-TOMATO-POTATO-EARLY-BLIGHT",
+      "citation": "Early blight in tomato and potato · University of Minnesota Extension",
+      "url": "https://extension.umn.edu/agriculture/specialty-crops/vegetable-farming/disease-management/early-blight-in-tomato-and-potato",
+      "source_date": "Rà soát năm 2024",
+      "crops": [
+        "cà chua",
+        "khoai tây"
+      ],
+      "topic": "diagnostic",
+      "terms": [
+        "đốm vòng đồng tâm",
+        "đốm lá già",
+        "đốm vòng",
+        "early blight",
+        "đốm nâu"
+      ],
+      "locator": "Signs and symptoms, phần bệnh trên lá",
+      "finding_vi": "Đốm lá có vòng đồng tâm, thường xuất hiện trước trên các lá già phía dưới, là dấu hiệu gợi ý bệnh đốm vòng. Kiểm tra mặt lá, thân và trái để phân biệt với các nguyên nhân khác trước khi chọn biện pháp.",
+      "scope_vi": "Tài liệu Minnesota cho cà chua và khoai tây, dùng mô tả dấu hiệu. Điều kiện dịch hại và sản phẩm xử lý phụ thuộc địa phương.",
+      "region": "Minnesota",
+      "setting": "ngoài đất",
+      "stage": "",
+      "status": "reviewed",
+      "verified_on": "2026-11-17"
+    },
+    {
+      "source_id": "UMN-BEAN-PLANTING",
+      "citation": "Growing beans in home gardens · University of Minnesota Extension",
+      "url": "https://extension.umn.edu/garden-and-home/yard-and-garden/gardening-in-minnesota/growing-beans",
+      "source_date": "Rà soát năm 2024",
+      "crops": [
+        "đậu cô ve",
+        "đậu đũa"
+      ],
+      "topic": "planting",
+      "terms": [
+        "đậu leo",
+        "đậu bụi",
+        "làm giàn",
+        "trồng đậu",
+        "gieo hạt",
+        "quả đậu"
+      ],
+      "locator": "Các mục phân biệt giống đậu, Planting và Harvest",
+      "finding_vi": "Phân biệt giống đậu leo cần giàn và giống đậu bụi. Chọn đất thoát nước và theo dõi độ non của quả để thu theo mục đích sử dụng. Với đậu đũa, thu khi quả còn mềm, trước khi hạt căng rõ nếu dùng làm rau.",
+      "scope_vi": "Hướng dẫn cho các nhóm đậu vườn nhà Minnesota. Dùng đặc điểm dạng cây và thu hoạch, lịch gieo theo địa phương.",
+      "region": "Minnesota",
+      "setting": "vườn",
+      "stage": "",
+      "status": "reviewed",
+      "verified_on": "2026-11-17"
+    }
+  ]
+}

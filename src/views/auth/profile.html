@@ -6,31 +6,31 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Tài khoản và bảo mật · Mạch Đồng</title>
 <link rel="icon" href="/static/assets/stitch-simulation/co-ma-logo.png">
-<link rel="stylesheet" href="/static/assets/stitch-simulation/fonts.css">
+
 <link rel="stylesheet" href="/static/profile.css">
 <link rel="stylesheet" href="/static/shell.css">
 </head>
-<body class="app-workspace bg-surface text-on-surface antialiased">
+<body class="app-workspace profile-page text-on-surface antialiased">
 {% include "shared/header.html" %}
 {% include "shared/sidebar.html" %}
-<main id="main-content" tabindex="-1" class="w-full bg-surface min-h-screen px-4 md:px-gutter-desktop py-space-lg"><div class="flex flex-col w-full">
+<main id="main-content" tabindex="-1" class="app-content w-full min-h-screen"><div class="flex flex-col w-full">
 <div class="mb-space-lg flex flex-col md:flex-row md:items-end justify-between gap-space-md">
 <div>
-<div class="flex items-center gap-space-xs font-label-sm text-label-sm uppercase tracking-wider text-primary font-bold">
-<span class="material-symbols-outlined text-[16px]">{{ render_icon("fact_check") }}</span>
-<span>Hồ sơ thành viên Hợp tác xã</span>
-</div>
-<h1 class="font-headline-lg text-headline-lg font-bold text-on-surface tracking-tight mt-0.5">
+<h1 class="app-page-title mt-0.5">
         Quản lý Tài khoản &amp; Bảo mật
       </h1>
 <p class="font-body-md text-body-md text-on-surface-variant mt-1">
         Cập nhật thông tin nông hộ, vùng canh tác và xem thử biểu mẫu đổi mật khẩu.
       </p>
 </div>
-<div class="flex items-center gap-space-sm self-start md:self-auto">
+<div class="flex flex-wrap items-center gap-space-sm self-start md:self-auto">
+<button type="button" id="btn-open-privacy-panel" class="app-button app-button--primary px-3.5 py-2 font-label-md text-label-md font-bold flex items-center gap-1.5 shadow-sm">
+  <span class="app-icon-wrap text-[16px]">{{ render_icon("lock") }}</span>
+  <span>Bảo mật &amp; Quyền riêng tư</span>
+</button>
 <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary-fixed text-on-primary-fixed font-label-md text-label-md font-semibold">
-<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
-        Hồ sơ demo · HTX Long Hữu
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+        {{ 'Hồ sơ tài khoản' if current_user else 'Hồ sơ demo · HTX Long Hữu' }}
       </span>
 <span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm">
         Mã nông hộ: <strong class="text-on-surface font-label-md text-label-md">ĐBSCL-LH-094</strong>
@@ -39,73 +39,53 @@
 </div>
 <div class="grid grid-cols-1 xl:grid-cols-12 gap-space-lg items-start">
 <div class="xl:col-span-5 flex flex-col gap-space-lg">
-<div class="bg-surface-container-lowest rounded-xl shadow-sm p-space-lg relative overflow-hidden">
-<div class="absolute -right-10 -top-10 w-44 h-44 rounded-full bg-primary-fixed/30 pointer-events-none blur-2xl"></div>
-<div class="absolute -left-8 bottom-0 w-36 h-36 rounded-full bg-surface-container-high/60 pointer-events-none blur-xl"></div>
+<div class="app-glass rounded-xl p-space-lg relative overflow-hidden">
 <div class="relative flex flex-col sm:flex-row items-center sm:items-start gap-space-md">
 <div class="relative shrink-0">
 <div class="w-24 h-24 rounded-full overflow-hidden shadow-md bg-surface-container-high">
 <img class="w-full h-full object-cover" src="/static/assets/stitch-profile-portrait.jpg" width="96" height="96" alt="">
 </div>
-<div class="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-primary text-on-primary flex items-center justify-center shadow-sm" title="Hồ sơ minh họa">
-<span class="material-symbols-outlined text-[16px]">{{ render_icon("fact_check") }}</span>
-</div>
 </div>
 <div class="flex flex-col text-center sm:text-left min-w-0 flex-1">
 <div class="flex flex-wrap items-center justify-center sm:justify-start gap-space-xs">
-<h2 class="font-headline-sm text-headline-sm font-bold text-on-surface" data-profile-value="farmer-fullname">Chú Năm Ruộng</h2>
+<h2 class="text-headline-sm font-bold" data-profile-value="farmer-fullname">{{ current_user.name if current_user else 'Chú Năm Ruộng' }}</h2>
 
 </div>
 <p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5" data-profile-value="farmer-address">
-              Ấp 3, Xã Long Hữu, Huyện Duyên Hải, Tỉnh Trà Vinh
+              {% if current_user %}Email: {{ current_user.email }} · SĐT: {{ current_user.phone }}{% else %}Ấp 3, Xã Long Hữu, Huyện Duyên Hải, Tỉnh Trà Vinh{% endif %}
             </p>
 <div class="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-surface-container-high w-fit mx-auto sm:mx-0">
-<span class="material-symbols-outlined text-[16px] text-primary">{{ render_icon("grass") }}</span>
-<span class="font-label-sm text-label-sm font-semibold text-primary">Thành viên HTX Long Hữu</span>
+<span class="font-label-sm text-label-sm font-semibold text-primary">{{ ('Vai trò: ' ~ current_user.role ~ ' · @' ~ current_user.username) if current_user else 'Thành viên HTX Long Hữu' }}</span>
 </div>
-</div>
-</div>
-<div class="mt-space-md p-space-md rounded-xl bg-surface-container-low flex items-start gap-space-sm relative">
-<div class="w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center text-xl shrink-0 shadow-sm">
-            🪿
-          </div>
-<div class="flex-1">
-<div class="flex items-center justify-between">
-<span class="font-label-sm text-label-sm font-bold text-primary uppercase">Cò Mạ trợ lý đồng</span>
-<span class="font-label-sm text-label-sm text-on-surface-variant">Demo</span>
-</div>
-<p class="font-body-sm text-body-sm text-on-surface mt-0.5 leading-relaxed">
-              Bà con có thể cập nhật diện tích và giống lúa để hoàn thiện hồ sơ ruộng mẫu.
-            </p>
 </div>
 </div>
 <div class="mt-space-md grid grid-cols-2 gap-space-sm">
 <div class="p-space-sm rounded-xl bg-surface-container-low flex flex-col">
 <span class="font-label-sm text-label-sm text-on-surface-variant uppercase">Kinh nghiệm canh tác</span>
-<span class="font-metric-display text-metric-display font-bold text-on-surface mt-1">3 Vụ</span>
+<span class="tabular-nums text-metric-display font-bold text-on-surface mt-1">3 Vụ</span>
 <span class="font-body-sm text-body-sm text-on-surface-variant">Lúa - Tôm bền vững</span>
 </div>
 <div class="p-space-sm rounded-xl bg-surface-container-low flex flex-col">
 <span class="font-label-sm text-label-sm text-on-surface-variant uppercase">Quy mô thâm canh</span>
-<span class="font-metric-display text-metric-display font-bold text-primary mt-1"><span data-profile-value="farmer-area">4.2</span> <span class="font-headline-sm text-headline-sm">ha</span></span>
+<span class="tabular-nums text-metric-display font-bold text-primary mt-1"><span data-profile-value="farmer-area">4.2</span> <span class="font-headline-sm text-headline-sm">ha</span></span>
 <span class="font-body-sm text-body-sm text-on-surface-variant">Diện tích ruộng mẫu</span>
 </div>
 </div>
 <div class="mt-space-md pt-space-md flex flex-col gap-space-xs">
 <span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-bold">Huy hiệu đóng góp cộng đồng</span>
 <div class="grid grid-cols-2 gap-space-sm mt-1">
-<div class="flex items-center gap-space-xs p-2 rounded-lg bg-surface-container-high/70">
+<div class="flex items-center gap-space-xs p-2 rounded-lg bg-surface-container-high">
 <div class="w-8 h-8 rounded-lg bg-surface-container-highest flex items-center justify-center text-primary shrink-0">
-<span class="material-symbols-outlined text-[18px]">{{ render_icon("upload_file") }}</span>
+<span class="app-icon-wrap text-[18px]">{{ render_icon("upload_file") }}</span>
 </div>
 <div class="flex flex-col min-w-0">
 <span class="font-label-md text-label-md font-bold text-on-surface">12 Tệp CSV</span>
 <span class="font-label-sm text-label-sm text-on-surface-variant truncate">Đo mặn tại cống</span>
 </div>
 </div>
-<div class="flex items-center gap-space-xs p-2 rounded-lg bg-surface-container-high/70">
+<div class="flex items-center gap-space-xs p-2 rounded-lg bg-surface-container-high">
 <div class="w-8 h-8 rounded-lg bg-surface-container-highest flex items-center justify-center text-secondary shrink-0">
-<span class="material-symbols-outlined text-[18px]">{{ render_icon("chat") }}</span>
+<span class="app-icon-wrap text-[18px]">{{ render_icon("chat") }}</span>
 </div>
 <div class="flex flex-col min-w-0">
 <span class="font-label-md text-label-md font-bold text-on-surface">28 Bài viết</span>
@@ -115,41 +95,108 @@
 </div>
 </div>
 </div>
-<div class="bg-surface-container-lowest rounded-xl shadow-sm p-space-lg relative overflow-hidden">
+<div class="app-glass rounded-xl p-space-lg relative overflow-hidden">
 <div class="flex items-center justify-between">
 <div class="flex items-center gap-space-xs">
-<span class="w-8 h-8 rounded-lg bg-primary-fixed flex items-center justify-center text-base">🌾</span>
 <div>
-<h3 class="font-headline-sm text-headline-sm font-bold text-on-surface">Ví Điểm Nông Nghiệp</h3>
+<h3 class="text-headline-sm font-bold">Ví Điểm Nông Nghiệp</h3>
 <p class="font-label-sm text-label-sm text-on-surface-variant uppercase">Quỹ hỗ trợ mùa màng</p>
 </div>
 </div>
 <span class="px-2.5 py-1 rounded-full bg-surface-container-high font-label-sm text-label-sm font-semibold text-primary">Demo</span>
 </div>
-<div class="mt-space-md p-space-md rounded-xl bg-gradient-to-br from-primary to-primary-container text-on-primary shadow-sm flex flex-col justify-between relative overflow-hidden min-h-[130px]">
-<div class="absolute -right-6 -bottom-6 text-[100px] opacity-10 select-none pointer-events-none">🌾</div>
+<div class="mt-space-md p-space-md rounded-xl bg-primary text-on-primary flex flex-col justify-between relative overflow-hidden min-h-[130px]">
 <div class="flex items-center justify-between z-10">
 <span class="font-label-sm text-label-sm tracking-widest uppercase text-on-primary/80">Số Dư Hiện Có</span>
 <span class="font-label-sm text-label-sm bg-on-primary/20 backdrop-blur-sm px-2 py-0.5 rounded text-on-primary">Số dư minh họa</span>
 </div>
 <div class="z-10 my-2">
-<div class="flex items-baseline gap-2">
-<span class="font-metric-display text-[36px] font-bold tracking-tight">350</span>
-<span class="font-headline-sm text-headline-sm font-bold text-primary-fixed">LÚA</span>
+<div class="flex flex-wrap items-baseline justify-between gap-2">
+  <div class="flex items-baseline gap-2">
+    <span class="tabular-nums text-[36px] font-bold tracking-tight" data-profile-credits>{{ current_user.simulation_credits if current_user else 350 }}</span>
+    <span class="font-headline-sm text-headline-sm font-bold text-primary-fixed">LÚA</span>
+  </div>
+  <div class="px-2.5 py-1 rounded-lg bg-on-primary/15 text-sm font-bold">
+    <span data-profile-avax>{{ '%.4f'|format(current_user.avax_balance) if current_user else '2.5000' }}</span> <span>AVAX</span>
+  </div>
 </div>
-<p class="font-body-sm text-body-sm text-on-primary/85">Điểm đóng góp cộng đồng</p>
+<p class="font-body-sm text-body-sm text-on-primary/85">[Giả lập] Số dư AVAX và điểm LÚA · Ví thử nghiệm Fuji (43113)</p>
+<p class="text-xs text-on-primary/90 mt-1 break-all">
+  Ví Fuji (secp256k1): <code data-profile-wallet>{{ current_user.wallet_address if current_user else 'Đăng nhập để hiển thị địa chỉ 0x...' }}</code>
+  {% if current_user and current_user.wallet_address %}
+  · <a href="https://testnet.snowtrace.io/address/{{ current_user.wallet_address }}" target="_blank" rel="noopener" class="underline font-bold text-primary-fixed">Xem trên Snowtrace ↗</a>
+  {% endif %}
+</p>
 </div>
 <div class="z-10 flex items-center justify-between pt-2 border-t border-on-primary/15 font-label-sm text-label-sm text-on-primary/75">
-<span>Chủ thẻ · <span data-profile-value="farmer-fullname">Trần Văn Năm</span></span>
+<span>Chủ thẻ · <span data-profile-value="farmer-fullname">{{ current_user.name if current_user else 'Trần Văn Năm' }}</span></span>
+<span data-profile-wallet-type>{{ current_user.wallet_type if current_user else 'AUTO_EMAIL' }}</span>
+</div>
+</div>
 
+<!-- Credit Changer: Transact In-App LÚA Token <-> AVAX on Avalanche Fuji -->
+<div class="mt-space-md p-space-md rounded-xl bg-surface-container-low border border-outline-variant/40 space-y-space-sm" id="credit-changer-box" data-credits-per-avax="{{ credits_per_avax or 100 }}">
+  <div class="flex flex-wrap items-center justify-between gap-2">
+    <div>
+      <h4 class="text-label-md font-bold uppercase">[Giả lập] Quy đổi điểm LÚA ↔ AVAX</h4>
+      <p class="font-label-sm text-label-sm text-on-surface-variant">Tỷ giá: 1 AVAX = {{ credits_per_avax or 100 }} LÚA (0.01 AVAX = 1 LÚA)</p>
+    </div>
+    <button type="button" id="btn-faucet-avax" class="app-button px-2.5 py-1 font-label-sm text-label-sm font-bold">
+      + Cộng 1 AVAX giả lập
+    </button>
+  </div>
+
+  <form id="credit-exchange-form" class="space-y-space-sm">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+      <label class="app-choice text-xs font-semibold">
+        <input type="radio" name="exchange_direction" value="AVAX_TO_CREDIT" checked>
+        <span>AVAX → Điểm LÚA (Nạp điểm)</span>
+      </label>
+      <label class="app-choice text-xs font-semibold">
+        <input type="radio" name="exchange_direction" value="CREDIT_TO_AVAX">
+        <span>Điểm LÚA → AVAX (Rút về ví)</span>
+      </label>
+    </div>
+
+    <div class="flex flex-wrap items-center gap-2">
+      <div class="relative flex-1 min-w-[160px]">
+        <input id="exchange-amount-input" type="number" step="0.01" min="0.01" value="0.50" required class="w-full h-10 px-3 rounded-lg bg-surface-container-lowest text-on-surface font-label-md text-label-md focus:outline-none focus:ring-2 focus:ring-primary">
+        <span id="exchange-unit-label" class="absolute right-3 top-2.5 font-label-sm text-label-sm font-bold text-on-surface-variant">AVAX</span>
+      </div>
+      <button type="submit" id="btn-submit-exchange" class="app-button app-button--primary h-10 px-4 font-label-md text-label-md font-bold">
+        Quy đổi giả lập
+      </button>
+    </div>
+
+    <div class="flex items-center justify-between text-xs text-on-surface-variant">
+      <span>Ước tính nhận: <strong id="exchange-preview-output" class="text-primary">+50 LÚA</strong></span>
+      <span id="exchange-status-msg" role="status" class="font-semibold text-primary"></span>
+    </div>
+  </form>
 </div>
-</div>
+
 <div class="mt-space-md">
 <div class="flex items-center justify-between mb-space-xs">
-<span class="font-label-sm text-label-sm font-bold uppercase text-on-surface-variant">Biến động điểm minh họa</span>
+<span class="font-label-sm text-label-sm font-bold uppercase text-on-surface-variant">Biến động điểm giả lập</span>
 
 </div>
-<div class="flex flex-col gap-2">
+<div class="flex flex-col gap-2" id="credit-tx-list">
+{% if credit_transactions %}
+  {% for tx in credit_transactions %}
+  <div class="p-2.5 rounded-lg bg-surface-container-low flex items-center justify-between gap-2">
+    <div class="flex items-center gap-2 min-w-0">
+      <span class="w-7 h-7 rounded-full bg-primary-fixed text-primary flex items-center justify-center font-bold text-sm shrink-0">{{ '↓' if tx.credit_delta >= 0 else '↑' }}</span>
+      <div class="flex flex-col min-w-0">
+        <span class="font-body-sm text-body-sm font-semibold text-on-surface truncate">{{ tx.note }}</span>
+        <span class="font-label-sm text-label-sm text-on-surface-variant truncate">Mã mô phỏng: <code>{{ tx.tx_hash[:14] }}...{{ tx.tx_hash[-6:] }}</code></span>
+      </div>
+    </div>
+    <span class="font-label-md text-label-md font-bold {{ 'text-primary' if tx.credit_delta >= 0 else 'text-secondary' }} shrink-0">
+      {% if tx.direction == 'FAUCET_TOPUP' %}+{{ '%.2f'|format(tx.avax_amount) }} AVAX{% elif tx.credit_delta >= 0 %}+{{ tx.credit_delta }} LÚA{% else %}{{ tx.credit_delta }} LÚA{% endif %}
+    </span>
+  </div>
+  {% endfor %}
+{% endif %}
 <div class="p-2.5 rounded-lg bg-surface-container-low flex items-center justify-between">
 <div class="flex items-center gap-2">
 <span class="w-7 h-7 rounded-full bg-primary-fixed text-primary flex items-center justify-center font-bold text-sm">↓</span>
@@ -185,15 +232,15 @@
 </div>
 </div>
 <div class="xl:col-span-7 flex flex-col gap-space-lg">
-<div class="bg-surface-container-lowest rounded-xl shadow-sm p-space-lg">
+<div class="app-glass rounded-xl p-space-lg">
 <div class="flex items-center justify-between pb-space-sm">
 <div class="flex items-center gap-space-xs">
 <div class="w-9 h-9 rounded-xl bg-primary-fixed flex items-center justify-center text-primary">
-<span class="material-symbols-outlined text-[22px]">{{ render_icon("description") }}</span>
+<span class="app-icon-wrap text-[22px]">{{ render_icon("description") }}</span>
 </div>
 <div>
-<h3 class="font-headline-sm text-headline-sm font-bold text-on-surface">Thông tin Nông hộ &amp; Vùng canh tác</h3>
-<p class="font-body-sm text-body-sm text-on-surface-variant">Dữ liệu demo được lưu trên trình duyệt này. Hãy dùng thông tin mẫu.</p>
+<h3 class="text-headline-sm font-bold">Thông tin Nông hộ &amp; Vùng canh tác</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">{{ 'Họ tên và số điện thoại được lưu vào tài khoản. Thông tin ruộng được lưu trên trình duyệt này.' if current_user else 'Dữ liệu demo được lưu trên trình duyệt này. Hãy dùng thông tin mẫu.' }}</p>
 </div>
 </div>
 <span class="font-label-sm text-label-sm px-2.5 py-1 rounded bg-surface-container-high text-on-surface font-semibold">Vụ Đông Xuân 2024</span>
@@ -205,17 +252,17 @@
                 Họ và tên chủ hộ <span class="text-secondary">*</span>
 </label>
 <div class="relative">
-<input class="w-full h-11 px-3.5 rounded-lg bg-surface-container-low text-on-surface font-body-md text-body-md focus:bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary shadow-inner" id="farmer-fullname" required maxlength="80" autocomplete="off" type="text" value="Trần Văn Năm (Chú Năm Ruộng)">
-<span class="material-symbols-outlined absolute right-3 top-3 text-[18px] text-on-surface-variant">{{ render_icon("account_circle") }}</span>
+<input class="w-full h-11 px-3.5 rounded-lg bg-surface-container-low text-on-surface font-body-md text-body-md focus:bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary shadow-inner" id="farmer-fullname" required maxlength="80" autocomplete="off" type="text" value="{{ current_user.name if current_user else 'Trần Văn Năm (Chú Năm Ruộng)' }}">
+<span class="app-icon-wrap absolute right-3 top-3 text-[18px] text-on-surface-variant">{{ render_icon("account_circle") }}</span>
 </div>
 </div>
 <div class="flex flex-col gap-1.5">
 <label class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-bold" for="farmer-phone">
-                Số điện thoại liên hệ <span class="text-secondary">*</span>
+                Số điện thoại liên hệ (+84) <span class="text-secondary">*</span>
 </label>
 <div class="relative">
-<input class="w-full h-11 px-3.5 rounded-lg bg-surface-container-low text-on-surface font-body-md text-body-md focus:bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary shadow-inner" id="farmer-phone" required maxlength="24" autocomplete="off" type="tel" value="0918 245 889">
-<span class="material-symbols-outlined absolute right-3 top-3 text-[18px] text-on-surface-variant">{{ render_icon("phone_iphone") }}</span>
+<input class="w-full h-11 px-3.5 rounded-lg bg-surface-container-low text-on-surface font-body-md text-body-md focus:bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary shadow-inner" id="farmer-phone" required maxlength="24" autocomplete="off" type="tel" value="{{ current_user.phone if current_user else '+84918245889' }}">
+<span class="app-icon-wrap absolute right-3 top-3 text-[18px] text-on-surface-variant">{{ render_icon("phone_iphone") }}</span>
 </div>
 </div>
 </div>
@@ -225,7 +272,7 @@
             </label>
 <div class="relative">
 <input class="w-full h-11 px-3.5 rounded-lg bg-surface-container-low text-on-surface font-body-md text-body-md focus:bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary shadow-inner" id="farmer-address" maxlength="160" autocomplete="off" type="text" value="Ấp 3, Xã Long Hữu, Huyện Duyên Hải, Tỉnh Trà Vinh">
-<span class="material-symbols-outlined absolute right-3 top-3 text-[18px] text-on-surface-variant">{{ render_icon("location_on") }}</span>
+<span class="app-icon-wrap absolute right-3 top-3 text-[18px] text-on-surface-variant">{{ render_icon("location_on") }}</span>
 </div>
 </div>
 <div class="grid grid-cols-1 md:grid-cols-2 gap-space-md">
@@ -233,15 +280,12 @@
 <label class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-bold" for="farmer-cultivar">
                 Giống lúa gieo trồng chủ lực
               </label>
-<div class="relative">
-<select class="w-full h-11 px-3.5 rounded-lg bg-surface-container-low text-on-surface font-body-md text-body-md focus:bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary appearance-none cursor-pointer shadow-inner" id="farmer-cultivar">
+<select class="app-select w-full font-body-md text-body-md" id="farmer-cultivar">
 <option selected="" value="om5451">OM5451</option>
 <option value="daithom8">Đài Thơm 8</option>
 <option value="st25">ST25</option>
 <option value="om18">OM18</option>
 </select>
-<span class="material-symbols-outlined absolute right-3 top-3 text-[18px] text-on-surface-variant pointer-events-none">{{ render_icon("expand_more") }}</span>
-</div>
 </div>
 <div class="flex flex-col gap-1.5">
 <label class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-bold" for="farmer-area">
@@ -257,96 +301,153 @@
 <label class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-bold" for="hydrology-station">
               Trạm đo thủy văn / Cống liên kết gần nhất
             </label>
-<div class="relative">
-<select class="w-full h-11 px-3.5 rounded-lg bg-surface-container-low text-on-surface font-body-md text-body-md focus:bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary appearance-none cursor-pointer shadow-inner" id="hydrology-station">
+<select class="app-select w-full font-body-md text-body-md" id="hydrology-station">
 <option selected="" value="muong-lo">Cống Mương Lộ (Kênh Cầu Vồng - Cách 850m)</option>
 <option value="lang-the">Cống Láng Thé (Sông Tiền)</option>
 <option value="ben-gia">Trạm Bến Giá (Sông Cổ Chiên)</option>
 <option value="long-toan">Cống Long Toàn (Trục thoát triều)</option>
 </select>
-<span class="material-symbols-outlined absolute right-3 top-3 text-[18px] text-on-surface-variant pointer-events-none">{{ render_icon("water_drop") }}</span>
-</div>
 <p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
               Chọn trạm gần ruộng để ghi vào hồ sơ mẫu.</p>
 </div>
 <div class="pt-space-sm flex items-center justify-between flex-wrap gap-space-sm">
 <p id="save-info-msg" role="status" class="font-body-sm text-body-sm text-primary font-semibold"></p>
-<button class="ml-auto px-space-lg py-2.5 rounded-lg bg-primary hover:bg-primary-container text-on-primary font-headline-sm text-body-md font-bold transition-colors shadow-sm flex items-center gap-2" id="btn-save-farmer-info" type="submit">
-<span class="material-symbols-outlined text-[18px]">{{ render_icon("save") }}</span>
+<button class="app-button app-button--primary ml-auto px-space-lg py-2.5 font-headline-sm text-body-md font-bold flex items-center gap-2" id="btn-save-farmer-info" type="submit">
+<span class="app-icon-wrap text-[18px]">{{ render_icon("save") }}</span>
 <span>Lưu Thông Tin Canh Tác</span>
 </button>
 </div>
 </form>
 </div>
-<div class="bg-surface-container-lowest rounded-xl shadow-sm p-space-lg">
-<div class="flex items-center justify-between pb-space-sm">
-<div class="flex items-center gap-space-xs">
-<div class="w-9 h-9 rounded-xl bg-secondary-fixed flex items-center justify-center text-secondary">
-<span class="material-symbols-outlined text-[22px]">{{ render_icon("lock") }}</span>
-</div>
-<div>
-<h3 class="font-headline-sm text-headline-sm font-bold text-on-surface">Bảo Mật &amp; Đổi Mật Khẩu</h3>
-<p class="font-body-sm text-body-sm text-on-surface-variant">Chế độ xem thử. Hãy dùng mật khẩu mẫu.</p>
-</div>
-</div>
+<div class="app-glass rounded-xl p-space-lg" id="privacy-card">
+  <button type="button"
+          id="btn-toggle-privacy-dropdown"
+          data-open-privacy-panel
+          aria-expanded="false"
+          aria-controls="privacy-slide-panel"
+          class="w-full flex items-center justify-between gap-space-md text-left cursor-pointer group">
+    <div class="flex items-center gap-space-xs">
+      <div class="w-9 h-9 rounded-xl bg-secondary-fixed flex items-center justify-center text-secondary shrink-0">
+        <span class="app-icon-wrap text-[22px]">{{ render_icon("lock") }}</span>
+      </div>
+      <div>
+        <h3 class="text-headline-sm font-bold text-on-surface group-hover:text-primary transition-colors">Bảo Mật &amp; Đổi Mật Khẩu</h3>
+        <p class="font-body-sm text-body-sm text-on-surface-variant">Nhấn để mở xuống: đổi địa chỉ ví C-Chain Fuji (xác nhận Email), xem Private Key và đổi mật khẩu.</p>
+      </div>
+    </div>
+    <span id="privacy-dropdown-chevron" class="app-icon-wrap text-[22px] text-primary transition-transform duration-200 shrink-0">{{ render_icon("expand_more") }}</span>
+  </button>
 
-</div>
-<form class="mt-space-md flex flex-col gap-space-md" id="password-change-form" method="post">
-<div class="flex flex-col gap-1.5">
-<label class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-bold" for="current-password">
-              Mật khẩu hiện tại <span class="text-secondary">*</span>
-</label>
-<div class="relative">
-<input class="w-full h-11 pl-3.5 pr-11 rounded-lg bg-surface-container-low text-on-surface font-body-md text-body-md focus:bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary shadow-inner" id="current-password" required maxlength="128" autocomplete="off" placeholder="Nhập mật khẩu chú đang dùng" type="password">
-<button class="btn-toggle-eye absolute right-3 top-2.5 text-on-surface-variant hover:text-on-surface" data-target="current-password" type="button" aria-label="Hiện hoặc ẩn mật khẩu" aria-pressed="false">
-<span class="material-symbols-outlined text-[20px]">{{ render_icon("visibility") }}</span>
-</button>
-</div>
-</div>
-<div class="grid grid-cols-1 md:grid-cols-2 gap-space-md">
-<div class="flex flex-col gap-1.5">
-<label class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-bold" for="new-password">
-                Mật khẩu mới <span class="text-secondary">*</span>
-</label>
-<div class="relative">
-<input class="w-full h-11 pl-3.5 pr-11 rounded-lg bg-surface-container-low text-on-surface font-body-md text-body-md focus:bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary shadow-inner" id="new-password" required minlength="8" maxlength="128" autocomplete="off" placeholder="Ít nhất 8 ký tự" type="password">
-<button class="btn-toggle-eye absolute right-3 top-2.5 text-on-surface-variant hover:text-on-surface" data-target="new-password" type="button" aria-label="Hiện hoặc ẩn mật khẩu" aria-pressed="false">
-<span class="material-symbols-outlined text-[20px]">{{ render_icon("visibility") }}</span>
-</button>
-</div>
-<div class="mt-1 flex flex-col gap-1">
-<div class="flex items-center justify-between">
-<span class="font-label-sm text-label-sm text-on-surface-variant">Độ dài mật khẩu:</span>
-<span class="font-label-sm text-label-sm font-bold text-on-surface-variant" id="pwd-strength-text">Chưa nhập</span>
-</div>
-<div class="w-full h-1.5 rounded-full bg-surface-container-high overflow-hidden flex gap-1">
-<div class="h-full w-1/3 rounded-full bg-outline-variant/40 transition-colors" id="pwd-bar-1"></div>
-<div class="h-full w-1/3 rounded-full bg-outline-variant/40 transition-colors" id="pwd-bar-2"></div>
-<div class="h-full w-1/3 rounded-full bg-outline-variant/40 transition-colors" id="pwd-bar-3"></div>
-</div>
-</div>
-</div>
-<div class="flex flex-col gap-1.5">
-<label class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-bold" for="confirm-password">
-                Xác nhận mật khẩu mới <span class="text-secondary">*</span>
-</label>
-<div class="relative">
-<input class="w-full h-11 pl-3.5 pr-11 rounded-lg bg-surface-container-low text-on-surface font-body-md text-body-md focus:bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary shadow-inner" id="confirm-password" required minlength="8" maxlength="128" autocomplete="off" placeholder="Nhập lại mật khẩu mới" type="password">
-<button class="btn-toggle-eye absolute right-3 top-2.5 text-on-surface-variant hover:text-on-surface" data-target="confirm-password" type="button" aria-label="Hiện hoặc ẩn mật khẩu" aria-pressed="false">
-<span class="material-symbols-outlined text-[20px]">{{ render_icon("visibility") }}</span>
-</button>
-</div>
-<span class="font-label-sm text-label-sm text-on-surface-variant mt-1" id="confirm-hint">Phải trùng khớp hoàn toàn với mật khẩu mới</span>
-</div>
-</div>
-<div class="pt-space-xs flex items-center justify-between flex-wrap gap-space-sm">
-<p id="password-message" role="status" class="font-body-sm text-body-sm text-on-surface-variant"></p>
-<button class="px-space-xl py-3 rounded-xl bg-primary hover:bg-primary-container text-on-primary font-headline-sm text-body-md font-bold transition-colors shadow-md flex items-center gap-2" id="btn-submit-password" type="submit">
-<span class="material-symbols-outlined text-[20px]">{{ render_icon("lock") }}</span>
-<span>Cập Nhật Mật Khẩu Mới</span>
-</button>
-</div>
-</form>
+  <!-- Inline Dropdown Panel dropping directly from the label above -->
+  <div id="privacy-slide-panel" class="hidden mt-space-md pt-space-md border-t border-outline-variant/30 space-y-space-lg" aria-hidden="true">
+    <!-- Section 1: Avalanche Fuji Wallet & Email Confirmation -->
+    <form id="wallet-bind-form" data-user-email="{{ current_user.email if current_user else '' }}" class="p-space-md rounded-xl bg-surface-container-low border border-outline-variant/40 space-y-3">
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <span class="font-label-md font-bold text-primary uppercase">🔗 Ví C-Chain Fuji (secp256k1)</span>
+        <button type="button" id="btn-export-privkey" class="app-button px-2.5 py-1 font-label-sm text-label-sm font-bold">
+          🔑 Hiện Private Key
+        </button>
+      </div>
+
+      <div id="exported-privkey-box" class="hidden p-2.5 rounded-lg bg-surface-container-lowest border border-primary/40 text-xs break-all space-y-1">
+        <span class="font-semibold text-primary">Private Key (secp256k1) để Import vào Core / MetaMask:</span>
+        <code id="exported-privkey-value" class="block font-bold text-on-surface select-all"></code>
+      </div>
+
+      <div class="flex flex-col gap-1">
+        <label class="font-label-sm text-label-sm font-bold text-on-surface-variant uppercase" for="custom-wallet-input">Địa chỉ ví C-Chain Fuji mới (0x...)</label>
+        <input id="custom-wallet-input" type="text" placeholder="Dán địa chỉ ví C-Chain Fuji (0x... 42 ký tự)" value="{{ current_user.wallet_address if current_user else '' }}" class="w-full h-10 px-3 rounded-lg bg-surface-container-lowest text-xs text-on-surface border border-outline-variant">
+      </div>
+
+      <div class="flex flex-col gap-1">
+        <label class="font-label-sm text-label-sm font-bold text-on-surface-variant uppercase" for="wallet-otp-input">Mã xác nhận Email (6 chữ số) *</label>
+        <div class="flex gap-2">
+          <input id="wallet-otp-input" type="text" maxlength="6" inputmode="numeric" placeholder="Nhập 6 số gửi về Email" class="flex-1 h-10 px-3 rounded-lg bg-surface-container-lowest text-xs font-label-md text-on-surface border border-outline-variant tracking-widest">
+          <button type="button" id="btn-send-wallet-otp" class="app-button h-10 px-3 font-label-sm text-label-sm font-bold shrink-0">
+            Gửi mã Email
+          </button>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between gap-2 pt-1">
+        <p id="wallet-bind-msg" role="status" class="text-xs font-semibold text-primary"></p>
+        <button type="submit" class="app-button app-button--primary h-9 px-3.5 font-label-sm text-label-sm font-bold shrink-0">
+          Xác nhận &amp; Lưu ví
+        </button>
+      </div>
+    </form>
+
+    <!-- Section 2: Change Password -->
+    <div class="p-space-md rounded-xl bg-surface-container-low border border-outline-variant/40">
+      <div class="flex items-center gap-2 mb-space-md">
+        <span class="app-icon-wrap text-[20px] text-secondary">{{ render_icon("lock") }}</span>
+        <div>
+          <h4 class="font-headline-sm font-bold text-on-surface">Đổi Mật Khẩu Tài Khoản</h4>
+          <p class="text-xs text-on-surface-variant">Mật khẩu mới được băm PBKDF2-SHA256 trước khi lưu.</p>
+        </div>
+      </div>
+
+      <form class="flex flex-col gap-space-md" id="password-change-form" method="post">
+        <div class="flex flex-col gap-1.5">
+          <label class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-bold" for="current-password">
+            Mật khẩu hiện tại <span class="text-secondary">*</span>
+          </label>
+          <div class="relative">
+            <input class="w-full h-11 pl-3.5 pr-11 rounded-lg bg-surface-container-lowest text-on-surface font-body-md text-body-md focus:outline-none focus:ring-2 focus:ring-primary" id="current-password" required maxlength="128" autocomplete="off" placeholder="Nhập mật khẩu đang dùng" type="password">
+            <button class="btn-toggle-eye absolute right-3 top-2.5 text-on-surface-variant hover:text-on-surface" data-target="current-password" type="button" aria-label="Hiện hoặc ẩn mật khẩu" aria-pressed="false">
+              <span class="app-icon-wrap text-[20px]">{{ render_icon("visibility") }}</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-space-md">
+          <div class="flex flex-col gap-1.5">
+            <label class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-bold" for="new-password">
+              Mật khẩu mới <span class="text-secondary">*</span>
+            </label>
+            <div class="relative">
+              <input class="w-full h-11 pl-3.5 pr-11 rounded-lg bg-surface-container-lowest text-on-surface font-body-md text-body-md focus:outline-none focus:ring-2 focus:ring-primary" id="new-password" required minlength="4" maxlength="128" autocomplete="off" placeholder="Ít nhất 4 ký tự" type="password">
+              <button class="btn-toggle-eye absolute right-3 top-2.5 text-on-surface-variant hover:text-on-surface" data-target="new-password" type="button" aria-label="Hiện hoặc ẩn mật khẩu" aria-pressed="false">
+                <span class="app-icon-wrap text-[20px]">{{ render_icon("visibility") }}</span>
+              </button>
+            </div>
+            <div class="mt-1 flex flex-col gap-1">
+              <div class="flex items-center justify-between">
+                <span class="font-label-sm text-label-sm text-on-surface-variant">Độ dài mật khẩu:</span>
+                <span class="font-label-sm text-label-sm font-bold text-on-surface-variant" id="pwd-strength-text">Chưa nhập</span>
+              </div>
+              <div class="w-full h-1.5 rounded-full bg-surface-container-high overflow-hidden flex gap-1">
+                <div class="h-full w-1/3 rounded-full bg-outline-variant/40 transition-colors" id="pwd-bar-1"></div>
+                <div class="h-full w-1/3 rounded-full bg-outline-variant/40 transition-colors" id="pwd-bar-2"></div>
+                <div class="h-full w-1/3 rounded-full bg-outline-variant/40 transition-colors" id="pwd-bar-3"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex flex-col gap-1.5">
+            <label class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-bold" for="confirm-password">
+              Xác nhận mật khẩu mới <span class="text-secondary">*</span>
+            </label>
+            <div class="relative">
+              <input class="w-full h-11 pl-3.5 pr-11 rounded-lg bg-surface-container-lowest text-on-surface font-body-md text-body-md focus:outline-none focus:ring-2 focus:ring-primary" id="confirm-password" required minlength="4" maxlength="128" autocomplete="off" placeholder="Nhập lại mật khẩu mới" type="password">
+              <button class="btn-toggle-eye absolute right-3 top-2.5 text-on-surface-variant hover:text-on-surface" data-target="confirm-password" type="button" aria-label="Hiện hoặc ẩn mật khẩu" aria-pressed="false">
+                <span class="app-icon-wrap text-[20px]">{{ render_icon("visibility") }}</span>
+              </button>
+            </div>
+            <span class="font-label-sm text-label-sm text-on-surface-variant mt-1" id="confirm-hint">Phải trùng khớp hoàn toàn với mật khẩu mới</span>
+          </div>
+        </div>
+
+        <div class="pt-space-xs flex flex-col gap-2">
+          <p id="password-message" role="status" class="font-body-sm text-body-sm text-on-surface-variant"></p>
+          <button class="app-button app-button--primary w-full py-3 font-headline-sm text-body-md font-bold flex items-center justify-center gap-2" id="btn-submit-password" type="submit">
+            <span class="app-icon-wrap text-[20px]">{{ render_icon("lock") }}</span>
+            <span>Cập Nhật Mật Khẩu Mới</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
 </div>
 </div>
 </div>

@@ -4,7 +4,7 @@
 {% include "shared/navigation-head.html" %}
 <link rel="icon" href="/static/assets/stitch-simulation/co-ma-logo.png">
 <link rel="stylesheet" href="/static/assets/stitch-simulation/fonts.css">
-<link rel="stylesheet" href="/static/shell.css"><link rel="stylesheet" href="/static/simulation-workbench.css?v=20261118-report2">
+<link rel="stylesheet" href="/static/shell.css"><link rel="stylesheet" href="/static/simulation-view.css"><link rel="stylesheet" href="/static/simulation-workbench.css?v=20261118-merge1">
 </head><body>{% include "shared/header.html" %}
 <main id="simContentWrapper" class="simulation-workbench">
   <div class="sim-heading"><div><p class="sim-eyebrow">ĐỒNG BẰNG SÔNG CỬU LONG / OM5451</p><h1>Một thửa ruộng. Nhiều kịch bản.</h1><p>Thay đổi điều kiện, đối chiếu bằng chứng và xem giới hạn của từng kết quả.</p></div><span id="cloudStatus" class="sim-badge">Đang kết nối dữ liệu…</span></div>
@@ -36,21 +36,13 @@
         <label class="sim-check"><input name="ecIsSeasonAverage" type="checkbox">EC là trung bình vụ, đo nước đất vùng rễ khi ruộng ngập</label>
         <label class="sim-check"><input name="useWeather" type="checkbox">Dùng nhiệt độ cực đại dự báo tại địa điểm này (tối đa 7 ngày)</label>
       </div>
-      <div class="sim-actions"><button type="submit" id="runSimulation" class="sim-primary" disabled>Mô phỏng và xem báo cáo</button><button type="button" id="askAi" disabled>Nhờ AI chọn bằng chứng</button><span>Mô phỏng không cần khóa AI. AI hỗ trợ đọc báo cáo là tùy chọn.</span></div>
+      <div class="sim-actions"><button type="submit" id="runSimulation" class="sim-primary" disabled>Mô phỏng và xem báo cáo</button><button type="button" id="askAi" disabled>Nhờ AI chọn bằng chứng</button><button type="button" id="lowerSalt">Thử hạ mặn nước ruộng</button><span>Mô phỏng không cần khóa AI. AI hỗ trợ đọc báo cáo là tùy chọn.</span></div>
       <p id="formStatus" class="sim-status">Đang tải danh mục từ máy chủ…</p>
     </form>
     <section class="sim-field-card" aria-labelledby="fieldTitle"><div class="sim-field-top"><h2 id="fieldTitle">Thửa ruộng của kịch bản</h2><span id="sceneLabel">Chưa chạy mô phỏng</span></div>
-      <svg id="fieldScene" viewBox="0 0 1000 330" role="img" aria-label="Minh họa thửa ruộng; không thể hiện tỷ lệ cây sống">
-        <defs><linearGradient id="fieldSky" x2="0" y2="1"><stop stop-color="#e3f1e8"/><stop offset="1" stop-color="#f6edcf"/></linearGradient><linearGradient id="fieldWater" x2="0" y2="1"><stop stop-color="#a6cfc0"/><stop offset="1" stop-color="#6d9e89"/></linearGradient><g id="ricePlant"><path d="M0 0 Q-3-25 0-65 M0-20 Q-20-48-25-49 M0-30 Q22-56 27-58 M0-40 Q-10-67-15-71" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><path d="M0-57 Q12-73 18-61" fill="none" stroke="#b1a047" stroke-width="3"/></g></defs>
-        <rect width="1000" height="330" fill="url(#fieldSky)"/><circle id="fieldSun" cx="868" cy="62" r="30" fill="#edcf78"/>
-        <path d="M0 160 Q120 100 250 150 T540 135 T800 155 T1000 130 V330 H0Z" fill="#bfd3b4"/>
-        <path d="M100 200 L740 155 L950 300 L110 318Z" fill="#b49d70"/>
-        <path d="M125 205 L735 165 L923 290 L133 306Z" fill="url(#fieldWater)"/>
-        <g id="ricePlants" color="#52864b"></g>
-        <path id="floodOverlay" d="M125 205 L735 165 L923 290 L133 306Z" fill="#4a9bb7" opacity="0"/>
-        <path d="M133 306 L923 290 L950 300 L110 318Z" fill="#8f8257"/>
-        <text x="28" y="310" fill="#355446" font-size="13">Minh họa định tính · Số cây vẽ không đại diện tỷ lệ sống</text>
-      </svg>
+      {% include "simulation/field.html" %}
+      <details class="sim-plant-detail"><summary>Xem cận cảnh khóm lúa và vùng rễ</summary>{% include "simulation/plant.html" %}</details>
+      <p class="sim-muted">Hình minh họa giai đoạn và cảnh báo có nguồn. Màu lá, số cây và mức biến dạng trong hình không phải tỷ lệ thiệt hại hoặc dự báo cây sống.</p>
       <div class="sim-summary-grid"><article><span>Ảnh hưởng mặn theo FAO</span><strong id="relativeYield">Chưa có kết quả</strong><small>Năng suất tương đối tham chiếu; chưa hiệu chuẩn OM5451.</small></article><article><span>Nguy cơ cần chú ý</span><strong id="riskSummary">Chờ mô phỏng</strong><small id="sceneNote">Hình thay đổi theo cảnh báo có căn cứ.</small></article><article><span>Năng suất / tỷ lệ sống thực địa</span><strong>Chưa đủ dữ liệu</strong><small>Không dùng điểm minh họa thay cho xác suất sống.</small></article></div>
     </section>
     <section class="sim-card sim-assistant"><img src="/static/assets/stitch-simulation/co-ma-logo.png" alt="" width="56" height="56"><div><h2>Cò Mạ · Đọc kết quả có căn cứ</h2><p id="assistantAdvice">Chọn điều kiện rồi chạy mô phỏng. Các cảnh báo và nguồn sẽ xuất hiện ở báo cáo.</p><p id="aiStatus" class="sim-muted">Chưa yêu cầu AI.</p></div></section>
@@ -60,4 +52,4 @@
   </section>
   <section id="weatherPanel" hidden><div class="sim-card"><h2>Thời tiết tại địa điểm đã chọn</h2><p>Nhiệt độ và mưa là dữ liệu ô lưới. Độ mặn, nước ruộng và chiều cao cây vẫn cần đo tại chỗ.</p><button type="button" id="loadWeather" disabled>Tải dự báo 7 ngày</button><p id="weatherMeta" role="status"></p><div class="sim-table-wrap"><table><thead><tr><th>Ngày</th><th>Thấp nhất °C</th><th>Cao nhất °C</th><th>Mưa mm</th><th>ET₀ mm</th><th>Bức xạ MJ/m²</th></tr></thead><tbody id="weatherRows"></tbody></table></div></div><div class="sim-card"><h2>Dữ liệu lịch sử dùng chung trên máy chủ</h2><p id="historyMeta"></p><a id="downloadHistory" hidden target="_blank" rel="noopener">Mở bộ dữ liệu NASA POWER (JSON)</a><p class="sim-muted">Nguồn: NASA POWER. Dự báo: Open-Meteo, CC BY 4.0; gói API miễn phí dành cho mục đích phi thương mại.</p></div></section>
   <footer class="sim-footer">Dữ liệu có nguồn · Mô phỏng tham chiếu · Cần kiểm định thực địa trước khi dùng để quyết định canh tác</footer>
-</main><script src="/static/simulation.js?v=20261118-report2" defer></script></body></html>
+</main><script src="/static/simulation.js?v=20261118-merge1" defer></script><script type="module" src="/static/simulation-scene.js?v=20261118-merge1"></script></body></html>

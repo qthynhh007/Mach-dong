@@ -31,12 +31,13 @@ class simulationView {
     this.form.addEventListener("input", () => this.invalidate());
     this.form.addEventListener("invalid", () => this.status("Có điều kiện chưa hợp lệ. Hãy sửa ô được đánh dấu rồi chạy lại.",true),true);
     this.byId("resetScenario").addEventListener("click", () => { this.form.reset(); this.invalidate(); });
+    this.byId("lowerSalt").addEventListener("click", () => { this.field("salinityGl").value = Math.min(1,Number(this.field("salinityGl").value)); this.invalidate(); });
     this.byId("loadWeather").addEventListener("click", () => this.loadWeather());
     this.byId("downloadReport").addEventListener("click", () => this.download());
     this.byId("retryCatalog").addEventListener("click", () => this.loadCatalog());
     this.byId("editScenario").addEventListener("click", () => { this.showPanel("scenarioPanel"); this.byId("runSimulation").focus(); });
     document.querySelectorAll("[data-panel]").forEach(button => button.addEventListener("click", () => this.showPanel(button.dataset.panel)));
-    this.drawField(); this.updateLabels(); this.loadCatalog();
+    this.updateLabels(); this.loadCatalog();
   }
   byId(id) { return document.getElementById(id); }
   number(value) { return value === null || value === undefined ? "Chưa có" : Number(value).toLocaleString("vi-VN",{maximumFractionDigits:2}); }
@@ -169,11 +170,9 @@ class simulationView {
     } catch (error) { if (error.name !== "AbortError") { this.byId("weatherRows").replaceChildren(); this.setText("weatherMeta",error.message); } }
   }
   showPanel(id) { for (const button of document.querySelectorAll("[data-panel]")) { const selected = button.dataset.panel === id; button.setAttribute("aria-pressed",String(selected)); this.byId(button.dataset.panel).hidden = !selected; } }
-  drawField() {
-    const target = this.byId("ricePlants");
-    for (let row=0; row<4; row++) for (let col=0; col<10; col++) { const plant = document.createElementNS("http://www.w3.org/2000/svg","use"); plant.setAttribute("href","#ricePlant"); plant.setAttribute("transform",`translate(${180+col*55+row*26},${205+row*23-col*3}) scale(${.6+row*.1})`); target.append(plant); }
+  paintField(scene) {
+    document.dispatchEvent(new CustomEvent("simulationScene",{detail:scene ? this.result : null}));
   }
-  paintField(scene) { this.byId("ricePlants").setAttribute("color",scene?.heatConcern || scene?.saltReferenceConcern ? "#a29043" : "#52864b"); this.byId("floodOverlay").setAttribute("opacity",scene?.submerged ? ".55" : "0"); this.byId("fieldSun").setAttribute("fill",scene?.heatConcern ? "#e9a15a" : "#edcf78"); }
   download() { if (!this.result) return; const url = URL.createObjectURL(new Blob([JSON.stringify(this.result,null,2)],{type:"application/json"})); const link = document.createElement("a"); link.href = url; link.download = "MachDong-Simulation.json"; link.click(); setTimeout(() => URL.revokeObjectURL(url),1000); }
 }
 if (typeof document !== "undefined") new simulationView();

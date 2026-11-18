@@ -1,154 +1,71 @@
-{% from "shared/icon.html" import icon as render_icon -%}
-<!DOCTYPE html><html lang="vi"><head>{% include "shared/navigation-head.html" %}<link rel="icon" href="/static/assets/stitch-simulation/co-ma-logo.png"><link rel="stylesheet" href="/static/assets/stitch-simulation/fonts.css"><link rel="stylesheet" href="/static/community.css"><link rel="stylesheet" href="/static/shell.css"><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><meta content="web_dashboard" name="shell-type">
-<style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><title>Kho CSV cộng đồng · Mạch Đồng</title></head><body class="app-workspace bg-background font-body-md text-on-surface antialiased selection:bg-primary-fixed selection:text-on-primary-fixed">{% include "shared/header.html" %}{% include "shared/sidebar.html" %}<div class="pl-64" style="padding-left: 240px;"><main id="main-content" tabindex="-1" class="relative w-full min-h-screen bg-background"><div class="flex flex-col w-full">
-<!-- Dynamic Ambient Decorative Background Layer -->
-<div class="relative w-full overflow-hidden px-space-md lg:px-margin-desktop py-space-lg flex flex-col gap-space-lg"><!-- Top Header & Primary Action -->
-<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm">
-<div>
-<div class="flex items-center gap-space-xs">
-<span class="px-2 py-0.5 rounded bg-primary-fixed text-on-primary-fixed font-label-sm text-label-sm font-semibold uppercase">Kho Dữ Liệu Nông Hộ</span>
-<span class="text-outline text-label-sm font-label-sm">· 4 tệp [Giả lập]</span>
-</div>
-<h1 class="text-headline-lg font-headline-lg font-bold text-primary tracking-tight mt-0.5">Kho Dữ Liệu CSV</h1>
-</div>
-<div class="flex items-center gap-space-sm flex-wrap sm:flex-nowrap"><button class="flex items-center gap-2 px-space-md py-2.5 rounded-xl bg-primary text-on-primary font-headline-sm text-label-lg shadow-sm hover:bg-primary-container transition-colors active:scale-95 flex-shrink-0" data-csv-open type="button"><span class="material-symbols-outlined text-lg">{{ render_icon("upload_file") }}</span><span>+ Tải lên tệp CSV</span></button></div>
-</div>
-<!-- Streamlined Compact Drag & Drop Upload Quickbox -->
-<div class="w-full p-space-md rounded-2xl bg-surface-container-low border-0 flex flex-col md:flex-row items-center justify-between gap-space-md cursor-pointer hover:bg-surface-container transition-colors shadow-sm relative overflow-hidden" data-dropzone><div class="flex items-center gap-space-md z-10"><div class="relative flex-shrink-0 w-24 h-24 flex items-center justify-center"><svg class="w-24 h-24 drop-shadow-sm" fill="none" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg"><ellipse cx="60" cy="80" fill="#ffffff" rx="28" ry="22" stroke="#1b663e" stroke-width="2.5"></ellipse><ellipse cx="60" cy="80" fill="#a8f3bf" fill-opacity="0.4" rx="20" ry="14"></ellipse><path d="M 60 62 C 60 52 66 40 76 34" fill="none" stroke="#1b663e" stroke-linecap="round" stroke-width="4"></path><circle cx="77" cy="32" fill="#ffffff" r="14" stroke="#1b663e" stroke-width="2.5"></circle><ellipse cx="73" cy="30" fill="#111c2c" rx="2.5" ry="3"></ellipse><circle cx="74" cy="29" fill="#ffffff" r="1"></circle><path d="M 82 32 L 102 36 L 82 41 Z" fill="#ffb77a" stroke="#663600" stroke-width="1.5"></path><path d="M 54 22 L 78 8 L 98 22 Z" fill="#ffdcc2" stroke="#884a00" stroke-linejoin="round" stroke-width="2"></path><circle cx="78" cy="15" fill="#884a00" r="2"></circle><path d="M 74 38 Q 78 42 82 38" fill="none" stroke="#ac3311" stroke-linecap="round" stroke-width="2"></path><path d="M 46 88 L 42 110 M 42 110 L 34 112 M 42 110 L 48 112" stroke="#ffb77a" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"></path><path d="M 68 88 L 72 110 M 72 110 L 64 112 M 72 110 L 78 112" stroke="#ffb77a" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"></path><g transform="translate(10, 16)"><circle cx="14" cy="14" fill="#ffdcc2" r="12" stroke="#1b663e" stroke-width="2"></circle><text font-size="13" text-anchor="middle" x="14" y="18">🌾</text></g></svg><span class="absolute -bottom-1 -right-1 px-1.5 py-0.2 rounded-full bg-primary text-on-primary font-label-sm text-[10px] font-bold">Cò Mạ 🌾</span></div><div class="flex flex-col gap-1"><div class="inline-flex items-center gap-2 flex-wrap"><h3 class="font-headline-sm text-headline-sm font-bold text-on-surface">Kéo thả tệp CSV hoặc chọn tệp để chia sẻ</h3></div><div class="p-space-xs px-space-sm rounded-xl bg-surface-container-lowest/90 shadow-sm text-primary font-body-sm text-body-sm font-medium border border-outline-variant/30 flex items-center gap-1.5"><span class="text-base">🌾</span><span><strong class="text-primary">Cò Mạ phấn khởi:</strong> Bà con có thể xem trước cấu trúc CSV rồi kiểm tra số đo tại ruộng.</span></div><p class="font-body-sm text-body-sm text-on-surface-variant">Định dạng CSV UTF-8 · Tối đa 1 MB</p></div></div><div class="flex items-center gap-space-sm flex-shrink-0 z-10"><button class="px-space-md py-2.5 rounded-xl bg-primary text-on-primary font-headline-sm text-label-md font-semibold shadow-sm hover:bg-primary-container transition-colors flex items-center gap-1.5 flex-shrink-0" type="button" data-csv-open><span class="material-symbols-outlined text-lg">{{ render_icon("folder_open") }}</span><span>Chọn tệp</span></button></div></div>
-<!-- Search & Minimal Filter Bar -->
-<div class="flex flex-col sm:flex-row items-center gap-space-sm">
-<div class="relative w-full">
-<span class="material-symbols-outlined absolute left-space-md top-1/2 -translate-y-1/2 text-outline text-lg pointer-events-none">{{ render_icon("search") }}</span>
-<input id="csv-search" aria-label="Tìm tệp CSV" class="w-full pl-11 pr-space-md py-2 rounded-xl bg-surface-container-low font-body-md text-body-md text-on-surface placeholder:text-outline focus:outline-none focus:bg-surface-container" placeholder="Tìm nhanh file CSV, giống lúa (OM5451, ST25), địa bàn..." type="text">
-</div>
-<div class="flex items-center gap-1.5 flex-shrink-0 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0">
-<button class="px-space-sm py-1.5 rounded-full bg-primary text-on-primary font-label-sm text-label-sm font-semibold shadow-sm whitespace-nowrap" type="button" data-filter="all" aria-pressed="true">Tất cả</button>
-<button class="px-space-sm py-1.5 rounded-full bg-surface-container-low text-on-surface-variant hover:bg-surface-container font-label-sm text-label-sm whitespace-nowrap" type="button" data-filter="salinity" aria-pressed="false">Độ mặn</button>
-<button class="px-space-sm py-1.5 rounded-full bg-surface-container-low text-on-surface-variant hover:bg-surface-container font-label-sm text-label-sm whitespace-nowrap" type="button" data-filter="water" aria-pressed="false">Mực nước AWD</button>
-<button class="px-space-sm py-1.5 rounded-full bg-surface-container-low text-on-surface-variant hover:bg-surface-container font-label-sm text-label-sm whitespace-nowrap" type="button" data-filter="weather" aria-pressed="false">Vi khí hậu</button>
-</div>
-</div>
-<!-- Compact CSV Cards Grid -->
-<div class="grid grid-cols-1 md:grid-cols-2 gap-space-md w-full">
-<!-- Compact Card 1 -->
-<article data-dataset="salinity" class="p-space-md rounded-2xl bg-surface-container-lowest shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between gap-space-sm border-0">
-<div class="flex items-start gap-space-sm">
-<div class="w-10 h-10 rounded-xl bg-primary-fixed/30 text-primary flex items-center justify-center flex-shrink-0">
-<span class="material-symbols-outlined text-xl">{{ render_icon("description") }}</span>
-</div>
-<div class="flex flex-col min-w-0 flex-1">
-<div class="flex items-center gap-1.5 flex-wrap">
-<h2 class="font-label-md text-label-md font-bold text-on-surface font-mono truncate">dulieu_do_man_aom5451_longhuu.csv</h2>
-<span class="px-1.5 py-0.2 rounded bg-surface-container text-on-surface-variant font-label-sm text-[10px]">v2.4</span>
-</div>
-<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5 truncate">Xã Long Hữu · OM5451 (Thu Đông 2024) · Chú Sáu Thành</p>
-<div class="flex items-center gap-space-sm text-outline font-label-sm text-label-sm mt-1">
-<span>Tệp mẫu · 1,240 dòng</span>
-<span>·</span>
-<span>4 giờ trước</span>
-<span class="px-1.5 py-0.2 rounded bg-surface-container-high text-primary font-bold text-[10px]">HTX duyệt</span>
-</div>
-</div>
-</div>
-<div class="flex items-center justify-between pt-space-xs border-0">
-<span class="text-label-sm text-on-surface-variant">[Giả lập]</span>
-<div class="flex items-center gap-1.5">
-<a class="px-space-sm py-1.5 rounded-lg bg-surface-container text-on-surface font-label-sm text-label-sm hover:bg-surface-container-high transition-colors flex items-center gap-1" href="/community/samples/salinity">
-<span class="material-symbols-outlined text-base text-primary">{{ render_icon("download") }}</span>
-<span>Tải về</span>
-</a>
-</div>
-</div>
-</article>
-<!-- Compact Card 2 -->
-<article data-dataset="water" class="p-space-md rounded-2xl bg-surface-container-lowest shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between gap-space-sm border-0">
-<div class="flex items-start gap-space-sm">
-<div class="w-10 h-10 rounded-xl bg-surface-container text-primary flex items-center justify-center flex-shrink-0">
-<span class="material-symbols-outlined text-xl">{{ render_icon("description") }}</span>
-</div>
-<div class="flex flex-col min-w-0 flex-1">
-<div class="flex items-center gap-1.5 flex-wrap">
-<h2 class="font-label-md text-label-md font-bold text-on-surface font-mono truncate">mucnuoc_awd_batri_dongxuan.csv</h2>
-<span class="px-1.5 py-0.2 rounded bg-surface-container text-on-surface-variant font-label-sm text-[10px]">v1.1</span>
-</div>
-<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5 truncate">Huyện Ba Tri · Đài Thơm 8 (AWD trọn vụ) · Kỹ sư Mai</p>
-<div class="flex items-center gap-space-sm text-outline font-label-sm text-label-sm mt-1">
-<span>Tệp mẫu · 2,160 dòng</span>
-<span>·</span>
-<span>2 ngày trước</span>
-<span class="px-1.5 py-0.2 rounded bg-surface-container-high text-primary font-bold text-[10px]">Chi Cục duyệt</span>
-</div>
-</div>
-</div>
-<div class="flex items-center justify-between pt-space-xs border-0">
-<span class="text-label-sm text-on-surface-variant">[Giả lập]</span>
-<div class="flex items-center gap-1.5">
-<a class="px-space-sm py-1.5 rounded-lg bg-surface-container text-on-surface font-label-sm text-label-sm hover:bg-surface-container-high transition-colors flex items-center gap-1" href="/community/samples/water">
-<span class="material-symbols-outlined text-base text-primary">{{ render_icon("download") }}</span>
-<span>Tải về</span>
-</a>
-</div>
-</div>
-</article>
-<!-- Compact Card 3 -->
-<article data-dataset="weather" class="p-space-md rounded-2xl bg-surface-container-lowest shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between gap-space-sm border-0">
-<div class="flex items-start gap-space-sm">
-<div class="w-10 h-10 rounded-xl bg-surface-container text-primary flex items-center justify-center flex-shrink-0">
-<span class="material-symbols-outlined text-xl">{{ render_icon("description") }}</span>
-</div>
-<div class="flex flex-col min-w-0 flex-1">
-<div class="flex items-center gap-1.5 flex-wrap">
-<h2 class="font-label-md text-label-md font-bold text-on-surface font-mono truncate">lora_nhietdo_amdo_gocongtay.csv</h2>
-<span class="px-1.5 py-0.2 rounded bg-surface-container text-on-surface-variant font-label-sm text-[10px]">v1.0</span>
-</div>
-<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5 truncate">Gò Công Tây · ST25 Đặc sản · HTX Nông Nghiệp Gò Công</p>
-<div class="flex items-center gap-space-sm text-outline font-label-sm text-label-sm mt-1">
-<span>Tệp mẫu · 2,880 dòng</span>
-<span>·</span>
-<span>5 ngày trước</span>
-<span class="px-1.5 py-0.2 rounded bg-surface-container-high text-primary font-bold text-[10px]">IoT LoRa</span>
-</div>
-</div>
-</div>
-<div class="flex items-center justify-between pt-space-xs border-0">
-<span class="text-label-sm text-on-surface-variant">[Giả lập]</span>
-<div class="flex items-center gap-1.5">
-<a class="px-space-sm py-1.5 rounded-lg bg-surface-container text-on-surface font-label-sm text-label-sm hover:bg-surface-container-high transition-colors flex items-center gap-1" href="/community/samples/weather">
-<span class="material-symbols-outlined text-base text-primary">{{ render_icon("download") }}</span>
-<span>Tải về</span>
-</a>
-</div>
-</div>
-</article>
-<!-- Compact Card 4 -->
-<article data-dataset="ph" class="p-space-md rounded-2xl bg-surface-container-lowest shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between gap-space-sm border-0">
-<div class="flex items-start gap-space-sm">
-<div class="w-10 h-10 rounded-xl bg-surface-container text-primary flex items-center justify-center flex-shrink-0">
-<span class="material-symbols-outlined text-xl">{{ render_icon("description") }}</span>
-</div>
-<div class="flex flex-col min-w-0 flex-1">
-<div class="flex items-center gap-1.5 flex-wrap">
-<h2 class="font-label-md text-label-md font-bold text-on-surface font-mono truncate">doph_khoangruong_culaodung.csv</h2>
-<span class="px-1.5 py-0.2 rounded bg-surface-container text-on-surface-variant font-label-sm text-[10px]">v1.2</span>
-</div>
-<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5 truncate">Cù Lao Dung · OM18 (Vụ Thu Đông) · Trạm Khuyến Nông</p>
-<div class="flex items-center gap-space-sm text-outline font-label-sm text-label-sm mt-1">
-<span>Tệp mẫu · 720 dòng</span>
-<span>·</span>
-<span>1 tuần trước</span>
-<span class="px-1.5 py-0.2 rounded bg-surface-container-high text-primary font-bold text-[10px]">Trạm kiểm định</span>
-</div>
-</div>
-</div>
-<div class="flex items-center justify-between pt-space-xs border-0">
-<span class="text-label-sm text-on-surface-variant">[Giả lập]</span>
-<div class="flex items-center gap-1.5">
-<a class="px-space-sm py-1.5 rounded-lg bg-surface-container text-on-surface font-label-sm text-label-sm hover:bg-surface-container-high transition-colors flex items-center gap-1" href="/community/samples/ph">
-<span class="material-symbols-outlined text-base text-primary">{{ render_icon("download") }}</span>
-<span>Tải về</span>
-</a>
-</div>
-</div>
-</article>
-</div><div class="w-full p-space-md rounded-2xl bg-surface-container-lowest shadow-sm flex flex-col sm:flex-row items-center justify-between gap-space-md border border-outline-variant/30 mt-space-xs"><div class="flex items-center gap-space-md"><div class="w-16 h-16 flex-shrink-0 flex items-center justify-center"><svg class="w-16 h-16" fill="none" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg"><ellipse cx="40" cy="52" fill="#ffffff" rx="20" ry="16" stroke="#1b663e" stroke-width="2"></ellipse><ellipse cx="40" cy="52" fill="#a8f3bf" fill-opacity="0.4" rx="14" ry="10"></ellipse><path d="M 40 40 C 40 32 44 24 50 20" fill="none" stroke="#1b663e" stroke-linecap="round" stroke-width="3"></path><circle cx="52" cy="18" fill="#ffffff" r="10" stroke="#1b663e" stroke-width="2"></circle><circle cx="50" cy="17" fill="#111c2c" r="2"></circle><path d="M 56 18 L 70 21 L 56 24 Z" fill="#ffb77a" stroke="#663600" stroke-width="1.2"></path><path d="M 36 12 L 52 2 L 66 12 Z" fill="#ffdcc2" stroke="#884a00" stroke-width="1.5"></path><g transform="translate(4, 38)"><circle cx="10" cy="10" fill="#a8f3bf" r="9" stroke="#1b663e" stroke-width="1.5"></circle><text font-size="10" text-anchor="middle" x="10" y="14">🌾</text></g></svg></div><div class="flex flex-col"><div class="flex items-center gap-2"><span class="font-label-md text-label-md font-bold text-primary uppercase tracking-wide">Kinh tế tri thức LÚA (🌾 LÚA)</span><span class="px-1.5 py-0.2 rounded bg-surface-container text-outline font-label-sm text-[10px]">Mô phỏng: -15 LÚA</span></div></div></div><div class="flex items-center gap-2 flex-shrink-0"><button class="px-space-md py-1.5 rounded-xl bg-primary text-on-primary font-label-md text-label-md hover:bg-primary-container transition-colors flex items-center gap-1 shadow-sm" data-csv-open type="button"><span class="material-symbols-outlined text-base">{{ render_icon("add_chart") }}</span><span>Tải lên nhận</span></button></div></div></div>
-<p id="csv-empty" class="app-notice mx-4" hidden>Không tìm thấy tệp phù hợp.</p><dialog id="upload-csv-modal" aria-labelledby="csv-modal-title" class="w-[min(92vw,620px)] p-0 rounded-2xl backdrop:bg-black/40 shadow-xl"><div class="bg-white p-6 space-y-4"><div class="flex justify-between gap-4 items-center"><h2 id="csv-modal-title" class="text-xl font-bold text-primary">Xem trước bộ dữ liệu CSV</h2><button type="button" data-csv-close aria-label="Đóng">✕</button></div><p class="app-notice">Tệp UTF-8, tối đa 1 MB. Máy chủ chỉ đọc tệp để xem trước và kiểm tra cấu trúc.</p><label data-dropzone class="block rounded-xl bg-surface-container-low p-4">Chọn hoặc thả tệp CSV<input id="csv-file" type="file" autofocus accept=".csv,text/csv" class="block mt-2 w-full"></label><p id="csv-result" role="status"></p><div id="csv-preview" class="app-csv-results"></div><button type="button" data-csv-close class="px-4 py-2 rounded-lg bg-primary text-on-primary">Đóng</button></div></dialog></div></main><script src="/static/community.js" defer></script></body></html>
+{% from "shared/icon.html" import icon %}
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="shell-type" content="web_dashboard">
+  <title>Kho CSV cộng đồng · Mạch Đồng</title>
+  {% include "shared/navigation-head.html" %}
+  <link rel="icon" href="/static/assets/stitch-simulation/co-ma-logo.png">
+  <link rel="stylesheet" href="/static/community.css">
+  <link rel="stylesheet" href="/static/shell.css">
+  <link rel="stylesheet" href="/static/csv-library.css">
+</head>
+<body class="app-workspace">
+  {% include "shared/header.html" %}
+  {% include "shared/sidebar.html" %}
+  <main id="main-content" class="csv-main app-content" tabindex="-1">
+    <header class="csv-hero">
+      <div>
+        <h1 class="app-page-title">Kho CSV cộng đồng</h1>
+        <p>Tra cứu số đo độ mặn, mực nước và các chỉ tiêu tại ruộng theo địa bàn và kỳ dữ liệu.</p>
+      </div>
+      <div class="csv-tools">
+        <label class="csv-search">{{ icon("search") }}<input type="search" id="csv-search" aria-label="Tìm bộ dữ liệu CSV" placeholder="Tìm theo tên tệp, địa bàn, trạm…"></label>
+        <button class="csv-button app-button app-button--primary" type="button" data-csv-open aria-haspopup="dialog">{{ icon("upload_file") }} Tải lên CSV</button>
+      </div>
+    </header>
+
+    <div class="csv-filter-bar app-glass">
+      <div class="csv-filters" role="group" aria-label="Lọc bộ dữ liệu">
+        {% for key, label in (('all', 'Tất cả'), ('long-huu', 'Long Hữu'), ('om5451', 'OM5451'), ('salinity', 'Độ mặn'), ('water', 'Mực nước'), ('weather', 'Vi khí hậu'), ('ph', 'Độ pH')) %}
+        <button type="button" class="app-button app-button--toggle" data-filter="{{ key }}" aria-pressed="{{ 'true' if key == 'all' else 'false' }}">
+          {{ label }}{% if key == 'all' %} ({{ datasets | length }}){% endif %}
+        </button>
+        {% endfor %}
+      </div>
+      <div class="csv-filter-summary">
+        <p id="csv-count" role="status"><span>{{ datasets | length }} bộ dữ liệu</span></p>
+        <button type="button" id="csv-clear" class="csv-button app-button" disabled>Xóa bộ lọc</button>
+      </div>
+    </div>
+
+    {% include "community/datasets.html" %}
+    <p id="csv-empty" class="csv-empty app-pane" hidden>Không tìm thấy bộ dữ liệu phù hợp.</p>
+  </main>
+
+  <dialog id="upload-csv-modal" class="csv-dialog app-glass" aria-labelledby="csv-modal-title">
+    <header class="csv-dialog-header">
+      <div>
+        <h2 id="csv-modal-title">Xem trước bộ dữ liệu CSV</h2>
+        <p id="csv-modal-file"></p>
+      </div>
+      <form method="dialog"><button type="submit" class="csv-button app-button" autofocus aria-label="Đóng">{{ icon("close") }}</button></form>
+    </header>
+    <div class="csv-dialog-body">
+      <div data-dropzone hidden>
+        <label for="csv-file">Kéo thả tệp CSV vào đây hoặc chọn tệp</label>
+        <p>Tệp UTF-8, tối đa 1 MB. Tệp được đọc để xem trước.</p>
+        <input id="csv-file" type="file" accept=".csv,text/csv">
+      </div>
+      <p id="csv-result" role="status"></p>
+      <div id="csv-preview" class="app-csv-results" role="region" aria-label="Bảng xem trước" tabindex="0" hidden></div>
+    </div>
+    <footer class="csv-dialog-footer" id="csv-modal-actions" hidden>
+      <a class="csv-button app-button app-button--primary" id="csv-modal-download">{{ icon("download") }} Tải trọn bộ CSV</a>
+    </footer>
+  </dialog>
+  <script src="/static/community.js" defer></script>
+</body>
+</html>

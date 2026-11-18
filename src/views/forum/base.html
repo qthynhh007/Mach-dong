@@ -5,15 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}{% endblock %} · Mạch Đồng</title>
   <link rel="icon" href="/static/assets/stitch-simulation/co-ma-logo.png">
-  <link rel="stylesheet" href="/static/assets/stitch-simulation/fonts.css">
   {% block styles %}{% endblock %}
   <link rel="stylesheet" href="/static/shell.css">
   <link rel="stylesheet" href="/static/forum.css">
 </head>
-<body class="app-workspace forum-page bg-background text-on-surface antialiased">
+<body class="app-workspace forum-page text-on-surface antialiased">
 {% include "shared/header.html" %}
 {% include "shared/sidebar.html" %}
-<main id="main-content" tabindex="-1" class="forum-workspace">
+<main id="main-content" tabindex="-1" class="forum-workspace app-content">
   {% if forumData is defined %}
   <div class="community-session">
     {% if forumData.member %}
@@ -25,6 +24,7 @@
   <noscript><p class="community-status">Hãy bật JavaScript để dùng diễn đàn.</p></noscript>
   {% block content %}{% endblock %}
 </main>
+{% include "forum/member-dialog.html" %}
 {% if forumData is defined %}<script id="forum-data" type="application/json">{{ forumData|tojson }}</script>{% endif %}
 <script src="/static/forum.js" defer></script>
 </body>
