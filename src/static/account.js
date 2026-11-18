@@ -107,6 +107,78 @@
     if (event.persisted) loadProfile();
   });
 
+  // Inline Dropdown Privacy & Security Panel (drops directly from the label)
+  const privacyPanel = document.getElementById("privacy-slide-panel");
+  const privacyToggleBtn = document.getElementById("btn-toggle-privacy-dropdown");
+  const privacyChevron = document.getElementById("privacy-dropdown-chevron");
+  const btnSendWalletOtp = document.getElementById("btn-send-wallet-otp");
+  const walletOtpInput = document.getElementById("wallet-otp-input");
+
+  function setPrivacyDropdown(open) {
+    if (!privacyPanel) return;
+    privacyPanel.classList.toggle("hidden", !open);
+    privacyPanel.setAttribute("aria-hidden", String(!open));
+    privacyToggleBtn?.setAttribute("aria-expanded", String(open));
+    if (privacyChevron) {
+      privacyChevron.style.transform = open ? "rotate(180deg)" : "";
+    }
+  }
+
+  privacyToggleBtn?.addEventListener("click", () => {
+    const isHidden = privacyPanel?.classList.contains("hidden");
+    setPrivacyDropdown(Boolean(isHidden));
+  });
+
+  document.getElementById("btn-open-privacy-panel")?.addEventListener("click", () => {
+    setPrivacyDropdown(true);
+    document.getElementById("privacy-card")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  // Send 6-digit Email OTP before saving a new wallet address
+  btnSendWalletOtp?.addEventListener("click", async () => {
+    const userEmail = (walletBindForm?.dataset?.userEmail || "").trim();
+    if (!userEmail) {
+      if (walletBindMsg) {
+        walletBindMsg.textContent = "Vui lòng đăng nhập để nhận mã xác nhận Email.";
+        walletBindMsg.style.color = "#b84245";
+      }
+      return;
+    }
+    if (walletBindMsg) {
+      walletBindMsg.textContent = `Đang gửi mã xác nhận tới ${userEmail}...`;
+      walletBindMsg.style.color = "#1a654d";
+    }
+    try {
+      const res = await fetch("/api/auth/send-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: userEmail, require_existing: true }),
+      });
+      const payload = await res.json();
+      if (!res.ok || payload.error) {
+        if (walletBindMsg) {
+          walletBindMsg.textContent = payload.error || "Không thể gửi mã xác nhận.";
+          walletBindMsg.style.color = "#b84245";
+        }
+        return;
+      }
+      if (walletBindMsg) {
+        if (payload.data?.smtp_sent) {
+          walletBindMsg.textContent = `Đã gửi mã 6 số tới ${payload.data.email}.`;
+        } else if (payload.data?.dev_otp_code) {
+          walletBindMsg.textContent = `Mã xác nhận (Dev): [${payload.data.dev_otp_code}]`;
+        }
+        walletBindMsg.style.color = "#1a654d";
+      }
+      walletOtpInput?.focus();
+    } catch {
+      if (walletBindMsg) {
+        walletBindMsg.textContent = "Lỗi kết nối máy chủ khi gửi mã Email.";
+        walletBindMsg.style.color = "#b84245";
+      }
+    }
+  });
+
   // Export secp256k1 Private Key to import into Core Wallet / MetaMask
   btnExportPrivKey?.addEventListener("click", async () => {
     const csrf = getCsrfToken();
@@ -158,6 +230,7 @@
       return;
     }
     const addr = (customWalletInput?.value || "").trim();
+    const otpCode = (walletOtpInput?.value || "").trim();
     try {
       const res = await fetch("/api/auth/profile", {
         method: "POST",
@@ -168,6 +241,7 @@
         body: JSON.stringify({
           wallet_address: addr,
           wallet_mode: addr ? "EXTERNAL" : "AUTO_EMAIL",
+          otp_code: otpCode,
         }),
       });
       const payload = await res.json();

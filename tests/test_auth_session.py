@@ -16,11 +16,18 @@ from src.models.user import (
     normalize_vn_phone,
 )
 from src.services.auth_service import AuthService
+from src.services.credit_service import default_credit_service
 from src.services.session_client import ClientSessionManager
 
 
 class TestAuthAndSession(TestCase):
     def setUp(self) -> None:
+        # Never broadcast real Fuji transactions during unit tests
+        self._orig_contract = default_credit_service.contract_address
+        self._orig_key = default_credit_service.signer_private_key
+        default_credit_service.contract_address = ""
+        default_credit_service.signer_private_key = ""
+
         self.repo = SQLiteUserRepository(":memory:")
         self.auth_service = AuthService(
             repo=self.repo, seed_defaults=True, enable_smtp=False, allow_dev_otp=True
@@ -28,6 +35,8 @@ class TestAuthAndSession(TestCase):
         self.controller = AuthController(auth_service=self.auth_service)
 
     def tearDown(self) -> None:
+        default_credit_service.contract_address = self._orig_contract
+        default_credit_service.signer_private_key = self._orig_key
         self.repo.close()
 
     def test_seeded_accounts_and_no_default_farmer(self) -> None:
@@ -35,11 +44,12 @@ class TestAuthAndSession(TestCase):
         self.assertIsNotNone(admin)
         assert admin is not None
         self.assertEqual(admin.email, "tanvuthanh313130911@gmail.com")
+        self.assertEqual(admin.name, "Vũ Thanh Tân")
         self.assertEqual(admin.phone, "+84911421604")
         self.assertEqual(admin.role, UserRole.ADMIN)
         self.assertEqual(admin.simulation_credits, 99)
-        self.assertTrue(admin.verify_password("admin"))
-        self.assertNotEqual(admin.password_hash, "admin")
+        self.assertTrue(admin.verify_password("adminadmin"))
+        self.assertNotEqual(admin.password_hash, "adminadmin")
         self.assertTrue(is_valid_wallet_address(admin.wallet_address))
 
         # Verify that decrypted private key derives the exact secp256k1 EIP-55 wallet address
@@ -66,7 +76,7 @@ class TestAuthAndSession(TestCase):
         self.assertIsNone(self.repo.get_by_username("farmer_mekong"))
 
         # Both admin and rev can log in via shared phone +84911421604 using their respective password
-        res_admin = self.auth_service.verify_login("+84911421604", "admin")
+        res_admin = self.auth_service.verify_login("+84911421604", "adminadmin")
         self.assertTrue(res_admin.ok)
         assert res_admin.data is not None
         self.assertEqual(res_admin.data["user"]["username"], "admin")
@@ -182,30 +192,44 @@ class TestAuthAndSession(TestCase):
         self.assertAlmostEqual(float(ex3.data["user"]["avax_balance"]), 3.2)
 
     def test_forgot_password_reset_via_email_otp(self) -> None:
-        email = "tanvuthanh313130911@gmail.com"
-        otp_res = self.auth_service.send_email_otp(email)
+        # Non-existent email or username must be rejected before sending OTP
+        missing_email = self.auth_service.send_email_otp(
+            "nonexistent@gmail.com", require_existing=True
+        )
+        self.assertFalse(missing_email.ok)
+        self.assertEqual(missing_email.status_code, 404)
+
+        missing_user = self.auth_service.send_email_otp(
+            "no_such_user", require_existing=True
+        )
+        self.assertFalse(missing_user.ok)
+        self.assertEqual(missing_user.status_code, 404)
+
+        # Providing username resolves the account's email and sends OTP
+        otp_res = self.auth_service.send_email_otp("admin", require_existing=True)
         self.assertTrue(otp_res.ok)
         assert otp_res.data is not None
+        self.assertEqual(otp_res.data["email"], "tanvuthanh313130911@gmail.com")
         code = str(otp_res.data["dev_otp_code"])
 
         # Reset password with wrong OTP fails
         bad_reset = self.auth_service.reset_password_with_email_otp(
-            email=email,
+            email="admin",
             otp_code="000000" if code != "000000" else "999999",
             new_password="NewAdminPass@2026",
         )
         self.assertFalse(bad_reset.ok)
 
-        # Reset password with correct OTP succeeds
+        # Reset password with username + correct OTP succeeds
         ok_reset = self.auth_service.reset_password_with_email_otp(
-            email=email,
+            email="admin",
             otp_code=code,
             new_password="NewAdminPass@2026",
         )
         self.assertTrue(ok_reset.ok)
 
         # Old password no longer works; new password logs in
-        self.assertFalse(self.auth_service.verify_login("admin", "admin").ok)
+        self.assertFalse(self.auth_service.verify_login("admin", "adminadmin").ok)
         self.assertTrue(
             self.auth_service.verify_login("admin", "NewAdminPass@2026").ok
         )
@@ -218,7 +242,7 @@ class TestAuthAndSession(TestCase):
         self.assertEqual(fifth.status_code, 429)
 
         # Even correct password while locked returns 429
-        locked = self.auth_service.verify_login("admin", "admin")
+        locked = self.auth_service.verify_login("admin", "adminadmin")
         self.assertEqual(locked.status_code, 429)
 
         # ClientSessionManager persistence & CSRF check with rev account
@@ -267,12 +291,23 @@ class TestAuthAndSession(TestCase):
         )
 
     def check_flask_auth_api(self, client: FlaskClient) -> None:
+        # Homepage / must lock to /login until authenticated
+        home_guest = client.get("/")
+        self.assertEqual(home_guest.status_code, 302)
+        self.assertTrue(home_guest.headers["Location"].endswith("/login"))
 
         # Ensure /login page does NOT show wallet address or wallet attachment box
         login_page = client.get("/login").get_data(as_text=True)
         self.assertNotIn("data-session-wallet", login_page)
         self.assertNotIn("walletAddressInput", login_page)
         self.assertIn("Quên mật khẩu", login_page)
+
+        # Forgot-password OTP must reject unknown email/username
+        missing_otp = client.post(
+            "/api/auth/send-otp",
+            json={"email": "unknown_user", "require_existing": True},
+        )
+        self.assertEqual(missing_otp.status_code, 404)
 
         # Send Email OTP via API (must not contain wallet address)
         otp_resp = client.post(
@@ -299,6 +334,43 @@ class TestAuthAndSession(TestCase):
         cookie = client.get_cookie("agridata_session")
         assert cookie is not None
         self.assertTrue(cookie.http_only)
+
+        # Homepage / now redirects to /community once authenticated
+        home_authed = client.get("/")
+        self.assertEqual(home_authed.status_code, 302)
+        self.assertTrue(home_authed.headers["Location"].endswith("/community"))
+
+        # Profile page renders slide-over privacy panel
+        profile_html = client.get("/profile").get_data(as_text=True)
+        self.assertIn("privacy-slide-panel", profile_html)
+        self.assertIn("wallet-otp-input", profile_html)
+
+        # Updating wallet address without Email OTP must fail (400)
+        new_wallet = "0x1234567890123456789012345678901234567890"
+        no_otp_wallet = client.post(
+            "/api/auth/profile",
+            headers={"X-CSRF-Token": csrf_token},
+            json={"wallet_address": new_wallet, "wallet_mode": "EXTERNAL"},
+        )
+        self.assertEqual(no_otp_wallet.status_code, 400)
+
+        # Updating wallet address with valid Email OTP succeeds
+        wallet_otp_resp = client.post(
+            "/api/auth/send-otp",
+            json={"email": "tanvuthanh313130911@gmail.com", "require_existing": True},
+        )
+        wallet_otp = wallet_otp_resp.json["data"]["dev_otp_code"]
+        ok_wallet = client.post(
+            "/api/auth/profile",
+            headers={"X-CSRF-Token": csrf_token},
+            json={
+                "wallet_address": new_wallet,
+                "wallet_mode": "EXTERNAL",
+                "otp_code": wallet_otp,
+            },
+        )
+        self.assertEqual(ok_wallet.status_code, 200)
+        self.assertEqual(ok_wallet.json["data"]["user"]["wallet_address"], new_wallet)
         assistant_page = client.get("/assistant").get_data(as_text=True)
         self.assertIn("Đăng xuất", assistant_page)
         self.assertIn("Trợ lý Cò Mạ", assistant_page)

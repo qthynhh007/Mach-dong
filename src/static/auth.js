@@ -94,18 +94,26 @@
   });
 
   // Send 6-digit Email Confirmation Code (OTP) — never shows wallet code on login
-  async function requestEmailOtp(emailValue, otpInputEl) {
-    const cleanEmail = (emailValue || "").trim();
-    if (!cleanEmail || !cleanEmail.includes("@")) {
-      setStatus("Vui lòng nhập địa chỉ Email hợp lệ trước khi bấm Gửi mã.", true);
+  async function requestEmailOtp(emailOrUsername, otpInputEl, requireExisting = false) {
+    const cleanInput = (emailOrUsername || "").trim();
+    if (!cleanInput || (!requireExisting && !cleanInput.includes("@"))) {
+      setStatus(
+        requireExisting
+          ? "Vui lòng nhập Email hoặc Tên đăng nhập trước khi bấm Gửi mã."
+          : "Vui lòng nhập địa chỉ Email hợp lệ trước khi bấm Gửi mã.",
+        true
+      );
       return;
     }
-    setStatus(`Đang gửi mã xác nhận 6 số tới ${cleanEmail}...`);
+    setStatus(`Đang kiểm tra và gửi mã xác nhận 6 số cho ${cleanInput}...`);
     try {
       const response = await fetch("/api/auth/send-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: cleanEmail }),
+        body: JSON.stringify({
+          email: cleanInput,
+          require_existing: requireExisting,
+        }),
       });
       const result = await response.json();
       if (!response.ok || result.error) {
@@ -131,21 +139,24 @@
   btnSendOtpLogin?.addEventListener("click", () => {
     requestEmailOtp(
       document.getElementById("identifierInput")?.value,
-      document.getElementById("otpCodeInput")
+      document.getElementById("otpCodeInput"),
+      false
     );
   });
 
   btnSendOtpForgot?.addEventListener("click", () => {
     requestEmailOtp(
       document.getElementById("forgotEmailInput")?.value,
-      document.getElementById("forgotOtpInput")
+      document.getElementById("forgotOtpInput"),
+      true
     );
   });
 
   btnSendOtpRegister?.addEventListener("click", () => {
     requestEmailOtp(
       document.getElementById("emailInput")?.value,
-      document.getElementById("registerOtpInput")
+      document.getElementById("registerOtpInput"),
+      false
     );
   });
 

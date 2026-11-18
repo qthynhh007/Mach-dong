@@ -23,6 +23,11 @@ LOCKOUT_DURATION_SECONDS = 300  # 5 minutes
 
 AVALANCHE_CHAIN_ID = 43113
 AVALANCHE_NETWORK_NAME = "Avalanche Fuji Testnet"
+FUJI_RPC_URL = os.environ.get(
+    "FUJI_RPC_URL", "https://api.avax-test.network/ext/bc/C/rpc"
+)
+FUJI_CONTRACT_ADDRESS = os.environ.get("FUJI_CONTRACT_ADDRESS", "").strip()
+FUJI_SIGNER_PRIVATE_KEY = os.environ.get("FUJI_SIGNER_PRIVATE_KEY", "").strip()
 CREDITS_PER_AVAX = 100  # 1 AVAX = 100 LÚA (0.01 AVAX = 1 LÚA)
 DEFAULT_INITIAL_AVAX = 2.5  # Testnet AVAX seeded for Fuji credit changer demo
 

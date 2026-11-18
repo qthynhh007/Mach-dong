@@ -129,8 +129,11 @@ def api_send_email_otp() -> tuple[Response, int]:
     body = request.get_json(silent=True) or {}
     if not isinstance(body, dict):
         return jsonify(data=None, error="Dữ liệu gửi lên không hợp lệ."), 400
-    email = str(body.get("email") or "").strip()
-    result = get_auth_service().send_email_otp(email)
+    email = str(body.get("email") or body.get("identifier") or "").strip()
+    require_existing = bool(body.get("require_existing", False))
+    result = get_auth_service().send_email_otp(
+        email, require_existing=require_existing
+    )
     if not result.ok or not result.data:
         return jsonify(data=None, error=result.error), result.status_code
     return jsonify(data=result.data, error=None), result.status_code
@@ -265,6 +268,7 @@ def api_update_profile() -> tuple[Response, int]:
         phone=body.get("phone"),
         wallet_address=body.get("wallet_address"),
         wallet_mode=body.get("wallet_mode"),
+        otp_code=body.get("otp_code"),
     )
     if not result.ok:
         return jsonify(data=None, error=result.error), result.status_code
