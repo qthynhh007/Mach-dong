@@ -4,8 +4,6 @@ from tempfile import TemporaryDirectory
 from unittest import TestCase
 
 from main import create_app
-from src.models.simulation import SimulationInput
-from src.services.simulation_service import evaluate
 
 
 class TestApp(TestCase):
@@ -26,7 +24,7 @@ class TestApp(TestCase):
             ("/forum", "Thảo Luận Bà Con"),
             ("/forum/new", "Đăng Bài Chia Sẻ Kinh Nghiệm Canh Tác"),
             ("/forum/muong-lo", "Khung trao đổi"),
-            ("/simulation", "Tỷ lệ cây phát triển tốt"),
+            ("/simulation", "Mô phỏng có căn cứ"),
             ("/login", "Đăng Nhập Nông Hộ"),
             ("/register", "Đăng ký nông hộ"),
             ("/profile", "Bảo Mật &amp; Đổi Mật Khẩu"),
@@ -56,18 +54,12 @@ class TestApp(TestCase):
         )
         self.assertEqual(response.status_code, 400)
 
-    def test_simulation_matches_demo_chi(self) -> None:
-        payload = {
-            "salinity_gl": 2.8,
-            "water_depth_cm": 4.5,
-            "day_after_sowing": 48,
-            "temp_c": 28.5,
-        }
-        response = self.client.post("/api/simulation", json=payload)
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json["data"]["chi"], 72)
-        self.assertEqual(response.json["data"]["stage"], "Làm đòng")
-        self.assertIsNone(response.json["data"]["survival_rate_pct"])
+    def test_simulation_has_no_fabricated_physiology(self) -> None:
+        response = self.client.get("/simulation")
+        body = response.get_data(as_text=True)
+        self.assertIn("Chưa đủ dữ liệu", body)
+        self.assertNotIn("15.7", body)
+        self.assertNotIn("0.42 MPa", body)
 
     def test_simulation_rejects_invalid_values(self) -> None:
         response = self.client.post(
@@ -80,10 +72,3 @@ class TestApp(TestCase):
             },
         )
         self.assertEqual(response.status_code, 400)
-
-    def test_stage_boundary_and_determinism(self) -> None:
-        before = SimulationInput(2.8, 4.5, 42, 28.5)
-        after = SimulationInput(2.8, 4.5, 43, 28.5)
-        self.assertEqual(evaluate(before)["stage"], "Đẻ nhánh")
-        self.assertEqual(evaluate(after)["stage"], "Làm đòng")
-        self.assertEqual(evaluate(after), evaluate(after))

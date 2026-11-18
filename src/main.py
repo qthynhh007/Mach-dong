@@ -5,7 +5,7 @@ from pathlib import Path
 from flask import Flask, Response, redirect, request
 from werkzeug.exceptions import HTTPException
 
-from src.config import MAX_CSV_BYTES, ROOT
+from src.config import MAX_CSV_BYTES, SIMULATION_API_URL, STATE_DIR
 from src.controllers import (
     admin_controller,
     assistant_controller,
@@ -15,7 +15,9 @@ from src.controllers import (
     simulation_controller,
 )
 from src.models.community import communityModel
+from src.services.cloud_client import cloudClient
 from src.services.community_service import communityService
+from src.services.simulation_service import simulationService
 
 
 def createApp(testConfig: dict | None = None) -> Flask:
@@ -26,11 +28,13 @@ def createApp(testConfig: dict | None = None) -> Flask:
         SESSION_COOKIE_HTTPONLY=True,
         SESSION_COOKIE_SAMESITE="Lax",
         COMMUNITY_DATABASE=os.environ.get(
-            "COMMUNITY_DATABASE", str(ROOT / "data" / "community.sqlite3")
+            "COMMUNITY_DATABASE", str(STATE_DIR / "community.sqlite3")
         ),
         COMMUNITY_SEED_SAMPLES=True,
         COMMUNITY_ALLOW_GUESTS=os.environ.get("COMMUNITY_ALLOW_GUESTS", "1") == "1",
         COMMUNITY_IDENTITY_PROVIDER=None,
+        SIMULATION_API_URL=os.environ.get("SIMULATION_API_URL", SIMULATION_API_URL),
+        SIMULATION_TRANSPORT=None,
     )
     if testConfig:
         app.config.update(testConfig)
@@ -50,6 +54,9 @@ def createApp(testConfig: dict | None = None) -> Flask:
     app.extensions["communityService"] = communityService(
         communityModel(app.config["COMMUNITY_DATABASE"]),
         app.config["COMMUNITY_SEED_SAMPLES"],
+    )
+    app.extensions["simulationService"] = simulationService(
+        cloudClient(app.config["SIMULATION_API_URL"], app.config["SIMULATION_TRANSPORT"])
     )
     for controller in (
         community_controller,

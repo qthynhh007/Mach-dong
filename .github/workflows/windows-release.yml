@@ -1,0 +1,62 @@
+name: Build Windows desktop
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'desktop-v*'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Prepare environment
+        shell: pwsh
+        run: |
+          python -m venv .venv
+          .\.venv\Scripts\python.exe -m pip install -r requirements-build.txt
+      - name: Verify code
+        shell: pwsh
+        run: |
+          .\.venv\Scripts\python.exe -m unittest discover -s tests -v
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          node --test server/tests/simulation.test.mjs
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Build executable
+        shell: pwsh
+        run: .\scripts\build-desktop.ps1
+      - name: Verify bundled application
+        shell: pwsh
+        run: |
+          $env:COMMUNITY_DATABASE = Join-Path $env:RUNNER_TEMP 'community-smoke.sqlite3'
+          $smokePath = Join-Path $env:RUNNER_TEMP 'smoke.json'
+          $process = Start-Process -FilePath '.\dist\MachDong.exe' -ArgumentList '--smoke-output', $smokePath -WindowStyle Hidden -PassThru -Wait
+          if ($process.ExitCode -ne 0) { throw 'EXE smoke test failed' }
+          $result = Get-Content -Raw -LiteralPath $smokePath | ConvertFrom-Json
+          if ($result.static -ne 200 -or ($result.pages.PSObject.Properties.Value | Where-Object { $_ -ne 200 })) { throw 'Bundled pages failed' }
+          $hash = (Get-FileHash -Algorithm SHA256 -LiteralPath '.\dist\MachDong.exe').Hash.ToLower()
+          "$hash  MachDong.exe" | Set-Content -LiteralPath '.\dist\SHA256SUMS.txt' -Encoding ascii
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MachDong-Windows-x64
+          path: |
+            dist/MachDong.exe
+            dist/SHA256SUMS.txt
+      - name: Publish tagged prerelease
+        if: startsWith(github.ref, 'refs/tags/desktop-v')
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$env:GITHUB_REF_NAME" dist/MachDong.exe dist/SHA256SUMS.txt --verify-tag --prerelease --title "Mạch Đồng $env:GITHUB_REF_NAME" --notes-file docs/windows-release-notes.md

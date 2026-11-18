@@ -8,3 +8,6 @@ __pycache__/
 .pytest_cache/
 data/*.sqlite3*
 data/.community-secret
+build/
+dist/
+*.spec
