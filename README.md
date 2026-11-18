@@ -18,6 +18,8 @@ py -3 -m venv .venv
 
 Mở [Mạch Đồng](http://127.0.0.1:5000/community). CSS, phông chữ và ảnh ruộng gốc từ Stitch đã đi kèm.
 
+Nếu không tới được API cloud, cài Node.js 22 trở lên và chạy `powershell -ExecutionPolicy Bypass -File scripts/run-local.ps1` thay cho lệnh `main.py`. Lệnh khởi động cùng bộ máy mô phỏng và dữ liệu có nguồn trên `127.0.0.1:8787`, rồi mở Flask ở cổng 5000. Dự báo mới và phần AI tùy chọn vẫn cần truy cập nhà cung cấp qua Internet.
+
 Khi thêm class Tailwind vào HTML, chạy `npm install` và `npm run build:css` để cập nhật CSS trong `src/static/`. Node.js chỉ cần cho bước dựng lại CSS.
 
 | Trang | Đường dẫn | Xem thử |
@@ -27,14 +29,15 @@ Khi thêm class Tailwind vào HTML, chạy `npm install` và `npm run build:css`
 | Đăng bài | `/forum/new` | Soạn bài, đính kèm tối đa 4 ảnh, lưu/khôi phục/xóa bản nháp riêng |
 | Chi tiết bài | `/forum/<postId>` | Trả lời theo chuỗi, đánh dấu hữu ích, chọn giải đáp, sửa/xóa nội dung của mình |
 | Sửa bài | `/forum/<postId>/edit` | Chỉnh sửa bài và ảnh; kiểm tra quyền tác giả trên máy chủ |
-| Mô phỏng | `/simulation` | Chỉnh bốn thanh trượt và xem cảnh ruộng, khóm lúa, lời khuyên Cò Mạ cho kịch bản giả lập |
-| Báo cáo & nguồn | `/simulation/report` | Nhập điều kiện để chạy mô phỏng cloud, xem bằng chứng và dự báo 7 ngày hoặc tải lịch sử NASA POWER |
-| Trợ lý Cò Mạ | `/assistant` | Khung chat desktop với mascot Cò Mạ và câu trả lời mẫu trong trình duyệt |
+| Mô phỏng | `/simulation` | Chỉnh bốn thanh trượt để xem cảnh ruộng giả lập, bổ sung điều kiện rồi mở tab Báo cáo & nguồn hoặc Dữ liệu thời tiết |
+| Báo cáo & nguồn | `/simulation/report` | Đường dẫn trực tiếp để lập báo cáo, xem bằng chứng, tải dự báo 7 ngày và dữ liệu NASA POWER |
+| Trợ lý Cò Mạ | `/assistant` | Trò chuyện từ nút Cò Mạ ở góc dưới các trang hoặc mở tab trợ lý đầy đủ |
 | Đăng nhập | `/login` | Nhập thông tin mẫu, hiện/ẩn mật khẩu và chuyển sang đăng ký |
 | Đăng ký | `/register` | Nhập thông tin mẫu, kiểm tra mật khẩu xác nhận và quay lại đăng nhập |
-| Tài khoản | `/profile` | Mở từ avatar, lưu hồ sơ demo trên trình duyệt và xem thử biểu mẫu đổi mật khẩu |
+| Tài khoản | `/profile` | Lưu hồ sơ canh tác vào SQLite cho tài khoản đăng nhập và xem số bài viết, câu trả lời trên diễn đàn |
+| Thể lệ dùng điểm LÚA | `/wallet/rules` | Mở từ túi LÚA trên thanh đầu trang để xem tỷ lệ quy đổi và cách dùng ví thử nghiệm |
 
-Đăng nhập và đăng ký vẫn là biểu mẫu xem thử, thuộc phần tích hợp tài khoản của nhóm. CSV tải lên hiện chỉ được đọc để xem trước. Kho đánh dấu các bộ giả lập và dẫn nguồn trên các bộ công bố. CSV khí tượng NASA POWER và thống kê lúa FAOSTAT nằm trong `data/reference/published-csv/`. Ảnh chụp được thu nhỏ và nén JPEG trong `src/static/assets/forum-photos/`. Tác giả, giấy phép và liên kết ảnh gốc nằm trong `data/reference/forum-photo-assets.json`. Phần trăm cây sống chờ số liệu thực địa và mô hình được kiểm định.
+CSV tải lên chỉ được đọc để xem trước. Kho đánh dấu các bộ giả lập và dẫn nguồn trên các bộ công bố. CSV khí tượng NASA POWER và thống kê lúa FAOSTAT nằm trong `data/reference/published-csv/`. Ảnh chụp được thu nhỏ và nén JPEG trong `src/static/assets/forum-photos/`. Tác giả, giấy phép và liên kết ảnh gốc nằm trong `data/reference/forum-photo-assets.json`. Phần trăm cây sống chờ số liệu thực địa và mô hình được kiểm định.
 
 Bài viết, ảnh, bản nháp, câu trả lời và lượt hữu ích được lưu vào `data/community.sqlite3`, tự tạo khi khởi động. Mặc định mỗi trình duyệt có một **phiên khách dùng thử**; giữ cookie để tiếp tục sửa bài của phiên đó. Đây chưa phải tài khoản đăng nhập. Có sẵn adapter cho tài khoản của Tân và cấu hình tắt khách.
 

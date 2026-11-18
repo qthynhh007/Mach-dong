@@ -14,9 +14,11 @@ from src.models.community import communityMember, communityModel, communityStore
 from src.services.forum_service import (
     CULTIVARS,
     DISCUSSION_TOPICS,
+    DIARY_MEMBERS,
     EDITORIAL_AUTHOR,
     EDITORIAL_POSTS,
     POST_PHOTOS,
+    RICE_DIARIES,
     SAMPLE_POSTS,
     SAMPLE_REPLIES,
     STAGES,
@@ -38,6 +40,8 @@ class communityService:
             self.seedSamples()
         if seedEditorial:
             self.seedEditorial()
+        if seedSamples:
+            self.seedRiceDiaries()
 
     def now(self) -> str:
         return datetime.now(UTC).isoformat(timespec="microseconds")
@@ -108,9 +112,56 @@ class communityService:
                 )
             store.markSeeded("editorial-v1")
 
+    def seedRiceDiaries(self) -> None:
+        with self.model.transaction() as store:
+            key = "rice-field-diaries-v1"
+            expanded = "rice-field-diaries-expanded-v2"
+            if store.isSeeded(key):
+                if not store.isSeeded(expanded):
+                    for entry in RICE_DIARIES:
+                        store.refreshSampleBody(
+                            "nhat-ky-" + entry["slug"], DIARY_MEMBERS[entry["author"]][0],
+                            entry["body"], self.now(),
+                        )
+                    store.markSeeded(expanded)
+                return
+            members = [communityMember(*fields) for fields in DIARY_MEMBERS]
+            for member in members:
+                store.saveMember(member)
+            for entry in RICE_DIARIES:
+                author = entry["author"]
+                post_id = "nhat-ky-" + entry["slug"]
+                stamp = self.now()
+                photo = "/static/assets/forum-photos/" + post_id + ".jpg"
+                store.insertPost({
+                    **entry, "id": post_id, "authorId": members[author].id,
+                    "cultivar": "OM5451", "photos": json.dumps([photo]),
+                    "baseScore": 0, "isSample": True, "requestId": post_id,
+                    "createdAt": stamp, "updatedAt": stamp,
+                })
+                parent = None
+                for index, (offset, body) in enumerate(zip((1, 0, 2), entry["discussion"], strict=True)):
+                    reply_id = f"{post_id}-{index}"
+                    stamp = self.now()
+                    store.insertReply({
+                        "id": reply_id, "postId": post_id, "parentId": parent,
+                        "authorId": members[(author + offset) % len(members)].id,
+                        "body": body, "requestId": reply_id,
+                        "createdAt": stamp, "updatedAt": stamp,
+                    })
+                    if index == 0:
+                        parent = reply_id
+            store.markSeeded(key)
+            store.markSeeded(expanded)
+
     def registerMember(self, member: communityMember) -> None:
         with self.model.transaction() as store:
             store.saveMember(member)
+
+    def contribution_counts(self, member_id: str) -> tuple[int, int]:
+        with self.model.transaction(write=False) as store:
+            profile = store.member_profile(member_id)
+        return (profile["postCount"], profile["replyCount"]) if profile else (0, 0)
 
     def member_profile(self, member_id: str) -> dict:
         with self.model.transaction(write=False) as store:
@@ -141,12 +192,12 @@ class communityService:
             )
         return value
 
-    def validatePhotos(self, photos: object) -> list[str]:
+    def validatePhotos(self, photos: object, retained: tuple[str, ...] = ()) -> list[str]:
         if not isinstance(photos, list) or len(photos) > 4:
             raise communityError("Mỗi bài có tối đa 4 ảnh.")
         validated = []
         for photo in photos:
-            if photo in (
+            if photo in retained or photo in (
                 "/static/assets/stitch-forum-field.jpg",
                 "/static/assets/stitch-forum-roots.jpg",
             ):
@@ -189,11 +240,13 @@ class communityService:
                 raise communityError("Không đọc được ảnh đính kèm.") from error
         return validated
 
-    def postFields(self, payload: dict, draft: bool = False) -> dict:
+    def postFields(
+        self, payload: dict, draft: bool = False, retained_photos: tuple[str, ...] = ()
+    ) -> dict:
         fields = {
             "title": self.textField(payload, "title", "Tiêu đề", 120, not draft),
             "body": self.textField(payload, "body", "Nội dung", 5000, not draft),
-            "photos": json.dumps(self.validatePhotos(payload.get("photos", []))),
+            "photos": json.dumps(self.validatePhotos(payload.get("photos", []), retained_photos)),
         }
         for field, options, label in (
             ("topic", DISCUSSION_TOPICS, "Chủ đề"),
@@ -339,11 +392,11 @@ class communityService:
         return self.presentPost(post, memberId)
 
     def updatePost(self, postId: str, memberId: str, payload: dict) -> dict:
-        fields = self.postFields(payload)
         with self.model.transaction() as store:
             post = self.requirePost(store, postId, memberId)
             self.requireOwner(post, memberId)
             self.requireVersion(post, payload)
+            fields = self.postFields(payload, retained_photos=tuple(json.loads(post["photos"])))
             store.updatePost(postId, fields, self.now())
             post = store.getPost(postId, memberId)
         return self.presentPost(post, memberId)

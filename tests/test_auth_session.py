@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 import tempfile
+from io import BytesIO
 from pathlib import Path
 from unittest import TestCase
 
 from flask.testing import FlaskClient
+from PIL import Image
 
 from main import create_app
 from src.controllers.auth_controller import AuthController
@@ -289,6 +291,89 @@ class TestAuthAndSession(TestCase):
         self.assertFalse(
             other_client.get("/api/auth/session").json["data"]["authenticated"]
         )
+
+    def test_farm_profile_is_persisted_and_uses_forum_counts(self) -> None:
+        directory = tempfile.TemporaryDirectory()
+        self.addCleanup(directory.cleanup)
+        app = create_app({
+            "TESTING": True,
+            "SECRET_KEY": "farm-profile-tests",
+            "COMMUNITY_DATABASE": str(Path(directory.name) / "community.sqlite3"),
+        })
+        repo = app.extensions["auth_service"].repo
+        owner = repo.create_user("demo-field-a", "Nông hộ A", "field-a@example.test", "0910000001", "FarmTest@2026")
+        repo.create_user("demo-field-b", "Nông hộ B", "field-b@example.test", "0910000002", "FarmTest@2026")
+        client = app.test_client()
+        login = client.post("/api/auth/login", json={"identifier": "demo-field-a", "password": "FarmTest@2026"})
+        auth_headers = {"X-CSRF-Token": login.json["data"]["csrf_token"]}
+        farm_data = {"address": "Tân Phú Đông · Hồ sơ kiểm thử", "cultivar": "st25", "area_ha": 4.6,
+                     "station": "ben-gia", "seasons": 6, "farming_system": "Lúa – Tôm"}
+        payload = {"name": "Nông hộ A", "phone": "0910000001", "farm_profile": farm_data}
+        self.assertEqual(client.post("/api/auth/farm-profile", json=payload).status_code, 403)
+        invalid = {**payload, "farm_profile": {**farm_data, "area_ha": True}}
+        self.assertEqual(client.post("/api/auth/farm-profile", json=invalid, headers=auth_headers).status_code, 400)
+        saved = client.post("/api/auth/farm-profile", json=payload, headers=auth_headers)
+        self.assertEqual(saved.status_code, 200)
+        self.assertEqual(saved.json["data"]["farm_profile"], farm_data)
+        self.assertEqual(repo.get_by_id(owner.user_id).simulation_credits, owner.simulation_credits)
+        edited = client.post(
+            "/api/auth/farm-profile",
+            json={**payload, "farm_profile": {key: farm_data[key] for key in ("address", "cultivar", "area_ha")}},
+            headers=auth_headers,
+        )
+        self.assertEqual(edited.json["data"]["farm_profile"], farm_data)
+        self.assertIn("avatar-co-ma.webp", client.get("/profile").text)
+
+        photo = BytesIO()
+        Image.new("RGB", (400, 200), "#64aa72").save(photo, format="PNG")
+        avatar_upload = client.post(
+            "/api/auth/avatar",
+            data={"avatar": (BytesIO(photo.getvalue()), "ruong.png")},
+            headers=auth_headers,
+        )
+        self.assertEqual(avatar_upload.status_code, 200)
+        avatar_url = avatar_upload.json["data"]["avatar_url"]
+        stored_avatar = client.get(avatar_url)
+        self.assertEqual(stored_avatar.mimetype, "image/jpeg")
+        with Image.open(BytesIO(stored_avatar.data)) as image:
+            self.assertEqual(image.size, (256, 256))
+        rejected_avatar = client.post(
+            "/api/auth/avatar",
+            data={"avatar": (BytesIO(b"invalid"), "ruong.png")},
+            headers=auth_headers,
+        )
+        self.assertEqual(rejected_avatar.status_code, 400)
+
+        forum = client.get("/api/community/session").json["data"]
+        forum_headers = {"X-CSRF-Token": forum["csrfToken"]}
+        contribution = client.post(
+            "/api/community/posts", headers=forum_headers,
+            json={"title": "Quan sát ruộng", "body": "Ghi nhật ký vụ lúa.", "topic": "water",
+                  "cultivar": "OM5451", "stage": "Đẻ nhánh", "photos": []},
+        )
+        self.assertEqual(contribution.status_code, 201, contribution.json)
+        reply = client.post(
+            f"/api/community/posts/{contribution.json['data']['id']}/replies",
+            json={"body": "Ghi thêm mực nước mỗi ngày."}, headers=forum_headers,
+        )
+        self.assertEqual(reply.status_code, 201, reply.json)
+        page = client.get("/profile").text
+        self.assertIn('id="profile-post-count">1 bài viết', page)
+        self.assertIn('id="profile-reply-count">1 câu trả lời', page)
+        self.assertNotIn("Kinh nghiệm canh tác", page)
+        self.assertNotIn("Quy mô thâm canh", page)
+        self.assertIn("Đổi ảnh đại diện", page)
+        self.assertIn('href="/wallet/rules"', page)
+        self.assertEqual(page.count(avatar_url), 2)
+        for field in ("hydrology-station", "farmer-seasons", "farmer-system"):
+            self.assertNotIn(f'id="{field}"', page)
+        other = app.test_client()
+        other.post("/api/auth/login", json={"identifier": "demo-field-b", "password": "FarmTest@2026"})
+        other_page = other.get("/profile").text
+        self.assertIn('id="profile-post-count">0 bài viết', other_page)
+        self.assertNotIn(farm_data["address"], other_page)
+        self.assertEqual(other.get(avatar_url).status_code, 404)
+        self.assertIn("avatar-co-ma.webp", other_page)
 
     def check_flask_auth_api(self, client: FlaskClient) -> None:
         # Homepage / must lock to /login until authenticated

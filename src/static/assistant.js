@@ -85,7 +85,7 @@
     elapsed.textContent = minutes + ":" + remainder;
     elapsed.dateTime = "PT" + seconds + "S";
     waitFill.style.width = (seconds / waitSeconds * 100) + "%";
-    const hint = seconds >= 30 ? "Câu trả lời đang mất nhiều thời gian hơn thường lệ." : waitingHint;
+    const hint = seconds >= 8 ? "Cò Mạ đang kiểm tra thêm tài liệu…" : waitingHint;
     if (pendingDetail.textContent !== hint) pendingDetail.textContent = hint;
   }
 
@@ -163,7 +163,53 @@
   input.disabled = false;
   updateSend();
 
-  for (const button of questions) button.addEventListener("click", () => sendMessage(button.dataset.question));
+  const mascotVideo = byId("assistant-mascot-video");
+  if (mascotVideo) {
+    const still = byId("assistant-mascot-still");
+    const replay = byId("assistant-mascot-replay");
+    const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
+    const showStill = () => { mascotVideo.hidden = true; still.hidden = false; };
+    const play = async () => {
+      try {
+        mascotVideo.src ||= mascotVideo.dataset.source;
+        mascotVideo.currentTime = 0;
+        await mascotVideo.play();
+      } catch { showStill(); }
+    };
+    mascotVideo.addEventListener("loadeddata", () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = canvas.height = 1;
+      const context = canvas.getContext("2d");
+      if (!context) return;
+      context.drawImage(mascotVideo, 0, 0);
+      if (context.getImageData(0, 0, 1, 1).data[3] === 0) return;
+      mascotVideo.pause();
+      replay.hidden = true;
+      showStill();
+    }, {once: true});
+    mascotVideo.addEventListener("playing", () => {
+      if (!mascotVideo.paused) { still.hidden = true; mascotVideo.hidden = false; }
+    });
+    mascotVideo.addEventListener("ended", showStill);
+    mascotVideo.addEventListener("error", () => { replay.hidden = true; showStill(); });
+    replay.addEventListener("click", play);
+    if (mascotVideo.canPlayType('video/webm; codecs="vp9"')) {
+      replay.hidden = false;
+      if (!reducedMotion.matches) play();
+    }
+    reducedMotion.addEventListener("change", event => {
+      if (event.matches) { mascotVideo.pause(); showStill(); }
+    });
+  }
+
+  for (const button of questions) {
+    button.addEventListener("click", () => {
+      input.value = button.dataset.question;
+      input.focus();
+      input.setSelectionRange(input.value.length, input.value.length);
+      updateSend();
+    });
+  }
   stopButton.addEventListener("click", () => activeRequest?.abort());
   retryButton.addEventListener("click", () => {
     if (activeRequest || !retryMessage) return;

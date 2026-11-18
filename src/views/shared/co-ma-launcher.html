@@ -1,0 +1,19 @@
+{% from "shared/co-ma.html" import co_ma_wave %}
+{% from "shared/icon.html" import icon %}
+{% set assist_context = current_page if current_page in ('simulation', 'community', 'forum') else none %}
+{% set assistant_url = url_for('assistant.assistant', context=assist_context) %}
+<a id="co-ma-launcher" class="co-ma-launcher" href="{{ assistant_url }}" aria-label="Hỏi Cò Mạ"
+   aria-haspopup="dialog" aria-controls="co-ma-quickchat" aria-expanded="false">
+  {{ co_ma_wave(64) }}<span class="co-ma-launcher-label" aria-hidden="true">Hỏi Cò Mạ</span>
+</a>
+<dialog id="co-ma-quickchat" class="co-ma-quickchat" aria-labelledby="co-ma-quickchat-title">
+  <header class="co-ma-quickchat-header">
+    <h2 id="co-ma-quickchat-title">{{ co_ma_wave(30) }} Trợ lý Cò Mạ</h2>
+    <div class="co-ma-quickchat-actions">
+      <a class="app-button" href="{{ assistant_url }}" target="_blank" rel="noopener">Mở tab Trợ lý {{ icon("arrow_forward") }}</a>
+      <form method="dialog"><button class="app-button" type="submit" aria-label="Đóng trợ lý" autofocus>{{ icon("close") }}</button></form>
+    </div>
+  </header>
+  <iframe title="Trò chuyện với Cò Mạ" data-chat-src="{{ url_for('assistant.assistant', view='dialog', context=assist_context) }}"></iframe>
+</dialog>
+<script src="{{ url_for('static', filename='co-ma-launcher.js') }}" defer></script>

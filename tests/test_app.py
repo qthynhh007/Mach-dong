@@ -5,6 +5,7 @@ from tempfile import TemporaryDirectory
 from unittest import TestCase
 
 from main import create_app
+from src.config import CREDITS_PER_AVAX
 
 
 class TestApp(TestCase):
@@ -23,13 +24,14 @@ class TestApp(TestCase):
         for route, title in (
             ("/community", "Kho CSV cộng đồng"),
             ("/forum", "Thảo Luận Bà Con"),
-            ("/forum/new", "Đăng Bài Chia Sẻ Kinh Nghiệm Canh Tác"),
+            ("/forum/new", "Viết bài chia sẻ"),
             ("/forum/muong-lo", "Khung trao đổi"),
             ("/simulation", "Mô phỏng cánh đồng lúa"),
             ("/simulation/report", "Mô phỏng có căn cứ"),
             ("/login", "Đăng Nhập Nông Hộ"),
             ("/register", "Đăng ký nông hộ"),
             ("/profile", "Bảo Mật &amp; Đổi Mật Khẩu"),
+            ("/wallet/rules", "Thể lệ dùng điểm LÚA"),
             ("/assistant", "Lời khuyên Cò Mạ"),
             ("/admin", "Duyệt dữ liệu"),
         ):
@@ -37,6 +39,30 @@ class TestApp(TestCase):
                 response = self.client.get(route)
                 self.assertEqual(response.status_code, 200)
                 self.assertIn(title, response.get_data(as_text=True))
+                self.assertIn('id="co-ma-launcher"', response.text)
+
+    def test_wallet_rules_use_configured_rate_and_link_to_sign_in(self) -> None:
+        page = self.client.get("/wallet/rules")
+        self.assertEqual(page.status_code, 200)
+        self.assertIn(f"1 AVAX = {CREDITS_PER_AVAX} LÚA", page.text)
+        self.assertIn("Đăng nhập để mở ví", page.text)
+
+    def test_assistant_dialog_reuses_chat_without_nested_launcher(self) -> None:
+        page = self.client.get("/assistant?view=dialog").text
+        self.assertIn('class="assistant-compact"', page)
+        self.assertIn('data-chat-url="/api/assistant/chat"', page)
+        self.assertNotIn('id="co-ma-launcher"', page)
+
+    def test_co_ma_launcher_passes_context_to_chat_and_full_tab(self) -> None:
+        for name, label in (("simulation", "Mặn ngoài kênh LH-05"), ("community", "Mực nước Cần Thơ"),
+                            ("forum", "Mặn kênh và mặn ruộng")):
+            with self.subTest(context=name):
+                launcher = self.client.get(f"/{name}").text
+                self.assertIn('src="/static/assets/co-ma/wave.png"', launcher)
+                self.assertIn(f'href="/assistant?context={name}"', launcher)
+                self.assertIn(f'data-chat-src="/assistant?view=dialog&amp;context={name}"', launcher)
+                self.assertIn(label, self.client.get(f"/assistant?view=dialog&context={name}").text)
+        self.assertIn("Độ mặn Cầu Quan", self.client.get("/assistant?context=unknown").text)
 
     def test_csv_preview_and_download(self) -> None:
         with self.client.get("/community/samples/salinity") as sample:
@@ -83,11 +109,16 @@ class TestApp(TestCase):
         self.assertNotIn("15.7", body)
         self.assertNotIn("0.42 MPa", body)
 
-    def test_simulation_restores_the_four_sliders_and_report_link(self) -> None:
+    def test_simulation_combines_the_existing_illustrations_and_report_controls(self) -> None:
         body = self.client.get("/simulation").get_data(as_text=True)
-        for item_id in ("inputSalinity", "inputWater", "inputStage", "inputTemp", "field-scene", "plant-study"):
+        for item_id in ("inputSalinity", "inputWater", "inputStage", "inputTemp", "field-scene", "plant-study",
+                        "scenarioForm", "reportPanel", "weatherPanel", "relativeYield", "riskSummary"):
             self.assertIn(f'id="{item_id}"', body)
-        self.assertIn('href="/simulation/report"', body)
+        self.assertIn('data-panel="reportPanel"', body)
+        self.assertIn('data-panel="weatherPanel"', body)
+        self.assertIn('name="canalSalinityGl"', body)
+        self.assertIn('value="panicle" data-through-day="65"', body)
+        self.assertIn("Chưa đủ dữ liệu", body)
         self.assertIn("simulation-demo.js", body)
 
     def test_simulation_preview_renders_original_scenario_as_simulated(self) -> None:

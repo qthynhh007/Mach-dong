@@ -1,0 +1,21 @@
+.wallet-rules-heading {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: end;
+  gap: .75rem 1rem;
+  margin-bottom: 1.25rem;
+}
+.wallet-rules :is(h1, h2, p, dl, dd) { margin: 0; }
+.wallet-rules-heading p { margin-top: .45rem; }
+.wallet-rules p, .wallet-rules dd { font-size: .88rem; line-height: 1.65; color: #405a4d; }
+.wallet-rules-grid { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 1rem; }
+.wallet-rules-stack { display: grid; gap: 1rem; align-content: start; }
+.wallet-rules-card { padding: clamp(1rem, 2.25vw, 1.5rem); border-radius: 1rem; }
+.wallet-rules-card h2 { margin-bottom: .55rem; font-size: 1.08rem; }
+.wallet-rules-list > div { padding: .75rem 0; border-top: 1px solid var(--md-surface-line); }
+.wallet-rules-list dt { margin-bottom: .28rem; color: #16563f; font-weight: 750; }
+.wallet-rate { background: #14533e; color: #f0fff6; }
+.wallet-rate :is(h2,p) { color: inherit; }
+.wallet-rate .wallet-rate-value { margin-block: .35rem; font-size: clamp(1.28rem, 2.2vw, 1.9rem); font-weight: 800; }
+@media (max-width: 740px) { .wallet-rules-grid { grid-template-columns: minmax(0, 1fr); } }

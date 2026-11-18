@@ -11,9 +11,10 @@ from flask import (
     make_response,
     render_template,
     request,
+    url_for,
 )
 
-from src.config import CREDITS_PER_AVAX, SESSION_COOKIE_NAME, SESSION_TTL_SECONDS
+from src.config import AVALANCHE_CHAIN_ID, CREDITS_PER_AVAX, SESSION_COOKIE_NAME, SESSION_TTL_SECONDS
 from src.controllers.session_guard import (
     RequestContext,
     extract_tokens_from_context,
@@ -21,7 +22,8 @@ from src.controllers.session_guard import (
     get_current_auth,
     require_session,
 )
-from src.services.auth_service import AuthService
+from src.models.farm_profile import DEMO_FARM_PROFILE, FARM_CULTIVARS, FarmProfile
+from src.services.auth_service import MAX_AVATAR_BYTES, AuthService
 from src.services.credit_service import default_credit_service
 
 blueprint = Blueprint("auth", __name__)
@@ -82,6 +84,11 @@ def register() -> str:
 def profile() -> str:
     auth = get_current_auth()
     user_dict = auth[0].to_public_dict() if auth else None
+    farm = get_auth_service().repo.get_farm_profile(auth[0].user_id) if auth else None
+    post_count, reply_count = (
+        current_app.extensions["communityService"].contribution_counts(f"user:{auth[0].user_id}")
+        if auth else (28, 12)
+    )
     tx_list = (
         get_auth_service().repo.list_credit_transactions(auth[0].user_id, limit=8)
         if auth
@@ -100,12 +107,27 @@ def profile() -> str:
         "auth/profile.html",
         current_page="profile",
         current_user=user_dict,
+        farm_profile=(farm or FarmProfile()) if auth else DEMO_FARM_PROFILE,
+        has_farm_profile=farm is not None,
+        farm_cultivars=FARM_CULTIVARS,
+        contribution_posts=post_count,
+        contribution_replies=reply_count,
         onchain_credits=onchain_credits,
         credit_transactions=tx_list,
         credits_per_avax=CREDITS_PER_AVAX,
         wallet_guide=get_auth_service().get_wallet_guide_info(
             str(user_dict["wallet_address"]) if user_dict else ""
         ),
+    )
+
+
+@blueprint.get("/wallet/rules")
+def wallet_rules() -> str:
+    return render_template(
+        "auth/wallet-rules.html",
+        current_page="wallet-rules",
+        credits_per_avax=CREDITS_PER_AVAX,
+        chain_id=AVALANCHE_CHAIN_ID,
     )
 
 
@@ -290,6 +312,38 @@ def api_update_profile() -> tuple[Response, int]:
     if not result.ok:
         return jsonify(data=None, error=result.error), result.status_code
     return jsonify(data=result.data, error=None), 200
+
+
+@blueprint.get("/api/auth/avatar/<version>")
+@require_session(require_csrf=False)
+def avatar_image(version: str) -> Response | tuple[Response, int]:
+    avatar = get_auth_service().repo.get_avatar(g.current_user.user_id, version)
+    if avatar is None:
+        return jsonify(data=None, error="Chưa tìm thấy ảnh đại diện."), 404
+    return Response(avatar, mimetype="image/jpeg", headers={"X-Content-Type-Options": "nosniff"})
+
+
+@blueprint.post("/api/auth/avatar")
+@require_session()
+def api_update_avatar() -> tuple[Response, int]:
+    upload = request.files.get("avatar")
+    result = get_auth_service().update_avatar(
+        g.current_user, upload.read(MAX_AVATAR_BYTES + 1) if upload else b""
+    )
+    if not result.ok or not result.data:
+        return jsonify(data=None, error=result.error), result.status_code
+    avatar_url = url_for("auth.avatar_image", version=result.data["version"])
+    return jsonify(data={"avatar_url": avatar_url}, error=None), 200
+
+
+@blueprint.post("/api/auth/farm-profile")
+@require_session()
+def api_update_farm_profile() -> tuple[Response, int]:
+    body = request.get_json(silent=True)
+    if not isinstance(body, dict):
+        return jsonify(data=None, error="Dữ liệu hồ sơ không hợp lệ."), 400
+    result = get_auth_service().update_farm_profile(g.current_user, body)
+    return jsonify(data=result.data, error=result.error), result.status_code
 
 
 @blueprint.post("/api/auth/password")

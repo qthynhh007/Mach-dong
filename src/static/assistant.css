@@ -47,7 +47,17 @@
   grid-template-rows: auto minmax(0, 1fr) auto;
   min-height: 31rem;
   height: clamp(31rem, calc(100svh - 13.25rem), 47rem);
+  background: #fff;
+  box-shadow: 0 2px 5px #19382a12, 0 12px 30px #19382a0a;
 }
+
+.assistant-dialog-document { background: #f4f8f3; }
+.assistant-compact { height: 100dvh; min-height: 0; }
+.assistant-compact .assistant-main { height: 100%; margin: 0; padding: 0; }
+.assistant-compact .assistant-layout { display: block; height: 100%; }
+.assistant-compact .assistant-chat { height: 100%; min-height: 0; border: 0; border-radius: 0; }
+.assistant-compact .assistant-chat-header { padding: .55rem .75rem; }
+.assistant-compact .assistant-transcript { padding: .85rem .75rem; }
 
 .assistant-chat-header {
   display: flex;
@@ -64,19 +74,6 @@
   min-width: 0;
   gap: .65rem;
 }
-
-.assistant-avatar {
-  position: relative;
-  flex: 0 0 3rem;
-  width: 3rem;
-  height: 3rem;
-  overflow: hidden;
-  border: 1px solid #d4e3ce;
-  border-radius: .8rem;
-  background: #eef4e4;
-}
-
-.assistant-avatar .co-ma-sprite { width: 3rem; }
 
 .assistant-chat-header h2 { font-size: 1rem; letter-spacing: -.02em; }
 
@@ -98,11 +95,50 @@ button.assistant-reset {
   overflow: auto;
   overscroll-behavior: contain;
   padding: 1.15rem clamp(.75rem, 2vw, 1.5rem);
-  background: rgb(255 255 255 / .20);
+  background: #fcfdfb;
   scrollbar-color: #b5c8b6 transparent;
 }
 
 .assistant-messages { display: grid; gap: 1.15rem; padding: 0; list-style: none; }
+.assistant-transcript:has(.assistant-welcome:only-child) {
+  display: grid;
+  align-content: safe center;
+}
+.assistant-welcome {
+  width: min(100%, 31rem);
+  margin: .5rem auto;
+  padding: .6rem 0 1rem;
+}
+.assistant-messages:has(> :nth-child(2)) .assistant-welcome { display: none; }
+.assistant-welcome-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 2.65rem;
+  aspect-ratio: 1;
+  margin-bottom: .65rem;
+  border: 1px solid #c3ddc9;
+  border-radius: .8rem;
+  background: #e8f3e8;
+  color: #1a654d;
+}
+.assistant-welcome h2 { font-size: clamp(1.24rem, 2.2vw, 1.8rem); line-height: 1.25; }
+.assistant-welcome p { margin-top: .45rem; color: var(--assistant-muted); font-size: .88rem; line-height: 1.55; }
+.assistant-welcome .assistant-starters {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .48rem;
+  margin-top: 1.05rem;
+}
+.assistant-welcome .assistant-starters button {
+  justify-content: flex-start;
+  border-color: #c9ddcb;
+  border-radius: .65rem;
+  background: #fff;
+  text-align: start;
+}
+@media (hover: hover) {
+  .assistant-welcome .assistant-starters button:hover { border-color: #79a78c; background: #edf5ed; }
+}
 
 .assistant-message {
   display: grid;
@@ -253,14 +289,12 @@ button.assistant-reset {
   transition: width .4s ease-out;
 }
 
-@keyframes co-ma-pending {
-  from { box-shadow: 0 0 0 .12rem #ffd68225; }
-  to { box-shadow: 0 0 0 .28rem #ffd68210; }
-}
 
 .assistant-chat-footer {
   padding: .66rem clamp(.75rem, 1.8vw, 1.3rem) .9rem;
   border-top: 1px solid var(--assistant-edge);
+  background: #f7faf7;
+  border-radius: 0 0 1.15rem 1.15rem;
 }
 
 .assistant-feedback {
@@ -325,17 +359,53 @@ button.assistant-reset {
 }
 
 
+.assistant-mascot {
+  padding: .9rem;
+  border: 1px solid #c7dcca;
+  background: #f7faf3;
+  box-shadow: 0 8px 22px #173d2210;
+}
 .assistant-stage {
   display: grid;
   place-items: center;
-  min-height: 22rem;
-  padding: 1.2rem;
+  aspect-ratio: 1;
   overflow: hidden;
+  border-radius: .75rem;
+  background: radial-gradient(ellipse at 50% 65%, #cadfaa, #e6efda 62%, #edf4e6 80%);
 }
-
-.assistant-stage .co-ma-sprite {
-  width: min(82%, 14.4rem);
+.assistant-stage :is(img, video) {
+  width: min(93%, 15rem);
+  height: auto;
+  display: block;
   filter: drop-shadow(0 6px 8px #163d2a18);
+}
+.assistant-mascot-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: .6rem;
+  min-height: 3.5rem;
+}
+.assistant-mascot-footer h2 { font-size: 1.12rem; }
+.assistant-mascot-footer button { font-size: .77rem; }
+.assistant-simulation-link {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: .55rem;
+  min-height: 44px;
+  padding: .55rem .65rem;
+  border-radius: .6rem;
+  background: #e8f2e6;
+  color: #20543e;
+  font-size: .8rem;
+  font-weight: 750;
+  text-decoration: none;
+}
+.assistant-simulation-link:hover { background: #dcebdc; }
+@media (max-width: 58rem) {
+  .assistant-layout { grid-template-columns: minmax(0, 1fr); }
+  .assistant-mascot { width: min(100%, 24rem); }
 }
 
 .assistant-dialog {

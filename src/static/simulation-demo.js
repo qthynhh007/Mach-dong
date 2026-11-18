@@ -18,9 +18,13 @@ const lowerSalt = byId("lowerSalt");
 const storageKey = "mach-dong-simulation";
 const format = (number) => number.toLocaleString("vi-VN", {maximumFractionDigits: 1});
 let timer;
+let frame;
 let activeRequest;
 let hasResult = false;
 let confirmedDay;
+let lastScenario;
+let adviceRequest;
+let explainedScenario;
 
 const moods = [
   {min: 95, key: "excited", label: "Cò Mạ vui quá!"},
@@ -50,7 +54,7 @@ function updateLabels() {
   }
   byId("sim-water-hint").textContent = depth === 0
     ? "Ngang mặt ruộng."
-    : depth > 0 ? "Nước phủ mặt ruộng." : "Mực nước nằm dưới mặt ruộng.";
+    : depth > 0 ? "Nước phủ mặt ruộng." : "Dưới mặt ruộng · Báo cáo ghi 0 cm ngập.";
   byId("sim-heat-hint").textContent = values.temp_c > 35
     ? "Vượt ngưỡng nóng của mô hình."
     : "Ngưỡng nóng của mô hình là 35 °C.";
@@ -73,13 +77,17 @@ function renderAdvice(data, values) {
     item.textContent = title;
     return item;
   }));
-  steps.replaceChildren(...data.advice_steps.map(({title, body}) => {
+  steps.replaceChildren(...data.advice_steps.map(({title, body}, index) => {
     const item = document.createElement("li");
-    const heading = document.createElement("h3");
+    const detail = document.createElement("details");
+    detail.className = "field-check";
+    detail.open = index === 0;
+    const heading = document.createElement("summary");
     const paragraph = document.createElement("p");
     heading.textContent = title;
     paragraph.textContent = body;
-    item.append(heading, paragraph);
+    detail.append(heading, paragraph);
+    item.append(detail);
     return item;
   }));
   const depth = values.water_depth_cm;
@@ -147,6 +155,7 @@ async function getResult(values) {
       node.textContent = risk;
     }
     renderAdvice(data, values);
+    lastScenario = values;
     hasResult = true;
     openAdvice.disabled = false;
     status.textContent = "Đã cập nhật kết quả.";
@@ -164,25 +173,59 @@ async function getResult(values) {
 }
 
 function scheduleUpdate() {
-  const values = updateLabels();
-  try { sessionStorage.setItem(storageKey, JSON.stringify(values)); } catch { /* The sliders work without storage. */ }
+  adviceRequest?.abort();
+  byId("preview-gemini-status").textContent = "";
+  byId("preview-gemini-text").textContent = "";
   clearTimeout(timer);
   activeRequest?.abort();
   openAdvice.disabled = true;
   const pending = hasResult ? "Đang tính lại. Kết quả đang hiển thị thuộc lần tính trước." : "Đang tính kịch bản…";
   if (status.textContent !== pending) status.textContent = pending;
-  timer = setTimeout(() => getResult(values), 120);
+  if (frame) return;
+  frame = requestAnimationFrame(() => {
+    frame = null;
+    const values = updateLabels();
+    timer = setTimeout(() => {
+      try { sessionStorage.setItem(storageKey, JSON.stringify(values)); } catch { /* The sliders work without storage. */ }
+      getResult(values);
+    }, 140);
+  });
 }
 
 Object.values(controls).forEach((node) => node.addEventListener("input", scheduleUpdate));
-openAdvice.addEventListener("click", () => adviceDialog.showModal());
+openAdvice.addEventListener("click", async () => {
+  adviceDialog.showModal();
+  if (!lastScenario || explainedScenario === lastScenario || !staleAdvice.hidden) return;
+  adviceRequest?.abort();
+  const request = new AbortController();
+  adviceRequest = request;
+  const scenario = lastScenario;
+  const label = byId("preview-gemini-status");
+  label.textContent = "Đang hỏi Gemini về kịch bản này…";
+  try {
+    const response = await fetch("/api/simulation/advice", {
+      method: "POST", headers: {"Content-Type": "application/json"},
+      body: JSON.stringify(scenario), signal: request.signal,
+    });
+    if (!response.ok) throw new Error();
+    const {data} = await response.json();
+    if (request.signal.aborted || lastScenario !== scenario) return;
+    label.textContent = data.status;
+    if (data.mode === "gemini") {
+      byId("preview-gemini-text").textContent = data.text;
+      explainedScenario = scenario;
+    }
+  } catch {
+    if (!request.signal.aborted) label.textContent = "Chưa kết nối được Gemini. Bà con xem hướng dẫn tại chỗ bên dưới.";
+  }
+});
 byId("btnReset").addEventListener("click", () => {
   Object.values(controls).forEach((node) => { node.value = node.defaultValue; });
   scheduleUpdate();
 });
 lowerSalt.addEventListener("click", () => {
   controls.salinity_gl.value = Math.min(1, Number(controls.salinity_gl.value));
-  scheduleUpdate();
+  controls.salinity_gl.dispatchEvent(new Event("input", {bubbles: true}));
 });
 try {
   const stored = JSON.parse(sessionStorage.getItem(storageKey));

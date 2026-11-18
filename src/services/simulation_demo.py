@@ -34,50 +34,56 @@ class SimulationResult(TypedDict):
     physiology: Physiology
 
 
+STAGE_CHECKS = {
+    "Mạ non": "Chọn một ô mạ ở chỗ trũng và một ô ở nền cao hơn. Đếm cây còn đứng trong từng ô, đánh dấu vị trí rồi xem lại sau khi nước rút. Ghi riêng cây bị vùi bùn, cây nằm rạp và cây đang ra lá mới để biết chỗ nào cần thăm lại trước khi tính chuyện dặm.",
+    "Đẻ nhánh": "Đánh dấu vài bụi dễ tìm lại, nhẹ tay tách lá và đếm số thân từ gốc theo cùng một cách ở mỗi buổi. Ruộng sạ dày khó phân biệt từng bụi thì đếm thân trong cùng một khung. Ghi riêng điểm mé bờ và giữa ruộng để nhận ra chỗ nào chậm ra nhánh.",
+    "Làm đòng": "Ra cả đầu và cuối thửa, xem bẹ lá đòng và độ đồng đều giữa các bụi để xác nhận giai đoạn. Đánh dấu vạt đã làm đòng, ghi tình trạng lá trên cùng và vị trí có nước đọng. Nếu các vạt lệch giai đoạn, theo dõi từng vạt riêng khi bàn lịch nước.",
+    "Trổ bông": "Chọn vài bông ở mé và giữa ruộng. Phân biệt bông vừa ló khỏi bẹ với bông có hoa đang mở, rồi ghi cả giờ quan sát. Quay lại cùng vị trí ở buổi sau để biết phần ruộng nào đang trổ rộ; một bông ở mé chưa đại diện cho toàn thửa.",
+    "Chín vàng": "Đi từ mé nắng vào vạt khuất. Ở mỗi vạt, xem hạt ở đầu, giữa và cuối vài bông; đánh dấu vùng còn xanh hoặc có cây ngã. Khi bàn ngày gặt, đưa người cắt tới hai vạt khác nhau nhất; nếu cần con số độ ẩm để giao lúa, hãy đo trên mẫu hạt.",
+}
+
+
 def detailed_advice(inputs: SimulationDemoInput, stage: str, salt_risk: str) -> list[AdviceStep]:
+    salt = f"{inputs.salinity_gl:g}".replace(".", ",")
     salt_step: AdviceStep = {
-        "title": "Kiểm tra mặn tại ruộng",
-        "body": (
-            "Đo trực tiếp nước trong ruộng và ghi giờ, đơn vị đo. Ghi riêng số đo "
-            "ở kênh hoặc cống để đánh giá nguồn nước trước khi lấy nước vào ruộng."
-            if salt_risk != "Thấp"
-            else "Ghi độ mặn thực đo tại ruộng và theo dõi khi nguồn nước thay đổi. "
-            "Nếu định lấy nước, kiểm tra riêng độ mặn ở kênh hoặc cống."
-        ),
+        "title": "Đo lại nước ruộng trước khi lấy nước" if salt_risk != "Thấp" else "Ghi mốc mặn để so lần sau",
+        "body": f"Kịch bản dùng độ mặn nước ruộng {salt} g/L, mức rủi ro {salt_risk.lower()} ở giai đoạn {stage.lower()}. "
+        + ("Nếu đang tính mở cửa lấy nước, ưu tiên đo cả nguồn ngoài kênh và nước trong thửa ngay trước lúc quyết định. "
+           if salt_risk != "Thấp" else "Chọn một điểm cố định trong thửa để có số đối chiếu khi đổi nguồn nước hoặc sau kỳ triều. ")
+        + "Ghi hai dòng riêng cho ruộng và kênh, kèm giờ, vị trí, đơn vị trên máy và trạng thái cửa. Nếu máy hiển thị độ dẫn điện, giữ nguyên đơn vị đó. Sau khi nguồn nước thay đổi, quay lại đúng điểm trong ruộng và đo lại.",
     }
     depth = inputs.water_depth_cm
+    cm = f"{abs(depth):g}".replace(".", ",")
     if depth > 15:
         water_step: AdviceStep = {
-            "title": "Đo mức ngập và thời gian ngập",
-            "body": "Đo từ mặt đất ruộng ở cả chỗ thấp và chỗ cao, ghi giờ bắt đầu ngập. "
-            "Kiểm tra khả năng tiêu nước và quan sát cây có bị ngập ngọn hoặc đổ rạp.",
+            "title": "Kiểm tra ngọn lúa ở chỗ ngập sâu",
+            "body": f"Kịch bản đặt nước cao {cm} cm trên mặt đất. Ra vạt thấp trước, đo từ mặt đất tới mặt nước rồi nhìn ngọn lúa còn nhô lên hay đã chìm. "
+            "Đo thêm một điểm nền cao và ghi giờ bắt đầu thấy ngập. Kiểm tra cửa tiêu và mực nước phía nhận trước khi bàn việc thoát nước. Khi nước rút, quay lại bụi đã đánh dấu để xem cây còn đứng, bị vùi bùn hay đang ra lá mới.",
         }
-        if stage == "Mạ non":
-            water_step["body"] += " Khi nước rút, quan sát rễ mới trước khi quyết định bón thúc."
-    elif depth < -5:
+    elif depth < 0:
         water_step = {
-            "title": "Kiểm tra chỗ ruộng khô",
-            "body": "Kiểm tra độ ẩm đất gần gốc và so sánh chỗ cao với chỗ trũng. "
-            "Nếu cần bổ sung nước, đo riêng độ mặn nguồn nước trước khi lấy vào.",
+            "title": "Kiểm tra nước dưới mặt ruộng",
+            "body": f"Mức âm trong kịch bản nghĩa là nước thấp hơn mặt đất {cm} cm. Nếu ruộng có ống theo dõi, đọc khoảng cách từ mặt đất tới mặt nước trong ống cùng vị trí, cùng mốc. "
+            "Nếu chỉ thấy mặt đất đã ráo, ghi đúng hiện tượng đó và để trống độ sâu chưa đo. Xem đất quanh gốc ở cả gò cao và chỗ trũng; nếu tính cấp thêm nước, đo mặn nguồn trước rồi kiểm tra lại trong thửa sau khi nước tới.",
         }
     else:
         water_step = {
-            "title": "Theo dõi mực nước",
-            "body": "Đo theo mặt đất tại ruộng sau mưa hoặc khi lấy nước. Ghi riêng các "
-            "chỗ trũng nếu độ sâu khác nhau giữa các vị trí.",
+            "title": "Đối chiếu mực nước ở đầu và cuối thửa",
+            "body": ("Mực nước kịch bản ngang mặt đất. " if depth == 0 else f"Kịch bản có lớp nước sâu {cm} cm. ")
+            + "Chọn mốc ngang mặt đất tại mỗi điểm; chờ nước bớt gợn rồi đọc thước ở đầu cấp nước và vạt trũng cuối thửa. "
+            "Ghi giờ đọc, trận mưa gần nhất và cửa đang đóng hay mở. Sau khi tưới hoặc tháo nước, đo lại cả hai điểm để xem nước đã tới hoặc đã rút ở phần nào của ruộng.",
         }
-
-    steps = [water_step, salt_step] if depth > 15 or depth < -5 else [salt_step, water_step]
+    steps = [water_step, salt_step] if depth > 15 or (depth < -5 and salt_risk == "Thấp") else [salt_step, water_step]
     if inputs.temp_c > 35:
         steps.append({
-            "title": "Quan sát dấu hiệu stress nhiệt",
-            "body": "Ghi giờ và nhiệt độ thực đo. Quan sát lá cuốn hoặc héo lúc nóng, "
-            "rồi kiểm tra lại khi dịu nhiệt để đối chiếu.",
+            "title": "Kiểm tra nóng lúc hoa mở" if stage == "Trổ bông" else "Thăm lại khi trời dịu",
+            "body": f"Nhiệt độ cao nhất trong kịch bản là {inputs.temp_c:g} °C. "
+            + ("Ghi giờ thấy hoa mở và đối chiếu với nhiệt độ thực đo tại ruộng lúc đó. Nếu chỉ có dự báo ngày, ghi riêng nguồn dự báo. Theo dõi lại cùng nhóm bông trong thời kỳ vào hạt trước khi nhận xét mức ảnh hưởng."
+               if stage == "Trổ bông" else "Ghé cùng một vạt lúc nóng và lúc trời dịu, ghi lá có cuốn, rũ rồi hồi lại hay còn bất thường. Kiểm tra nước quanh gốc cùng lúc vì lá cuốn riêng lẻ chưa cho biết nguyên nhân. Ghi rõ nhiệt độ lấy từ dự báo hay đo tại ruộng."),
         })
     steps.append({
-        "title": "Theo dõi sau khi điều kiện thay đổi",
-        "body": "Ghi tình trạng lá và gốc lúa ở cùng vị trí qua các lần quan sát. "
-        "Nếu cần tính tỷ lệ cây sống, đếm lại trên cùng ô mẫu.",
+        "title": f"Thăm đồng giai đoạn {stage.lower()}",
+        "body": f"Ngày {inputs.day_after_sowing} sau sạ được xếp vào giai đoạn {stage.lower()} trong mô hình. " + STAGE_CHECKS[stage],
     })
     return steps
 

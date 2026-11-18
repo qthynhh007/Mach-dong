@@ -1,30 +1,30 @@
 {% from "shared/icon.html" import icon %}
 <a class="app-skip-link" href="{{ '#simContentWrapper' if current_page == 'simulation' else '#main-content' }}">Đến nội dung chính</a>
-<header class="app-header app-glass"{% if auth_user %} data-csrf-token="{{ auth_csrf_token }}" data-user-id="{{ auth_user.user_id }}"{% endif %}>
+{% set section_names = {'community':'Kho CSV cộng đồng', 'forum':'Thảo luận bà con', 'simulation':'Mô phỏng sinh lý lúa', 'assistant':'Trợ lý Cò Mạ', 'admin':'Duyệt dữ liệu', 'profile':'Thông tin cá nhân', 'wallet-rules':'Thể lệ quy đổi LÚA'} %}
+<header class="app-header"{% if auth_user %} data-csrf-token="{{ auth_csrf_token }}" data-user-id="{{ auth_user.user_id }}"{% endif %}>
   <a href="/community" class="app-brand">
     <span class="app-brand-mark">
       <img src="{{ url_for('static', filename='assets/stitch-simulation/co-ma-logo.png') }}" alt="" width="30" height="30">
     </span>
     <span translate="no">Mạch Đồng</span>
   </a>
-  <nav class="app-top-nav" aria-label="Điều hướng nhanh">
-    <a href="/community" {% if current_page == "community" %}aria-current="page"{% endif %}>{{ icon("table_view") }} Kho CSV</a>
-    <a href="{{ url_for('forum.index') }}" {% if current_page == "forum" %}aria-current="page"{% endif %}>{{ icon("chat") }} Diễn đàn</a>
-    <a href="/simulation" {% if current_page == "simulation" %}aria-current="page"{% endif %}>{{ icon("grass") }} Mô phỏng</a>
+  <div class="app-top-nav">
+    {% if current_page in section_names %}
+    <span class="app-current-section">{{ section_names[current_page] }}</span>
+    {% endif %}
     <details class="app-more-links">
-      <summary{% if current_page in ("assistant", "admin") %} class="app-more-current"{% endif %}>Thêm</summary>
-      <div class="app-more-panel app-glass">
-        <a href="/assistant" {% if current_page == "assistant" %}aria-current="page"{% endif %}>{{ icon("sparkles") }} Trợ lý Cò Mạ</a>
-        <a href="/admin" {% if current_page == "admin" %}aria-current="page"{% endif %}>{{ icon("fact_check") }} Duyệt dữ liệu</a>
-      </div>
+      <summary>{{ icon("menu") }} Danh mục</summary>
+      <nav class="app-more-panel" aria-label="Danh mục Mạch Đồng">
+        {% include "shared/workspace-links.html" %}
+      </nav>
     </details>
-  </nav>
+  </div>
   <div class="app-header-account">
     {% if auth_user %}
     {% set role_labels = {"ADMIN": "Quản trị viên", "REVIEWER": "Người duyệt", "FARMER": "Nông hộ"} %}
-    <span class="app-coin-balance">{{ icon("grass") }}<strong data-header-credits>{{ auth_user.simulation_credits }} LÚA</strong></span>
+    <a class="app-coin-balance" href="{{ url_for('auth.wallet_rules') }}" title="Thể lệ dùng điểm LÚA"{% if current_page == 'wallet-rules' %} aria-current="page"{% endif %}>{{ icon("wallet") }}<strong data-header-credits>{{ auth_user.simulation_credits }} LÚA</strong></a>
     <a class="app-account-trigger" href="{{ url_for('auth.profile') }}" aria-label="Chỉnh sửa hồ sơ và mật khẩu" {% if current_page == "profile" %}aria-current="page"{% endif %}>
-      <img class="app-avatar" src="{{ url_for('static', filename='assets/stitch-profile-portrait.jpg') }}" width="32" height="32" alt="">
+      <img class="app-avatar" data-user-avatar src="{{ auth_avatar_url }}" width="32" height="32" alt="">
       <span class="app-account-name">
         <strong data-profile-value="farmer-fullname">{{ auth_user.name }}</strong>
         <small>{{ role_labels.get(auth_user.role, auth_user.role) }} · @{{ auth_user.username }}</small>
@@ -40,4 +40,5 @@
     {% endif %}
   </div>
 </header>
+{% include "shared/co-ma-launcher.html" %}
 <script src="/static/account.js" defer></script>

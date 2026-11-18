@@ -22,6 +22,38 @@ function viewHarness(request) {
   return view;
 }
 
+test("the illustration sends signed water levels to the report as above-ground depth and keeps canal salinity separate", () => {
+  const {simulationView} = classes();
+  const view = Object.create(simulationView.prototype);
+  const fields = {
+    locationId: {value: "location"}, stage: {value: "", options: [
+      {value: "seedling", dataset: {throughDay: "15"}},
+      {value: "tillering", dataset: {throughDay: "42"}},
+      {value: "panicle", dataset: {throughDay: "65"}},
+    ]}, salinitySite: {value: "fieldWater"},
+    dayAfterSowing: {value: "48"}, exposureDays: {value: "7"}, salinityGl: {value: "2.8"},
+    canalSalinityGl: {valueAsNumber: 8.1}, waterDepthCm: {value: "-4.5"}, tempMaxC: {value: "28.5"},
+    plantHeightCm: {value: ""}, rootZoneEcDsM: {value: ""},
+    ecIsSeasonAverage: {checked: false}, useWeather: {checked: false},
+  };
+  view.fieldPreview = true;
+  view.field = name => fields[name];
+
+  const fieldInputs = view.inputs(false);
+  assert.equal(fieldInputs.salinityGl, 2.8);
+  assert.equal(fieldInputs.waterDepthCm, 0);
+  assert.equal(fieldInputs.stage, "panicle");
+  assert.equal(fieldInputs.rootZoneEcDsM, null);
+
+  fields.salinitySite.value = "canalWater";
+  fields.stage.value = "flowering";
+  const canalInputs = view.inputs(false);
+  assert.equal(canalInputs.salinitySite, "canalWater");
+  assert.equal(canalInputs.salinityGl, 8.1);
+  assert.equal(canalInputs.stage, "flowering");
+  assert.equal(fields.salinityGl.value, "2.8");
+});
+
 test("normal simulation opens the report without requiring an AI key",async()=> {
   const report = {ai:{status:"notRequested"}};
   const view = viewHarness(async(path,payload)=>{assert.equal(payload.requestAi,false); return report;});

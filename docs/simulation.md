@@ -86,7 +86,7 @@ Các số liệu nghiên cứu được trích dưới dạng dữ kiện có d�
 
 ## Cập nhật dữ liệu mà không phát hành lại app
 
-Ứng dụng không đọc `server/data` trên máy người dùng. Nó luôn gọi URL cloud cố định. Các file trong repository là bản nguồn để kiểm soát phiên bản và triển khai máy chủ.
+Bản EXE dùng API cloud theo mặc định. Khi chạy từ mã nguồn Windows, `scripts/run-local.ps1` có thể mở cùng bộ máy tính và dữ liệu `server/data` trên `127.0.0.1:8787`. Chế độ cục bộ dùng được danh mục và báo cáo với thông số nhập tay. Dự báo Open-Meteo và AI cần kết nối tới nhà cung cấp.
 
 - **Dự báo mới:** Worker lấy từ Open-Meteo khi người dùng yêu cầu; cache một giờ. Không phải tác vụ nền định kỳ.
 - **Nguồn/tham số mới:** sửa `server/data/catalog.json`, tăng `version` và `reviewedAt`, bổ sung nguồn/đơn vị/phạm vi. Chạy test, build và deploy lại **cùng Site**. Lần tải dữ liệu tiếp theo của app dùng bản mới.

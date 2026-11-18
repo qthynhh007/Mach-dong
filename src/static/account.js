@@ -20,14 +20,12 @@
   const exportedPrivKeyBox = document.getElementById("exported-privkey-box");
   const exportedPrivKeyValue = document.getElementById("exported-privkey-value");
 
-  const fields = [
-    "farmer-fullname",
-    "farmer-phone",
+  const farmFields = [
     "farmer-address",
     "farmer-cultivar",
     "farmer-area",
-    "hydrology-station",
   ];
+  const fields = ["farmer-fullname", "farmer-phone", ...farmFields];
   const field = (id) => document.getElementById(id);
 
   if (moreLinks) {
@@ -45,6 +43,45 @@
     return headerEl?.dataset.csrfToken || "";
   }
 
+  const avatarInput = field("profile-avatar-file");
+  const avatarButton = field("profile-avatar-choose");
+  const avatarStatus = field("profile-avatar-status");
+  avatarButton?.addEventListener("click", () => avatarInput.click());
+  avatarInput?.addEventListener("change", async () => {
+    const file = avatarInput.files[0];
+    avatarInput.value = "";
+    if (!file) return;
+    if (file.size > 1_000_000) {
+      avatarStatus.textContent = "Chọn ảnh có dung lượng tối đa 1 MB.";
+      return;
+    }
+
+    const upload = new FormData();
+    upload.set("avatar", file);
+    avatarButton.disabled = true;
+    avatarStatus.textContent = "Đang lưu ảnh đại diện…";
+    try {
+      const response = await fetch("/api/auth/avatar", {
+        method: "POST",
+        headers: { "X-CSRF-Token": getCsrfToken() },
+        body: upload,
+      });
+      const payload = await response.json();
+      if (!response.ok || !payload.data?.avatar_url) {
+        avatarStatus.textContent = payload.error || "Chưa lưu được ảnh. Hãy thử lại.";
+        return;
+      }
+      for (const avatar of document.querySelectorAll("[data-user-avatar]")) {
+        avatar.src = payload.data.avatar_url;
+      }
+      avatarStatus.textContent = "Đã lưu ảnh đại diện.";
+    } catch {
+      avatarStatus.textContent = "Chưa lưu được ảnh. Hãy thử lại.";
+    } finally {
+      avatarButton.disabled = false;
+    }
+  });
+
   function readProfile() {
     try {
       return JSON.parse(localStorage.getItem(profileKey)) || {};
@@ -57,16 +94,17 @@
     for (const node of document.querySelectorAll("[data-profile-value]")) {
       const value = profile[node.dataset.profileValue];
       if (typeof value === "string") {
-        node.textContent = value || "—";
+        node.textContent = value ? value + (node.dataset.profileUnit || "") : node.dataset.profileEmpty || "—";
       }
     }
   }
 
   function loadProfile() {
+    if (userId && (!farmForm || farmForm.dataset.hasFarmProfile === "true")) return;
     const profile = readProfile();
-    renderProfile(profile);
+    if (!userId) renderProfile(profile);
     if (!farmForm) return;
-    for (const id of fields) {
+    for (const id of userId ? farmFields : fields) {
       if (typeof profile[id] === "string" && field(id)) {
         field(id).value = profile[id];
       }
@@ -384,10 +422,10 @@
             : tx.credit_delta >= 0
             ? `+${tx.credit_delta} LÚA`
             : `${tx.credit_delta} LÚA`;
-        const isRealOnchain =
-          tx.tx_hash && tx.tx_hash.startsWith("0x") && tx.tx_hash.length === 66;
+        const isRealOnchain = tx.direction === "AVAX_TO_CREDIT"
+          && tx.note.endsWith("(On-chain Fuji)") && /^0x[0-9a-f]{64}$/i.test(tx.tx_hash);
         const hashHtml = isRealOnchain
-          ? `On-chain Fuji: <a href="https://testnet.snowtrace.io/tx/${tx.tx_hash}" target="_blank" rel="noopener" class="underline font-bold text-primary hover:text-primary/80"><code>${tx.tx_hash.slice(
+          ? `Đã gửi Fuji · <a href="https://testnet.snowtrace.io/tx/${tx.tx_hash}" target="_blank" rel="noopener" class="underline font-bold text-primary hover:text-primary/80"><code>${tx.tx_hash.slice(
               0,
               10
             )}...${tx.tx_hash.slice(-6)} ↗</code></a>`
@@ -406,6 +444,7 @@
             isPositive ? "text-primary" : "text-secondary"
           } shrink-0">${badgeText}</span>
         `;
+        field("credit-tx-empty")?.remove();
         creditTxList.prepend(row);
       }
     }
@@ -507,18 +546,26 @@
       return;
     }
 
-    const csrf = getCsrfToken();
-    if (csrf) {
+    if (userId) {
+      const button = field("btn-save-farmer-info");
+      if (button.disabled) return;
+      button.disabled = true;
+      status.textContent = "Đang lưu hồ sơ…";
       try {
-        const res = await fetch("/api/auth/profile", {
+        const res = await fetch("/api/auth/farm-profile", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "X-CSRF-Token": csrf,
+            "X-CSRF-Token": getCsrfToken(),
           },
           body: JSON.stringify({
             name: profile["farmer-fullname"],
             phone: profile["farmer-phone"],
+            farm_profile: {
+              address: profile["farmer-address"],
+              cultivar: profile["farmer-cultivar"],
+              area_ha: profile["farmer-area"] === "" ? null : Number(profile["farmer-area"]),
+            },
           }),
         });
         const payload = await res.json();
@@ -526,27 +573,31 @@
           status.textContent = payload.error || "Không thể cập nhật hồ sơ.";
           return;
         }
-        profile["farmer-phone"] = payload.data.user.phone;
-        if (field("farmer-phone")) {
-          field("farmer-phone").value = payload.data.user.phone;
-        }
+        const saved = payload.data.farm_profile;
+        const values = {
+          "farmer-fullname": payload.data.user.name,
+          "farmer-phone": payload.data.user.phone,
+          "farmer-address": saved.address,
+          "farmer-cultivar": saved.cultivar,
+          "farmer-area": saved.area_ha === null ? "" : String(saved.area_ha),
+        };
+        for (const id of fields) field(id).value = values[id];
+        renderProfile(values);
+        farmForm.dataset.hasFarmProfile = "true";
+        try { localStorage.removeItem(profileKey); } catch { /* Hồ sơ đã lưu vào tài khoản. */ }
+        status.textContent = "Đã lưu thông tin canh tác vào tài khoản.";
       } catch {
         status.textContent = "Lỗi kết nối máy chủ khi lưu hồ sơ.";
-        return;
+      } finally {
+        button.disabled = false;
       }
+      return;
     }
 
     try {
-      const localProfile = { ...profile };
-      if (userId) {
-        delete localProfile["farmer-fullname"];
-        delete localProfile["farmer-phone"];
-      }
-      localStorage.setItem(profileKey, JSON.stringify(localProfile));
+      localStorage.setItem(profileKey, JSON.stringify(profile));
       renderProfile(profile);
-      status.textContent = csrf
-        ? "Đã lưu hồ sơ tài khoản và thông tin ruộng trên trình duyệt này."
-        : "Đã lưu hồ sơ demo trên trình duyệt này.";
+      status.textContent = "Đã lưu hồ sơ dùng thử trên trình duyệt này.";
     } catch {
       status.textContent = "Trình duyệt đang chặn lưu hồ sơ.";
     }

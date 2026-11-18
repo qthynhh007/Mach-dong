@@ -27,6 +27,22 @@ DISCUSSION_TOPICS = {
 TOPICS = {**DISCUSSION_TOPICS, "references": "Bài tham khảo"}
 
 CULTIVARS = ("OM5451", "ST25", "OM18", "Đài Thơm 8", "Khác")
+RICE_DIARIES = json.loads(
+    (REFERENCE_DIR / "rice-field-diaries.json").read_text(encoding="utf-8")
+)
+POST_PHOTOS.update({
+    "nhat-ky-" + diary["slug"]: {
+        "src": "/static/assets/forum-photos/nhat-ky-" + diary["slug"] + ".jpg",
+        "alt": diary["alt"], "width": 504, "height": 272,
+    }
+    for diary in RICE_DIARIES
+})
+DIARY_MEMBERS = (
+    ("sample-lan", "Chị Lan", "Long Hữu"),
+    ("sample-tu", "Chú Tư Bình", "Chợ Mới"),
+    ("sample-hau", "Anh Hậu", "Phú Tân"),
+    ("sample-sen", "Cô Sen", "Tam Nông"),
+)
 STAGES = ("Mạ non", "Đẻ nhánh", "Làm đòng", "Trổ bông", "Chín vàng")
 
 SAMPLE_POSTS = (

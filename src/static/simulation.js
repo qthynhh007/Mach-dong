@@ -25,25 +25,50 @@ class simulationApi {
 class simulationView {
   constructor() {
     this.api = new simulationApi(); this.form = document.getElementById("scenarioForm"); this.result = null; this.catalog = null; this.activeRequest = null;
+    this.fieldPreview = this.form.hasAttribute("data-field-preview");
     this.weatherRequest = null; this.revision = 0;
     this.byId("scenarioForm").addEventListener("submit", event => { event.preventDefault(); this.run(false); });
     this.byId("askAi").addEventListener("click", () => this.run(true));
+    this.byId("explainReport").addEventListener("click", () => this.explainReport());
     this.form.addEventListener("input", () => this.invalidate());
     this.form.addEventListener("invalid", () => this.status("Có điều kiện chưa hợp lệ. Hãy sửa ô được đánh dấu rồi chạy lại.",true),true);
-    this.byId("resetScenario").addEventListener("click", () => { this.form.reset(); this.invalidate(); });
+    const reset = this.byId(this.fieldPreview ? "btnReset" : "resetScenario");
+    reset.addEventListener("click", () => { this.form.reset(); this.invalidate(); });
     this.byId("loadWeather").addEventListener("click", () => this.loadWeather());
     this.byId("downloadReport").addEventListener("click", () => this.download());
     this.byId("retryCatalog").addEventListener("click", () => this.loadCatalog());
     this.byId("editScenario").addEventListener("click", () => { this.showPanel("scenarioPanel"); this.byId("runSimulation").focus(); });
-    document.querySelectorAll("[data-panel]").forEach(button => button.addEventListener("click", () => this.showPanel(button.dataset.panel)));
-    this.drawField(); this.updateLabels(); this.loadCatalog();
+    this.tabs = [...document.querySelectorAll(".sim-tabs [role=tab]")];
+    this.initialTab = this.tabs.find(tab => tab.getAttribute("aria-selected") === "true");
+    this.tabs.forEach((tab, index) => {
+      tab.addEventListener("click", () => this.showPanel(tab.dataset.panel));
+      tab.addEventListener("keydown", event => {
+        const last = this.tabs.length - 1;
+        const target = {ArrowLeft: index === 0 ? last : index - 1,
+          ArrowRight: index === last ? 0 : index + 1, Home: 0, End: last}[event.key];
+        if (target === undefined) return;
+        event.preventDefault();
+        this.tabs[target].focus();
+        this.showPanel(this.tabs[target].dataset.panel);
+      });
+    });
+    window.addEventListener("popstate", () => {
+      const key = new URL(location.href).searchParams.get("tab");
+      const tab = this.tabs.find(item => item.dataset.tab === key) || this.initialTab;
+      this.showPanel(tab.dataset.panel, false);
+    });
+    if (!this.fieldPreview) this.drawField();
+    this.updateLabels(); this.loadCatalog();
   }
   byId(id) { return document.getElementById(id); }
   number(value) { return value === null || value === undefined ? "Chưa có" : Number(value).toLocaleString("vi-VN",{maximumFractionDigits:2}); }
   setText(id, value) { this.byId(id).textContent = value; }
   status(message, error = false) {
     for (const id of ["pageStatus","formStatus"]) {
-      this.setText(id,message); this.byId(id).classList.toggle("is-error",error);
+      const target = this.byId(id);
+      if (!target) continue;
+      if (target.textContent !== message) target.textContent = message;
+      target.classList.toggle("is-error", error);
     }
   }
   field(name) { return this.form.elements.namedItem(name); }
@@ -52,9 +77,27 @@ class simulationView {
     for (const name of ["locationId","stage","salinitySite"]) values[name] = this.field(name).value;
     for (const name of ["dayAfterSowing","exposureDays","salinityGl","waterDepthCm","tempMaxC","plantHeightCm","rootZoneEcDsM"]) values[name] = this.field(name).value === "" ? null : Number(this.field(name).value);
     for (const name of ["ecIsSeasonAverage","useWeather"]) values[name] = this.field(name).checked;
+    if (this.fieldPreview) {
+      values.waterDepthCm = Math.max(0, values.waterDepthCm);
+      if (values.salinitySite === "canalWater") {
+        values.salinityGl = this.field("canalSalinityGl").valueAsNumber;
+      }
+      if (!values.stage) {
+        const stage = Array.from(this.field("stage").options).find(
+          option => option.value && values.dayAfterSowing <= Number(option.dataset.throughDay)
+        );
+        values.stage = stage.value;
+      }
+    }
     return values;
   }
   updateLabels() {
+    if (this.fieldPreview) {
+      const usesCanalWater = this.field("salinitySite").value === "canalWater";
+      this.byId("sim-canal-salinity").hidden = !usesCanalWater;
+      this.field("canalSalinityGl").disabled = !usesCanalWater;
+      return;
+    }
     this.setText("salinityLabel",this.number(this.field("salinityGl").value)+" g/L");
     this.setText("waterLabel",this.number(this.field("waterDepthCm").value)+" cm");
     this.setText("temperatureLabel",this.number(this.field("tempMaxC").value)+"°C");
@@ -69,12 +112,17 @@ class simulationView {
     this.revision++; this.activeRequest?.abort(); this.weatherRequest?.abort(); this.result = null;
     this.setBusy(false); this.updateLabels(); this.byId("downloadReport").disabled = true;
     this.setText("relativeYield","Chưa có kết quả"); this.setText("riskSummary","Kịch bản đã thay đổi");
-    this.setText("sceneLabel","Chưa chạy kịch bản mới"); this.setText("assistantAdvice","Chạy lại mô phỏng để lấy kết quả ứng với điều kiện mới.");
-    this.setText("aiStatus","Chưa yêu cầu AI cho kịch bản mới."); this.setText("reportMeta","Điều kiện đã thay đổi. Chạy lại để xem báo cáo mới.");
+    if (!this.fieldPreview) {
+      this.setText("sceneLabel","Chưa chạy kịch bản mới"); this.setText("assistantAdvice","Chạy lại mô phỏng để lấy kết quả ứng với điều kiện mới.");
+      this.setText("aiStatus","Chưa yêu cầu AI cho kịch bản mới.");
+    }
+    this.setText("reportMeta","Điều kiện đã thay đổi. Chạy lại để xem báo cáo mới.");
     this.setText("reportSummary","Chưa có báo cáo cho điều kiện mới."); this.setText("reportAiStatus","");
+    this.byId("reportAdvice").hidden = true;
     for (const id of ["evidenceList","scenarioRows","assumptionsList","weatherRows"]) this.byId(id).replaceChildren();
-    this.byId("experimentBox").hidden = true; this.setText("weatherMeta","");
-    this.paintField(null); this.status("Điều kiện đã thay đổi. Nhấn Mô phỏng kịch bản.");
+    this.byId("experimentBox").hidden = true; this.setText("weatherMeta","Tải dự báo để xem số liệu từng ngày tại địa điểm đã chọn.");
+    if (!this.fieldPreview) this.paintField(null);
+    if (this.catalog) this.status("Điều kiện đã thay đổi. Chạy lại để xem báo cáo mới.");
   }
   async loadCatalog() {
     this.byId("retryCatalog").hidden = true;
@@ -84,7 +132,8 @@ class simulationView {
       const select = this.byId("locationId"); select.replaceChildren();
       for (const location of this.catalog.locations) select.add(new Option(location.name,location.id));
       select.disabled = false; this.byId("loadWeather").disabled = false; this.setBusy(false);
-      this.setText("cloudStatus","Dữ liệu trực tuyến · "+this.catalog.reviewedAt);
+      const source = this.catalog.localService ? "Máy chủ cục bộ" : "Dữ liệu trực tuyến";
+      this.setText("cloudStatus",source+" · "+this.catalog.reviewedAt);
       this.setText("varietyInfo",`${this.catalog.varieties[0].name} · ${this.catalog.varieties[0].pedigree}. ${this.catalog.varieties[0].note}`);
       this.renderSources();
       const history = this.catalog.history;
@@ -111,19 +160,37 @@ class simulationView {
   }
   renderResult() {
     const result = this.result; const metric = result.metrics.relativeYieldReferencePct;
+    this.byId("explainReport").disabled = false;
+    this.setText("reportExplanationStatus","");
+    this.setText("reportExplanation","");
     this.setText("relativeYield",metric === null ? "Chưa đủ điều kiện tính" : `${this.number(metric)}% so với đối chứng`);
     const warnings = result.evidence.filter(item => item.level === "caution");
     this.setText("riskSummary",warnings.length ? `${warnings.length} điều kiện cần chú ý` : "Chưa thấy cảnh báo đã định nghĩa");
-    this.setText("sceneLabel",`${result.stage} · Kịch bản ${result.inputs.exposureDays} ngày`);
-    this.setText("assistantAdvice",warnings.length ? warnings.map(item => item.title).join(". ")+". Xem nguồn và giới hạn trong báo cáo." : "Chưa đủ căn cứ để kết luận cây an toàn hoặc dự đoán năng suất thực địa. Báo cáo ghi rõ những gì tính được và dữ liệu còn thiếu.");
-    this.setText("aiStatus",result.ai.message);
+    if (!this.fieldPreview) {
+      this.setText("sceneLabel",`${result.stage} · Kịch bản ${result.inputs.exposureDays} ngày`);
+      this.setText("assistantAdvice",result.fieldAdvice?.[0]?.body || "Xem bằng chứng và các điều kiện cần kiểm tra trong báo cáo.");
+      this.setText("aiStatus",result.ai.message);
+    }
     this.setText("reportAiStatus",result.ai.message);
+    const advice = result.fieldAdvice || [];
+    this.byId("reportAdvice").hidden = advice.length === 0;
+    this.byId("reportAdviceSteps").replaceChildren(...advice.map(step => {
+      const detail = document.createElement("details");
+      detail.className = "field-check";
+      const title = document.createElement("summary");
+      const body = document.createElement("p");
+      title.textContent = step.title;
+      body.textContent = step.body;
+      detail.append(title, body);
+      return detail;
+    }));
     this.setText("reportSummary",`Đã tính ${result.dailyScenario.length} ngày kịch bản. ${warnings.length ? warnings.length+" điều kiện cần chú ý." : "Chưa kích hoạt cảnh báo trong phạm vi mô hình."} ${metric === null ? "Chưa đủ điều kiện để tính năng suất tương đối do mặn; báo cáo vẫn có đối chiếu nhiệt độ, nước và nguồn dữ liệu." : "Năng suất tương đối tham chiếu do mặn: "+this.number(metric)+"% so với đối chứng."}`);
     this.setText("reportMeta",`${result.engineVersion} · ${result.dataVersion} · OM5451 · Giai đoạn ${result.stage} · Mô phỏng tham chiếu, chưa kiểm định ngoài đồng.`);
     const list = this.byId("evidenceList"); list.replaceChildren();
+    this.setText("evidenceCount",String(result.evidence.length));
     for (const item of result.evidence) {
-      const article = document.createElement("article"); article.className = "sim-evidence "+item.level;
-      const heading = document.createElement("h3"); heading.textContent = item.title+(result.ai.priorityEvidenceIds?.includes(item.id) ? " · AI chọn lưu ý" : ""); article.append(heading);
+      const article = document.createElement("details"); article.className = "sim-evidence field-check "+item.level;
+      const heading = document.createElement("summary"); heading.textContent = item.title+(result.ai.priorityEvidenceIds?.includes(item.id) ? " · AI chọn lưu ý" : ""); article.append(heading);
       const body = document.createElement("p"); body.textContent = item.description; article.append(body);
       for (const id of item.sourceIds) { const source = result.sources.find(source => source.id === id); if (source) article.append(this.sourceLink(source)); }
       list.append(article);
@@ -131,7 +198,26 @@ class simulationView {
     this.rows("scenarioRows",result.dailyScenario.map(row => [row.date || "Ngày "+row.scenarioDay,this.number(row.tempMaxC),this.number(row.rainMm),this.number(row.et0Mm),row.heatConcern === null ? "Thiếu dữ liệu" : row.heatConcern ? "Cần theo dõi" : "Chưa kích hoạt"]));
     const assumptions = this.byId("assumptionsList"); assumptions.replaceChildren();
     for (const text of [...result.assumptions,...result.missingInputs.map(item => "Cần bổ sung: "+item.title),...result.limitations]) { const li = document.createElement("li"); li.textContent = text; assumptions.append(li); }
-    this.renderExperiment(result.experiment); this.paintField(result.scene); this.byId("downloadReport").disabled = false;
+    this.renderExperiment(result.experiment);
+    if (!this.fieldPreview) this.paintField(result.scene);
+    this.byId("downloadReport").disabled = false;
+  }
+  async explainReport() {
+    const result = this.result;
+    if (!result) return;
+    const button = this.byId("explainReport");
+    button.disabled = true;
+    this.setText("reportExplanationStatus","Đang hỏi Gemini về kịch bản này…");
+    try {
+      const answer = await this.api.request("/api/simulation/advice",this.inputs(false));
+      if (this.result !== result) return;
+      this.setText("reportExplanationStatus",answer.status);
+      this.setText("reportExplanation",answer.mode === "gemini" ? answer.text : "");
+    } catch (error) {
+      if (this.result === result) this.setText("reportExplanationStatus",error.message);
+    } finally {
+      if (this.result === result) button.disabled = false;
+    }
   }
   sourceLink(source) {
     const link = document.createElement("a"); link.textContent = source.title+" ↗ ";
@@ -149,7 +235,7 @@ class simulationView {
   renderExperiment(experiment) {
     const target = this.byId("experimentBox"); target.replaceChildren(); target.hidden = !experiment;
     if (!experiment) return;
-    const heading = document.createElement("h3"); heading.textContent = "Đối chiếu thí nghiệm mạ OM5451 (không phải kết quả ruộng của bạn)"; target.append(heading);
+    const heading = document.createElement("summary"); heading.textContent = "Đối chiếu với thí nghiệm mạ OM5451"; target.append(heading);
     const table = document.createElement("table"); const header = table.createTHead().insertRow();
     for (const text of ["Nghiệm thức ‰","Chiều cao cm","Rễ cm","Tỷ phần lá cháy"]) { const th = document.createElement("th"); th.textContent = text; header.append(th); }
     const body = table.createTBody();
@@ -168,7 +254,22 @@ class simulationView {
       this.setText("weatherMeta",`Open-Meteo · Dự báo ô lưới · ${result.locationId} · Cập nhật ${result.retrievedAt} · CC BY 4.0`);
     } catch (error) { if (error.name !== "AbortError") { this.byId("weatherRows").replaceChildren(); this.setText("weatherMeta",error.message); } }
   }
-  showPanel(id) { for (const button of document.querySelectorAll("[data-panel]")) { const selected = button.dataset.panel === id; button.setAttribute("aria-pressed",String(selected)); this.byId(button.dataset.panel).hidden = !selected; } }
+  showPanel(id, updateUrl = true) {
+    const tab = this.tabs.find(button => button.dataset.panel === id);
+    const focusedPanel = document.activeElement?.closest("[role=tabpanel]");
+    for (const button of this.tabs) {
+      const selected = button === tab;
+      button.setAttribute("aria-selected", String(selected));
+      button.tabIndex = selected ? 0 : -1;
+      this.byId(button.dataset.panel).hidden = !selected;
+    }
+    if (focusedPanel?.hidden) tab.focus({preventScroll: true});
+    if (!updateUrl) return;
+    const url = new URL(location.href);
+    if (url.searchParams.get("tab") === tab.dataset.tab) return;
+    url.searchParams.set("tab", tab.dataset.tab);
+    history.pushState(null, "", url);
+  }
   drawField() {
     const target = this.byId("ricePlants");
     for (let row=0; row<4; row++) for (let col=0; col<10; col++) { const plant = document.createElementNS("http://www.w3.org/2000/svg","use"); plant.setAttribute("href","#ricePlant"); plant.setAttribute("transform",`translate(${180+col*55+row*26},${205+row*23-col*3}) scale(${.6+row*.1})`); target.append(plant); }

@@ -1,0 +1,13 @@
+<div class="assistant-starters" id="assistant-starters" aria-label="Câu hỏi gợi ý để soạn" role="group">
+          {% if contextual_questions %}
+          {% for label, question in contextual_questions %}
+          <button type="button" class="app-button" data-question="{{ question }}">{{ label }}</button>
+          {% endfor %}
+          {% else %}
+          <button type="button" class="app-button" data-question="Trồng dưa leo trong chậu bắt đầu thế nào?">Trồng dưa leo</button>
+          <button type="button" class="app-button" data-question="Làm sao cải tạo đất để trồng rau cải?">Cải tạo đất</button>
+          <button type="button" class="app-button" data-question="Cà chua trồng chậu bị đen ở đáy quả. Có cần bón canxi ngay không?">Cà chua đen đáy quả</button>
+          <button type="button" class="app-button" data-question="Đọc số đo mặn và ngập tại LH-03">Ca ngập mẫu LH-03</button>
+          <button type="button" class="app-button" data-question="Độ mặn thực đo tại Cầu Quan là bao nhiêu?">Độ mặn Cầu Quan</button>
+          {% endif %}
+        </div>

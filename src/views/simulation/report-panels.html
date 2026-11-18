@@ -1,0 +1,69 @@
+{% from "shared/icon.html" import icon %}
+<section id="reportPanel" class="sim-reading" role="tabpanel" aria-labelledby="tab-reportPanel" tabindex="0"{% if active_tab != 'bao-cao' %} hidden{% endif %}>
+  <div class="sim-card reading-card">
+    <div class="sim-form-heading">
+      <h2 id="reportTitle" tabindex="-1">Báo cáo kịch bản</h2>
+      <div class="reading-actions">
+        <button type="button" class="action-label" id="editScenario">{{ icon("adjust") }} Sửa điều kiện</button>
+        <button type="button" class="action-label" id="downloadReport" disabled>{{ icon("download") }} Tải JSON</button>
+      </div>
+    </div>
+    <p id="reportSummary">Chọn điều kiện tại ruộng, rồi chạy mô phỏng để xem diễn biến từng ngày.</p>
+    <details class="report-fold report-evidence"><summary>Kết quả và bằng chứng <span id="evidenceCount"></span></summary>
+      <div id="evidenceList" class="sim-evidence-list"></div>
+    </details>
+    <section id="reportAdvice" hidden>
+      <h3>Việc cần kiểm tra ngoài ruộng</h3>
+      <div id="reportAdviceSteps"></div>
+      <button type="button" class="action-label" id="explainReport">{{ icon("chat") }} Hỏi Gemini</button>
+      <p id="reportExplanationStatus" role="status"></p>
+      <p id="reportExplanation" style="white-space:pre-line"></p>
+    </section>
+    <details class="report-fold report-days">
+    <summary>Diễn biến theo ngày</summary>
+    <div class="sim-table-wrap">
+      <table aria-label="Diễn biến kịch bản theo ngày">
+        <thead><tr><th scope="col">Ngày</th><th scope="col">Tối đa °C</th><th scope="col">Mưa mm</th><th scope="col">ET₀ mm</th><th scope="col">Nóng lúc trổ</th></tr></thead>
+        <tbody id="scenarioRows"></tbody>
+      </table>
+    </div>
+    </details>
+    <details class="report-fold report-assumptions">
+    <summary>Giả định và dữ liệu còn thiếu</summary>
+    <ul id="assumptionsList"></ul>
+    </details>
+    <details class="report-fold" id="experimentBox" hidden></details>
+    <details class="report-fold report-method"><summary>Thông tin lần tính</summary>
+      <p id="reportMeta"></p>
+      <p id="reportAiStatus" class="sim-muted"></p>
+    </details>
+  </div>
+  <details class="report-fold report-sources">
+    <summary>Nguồn dữ liệu và đặc tính OM5451</summary>
+    <p id="varietyInfo"></p>
+    <div id="sourceList" class="sim-source-grid"></div>
+  </details>
+</section>
+<section id="weatherPanel" class="sim-reading" role="tabpanel" aria-labelledby="tab-weatherPanel" tabindex="0"{% if active_tab != 'thoi-tiet' %} hidden{% endif %}>
+  <div class="sim-card reading-card">
+    <div class="sim-form-heading">
+    <h2 id="weatherTitle">Thời tiết tại địa điểm đã chọn</h2>
+    
+    <button type="button" class="action-label" id="loadWeather" disabled>{{ icon("download") }} Tải dự báo 7 ngày</button>
+    </div>
+    <p>Nhiệt độ và mưa là dữ liệu ô lưới. Độ mặn, nước ruộng và chiều cao cây vẫn cần đo tại chỗ.</p>
+    <p id="weatherMeta" role="status">Tải dự báo để xem số liệu từng ngày tại địa điểm đã chọn.</p>
+    <div class="sim-table-wrap">
+      <table aria-label="Dự báo thời tiết theo ngày">
+        <thead><tr><th scope="col">Ngày</th><th scope="col">Thấp nhất °C</th><th scope="col">Cao nhất °C</th><th scope="col">Mưa mm</th><th scope="col">ET₀ mm</th><th scope="col">Bức xạ MJ/m²</th></tr></thead>
+        <tbody id="weatherRows"></tbody>
+      </table>
+    </div>
+  </div>
+  <div class="sim-card reading-card">
+    <h2>Dữ liệu lịch sử dùng chung trên máy chủ</h2>
+    <p id="historyMeta"></p>
+    <a id="downloadHistory" hidden target="_blank" rel="noopener">Mở bộ dữ liệu NASA POWER (JSON)</a>
+    <p class="sim-muted">Dữ liệu lịch sử từ NASA POWER. Dự báo từ Open-Meteo, CC BY 4.0; gói miễn phí dành cho mục đích phi thương mại.</p>
+  </div>
+</section>

@@ -17,7 +17,7 @@
 <div class="mb-space-lg flex flex-col md:flex-row md:items-end justify-between gap-space-md">
 <div>
 <h1 class="app-page-title mt-0.5">
-        Quản lý Tài khoản &amp; Bảo mật
+        Thông tin cá nhân
       </h1>
 <p class="font-body-md text-body-md text-on-surface-variant mt-1">
         Cập nhật thông tin nông hộ, vùng canh tác và xem thử biểu mẫu đổi mật khẩu.
@@ -30,57 +30,56 @@
 </button>
 <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary-fixed text-on-primary-fixed font-label-md text-label-md font-semibold">
 <span class="w-2 h-2 rounded-full bg-primary"></span>
-        {{ 'Hồ sơ tài khoản' if current_user else 'Hồ sơ demo · HTX Long Hữu' }}
+        {{ 'Hồ sơ tài khoản' if current_user else '[Giả lập] Hồ sơ HTX Long Hữu' }}
       </span>
-<span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm">
-        Mã nông hộ: <strong class="text-on-surface font-label-md text-label-md">ĐBSCL-LH-094</strong>
-</span>
 </div>
 </div>
 <div class="grid grid-cols-1 xl:grid-cols-12 gap-space-lg items-start">
 <div class="xl:col-span-5 flex flex-col gap-space-lg">
 <div class="app-glass rounded-xl p-space-lg relative overflow-hidden">
-<div class="relative flex flex-col sm:flex-row items-center sm:items-start gap-space-md">
-<div class="relative shrink-0">
-<div class="w-24 h-24 rounded-full overflow-hidden shadow-md bg-surface-container-high">
-<img class="w-full h-full object-cover" src="/static/assets/stitch-profile-portrait.jpg" width="96" height="96" alt="">
-</div>
+<div class="relative flex flex-col sm:flex-row items-center gap-space-md">
+<div class="profile-avatar-block shrink-0">
+  <img class="profile-avatar" data-user-avatar src="{{ auth_avatar_url }}" width="104" height="104" alt="Ảnh đại diện">
+
 </div>
 <div class="flex flex-col text-center sm:text-left min-w-0 flex-1">
 <div class="flex flex-wrap items-center justify-center sm:justify-start gap-space-xs">
 <h2 class="text-headline-sm font-bold" data-profile-value="farmer-fullname">{{ current_user.name if current_user else 'Chú Năm Ruộng' }}</h2>
 
 </div>
-<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5" data-profile-value="farmer-address">
-              {% if current_user %}Email: {{ current_user.email }} · SĐT: {{ current_user.phone }}{% else %}Ấp 3, Xã Long Hữu, Huyện Duyên Hải, Tỉnh Trà Vinh{% endif %}
-            </p>
+{% if current_user %}
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5 break-all">
+  {{ current_user.email }} · <span data-profile-value="farmer-phone">{{ current_user.phone }}</span>
+</p>
+{% endif %}
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5" data-profile-value="farmer-address" data-profile-empty="Chưa cập nhật địa bàn">{{ farm_profile.address or 'Chưa cập nhật địa bàn' }}</p>
 <div class="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-surface-container-high w-fit mx-auto sm:mx-0">
-<span class="font-label-sm text-label-sm font-semibold text-primary">{{ ('Vai trò: ' ~ current_user.role ~ ' · @' ~ current_user.username) if current_user else 'Thành viên HTX Long Hữu' }}</span>
+{% set roles = {'FARMER': 'Nông hộ', 'REVIEWER': 'Người duyệt', 'ADMIN': 'Quản trị viên'} %}
+<span class="font-label-sm text-label-sm font-semibold text-primary">{{ (roles.get(current_user.role, current_user.role) ~ ' · @' ~ current_user.username) if current_user else 'Thành viên HTX Long Hữu' }}</span>
+</div>
+<div class="profile-avatar-actions">
+  {% if current_user %}
+  <input id="profile-avatar-file" name="avatar" type="file" accept="image/jpeg,image/png,image/webp" hidden>
+  <button class="app-button" id="profile-avatar-choose" type="button" aria-describedby="profile-avatar-hint">
+    {{ render_icon("upload_photo") }} Đổi ảnh đại diện
+  </button>
+  <p id="profile-avatar-hint">JPG, PNG, WebP · Tối đa 1 MB</p>
+  {% else %}
+  <a class="app-button" href="{{ url_for('auth.login') }}">Đăng nhập để đổi ảnh</a>
+  {% endif %}
 </div>
 </div>
 </div>
-<div class="mt-space-md grid grid-cols-2 gap-space-sm">
-<div class="p-space-sm rounded-xl bg-surface-container-low flex flex-col">
-<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">Kinh nghiệm canh tác</span>
-<span class="tabular-nums text-metric-display font-bold text-on-surface mt-1">3 Vụ</span>
-<span class="font-body-sm text-body-sm text-on-surface-variant">Lúa - Tôm bền vững</span>
-</div>
-<div class="p-space-sm rounded-xl bg-surface-container-low flex flex-col">
-<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">Quy mô thâm canh</span>
-<span class="tabular-nums text-metric-display font-bold text-primary mt-1"><span data-profile-value="farmer-area">4.2</span> <span class="font-headline-sm text-headline-sm">ha</span></span>
-<span class="font-body-sm text-body-sm text-on-surface-variant">Diện tích ruộng mẫu</span>
-</div>
-</div>
+<p class="profile-avatar-status" id="profile-avatar-status" role="status"></p>
 <div class="mt-space-md pt-space-md flex flex-col gap-space-xs">
-<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-bold">Huy hiệu đóng góp cộng đồng</span>
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-bold">Đóng góp trên diễn đàn</span>
 <div class="grid grid-cols-2 gap-space-sm mt-1">
 <div class="flex items-center gap-space-xs p-2 rounded-lg bg-surface-container-high">
 <div class="w-8 h-8 rounded-lg bg-surface-container-highest flex items-center justify-center text-primary shrink-0">
-<span class="app-icon-wrap text-[18px]">{{ render_icon("upload_file") }}</span>
+<span class="app-icon-wrap text-[18px]">{{ render_icon("description") }}</span>
 </div>
 <div class="flex flex-col min-w-0">
-<span class="font-label-md text-label-md font-bold text-on-surface">12 Tệp CSV</span>
-<span class="font-label-sm text-label-sm text-on-surface-variant truncate">Đo mặn tại cống</span>
+<span class="font-label-md text-label-md font-bold text-on-surface" id="profile-post-count">{{ contribution_posts }} bài viết</span>
 </div>
 </div>
 <div class="flex items-center gap-space-xs p-2 rounded-lg bg-surface-container-high">
@@ -88,8 +87,7 @@
 <span class="app-icon-wrap text-[18px]">{{ render_icon("chat") }}</span>
 </div>
 <div class="flex flex-col min-w-0">
-<span class="font-label-md text-label-md font-bold text-on-surface">28 Bài viết</span>
-<span class="font-label-sm text-label-sm text-on-surface-variant truncate">Kinh nghiệm gieo sạ</span>
+<span class="font-label-md text-label-md font-bold text-on-surface" id="profile-reply-count">{{ contribution_replies }} câu trả lời</span>
 </div>
 </div>
 </div>
@@ -103,7 +101,7 @@
 <p class="font-label-sm text-label-sm text-on-surface-variant uppercase">Quỹ hỗ trợ mùa màng</p>
 </div>
 </div>
-<span class="px-2.5 py-1 rounded-full bg-surface-container-high font-label-sm text-label-sm font-semibold text-primary">Demo</span>
+<a class="app-button" href="{{ url_for('auth.wallet_rules') }}">{{ render_icon("wallet") }} Thể lệ</a>
 </div>
 <div class="mt-space-md p-space-md rounded-xl bg-primary text-on-primary flex flex-col justify-between relative overflow-hidden min-h-[130px]">
 <div class="flex items-center justify-between z-10">
@@ -182,7 +180,7 @@
 
 <div class="mt-space-md">
 <div class="flex items-center justify-between mb-space-xs">
-<span class="font-label-sm text-label-sm font-bold uppercase text-on-surface-variant">Biến động điểm giả lập</span>
+<span class="font-label-sm text-label-sm font-bold uppercase text-on-surface-variant">Biến động ví điểm</span>
 
 </div>
 <div class="flex flex-col gap-2" id="credit-tx-list">
@@ -193,8 +191,8 @@
       <span class="w-7 h-7 rounded-full bg-primary-fixed text-primary flex items-center justify-center font-bold text-sm shrink-0">{{ '↓' if tx.credit_delta >= 0 else '↑' }}</span>
       <div class="flex flex-col min-w-0">
         <span class="font-body-sm text-body-sm font-semibold text-on-surface truncate">{{ tx.note }}</span>
-        {% if tx.tx_hash and tx.tx_hash.startswith('0x') and tx.tx_hash|length == 66 %}
-        <span class="font-label-sm text-label-sm text-on-surface-variant truncate">On-chain Fuji: <a href="https://testnet.snowtrace.io/tx/{{ tx.tx_hash }}" target="_blank" rel="noopener" class="underline font-bold text-primary hover:text-primary/80"><code>{{ tx.tx_hash[:10] }}...{{ tx.tx_hash[-6:] }} ↗</code></a></span>
+        {% if tx.direction == 'AVAX_TO_CREDIT' and tx.note.endswith('(On-chain Fuji)') and tx.tx_hash.startswith('0x') and tx.tx_hash|length == 66 %}
+        <span class="font-label-sm text-label-sm text-on-surface-variant truncate">Đã gửi Fuji · <a href="https://testnet.snowtrace.io/tx/{{ tx.tx_hash }}" target="_blank" rel="noopener" class="underline font-bold text-primary hover:text-primary/80"><code>{{ tx.tx_hash[:10] }}...{{ tx.tx_hash[-6:] }} ↗</code></a></span>
         {% else %}
         <span class="font-label-sm text-label-sm text-on-surface-variant truncate">Mã mô phỏng: <code>{{ tx.tx_hash[:14] }}...{{ tx.tx_hash[-6:] }}</code></span>
         {% endif %}
@@ -205,37 +203,9 @@
     </span>
   </div>
   {% endfor %}
+{% else %}
+  <p id="credit-tx-empty" class="text-sm text-on-surface-variant">Chưa có giao dịch trong ví.</p>
 {% endif %}
-<div class="p-2.5 rounded-lg bg-surface-container-low flex items-center justify-between">
-<div class="flex items-center gap-2">
-<span class="w-7 h-7 rounded-full bg-primary-fixed text-primary flex items-center justify-center font-bold text-sm">↓</span>
-<div class="flex flex-col">
-<span class="font-body-sm text-body-sm font-semibold text-on-surface">Tải dữ liệu CSV trạm Mương Lộ</span>
-<span class="font-label-sm text-label-sm text-on-surface-variant">08:15 Hôm qua</span>
-</div>
-</div>
-<span class="font-label-md text-label-md font-bold text-primary">+50 LÚA</span>
-</div>
-<div class="p-2.5 rounded-lg bg-surface-container-low flex items-center justify-between">
-<div class="flex items-center gap-2">
-<span class="w-7 h-7 rounded-full bg-primary-fixed text-primary flex items-center justify-center font-bold text-sm">↓</span>
-<div class="flex flex-col">
-<span class="font-body-sm text-body-sm font-semibold text-on-surface">Đóng góp mẹo kỹ thuật né mặn</span>
-<span class="font-label-sm text-label-sm text-on-surface-variant">14:40 - 24/10</span>
-</div>
-</div>
-<span class="font-label-md text-label-md font-bold text-primary">+20 LÚA</span>
-</div>
-<div class="p-2.5 rounded-lg bg-surface-container-low flex items-center justify-between">
-<div class="flex items-center gap-2">
-<span class="w-7 h-7 rounded-full bg-secondary-fixed text-secondary flex items-center justify-center font-bold text-sm">↑</span>
-<div class="flex flex-col">
-<span class="font-body-sm text-body-sm font-semibold text-on-surface">Xuất báo cáo sinh lý bốc thoát hơi</span>
-<span class="font-label-sm text-label-sm text-on-surface-variant">09:12 - 21/10</span>
-</div>
-</div>
-<span class="font-label-md text-label-md font-bold text-secondary">-15 LÚA</span>
-</div>
 </div>
 </div>
 </div>
@@ -249,12 +219,11 @@
 </div>
 <div>
 <h3 class="text-headline-sm font-bold">Thông tin Nông hộ &amp; Vùng canh tác</h3>
-<p class="font-body-sm text-body-sm text-on-surface-variant">{{ 'Họ tên và số điện thoại được lưu vào tài khoản. Thông tin ruộng được lưu trên trình duyệt này.' if current_user else 'Dữ liệu demo được lưu trên trình duyệt này. Hãy dùng thông tin mẫu.' }}</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">{{ 'Thông tin được lưu vào tài khoản của bạn.' if current_user else '[Giả lập] Hồ sơ dùng thử được lưu trên trình duyệt này.' }}</p>
 </div>
 </div>
-<span class="font-label-sm text-label-sm px-2.5 py-1 rounded bg-surface-container-high text-on-surface font-semibold">Vụ Đông Xuân 2024</span>
 </div>
-<form class="mt-space-md flex flex-col gap-space-md" id="farm-info-form" method="post">
+<form class="mt-space-md flex flex-col gap-space-md" id="farm-info-form" method="post" data-has-farm-profile="{{ 'true' if has_farm_profile else 'false' }}">
 <div class="grid grid-cols-1 md:grid-cols-2 gap-space-md">
 <div class="flex flex-col gap-1.5">
 <label class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-bold" for="farmer-fullname">
@@ -277,10 +246,10 @@
 </div>
 <div class="flex flex-col gap-1.5">
 <label class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-bold" for="farmer-address">
-              Địa chỉ cư trú &amp; ruộng mẫu
+              Địa bàn canh tác
             </label>
 <div class="relative">
-<input class="w-full h-11 px-3.5 rounded-lg bg-surface-container-low text-on-surface font-body-md text-body-md focus:bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary shadow-inner" id="farmer-address" maxlength="160" autocomplete="off" type="text" value="Ấp 3, Xã Long Hữu, Huyện Duyên Hải, Tỉnh Trà Vinh">
+<input class="w-full h-11 px-3.5 rounded-lg bg-surface-container-low text-on-surface font-body-md text-body-md focus:bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary shadow-inner" id="farmer-address" maxlength="160" autocomplete="off" type="text" value="{{ farm_profile.address }}">
 <span class="app-icon-wrap absolute right-3 top-3 text-[18px] text-on-surface-variant">{{ render_icon("location_on") }}</span>
 </div>
 </div>
@@ -290,34 +259,19 @@
                 Giống lúa gieo trồng chủ lực
               </label>
 <select class="app-select w-full font-body-md text-body-md" id="farmer-cultivar">
-<option selected="" value="om5451">OM5451</option>
-<option value="daithom8">Đài Thơm 8</option>
-<option value="st25">ST25</option>
-<option value="om18">OM18</option>
+<option value="">Chọn giống lúa</option>
+{% for key, label in farm_cultivars.items() %}<option value="{{ key }}"{% if key == farm_profile.cultivar %} selected{% endif %}>{{ label }}</option>{% endfor %}
 </select>
 </div>
 <div class="flex flex-col gap-1.5">
 <label class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-bold" for="farmer-area">
-                Diện tích ruộng mẫu (Hécta)
+                Diện tích canh tác (ha)
               </label>
 <div class="relative">
-<input class="w-full h-11 px-3.5 rounded-lg bg-surface-container-low text-on-surface font-label-md text-label-md focus:bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary shadow-inner" id="farmer-area" min="0" step="0.1" type="number" value="4.2">
+<input class="w-full h-11 px-3.5 rounded-lg bg-surface-container-low text-on-surface font-label-md text-label-md focus:bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary shadow-inner" id="farmer-area" min="0" step="any" type="number" value="{{ farm_profile.area_ha if farm_profile.area_ha is not none else '' }}">
 <span class="absolute right-3 top-3 font-label-sm text-label-sm text-on-surface-variant font-bold">ha</span>
 </div>
 </div>
-</div>
-<div class="flex flex-col gap-1.5">
-<label class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-bold" for="hydrology-station">
-              Trạm đo thủy văn / Cống liên kết gần nhất
-            </label>
-<select class="app-select w-full font-body-md text-body-md" id="hydrology-station">
-<option selected="" value="muong-lo">Cống Mương Lộ (Kênh Cầu Vồng - Cách 850m)</option>
-<option value="lang-the">Cống Láng Thé (Sông Tiền)</option>
-<option value="ben-gia">Trạm Bến Giá (Sông Cổ Chiên)</option>
-<option value="long-toan">Cống Long Toàn (Trục thoát triều)</option>
-</select>
-<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
-              Chọn trạm gần ruộng để ghi vào hồ sơ mẫu.</p>
 </div>
 <div class="pt-space-sm flex items-center justify-between flex-wrap gap-space-sm">
 <p id="save-info-msg" role="status" class="font-body-sm text-body-sm text-primary font-semibold"></p>

@@ -9,8 +9,11 @@ import secrets
 import smtplib
 import time
 import uuid
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from email.message import EmailMessage
+from io import BytesIO
+
+from PIL import Image, ImageOps
 
 from src.config import (
     AVALANCHE_CHAIN_ID,
@@ -26,6 +29,7 @@ from src.config import (
     SMTP_HOST,
     SMTP_PORT,
 )
+from src.models.farm_profile import FarmProfile, read_text
 from src.models.user import (
     SQLiteUserRepository,
     User,
@@ -39,6 +43,8 @@ from src.models.user import (
     normalize_vn_phone,
 )
 from src.services.credit_service import default_credit_service
+
+MAX_AVATAR_BYTES = 1_000_000
 
 
 @dataclass
@@ -848,6 +854,52 @@ class AuthService:
                 "chain_id": AVALANCHE_CHAIN_ID,
             },
         )
+
+    def update_avatar(self, user: User, image_bytes: bytes) -> AuthResult:
+        if not image_bytes:
+            return AuthResult(False, 400, error="Hãy chọn một ảnh để tải lên.")
+        if len(image_bytes) > MAX_AVATAR_BYTES:
+            return AuthResult(False, 413, error="Chọn ảnh có dung lượng tối đa 1 MB.")
+
+        try:
+            with Image.open(BytesIO(image_bytes), formats=["JPEG", "PNG", "WEBP"]) as source:
+                if source.width * source.height > 24_000_000:
+                    return AuthResult(False, 400, error="Chọn ảnh có độ phân giải tối đa 24 megapixel.")
+                crop = ImageOps.fit(
+                    ImageOps.exif_transpose(source).convert("RGBA"),
+                    (256, 256),
+                    Image.Resampling.LANCZOS,
+                )
+                image = Image.new("RGB", crop.size, "#edf5ed")
+                image.paste(crop, mask=crop.getchannel("A"))
+                output = BytesIO()
+                image.save(output, format="JPEG", quality=86)
+        except (OSError, SyntaxError, ValueError, Image.DecompressionBombError):
+            return AuthResult(False, 400, error="Không đọc được ảnh. Hãy chọn ảnh JPG, PNG hoặc WebP.")
+
+        avatar = output.getvalue()
+        version = hashlib.sha256(avatar).hexdigest()
+        self.repo.save_avatar(user.user_id, version, avatar)
+        return AuthResult(True, 200, data={"version": version})
+
+    def update_farm_profile(self, user: User, payload: dict) -> AuthResult:
+        try:
+            name = read_text(payload, "name", "Họ tên", 80)
+            if not name:
+                raise ValueError("Hãy nhập họ tên của bạn.")
+            phone = normalize_vn_phone(read_text(payload, "phone", "Số điện thoại", 24))
+            farm_fields = payload.get("farm_profile")
+            if not isinstance(farm_fields, dict):
+                raise ValueError("Dữ liệu canh tác không hợp lệ.")
+            profile = FarmProfile.parse(farm_fields)
+        except ValueError as error:
+            return AuthResult(False, 400, error=str(error))
+
+        saved = self.repo.save_farm_profile(user.user_id, name, phone, profile, frozenset(farm_fields))
+        if saved is None:
+            return AuthResult(False, 404, error="Không tìm thấy tài khoản.")
+        updated, updated_farm = saved
+        return AuthResult(True, 200, data={"user": updated.to_public_dict(), "farm_profile": asdict(updated_farm)})
 
     def update_profile(
         self,

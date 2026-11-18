@@ -3,6 +3,7 @@ from io import BytesIO
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest import TestCase
+from unittest.mock import patch
 from urllib.error import URLError
 
 from src.main import createApp
@@ -49,6 +50,39 @@ class testSimulation(TestCase):
                 response = self.client.post("/api/simulation", json={**self.payload, **overrides})
                 self.assertEqual(response.status_code, 400)
         self.assertEqual(self.requests, [])
+
+    def test_advice_calls_gemini_with_validated_scenario_and_checks_sources(self):
+        self.app.config["GEMINI_API_KEY"] = "test-key"
+        payload = {**self.payload, "salinitySite": "canalWater"}
+        with patch("src.services.simulation_advice.generate_reply") as generate:
+            generate.return_value = ("Đo riêng nước trong ruộng.", ["step-1"])
+            data = self.client.post("/api/simulation/advice", json=payload).json["data"]
+            self.assertEqual(data["mode"], "gemini")
+            self.assertIn("canalWater", generate.call_args.args[3])
+            generate.return_value = ("Câu thiếu căn cứ", ["unknown"])
+            data = self.client.post("/api/simulation/advice", json=payload).json["data"]
+            self.assertEqual(data["mode"], "local")
+
+    def test_field_advice_uses_measurement_site_and_compares_plant_height(self):
+        payload = {**self.payload, "salinitySite": "canalWater", "stage": "flowering",
+                   "plantHeightCm": 25, "waterDepthCm": 30}
+        advice = self.client.post("/api/simulation", json=payload).json["data"]["fieldAdvice"]
+        self.assertIn("thuộc nước kênh", advice[0]["body"])
+        self.assertIn("chạm hoặc vượt ngọn", advice[1]["body"])
+        self.assertIn("trổ bông", advice[2]["title"])
+
+    def test_preview_advice_changes_with_heat_and_water_depth(self):
+        inputs = {"salinity_gl": 3, "water_depth_cm": 21, "day_after_sowing": 70, "temp_c": 38}
+        def steps(depth, temperature):
+            result = self.client.post("/api/simulation/preview", json={
+                **inputs, "water_depth_cm": depth, "temp_c": temperature})
+            return result.json["data"]["advice_steps"]
+        flooded = steps(21, 38)
+        self.assertIn("ngập sâu", flooded[0]["title"])
+        self.assertIn("hoa mở", flooded[2]["title"])
+        dry = steps(-6, 35)
+        self.assertEqual(len(dry), 3)
+        self.assertIn("dưới mặt ruộng", dry[1]["title"])
 
     def testExplicitMeasurementMetadataRequired(self):
         self.payload.pop("salinitySite")

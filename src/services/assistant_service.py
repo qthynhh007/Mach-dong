@@ -74,17 +74,31 @@ def answer_question(api_key: str, messages: Sequence[ChatMessage]) -> dict:
             ),
             "sources": [],
         }
+    first = evidence[0]
+    local_answer = {
+        "reply": (
+            f"Cò Mạ tra được tài liệu này.\n\n{first['finding_vi']}\n\n"
+            f"Phạm vi áp dụng: {first['scope_vi']}"
+        ),
+        "sources": [citation(first["source_id"], first["citation"], first["url"])],
+        "mode": "local",
+    }
     if not api_key:
-        raise GeminiError("Máy chủ chưa cấu hình Gemini API.", 503)
+        return local_answer
     context = "\n\n".join(
         f"{item['source_id']} · {item['citation']} · {item['locator']}\n"
         f"Thông tin: {item['finding_vi']}\nPhạm vi: {item['scope_vi']}"
         for item in evidence
     )
     by_id = {item["source_id"]: item for item in evidence}
-    reply, source_ids = generate_reply(
-        api_key, CO_MA_INSTRUCTION, messages, "CĂN CỨ ĐÃ DUYỆT\n\n" + context, tuple(by_id)
-    )
+    try:
+        reply, source_ids = generate_reply(
+            api_key, CO_MA_INSTRUCTION, messages, "CĂN CỨ ĐÃ DUYỆT\n\n" + context, tuple(by_id)
+        )
+    except GeminiError as error:
+        if error.status == 429 or error.status >= 500:
+            return local_answer
+        raise
     if any(source_id not in by_id for source_id in source_ids):
         raise GeminiError("Cò Mạ chưa xác thực được nguồn trong câu trả lời. Bà con thử hỏi lại nha.")
     if not source_ids:

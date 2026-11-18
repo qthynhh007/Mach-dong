@@ -1,0 +1,54 @@
+/* Shared text roles take precedence over the per-page Stitch utility bundles.
+   Only font size is normalized here; component layout and icon geometry stay local. */
+:root {
+  --type-caption: .8125rem;
+  --type-control: .875rem;
+  --type-body: 1rem;
+  --type-subheading: 1.125rem;
+  --type-section: 1.375rem;
+  --type-title: 2rem;
+}
+@media (max-width: 640px) {
+  :root { --type-title: 1.625rem; --type-section: 1.25rem; }
+}
+
+@layer typography {
+  :where(body, main, dialog, p, blockquote, textarea, dd, .text-body-md,
+    .text-body-sm, .assistant-bubble, .stitch-article-body, .sim-reading li,
+    .wallet-rules li, .app-brand, .sim-source-grid a, .assistant-composer textarea) {
+    font-size: var(--type-body) !important;
+  }
+  :where(h1, .app-page-title) { font-size: var(--type-title) !important; }
+  :where(h2, .text-headline-sm) { font-size: var(--type-section) !important; }
+  :where(h3, h4, .csv-row h2, .sim-caption strong, [data-card-title],
+    .sim-reading #reportAdviceSteps dt) { font-size: var(--type-subheading) !important; }
+  :where(button, select, label, legend, output, input, table, th, td,
+    .app-button, .app-control, .app-side nav a, .app-header nav a, .app-current-section,
+    .app-header-sign-in, .app-header-sign-out, .app-more-links summary, .app-coin-balance,
+    .app-account-name strong, .text-label-md, .text-data-mono-md, .sim-advice-summary li,
+    .sim-summary-grid strong, .csv-data-points dd, .member-trigger) {
+    font-size: var(--type-control) !important;
+  }
+  :where(small, time, figcaption, dt, [role="status"], .text-label-sm,
+    .app-side-label, .community-meta, .discussion-owner, .assistant-speaker, .assistant-sources,
+    .assistant-chat-header small, .assistant-pending-copy p, .forum-sourced-photo figcaption,
+    .csv-row-main .csv-sources, #csv-count, #csv-modal-file, #profile-avatar-hint,
+    .sim-control-hint, .sim-range-scale, .sim-legend, .sim-model-note, .sim-muted,
+    .sim-mascot p, .sim-result-status, .sim-advice-context, .sim-advice-stale,
+    .sim-source-grid small, .sim-mechanisms a, .auth-wallet-label,
+    [data-meta], [data-topic], [data-cultivar], [data-author-role], .co-ma-launcher-label) {
+    font-size: var(--type-caption) !important;
+  }
+  :where(.sim-chi dd, .wallet-rate .wallet-rate-value, .text-metric-display) {
+    font-size: var(--type-title) !important;
+  }
+  .report-method > p { font-size: var(--type-body) !important; }
+  /* Preserve the parent role when the component wraps its label in a utility span. */
+  :where(button, .app-button, label, h1, h2, h3) > :where(.text-body-sm,
+    .text-body-md, .text-label-sm, .text-label-md) { font-size: inherit !important; }
+  @media (max-width: 640px) {
+    :where(textarea, select, input:not([type=checkbox], [type=radio], [type=range])) {
+      font-size: var(--type-body) !important;
+    }
+  }
+}

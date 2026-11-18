@@ -1,0 +1,51 @@
+{% from "shared/icon.html" import icon %}
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Thể lệ dùng điểm LÚA · Mạch Đồng</title>
+  {% include "shared/navigation-head.html" %}
+  <link rel="icon" href="{{ url_for('static', filename='assets/stitch-simulation/co-ma-logo.png') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='shell.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='wallet-rules.css') }}">
+</head>
+<body class="app-workspace">
+  {% include "shared/header.html" %}
+  {% include "shared/sidebar.html" %}
+  <main id="main-content" class="app-content wallet-rules" tabindex="-1">
+    <header class="wallet-rules-heading">
+      <div>
+        <h1 class="app-page-title">Thể lệ dùng điểm LÚA</h1>
+        <p>Xem cách quy đổi và theo dõi số dư ví thử nghiệm của bạn.</p>
+      </div>
+      {% if auth_user %}
+      <a class="app-button app-button--primary" href="{{ url_for('auth.profile') }}#credit-changer-box">{{ icon("wallet") }} Mở ví điểm</a>
+      {% else %}
+      <a class="app-button app-button--primary" href="{{ url_for('auth.login') }}">Đăng nhập để mở ví</a>
+      {% endif %}
+    </header>
+    <div class="wallet-rules-grid">
+      <section class="app-pane wallet-rules-card" aria-labelledby="wallet-use-heading">
+        <h2 id="wallet-use-heading">Cách dùng ví điểm</h2>
+        <dl class="wallet-rules-list">
+          <div><dt>AVAX → LÚA</dt><dd>Chọn Nạp điểm trong ví, nhập số AVAX thử nghiệm và kiểm tra số điểm dự kiến trước khi xác nhận. Ví trừ AVAX và cộng điểm LÚA theo tỷ lệ quy đổi.</dd></div>
+          <div><dt>LÚA → AVAX</dt><dd>Chọn chiều quy đổi ngược và nhập số LÚA muốn đổi. Ví trừ điểm và cộng AVAX giả lập vào số dư trong app.</dd></div>
+          <div><dt>Cộng AVAX để dùng thử</dt><dd>Nút Cộng 1 AVAX giả lập bổ sung 1 AVAX vào ví trong app. Lịch sử ví ghi từng lần quy đổi hoặc cộng số dư.</dd></div>
+        </dl>
+      </section>
+      <div class="wallet-rules-stack">
+        <section class="wallet-rate wallet-rules-card" aria-labelledby="wallet-rate-heading">
+          <h2 id="wallet-rate-heading">Tỷ lệ trong app</h2>
+          <p class="wallet-rate-value">1 AVAX = {{ credits_per_avax }} LÚA</p>
+          <p>Mỗi điểm LÚA tương ứng {{ '%.2f'|format(1 / credits_per_avax)|replace('.', ',') }} AVAX thử nghiệm.</p>
+        </section>
+        <section class="app-pane wallet-rules-card" aria-labelledby="wallet-network-heading">
+          <h2 id="wallet-network-heading">Mạng thử nghiệm</h2>
+          <p>Avalanche Fuji · mã mạng {{ chain_id }}. Lịch sử ví gọi các lượt dùng thử là [Giả lập]. Với giao dịch đã gửi lên Fuji, mở liên kết giao dịch để xem trạng thái xác nhận.</p>
+        </section>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

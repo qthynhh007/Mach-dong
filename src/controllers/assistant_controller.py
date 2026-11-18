@@ -7,7 +7,7 @@ from src.services.ai_client import GEMINI_MODEL_LABEL, ChatMessage, GeminiError
 from src.services.assistant_service import answer_question
 
 blueprint = Blueprint("assistant", __name__)
-ASSISTANT_WAIT_SECONDS = 180
+ASSISTANT_WAIT_SECONDS = 20
 MAX_MESSAGE_LENGTH = 400
 MAX_REPLY_LENGTH = 4096
 MAX_HISTORY_TURNS = 8
@@ -19,6 +19,8 @@ def assistant() -> str:
     return render_template(
         "assistant/index.html",
         current_page="assistant",
+        compact=request.args.get("view") == "dialog",
+        quick_context=request.args.get("context"),
         gemini_enabled=bool(current_app.config["GEMINI_API_KEY"]),
         gemini_model_label=GEMINI_MODEL_LABEL,
         wait_seconds=ASSISTANT_WAIT_SECONDS,

@@ -3,3 +3,13 @@
   aspect-ratio: 3 / 4;
   background: url("./assets/co-ma/emotions.png") no-repeat 0 0 / 400% 200%;
 }
+
+.co-ma-wave-avatar {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  overflow: hidden;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 28%, #f8faed 12%, #deeee0 64%, #cfe3d4 100%);
+}
+.co-ma-wave-avatar img { display: block; object-fit: contain; }

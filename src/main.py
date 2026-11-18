@@ -2,7 +2,7 @@ import os
 import secrets
 from pathlib import Path
 
-from flask import Flask, Response, redirect, request
+from flask import Flask, Response, redirect, request, url_for
 from werkzeug.exceptions import HTTPException
 
 from src.config import DB_PATH, MAX_CSV_BYTES, SIMULATION_API_URL, STATE_DIR
@@ -43,6 +43,7 @@ def createApp(testConfig: dict | None = None) -> Flask:
         COMMUNITY_IDENTITY_PROVIDER=None,
         GEMINI_API_KEY=os.environ.get("GEMINI_API_KEY", "").strip(),
         SIMULATION_API_URL=os.environ.get("SIMULATION_API_URL", SIMULATION_API_URL),
+        SIMULATION_LOCAL_MODE=os.environ.get("SIMULATION_LOCAL_MODE") == "1",
         SIMULATION_TRANSPORT=None,
     )
     if testConfig:
@@ -74,12 +75,15 @@ def createApp(testConfig: dict | None = None) -> Flask:
     @app.context_processor
     def inject_auth_context() -> dict:
         auth = get_current_auth()
+        avatar_url = url_for("static", filename="assets/co-ma/avatar-co-ma.webp")
         if auth is None:
-            return {"auth_user": None, "auth_csrf_token": ""}
+            return {"auth_user": None, "auth_csrf_token": "", "auth_avatar_url": avatar_url}
         user, auth_session = auth
+        version = app.extensions["auth_service"].repo.get_avatar_version(user.user_id)
         return {
             "auth_user": user.to_public_dict(),
             "auth_csrf_token": auth_session.csrf_token,
+            "auth_avatar_url": url_for("auth.avatar_image", version=version) if version else avatar_url,
         }
 
     app.extensions["communityService"] = communityService(
@@ -88,7 +92,11 @@ def createApp(testConfig: dict | None = None) -> Flask:
         app.config["COMMUNITY_SEED_EDITORIAL"],
     )
     app.extensions["simulationService"] = simulationService(
-        cloudClient(app.config["SIMULATION_API_URL"], app.config["SIMULATION_TRANSPORT"])
+        cloudClient(
+            app.config["SIMULATION_API_URL"],
+            app.config["SIMULATION_TRANSPORT"],
+            allow_loopback=app.config["SIMULATION_LOCAL_MODE"],
+        )
     )
     for controller in (
         community_controller,

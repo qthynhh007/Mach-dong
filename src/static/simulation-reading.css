@@ -1,0 +1,74 @@
+.sim-reading {
+  font-family: "Be Vietnam Pro", system-ui, sans-serif;
+  color: #203c32;
+  min-width: 0;
+}
+.sim-reading .reading-card {
+  padding: clamp(18px, 2.3vw, 34px);
+  border: 1px solid #cfded3;
+  border-radius: 18px;
+  box-shadow: 0 3px 14px #214a3420;
+}
+.sim-reading .sim-form-heading {
+  align-items: center;
+  flex-wrap: wrap;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #dce6de;
+}
+.sim-reading h2, .sim-reading h3 { font-family: inherit; text-wrap: balance; }
+.sim-reading h2 { font-size: clamp(20px, 1.65vw, 26px); line-height: 1.35; font-weight: 700; letter-spacing: -.025em; color: #144833; }
+.sim-reading .sim-form-heading h2 { margin: 0; }
+.sim-reading h3 { font-size: 17px; font-weight: 600; line-height: 1.45; }
+.sim-reading .reading-card :is(p, li) { font-size: 15px; line-height: 1.7; overflow-wrap: anywhere; }
+.sim-reading .reading-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.sim-reading .reading-card button { min-height: 44px; font-family: inherit; font-size: 14px; }
+.sim-reading button:is(#loadWeather, #editScenario):enabled { background: #165439; color: white; }
+.sim-reading button:is(#loadWeather, #editScenario):enabled:hover { background: #103f2c; }
+.sim-reading :is(#reportSummary, #weatherMeta):not(:empty) {
+  margin-block: 14px;
+  padding: 14px 18px;
+  background: #eef6ef;
+  border-inline-start: 3px solid #56876b;
+  border-radius: 0 10px 10px 0;
+}
+.sim-reading .sim-source-grid { margin-top: 18px; }
+.sim-reading .sim-source-grid article { padding: 18px; background: #f8faf7; border-color: #d8e4da; }
+.sim-reading .sim-source-grid a, .sim-reading #downloadHistory { font-size: 15px; font-weight: 650; text-underline-offset: 3px; }
+.sim-reading .sim-source-grid a:hover, .sim-reading #downloadHistory:hover { text-decoration: underline; }
+.sim-reading .sim-source-grid p { margin: 8px 0; }
+.sim-reading .sim-source-grid small { font-size: 13px; color: #516659; }
+.sim-reading .sim-table-wrap, .sim-reading #experimentBox { overflow-x: auto; }
+.sim-reading .sim-table-wrap { margin-top: 12px; border: 1px solid #d9e4da; border-radius: 12px; }
+.sim-reading .sim-table-wrap table { font-size: 14px; font-variant-numeric: tabular-nums; margin: 0; }
+.sim-reading .sim-table-wrap th { background: #eaf2eb; color: #294e3c; }
+.sim-reading .sim-table-wrap :is(th, td):not(:first-child) { text-align: end; }
+.sim-reading .sim-table-wrap tbody tr:nth-child(even) { background: #f8faf7; }
+.sim-reading .report-days:has(#scenarioRows:empty),
+.sim-reading .report-assumptions:has(#assumptionsList:empty),
+.sim-reading .sim-table-wrap:has(#weatherRows:empty) { display: none; }
+.sim-reading #reportAdviceSteps { max-width: 78ch; line-height: 1.7; }
+.sim-reading #reportAdviceSteps dt { margin-top: 1rem; font-weight: 650; color: #214e36; }
+.sim-reading #reportAdviceSteps dd { margin: .25rem 0 0; }
+.sim-reading .report-fold, #reportAdviceSteps .field-check {
+  margin-block: .65rem;
+  padding: 0 1rem;
+  border: 1px solid #cdded2;
+  border-radius: 12px;
+  background: #fff;
+}
+.sim-reading .report-fold > summary, #reportAdviceSteps summary {
+  padding: .85rem 0;
+  color: #214d37;
+  font-weight: 650;
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}
+.sim-reading .report-fold[open], #reportAdviceSteps details[open] { padding-bottom: 1rem; }
+.sim-reading .report-fold > summary:hover, #reportAdviceSteps summary:hover { color: #147549; }
+.sim-reading summary:focus-visible { outline: 2px solid #36825a; outline-offset: 2px; }
+.sim-reading .report-fold p { max-inline-size: 76ch; }
+.sim-reading #evidenceCount { color: #516759; margin-inline-start: .4rem; font-variant-numeric: tabular-nums; }
+.sim-reading .report-evidence:has(#evidenceList:empty),
+.sim-reading .report-method:has(#reportMeta:empty):has(#reportAiStatus:empty),
+.sim-reading .report-sources:has(#varietyInfo:empty):has(#sourceList:empty) { display: none; }
+.sim-reading .report-method > p { color: inherit; }

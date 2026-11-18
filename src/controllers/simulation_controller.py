@@ -3,17 +3,29 @@ from collections.abc import Callable
 from flask import Blueprint, Response, current_app, jsonify, render_template, request
 
 from src.models.simulation import SimulationDemoInput, simulationError
-from src.services.simulation_demo import evaluate
+from src.services.simulation_demo import STAGES, evaluate
+from src.services.simulation_advice import explain_scenario
 
 blueprint = Blueprint("simulation", __name__)
 
 
 class simulationController:
     def index(self):
-        return render_template("simulation/index.html", current_page="simulation")
+        stage_options = zip(("seedling", "tillering", "panicle", "flowering", "ripening"), STAGES)
+        return render_template(
+            "simulation/index.html", current_page="simulation", stage_options=stage_options,
+            active_tab=self.active_tab("mo-phong"),
+        )
 
     def report(self) -> str:
-        return render_template("simulation/cloud.html", current_page="simulation")
+        return render_template(
+            "simulation/cloud.html", current_page="simulation", active_tab=self.active_tab("bao-cao")
+        )
+
+    @staticmethod
+    def active_tab(default: str) -> str:
+        tab = request.args.get("tab", default)
+        return tab if tab in {"mo-phong", "bao-cao", "thoi-tiet"} else default
 
     def respond(self, action):
         try:
@@ -26,6 +38,9 @@ class simulationController:
 
     def preview(self) -> Response | tuple[Response, int]:
         return self.read_scenario(lambda payload: evaluate(SimulationDemoInput.parse(payload)))
+
+    def advice(self) -> Response | tuple[Response, int]:
+        return self.read_scenario(lambda payload: explain_scenario(payload, current_app.config["GEMINI_API_KEY"]))
 
     def read_scenario(self, action: Callable[[object], object]) -> Response | tuple[Response, int]:
         if not request.is_json:
@@ -57,6 +72,7 @@ blueprint.add_url_rule("/simulation", endpoint="simulation", view_func=controlle
 blueprint.add_url_rule("/simulation/report", endpoint="report", view_func=controller.report)
 blueprint.add_url_rule("/api/simulation", view_func=controller.simulate, methods=["POST"])
 blueprint.add_url_rule("/api/simulation/preview", view_func=controller.preview, methods=["POST"])
+blueprint.add_url_rule("/api/simulation/advice", view_func=controller.advice, methods=["POST"])
 blueprint.add_url_rule("/api/simulation/catalog", view_func=controller.catalog)
 blueprint.add_url_rule("/api/simulation/weather", view_func=controller.weather)
 blueprint.add_url_rule("/api/simulation/history", view_func=controller.history)

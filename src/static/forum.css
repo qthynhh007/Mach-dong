@@ -75,6 +75,88 @@
 .community-error a { display: inline-block; margin-top: 1rem; text-decoration: underline; }
 .forum-workspace [hidden] { display: none !important; }
 
+.compose-heading, .compose-actions, .compose-field-heading, .compose-preview > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: .45rem .8rem;
+}
+.compose-heading { margin-bottom: 1rem; }
+.compose-heading h1 { margin: .35rem 0 0; }
+.compose-back {
+  display: inline-flex;
+  align-items: center;
+  gap: .32rem;
+  min-height: 32px;
+  color: var(--md-green);
+  text-decoration: none;
+  font-size: .82rem;
+  font-weight: 750;
+}
+.compose-back:hover { text-decoration: underline; }
+.compose-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(15rem, 20rem); gap: 1rem; align-items: start; }
+.compose-side { display: grid; gap: 1rem; }
+.compose-card, .compose-actions {
+  border: 1px solid #cdded1;
+  border-radius: 1rem;
+  background: #fcfefc;
+  box-shadow: 0 2px 8px #1d4b3010;
+}
+.compose-card { display: grid; gap: .85rem; padding: clamp(.85rem, 2vw, 1.2rem); }
+.compose-card h2 { margin: 0; font-size: 1.02rem; line-height: 1.3; }
+.compose-card :is(label, legend) { color: #275443; font-size: .82rem; font-weight: 750; }
+.compose-field { display: grid; gap: .38rem; min-width: 0; }
+.compose-field-heading span { color: #526c60; font-size: .75rem; font-variant-numeric: tabular-nums; }
+.compose-topics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .35rem; margin: 0; padding: 0; border: 0; min-width: 0; }
+.compose-topics legend { margin-bottom: .4rem; }
+.compose-topics .app-choice { padding-inline: .45rem; font-size: .74rem; overflow-wrap: anywhere; }
+.compose-editor #post-title, .compose-writing {
+  border: 1px solid #bed2c2;
+  border-radius: .68rem;
+  background: #fff;
+  color: var(--md-ink);
+}
+.compose-editor #post-title { width: 100%; padding: .9rem; font: 700 clamp(1.1rem, 2.4vw, 1.42rem)/1.3 var(--md-font); }
+.compose-writing:focus-within { border-color: var(--md-green); }
+.compose-tools { display: flex; gap: .33rem; flex-wrap: wrap; padding: .4rem; border-bottom: 1px solid #d3e3d5; background: #f6faf5; border-radius: .68rem .68rem 0 0; }
+.compose-tools .app-button { font-size: .76rem; }
+.compose-writing textarea { display: block; width: 100%; padding: .9rem; min-height: 13rem; border: 0; border-radius: 0 0 .68rem .68rem; resize: vertical; font: 1rem/1.65 var(--md-font); color: inherit; }
+.compose-writing textarea:focus-visible { outline-offset: -3px; }
+.compose-dropzone {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: .32rem;
+  padding: .75rem .45rem;
+  border: 1px dashed #85a993;
+  border-radius: .7rem;
+  background: #f4f9f2;
+  text-align: center;
+  cursor: pointer;
+}
+.compose-dropzone :is(.app-icon, span) { color: #486857; }
+.compose-dropzone span { font-size: .71rem; }
+.compose-dropzone:is(:hover, :focus-within, .is-dragging) { border-color: var(--md-green); background: #e8f4e8; }
+.compose-dropzone:focus-within { outline: 2px solid var(--md-green); outline-offset: 2px; }
+.compose-actions {
+  margin-top: 1rem;
+  padding: .65rem .85rem;
+  padding-inline-end: max(.85rem, calc(6.125rem - var(--md-gutter)));
+}
+.compose-actions p { margin: 0; font-size: .82rem; color: #345947; }
+.compose-action-buttons { display: flex; gap: .45rem; flex-wrap: wrap; margin-inline-start: auto; }
+.compose-action-buttons button { font-size: .82rem; }
+.compose-preview { width: min(45rem, calc(100% - 1.4rem)); max-height: 85dvh; padding: 0; border: 1px solid #bdd2c3; border-radius: 1rem; color: var(--md-ink); }
+.compose-preview::backdrop { background: #10291b66; }
+.compose-preview > header { padding: .65rem 1rem; border-bottom: 1px solid #d3e3d5; background: #f1f7f1; }
+.compose-preview > header h2 { margin: 0; font-size: 1rem; }
+.compose-preview article { padding: clamp(1rem, 3vw, 1.8rem); overflow-wrap: anywhere; }
+.compose-preview-meta { color: #52745f; font-size: .82rem; }
+.compose-preview article h3 { margin: .45rem 0 .8rem; font-size: clamp(1.4rem, 3vw, 2rem); line-height: 1.22; }
+#compose-preview-body { white-space: pre-wrap; line-height: 1.65; }
+@media (max-width: 52rem) { .compose-layout { grid-template-columns: minmax(0, 1fr); } }
+
 .member-trigger {
   color: #145441; cursor: pointer; font-weight: 700; text-align: start;
   text-decoration: underline; text-decoration-color: #85ab9b; text-underline-offset: .2em;
@@ -141,4 +223,42 @@
   .member-dialog { width: calc(100% - 1rem); }
   .member-avatar { width: 4.2rem; font-size: 1.45rem; }
   .member-post-score { display: none; }
+}
+.discussion-panel {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  background: #fff;
+  color: #213e33;
+  border: 1px solid #c8d9ce;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 5px 18px #214b3610;
+}
+.discussion-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 16px 18px;
+  border-bottom: 1px solid #dce7df;
+}
+.discussion-heading h2 { display: flex; align-items: center; gap: 8px; font-size: 20px; font-weight: 700; }
+#discussion-count { border-radius: 20px; background: #e2efe4; color: #215538; padding: 2px 9px; font-size: 13px; }
+.discussion-panel .community-reply-sort { padding: 10px 16px; justify-content: space-between; color: #485e51; }
+.discussion-panel .stitch-replies { flex: 0 1 auto; max-height: min(53vh, 600px); min-height: 0; padding: 10px 14px 16px; background: #f6f9f5; scrollbar-gutter: stable; }
+.discussion-panel .stitch-replies article { background: white; border: 1px solid #dce7de; padding: 12px; }
+.discussion-panel .community-reply-children { margin-left: 0; padding-left: 8px; }
+.discussion-panel .community-reply-children article { padding: 8px 0 4px 5px; border: 0; }
+.discussion-avatar { width: 30px; height: 30px; display: inline-grid; place-items: center; border-radius: 50%; background: #dcece1; color: #26563a; font-size: 11px; font-weight: 700; }
+.discussion-owner { font-size: 11px; padding: 2px 6px; border-radius: 5px; background: #f6edcd; color: #674f18; }
+.discussion-panel .community-reply-header .community-meta { font-size: 11px; }
+.discussion-panel .stitch-replies article p { font-size: 14px; line-height: 1.65; margin: 8px 0; }
+.discussion-panel .discussion-empty { margin: 8px; line-height: 1.65; color: #52665b; }
+.discussion-compose { padding: 12px; border-top: 1px solid #d5e2d8; }
+.discussion-compose #forum-reply-form { background: #fff; border: 1px solid #b8cfc0; align-items: flex-end; padding: 7px; }
+.discussion-compose textarea { flex: 1; min-width: 0; resize: vertical; background: transparent; padding: 6px; font: inherit; font-size: 14px; }
+.discussion-compose button[type=submit] { min-height: 44px; min-width: 44px; }
+@media (max-width: 1023px) {
+  .discussion-panel .stitch-replies { max-height: 60vh; }
 }

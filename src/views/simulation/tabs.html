@@ -1,0 +1,14 @@
+{% from "shared/icon.html" import icon %}
+<div class="sim-tabs" role="tablist" aria-label="Nội dung mô phỏng">
+  {% for panel, key, label, glyph in [
+    ('scenarioPanel', 'mo-phong', 'Mô phỏng', 'grass'),
+    ('reportPanel', 'bao-cao', 'Báo cáo & nguồn', 'description'),
+    ('weatherPanel', 'thoi-tiet', 'Dữ liệu thời tiết', 'water_drop')
+  ] %}
+  {% set selected = key == active_tab %}
+  <button type="button" role="tab" id="tab-{{ panel }}" data-panel="{{ panel }}" data-tab="{{ key }}"
+          aria-controls="{{ panel }}" aria-selected="{{ 'true' if selected else 'false' }}" tabindex="{{ 0 if selected else -1 }}">
+    {{ icon(glyph) }}<span>{{ label }}</span>
+  </button>
+  {% endfor %}
+</div>

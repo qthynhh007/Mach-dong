@@ -29,8 +29,8 @@ class TestAssistant(TestCase):
         self.assertEqual(greeting.status_code, 200)
         self.assertEqual(greeting.json["data"]["sources"], [])
         response = self.client.post("/api/assistant/chat", json={"message": "Cách trồng ớt?"})
-        self.assertEqual(response.status_code, 503)
-        self.assertIsNone(response.json["data"])
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json["data"]["mode"], "local")
         self.assertRegex(response.headers["Server-Timing"], r"^assistant;dur=\d+\.\d$")
 
     @patch("src.services.ai_client.urlopen")
@@ -40,7 +40,7 @@ class TestAssistant(TestCase):
         self.client.application.config["GEMINI_API_KEY"] = "test-key"
         page = self.client.get("/assistant").text
         self.assertIn("Gemini 3.5 Flash", page)
-        self.assertIn('data-wait-seconds="180"', page)
+        self.assertIn('data-wait-seconds="20"', page)
         self.assertNotIn("test-key", page)
         source_id = "KN-RICE-SALINITY-SOC-TRANG"
         urlopen.return_value = BytesIO(
@@ -112,7 +112,8 @@ class TestAssistant(TestCase):
             fp=None,
         )
         response = self.client.post("/api/assistant/chat", json={"message": "Cách trồng ớt?"})
-        self.assertEqual(response.status_code, 429)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json["data"]["mode"], "local")
         self.assertNotIn("private upstream detail", response.text)
         urlopen.assert_called_once()
 
@@ -177,18 +178,18 @@ class TestAssistant(TestCase):
         urlopen.assert_called_once()
 
     @patch("src.services.ai_client.urlopen")
-    def test_reports_unavailable_when_both_models_are_busy(self, urlopen: MagicMock) -> None:
+    def test_answers_from_local_sources_when_both_models_are_unavailable(self, urlopen: MagicMock) -> None:
         self.client.application.config["GEMINI_API_KEY"] = "test-key"
         urlopen.side_effect = [
             HTTPError("", 503, "primary unavailable", {}, None),
-            HTTPError("", 503, "fallback unavailable", {}, None),
+            TimeoutError(),
         ]
 
         response = self.client.post("/api/assistant/chat", json={"message": "Cách trồng ớt?"})
 
-        self.assertEqual(response.status_code, 503)
-        self.assertIsNone(response.json["data"])
-        self.assertIn("Gemini đang bận", response.json["error"])
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("tài liệu", response.json["data"]["reply"])
+        self.assertTrue(response.json["data"]["sources"])
         self.assertEqual(urlopen.call_count, 2)
 
     def test_retrieval_for_planting_nutrition_disease_and_crop_switch(self) -> None:

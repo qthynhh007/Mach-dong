@@ -1,4 +1,4 @@
-"""HTTPS-only transport: no fallback predictions or desktop API keys."""
+"""Transport to the deployed simulation service or the local development worker."""
 import json
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlsplit
@@ -8,10 +8,19 @@ from src.models.simulation import simulationError
 
 
 class cloudClient:
-    def __init__(self, baseUrl: str, transport=None) -> None:
+    def __init__(self, baseUrl: str, transport=None, *, allow_loopback: bool = False) -> None:
         parsed = urlsplit(baseUrl)
-        if parsed.scheme != "https" or not parsed.hostname or parsed.username or parsed.query or parsed.fragment:
-            raise ValueError("SIMULATION_API_URL must be an HTTPS origin")
+        self.is_local = parsed.scheme == "http" and parsed.hostname in {"127.0.0.1", "::1"}
+        if (
+            (parsed.scheme != "https" and not (allow_loopback and self.is_local))
+            or not parsed.hostname
+            or parsed.username is not None
+            or parsed.password is not None
+            or parsed.path not in ("", "/")
+            or parsed.query
+            or parsed.fragment
+        ):
+            raise ValueError("SIMULATION_API_URL must be an HTTPS origin or loopback HTTP")
         self.baseUrl = baseUrl.rstrip("/")
         self.transport = transport or urlopen
 
@@ -39,4 +48,9 @@ class cloudClient:
                 pass
             raise simulationError(message, error.code if error.code in (400, 413, 415, 429, 502, 503) else 502) from error
         except (URLError, TimeoutError, OSError, ValueError) as error:
-            raise simulationError("Không kết nối được máy chủ. Cần Internet để mô phỏng; hãy thử lại.", 503) from error
+            message = (
+                "Chưa kết nối được máy chủ mô phỏng trên máy này."
+                if self.is_local
+                else "Không kết nối được máy chủ mô phỏng. Kiểm tra kết nối Internet rồi thử lại."
+            )
+            raise simulationError(message, 503) from error

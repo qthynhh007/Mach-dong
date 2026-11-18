@@ -14,8 +14,8 @@ GEMINI_MODEL = "gemini-3.5-flash"
 GEMINI_MODEL_LABEL = "Gemini 3.5 Flash"
 GEMINI_FALLBACK_MODEL = "gemini-3.1-flash-lite"
 GEMINI_MODELS_URL = "https://generativelanguage.googleapis.com/v1beta/models"
-GEMINI_PRIMARY_TIMEOUT_SECONDS = 12
-GEMINI_FALLBACK_TIMEOUT_SECONDS = 15
+GEMINI_PRIMARY_TIMEOUT_SECONDS = 6
+GEMINI_FALLBACK_TIMEOUT_SECONDS = 7
 logger = logging.getLogger(__name__)
 
 
