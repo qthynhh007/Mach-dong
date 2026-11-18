@@ -1,12 +1,16 @@
 {% from "shared/icon.html" import icon as render_icon %}
 <aside class="app-side app-glass">
-  <p>Đồng bằng sông Cửu Long</p>
+  <p class="app-side-label">Đồng bằng sông Cửu Long</p>
   <nav aria-label="Không gian làm việc">
-    {% for route, title, icon in [('community', 'Kho CSV cộng đồng', 'table_view'), ('forum', 'Thảo luận bà con', 'chat'), ('simulation', 'Mô phỏng sinh lý lúa', 'grass'), ('assistant', 'Trợ lý Cò Mạ', 'chat'), ('admin', 'Duyệt dữ liệu', 'fact_check')] %}
+    {% for route, title, icon in [('community', 'Kho CSV cộng đồng', 'table_view'), ('forum', 'Thảo luận bà con', 'chat'), ('simulation', 'Mô phỏng sinh lý lúa', 'grass'), ('assistant', 'Trợ lý Cò Mạ', 'sparkles'), ('admin', 'Duyệt dữ liệu', 'fact_check')] %}
       <a href="/{{ route }}" {% if route == current_page %}aria-current="page"{% endif %}>
-        {{ render_icon(icon) }}{{ title }}
+        {% if route == current_page %}<span class="app-side-marker" aria-hidden="true"></span>{% endif %}
+        {{ render_icon(icon) }}<span>{{ title }}</span>
       </a>
     {% endfor %}
   </nav>
-  <div class="app-location">Địa bàn demo · Long Hữu</div>
+  <div class="app-location">
+    <span class="app-location-icon">{{ render_icon("location_on") }}</span>
+    <span><strong>Long Hữu</strong><small>Địa bàn demo</small></span>
+  </div>
 </aside>

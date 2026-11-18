@@ -1,47 +1,43 @@
-{% set demo_name = "Chú Năm Ruộng" %}
-{% set demo_cooperative = "HTX Long Hữu" %}
-{% set demo_balance = 350 %}
+{% from "shared/icon.html" import icon %}
 <a class="app-skip-link" href="{{ '#simContentWrapper' if current_page == 'simulation' else '#main-content' }}">Đến nội dung chính</a>
 <header class="app-header app-glass"{% if auth_user %} data-csrf-token="{{ auth_csrf_token }}" data-user-id="{{ auth_user.user_id }}"{% endif %}>
   <a href="/community" class="app-brand">
-    <img src="/static/assets/stitch-simulation/co-ma-logo.png" alt="" width="32" height="32">
+    <span class="app-brand-mark">
+      <img src="{{ url_for('static', filename='assets/stitch-simulation/co-ma-logo.png') }}" alt="" width="30" height="30">
+    </span>
     <span translate="no">Mạch Đồng</span>
   </a>
   <nav class="app-top-nav" aria-label="Điều hướng nhanh">
-    <a href="/community" {% if current_page == "community" %}aria-current="page"{% endif %}>Kho CSV</a>
-    <a href="{{ url_for('forum.index') }}" {% if current_page == "forum" %}aria-current="page"{% endif %}>Diễn đàn</a>
-    <a href="/simulation" {% if current_page == "simulation" %}aria-current="page"{% endif %}>Mô phỏng</a>
-    {% if auth_user %}
-    <button type="button" class="app-button app-button--primary" data-logout-btn>Đăng xuất</button>
-    {% else %}
-    <a href="/login" {% if current_page == "login" %}aria-current="page"{% endif %}>Đăng nhập</a>
-    <a class="app-button app-button--primary" href="/register" {% if current_page == "register" %}aria-current="page"{% endif %}>Đăng ký</a>
-    {% endif %}
+    <a href="/community" {% if current_page == "community" %}aria-current="page"{% endif %}>{{ icon("table_view") }} Kho CSV</a>
+    <a href="{{ url_for('forum.index') }}" {% if current_page == "forum" %}aria-current="page"{% endif %}>{{ icon("chat") }} Diễn đàn</a>
+    <a href="/simulation" {% if current_page == "simulation" %}aria-current="page"{% endif %}>{{ icon("grass") }} Mô phỏng</a>
     <details class="app-more-links">
-      <summary>Thêm</summary>
+      <summary{% if current_page in ("assistant", "admin") %} class="app-more-current"{% endif %}>Thêm</summary>
       <div class="app-more-panel app-glass">
-        <a href="/assistant" {% if current_page == "assistant" %}aria-current="page"{% endif %}>Trợ lý Cò Mạ</a>
-        <a href="/admin" {% if current_page == "admin" %}aria-current="page"{% endif %}>Duyệt dữ liệu</a>
+        <a href="/assistant" {% if current_page == "assistant" %}aria-current="page"{% endif %}>{{ icon("sparkles") }} Trợ lý Cò Mạ</a>
+        <a href="/admin" {% if current_page == "admin" %}aria-current="page"{% endif %}>{{ icon("fact_check") }} Duyệt dữ liệu</a>
       </div>
     </details>
   </nav>
-  {% if auth_user %}
   <div class="app-header-account">
-    <div class="app-coin-balance">
-      <strong data-header-credits>{{ auth_user.simulation_credits }} LÚA</strong>
-      <span class="app-account-label">{{ auth_user.role }}</span>
-    </div>
+    {% if auth_user %}
+    {% set role_labels = {"ADMIN": "Quản trị viên", "REVIEWER": "Người duyệt", "FARMER": "Nông hộ"} %}
+    <span class="app-coin-balance">{{ icon("grass") }}<strong data-header-credits>{{ auth_user.simulation_credits }} LÚA</strong></span>
     <a class="app-account-trigger" href="{{ url_for('auth.profile') }}" aria-label="Chỉnh sửa hồ sơ và mật khẩu" {% if current_page == "profile" %}aria-current="page"{% endif %}>
-        <img class="app-avatar" src="/static/assets/stitch-profile-portrait.jpg" width="32" height="32" alt="">
-        <span class="app-account-name">
-          <strong data-profile-value="farmer-fullname">{{ auth_user.name }}</strong>
-          <small>@{{ auth_user.username }}</small>
-        </span>
-        <svg class="app-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-          <path d="m6 4 4 4-4 4" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
+      <img class="app-avatar" src="{{ url_for('static', filename='assets/stitch-profile-portrait.jpg') }}" width="32" height="32" alt="">
+      <span class="app-account-name">
+        <strong data-profile-value="farmer-fullname">{{ auth_user.name }}</strong>
+        <small>{{ role_labels.get(auth_user.role, auth_user.role) }} · @{{ auth_user.username }}</small>
+      </span>
+      {{ icon("chevron_right") }}
     </a>
+    <button type="button" class="app-header-sign-out" aria-label="Đăng xuất" data-logout-btn>
+      {{ icon("log_out") }}<span>Đăng xuất</span>
+    </button>
+    {% else %}
+    <a class="app-header-sign-in" href="{{ url_for('auth.login') }}" {% if current_page == "login" %}aria-current="page"{% endif %}>Đăng nhập</a>
+    <a class="app-button app-button--primary" href="{{ url_for('auth.register') }}" {% if current_page == "register" %}aria-current="page"{% endif %}>Đăng ký</a>
+    {% endif %}
   </div>
-  {% endif %}
 </header>
 <script src="/static/account.js" defer></script>
