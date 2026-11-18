@@ -1,115 +1,24 @@
-from typing import TypedDict
-
-from src.models.simulation import SimulationInput
-from src.services.assistant_service import explain_risk
-from src.services.simulation_physiology import Physiology, describe_physiology
-
-STAGES = (
-    (15, "Mạ non", (0, 1, 2, 2, 3), (0, 1, 2)),
-    (42, "Đẻ nhánh", (0, 0, 1, 2, 3), (0, 0, 1)),
-    (65, "Làm đòng", (0, 1, 2, 2, 3), (0, 0, 1)),
-    (78, "Trổ bông", (0, 1, 2, 2, 3), (0, 1, 2)),
-    (95, "Chín vàng", (0, 0, 1, 1, 2), (0, 1, 2)),
-)
-RISK_LABELS = ("Thấp", "Vừa", "Cao", "Nguy hiểm")
+from src.models.simulation import simulationInput
+from src.services.ai_client import aiClient
+from src.services.cloud_client import cloudClient
+from src.services.weather_client import weatherClient
 
 
-class AdviceStep(TypedDict):
-    title: str
-    body: str
+class simulationService:
+    def __init__(self, cloud: cloudClient) -> None:
+        self.cloud = cloud
+        self.ai = aiClient(cloud)
+        self.weather = weatherClient(cloud)
 
+    def simulate(self, payload: object) -> dict:
+        inputs = simulationInput.parse(payload)
+        return self.ai.simulate(inputs.payload)
 
-class SimulationResult(TypedDict):
-    rule_version: str
-    is_simulated: bool
-    stage: str
-    chi: float
-    salinity_risk: str
-    flood_risk: str
-    survival_rate_pct: None
-    spikelet_abortion_pct: float | None
-    illustrative_yield_tonnes_ha: float
-    advice: str
-    advice_steps: list[AdviceStep]
-    physiology: Physiology
+    def catalog(self) -> dict:
+        return self.cloud.request("/api/catalog")
 
+    def forecast(self, locationId: str) -> dict:
+        return self.weather.forecast(locationId)
 
-def detailed_advice(inputs: SimulationInput, stage: str, salt_risk: str) -> list[AdviceStep]:
-    salt_step: AdviceStep = {
-        "title": "Kiểm tra mặn tại ruộng",
-        "body": (
-            "Đo trực tiếp nước trong ruộng và ghi giờ, đơn vị đo. Ghi riêng số đo "
-            "ở kênh hoặc cống để đánh giá nguồn nước trước khi lấy nước vào ruộng."
-            if salt_risk != "Thấp"
-            else "Ghi độ mặn thực đo tại ruộng và theo dõi khi nguồn nước thay đổi. "
-            "Nếu định lấy nước, kiểm tra riêng độ mặn ở kênh hoặc cống."
-        ),
-    }
-    depth = inputs.water_depth_cm
-    if depth > 15:
-        water_step: AdviceStep = {
-            "title": "Đo mức ngập và thời gian ngập",
-            "body": "Đo từ mặt đất ruộng ở cả chỗ thấp và chỗ cao, ghi giờ bắt đầu ngập. "
-            "Kiểm tra khả năng tiêu nước và quan sát cây có bị ngập ngọn hoặc đổ rạp.",
-        }
-        if stage == "Mạ non":
-            water_step["body"] += " Khi nước rút, quan sát rễ mới trước khi quyết định bón thúc."
-    elif depth < -5:
-        water_step = {
-            "title": "Kiểm tra chỗ ruộng khô",
-            "body": "Kiểm tra độ ẩm đất gần gốc và so sánh chỗ cao với chỗ trũng. "
-            "Nếu cần bổ sung nước, đo riêng độ mặn nguồn nước trước khi lấy vào.",
-        }
-    else:
-        water_step = {
-            "title": "Theo dõi mực nước",
-            "body": "Đo theo mặt đất tại ruộng sau mưa hoặc khi lấy nước. Ghi riêng các "
-            "chỗ trũng nếu độ sâu khác nhau giữa các vị trí.",
-        }
-
-    steps = [water_step, salt_step] if depth > 15 or depth < -5 else [salt_step, water_step]
-    if inputs.temp_c > 35:
-        steps.append({
-            "title": "Quan sát dấu hiệu stress nhiệt",
-            "body": "Ghi giờ và nhiệt độ thực đo. Quan sát lá cuốn hoặc héo lúc nóng, "
-            "rồi kiểm tra lại khi dịu nhiệt để đối chiếu.",
-        })
-    steps.append({
-        "title": "Theo dõi sau khi điều kiện thay đổi",
-        "body": "Ghi tình trạng lá và gốc lúa ở cùng vị trí qua các lần quan sát. "
-        "Nếu cần tính tỷ lệ cây sống, đếm lại trên cùng ô mẫu.",
-    })
-    return steps
-
-
-def evaluate(inputs: SimulationInput) -> SimulationResult:
-    _, stage, salt_risks, flood_risks = next(
-        record for record in STAGES if inputs.day_after_sowing <= record[0]
-    )
-    salt = inputs.salinity_gl
-    depth = inputs.water_depth_cm
-    salt_risk = RISK_LABELS[salt_risks[sum(salt >= cutoff for cutoff in (1, 2, 3, 4))]]
-    flood_risk = RISK_LABELS[flood_risks[int(depth > 10) + int(depth > 20)]]
-    salt_excess = max(0, salt - 2) / 4
-    salt_penalty = 25 + 15 * salt_excess if stage == "Làm đòng" and salt >= 2 else 0
-    water_penalty = 0
-    if not -5 <= depth <= 15:
-        water_penalty = 15 + 5 * (max(0, -5 - depth) / 5 + max(0, depth - 15) / 15)
-    heat_penalty = 10 if inputs.temp_c > 35 else 0
-    chi = max(0, 100 - salt_penalty - water_penalty - heat_penalty)
-    return {
-        "rule_version": "SIM-PHYSIOLOGY-V1",
-        "is_simulated": True,
-        "stage": stage,
-        "chi": round(chi, 1),
-        "illustrative_yield_tonnes_ha": 2.5 + (6.2 - 2.5) * chi / 100,
-        "salinity_risk": salt_risk,
-        "flood_risk": flood_risk,
-        "survival_rate_pct": None,
-        "spikelet_abortion_pct": 10 + 35 * salt_excess
-        if stage == "Làm đòng" and salt > 2
-        else None,
-        "advice": explain_risk(stage, salt_risk, flood_risk, depth, inputs.temp_c),
-        "advice_steps": detailed_advice(inputs, stage, salt_risk),
-        "physiology": describe_physiology(inputs, stage, salt_risk),
-    }
+    def history(self) -> dict:
+        return self.cloud.request("/api/datasets/weather-history")

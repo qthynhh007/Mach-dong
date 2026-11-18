@@ -1,0 +1,240 @@
+{
+  "schemaVersion": 1,
+  "version": "rice-evidence-2026-11-18.1",
+  "reviewedAt": "2026-11-18",
+  "scope": "Lúa OM5451 và thời tiết dạng lưới tại các điểm đại diện Đồng bằng sông Cửu Long",
+  "excludedExistingData": [
+    "long-huu-man-ruong.csv",
+    "go-cong-nhiet-do.csv",
+    "cu-lao-dung-do-ph.csv",
+    "ba-tri-muc-nuoc.csv"
+  ],
+  "locations": [
+    {
+      "id": "can-tho",
+      "name": "Cần Thơ",
+      "latitude": 10.04,
+      "longitude": 105.78
+    },
+    {
+      "id": "long-my",
+      "name": "Long Mỹ, Hậu Giang",
+      "latitude": 9.68,
+      "longitude": 105.57
+    },
+    {
+      "id": "ba-tri",
+      "name": "Ba Tri, Bến Tre",
+      "latitude": 10.04,
+      "longitude": 106.59
+    },
+    {
+      "id": "go-cong",
+      "name": "Gò Công, Tiền Giang",
+      "latitude": 10.36,
+      "longitude": 106.67
+    },
+    {
+      "id": "tra-vinh",
+      "name": "Trà Vinh",
+      "latitude": 9.93,
+      "longitude": 106.34
+    },
+    {
+      "id": "soc-trang",
+      "name": "Sóc Trăng",
+      "latitude": 9.6,
+      "longitude": 105.97
+    },
+    {
+      "id": "chau-doc",
+      "name": "Châu Đốc, An Giang",
+      "latitude": 10.7,
+      "longitude": 105.12
+    },
+    {
+      "id": "ca-mau",
+      "name": "Cà Mau",
+      "latitude": 9.18,
+      "longitude": 105.15
+    }
+  ],
+  "varieties": [
+    {
+      "id": "OM5451",
+      "name": "OM5451",
+      "pedigree": "Jasmine 85 / OM2490",
+      "reportedDurationDays": [
+        88,
+        93
+      ],
+      "sourceId": "clrri-om5451",
+      "note": "Khoảng sinh trưởng được báo cáo trong tài liệu; thay đổi theo vụ và nơi trồng. Giai đoạn sinh lý phải do người dùng xác nhận, không suy từ một lịch cố định."
+    }
+  ],
+  "sources": [
+    {
+      "id": "nasa-power",
+      "title": "NASA POWER — Daily Agroclimatology",
+      "url": "https://power.larc.nasa.gov/docs/services/api/temporal/daily/",
+      "kind": "griddedHistorical",
+      "license": "NASA POWER public data; ghi nguồn NASA POWER",
+      "use": "Nhiệt độ, mưa, độ ẩm, gió, bức xạ theo ngày. Không phải cảm biến tại ruộng.",
+      "dataUrl": "https://power.larc.nasa.gov/api/temporal/daily/point"
+    },
+    {
+      "id": "open-meteo",
+      "title": "Open-Meteo — Weather Forecast API",
+      "url": "https://open-meteo.com/en/docs",
+      "kind": "forecast",
+      "license": "CC BY 4.0; API miễn phí cho phi thương mại theo hạn mức",
+      "termsUrl": "https://open-meteo.com/en/terms",
+      "use": "Dự báo nhiệt độ, mưa, ET0, bức xạ. Không suy ra mặn hay mực nước ruộng từ lượng mưa."
+    },
+    {
+      "id": "fao-salinity",
+      "title": "FAO — Annex 1. Crop salt tolerance data",
+      "url": "https://www.fao.org/4/y4263e/y4263e0e.htm",
+      "kind": "genericRiceReference",
+      "license": "Trích tham số và dẫn nguồn; không lưu toàn văn",
+      "use": "Lúa nước chung, ngưỡng EC 3 dS/m, dốc 12 điểm phần trăm/dS/m. Chú thích §§: EC nước đất vùng rễ khi ngập, không phải nước kênh. Chưa hiệu chuẩn OM5451."
+    },
+    {
+      "id": "irri-heat",
+      "title": "IRRI — ORYZA2000: Modeling Lowland Rice",
+      "url": "https://books.irri.org/9712201716_content.pdf",
+      "kind": "genericRiceReference",
+      "locator": "Trang 61",
+      "license": "Dẫn nguồn và tóm tắt; không lưu toàn văn",
+      "use": "Nhiệt độ cao khoảng trên 35°C lúc trổ có thể gây tổn thương phấn. Không dùng hệ số giống Akihikari để dự đoán tỷ lệ lép OM5451."
+    },
+    {
+      "id": "irri-awd",
+      "title": "IRRI — Alternate Wetting and Drying",
+      "url": "https://ghgmitigation.irri.org/mitigation-technologies/alternate-wetting-and-drying",
+      "kind": "managementGuidance",
+      "license": "Dẫn nguồn và tóm tắt",
+      "use": "Mốc -15 cm là mực nước trong ống theo dõi AWD, không phải độ sâu nước ngập bề mặt; đây là hướng dẫn quản lý, không là tỷ lệ mất năng suất."
+    },
+    {
+      "id": "clrri-om5451",
+      "title": "Viện Lúa ĐBSCL — Luận án Mai Nguyệt Lan (2019)",
+      "url": "https://clrri.org/uploads/Toan%20van%20luan%20an.pdf",
+      "kind": "varietyDescription",
+      "locator": "Trang in 39, mục 2.1",
+      "license": "Trích thông tin giống, không lưu toàn văn",
+      "use": "Phả hệ Jasmine 85/OM2490; thời gian sinh trưởng báo cáo 88–93 ngày."
+    },
+    {
+      "id": "vnua-seedling",
+      "title": "Tạp chí KHNN Việt Nam 20(8), 1008–1020 (2022) — thí nghiệm mặn trên lúa",
+      "url": "https://tapchi.vnua.edu.vn/wp-content/uploads/2022/08/tap-chi-so-8.2.pdf",
+      "kind": "controlledExperiment",
+      "locator": "Bảng 8, trang 1016",
+      "license": "Dữ kiện số và dẫn nguồn; không tái bản bài báo hay coi là dữ liệu thô được cấp phép",
+      "use": "OM5451 ở giai đoạn mạ, số trung bình 3 lần lặp trong chậu; chỉ đối chiếu thí nghiệm, không huấn luyện dự báo năng suất ruộng."
+    },
+    {
+      "id": "ctu-om5451",
+      "title": "ĐH Cần Thơ (2016) — Thời điểm tưới mặn và OM5451",
+      "url": "https://ctujsvn.ctu.edu.vn/index.php/ctujsvn/article/view/2727",
+      "kind": "controlledExperiment",
+      "license": "Dẫn nguồn và tóm tắt; không lưu toàn văn",
+      "use": "Nhà lưới, mặn 4‰, thời điểm 10–20 hoặc 45–60 ngày sau cấy; không chuyển thành mô hình ngày sau sạ hay dự báo thực địa."
+    },
+    {
+      "id": "tnu-long-my",
+      "title": "TNU (2018) — Đạm và chế độ tưới OM5451 tại Long Mỹ",
+      "url": "https://jst.tnu.edu.vn/jst/article/view/268",
+      "kind": "fieldStudy",
+      "license": "Dẫn nguồn và tóm tắt; không lưu toàn văn",
+      "use": "Thí nghiệm vụ Hè Thu 2016 tại Long Mỹ. Không lấy trung bình nghiệm thức để khuyến nghị liều đạm chung hoặc tạo nhãn huấn luyện giả."
+    },
+    {
+      "id": "irri-flood",
+      "title": "IRRI — Thinking beyond the SUB1 gene",
+      "url": "https://www.ricetoday.irri.org/thinking-beyond-the-sub1-gene-making-rice-survive-longer-and-yield-more/",
+      "kind": "genericRiceReference",
+      "license": "Dẫn nguồn; không lưu toàn văn",
+      "use": "Khả năng chịu ngập của giống SUB1 không được suy sang OM5451. Chưa có tỷ lệ sống hiệu chuẩn cho OM5451."
+    },
+    {
+      "id": "siwrr-bulletin",
+      "title": "SIWRR — Bản tin nguồn nước và xâm nhập mặn 19/03/2026",
+      "url": "https://www.siwrr.org.vn/docs/2023/files/20260320-17-VKHTLMN-Bantintuan-DubaoNguonnuoc-19_03_2026.pdf",
+      "kind": "externalReferenceOnly",
+      "license": "Chưa xác minh quyền sao chép; chỉ dẫn liên kết",
+      "use": "Thông tin mặn/thủy văn khu vực để đối chiếu điểm đo. Chưa nhập số liệu vào mô hình; không thay số đo ruộng."
+    },
+    {
+      "id": "mrc-water",
+      "title": "Mekong River Commission — Water Quality",
+      "url": "https://ckan.mrcmekong.org/dataset/wq",
+      "kind": "externalReferenceOnly",
+      "license": "Metadata: No License Provided; chưa sao chép dữ liệu",
+      "use": "Danh mục chất lượng nước sông Mekong; cần kiểm tra quyền dùng, loại trạm và đơn vị trước khi nhập."
+    }
+  ],
+  "parameters": {
+    "faoRice": {
+      "thresholdDsM": 3,
+      "slopePercentPerDsM": 12,
+      "sourceId": "fao-salinity",
+      "measurement": "floodedRootZoneSoilWaterEc",
+      "scope": "seasonAverageEstablishedRice"
+    },
+    "heatAlertC": 35,
+    "heatSourceId": "irri-heat"
+  },
+  "seedlingExperiment": {
+    "sourceId": "vnua-seedling",
+    "varietyId": "OM5451",
+    "observationDayAfterSowing": 14,
+    "replicates": 3,
+    "salinityUnit": "‰",
+    "ecUnit": "mS/cm",
+    "rootLengthUnit": "cm",
+    "leafFractionUnit": "fraction",
+    "rows": [
+      {
+        "salinityTreatment": 0,
+        "waterEc": 0.38,
+        "plantHeightCm": 29.56,
+        "rootLengthCm": 12.0,
+        "scorchedLeafFraction": 0
+      },
+      {
+        "salinityTreatment": 2,
+        "waterEc": 3.94,
+        "plantHeightCm": 27.44,
+        "rootLengthCm": 10.44,
+        "scorchedLeafFraction": 0.5
+      },
+      {
+        "salinityTreatment": 4,
+        "waterEc": 7.41,
+        "plantHeightCm": 24.68,
+        "rootLengthCm": 8.31,
+        "scorchedLeafFraction": 0.58
+      },
+      {
+        "salinityTreatment": 6,
+        "waterEc": 10.14,
+        "plantHeightCm": 21.55,
+        "rootLengthCm": 7.03,
+        "scorchedLeafFraction": 0.8
+      }
+    ],
+    "caveats": [
+      "Số trung bình nghiệm thức trong chậu, không có dữ liệu từng lần lặp hay khoảng tin cậy.",
+      "Bài báo không thống nhất bắt đầu tưới ngày 3 hay 4; phơi nhiễm khoảng 10–11 ngày, đo ngày 14 sau sạ.",
+      "Đối chứng gọi là 0‰ nhưng nước nền EC 0,38 mS/cm; không đồng nghĩa nước tinh khiết.",
+      "Tỷ phần lá cháy không phải tỷ lệ cây chết hay phần trăm giảm năng suất. Không nội suy sang g/L của ruộng."
+    ]
+  },
+  "limitations": [
+    "Chưa có tập huấn luyện OM5451 ngoài đồng ghép đủ thời tiết, đất, canh tác và năng suất; chưa có mô hình ML đã kiểm định.",
+    "Không dự đoán tỷ lệ sống, năng suất tấn/ha, quang hợp, hấp thu nước hay liều thuốc/phân từ số liệu thiếu.",
+    "Điểm tọa độ đại diện dùng để truy vấn ô lưới; địa danh quen dùng, không khẳng định ranh giới hành chính hiện tại."
+  ]
+}
