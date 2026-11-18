@@ -2,7 +2,7 @@
 
 ## Người dùng tải gì và chạy thế nào?
 
-Người dùng Windows 64-bit chỉ cần **MachDong.exe**. Nhấp đúp file để mở cửa sổ Mạch Đồng; ứng dụng tự mở giao diện bằng trình duyệt mặc định. Nút **Mở ứng dụng** mở lại giao diện, đóng cửa sổ Mạch Đồng để thoát hoàn toàn. Không cần Python, Node, Ollama, GPU hay API key trên máy người dùng. Cần Internet để mô phỏng và lấy dữ liệu.
+Người dùng Windows 64-bit chỉ cần **MachDong.exe**. Nhấp đúp file để mở cửa sổ Mạch Đồng; ứng dụng tự mở giao diện bằng trình duyệt mặc định. Nút **Mở ứng dụng** mở lại giao diện, đóng cửa sổ Mạch Đồng để thoát hoàn toàn. Không cần Python, Node, Ollama, GPU hay API key trên máy người dùng. Báo cáo và dữ liệu thời tiết cần kết nối Internet.
 
 File đã dựng ở `dist/MachDong.exe`. Đây là ứng dụng desktop dùng giao diện web trên loopback; không phải bộ cài và chưa ký chứng thư phát hành Windows. Kiểm tra nguồn tải/chữ ký khi phân phối; không tắt bảo vệ Windows. Bản này chỉ dành Windows x64; macOS/Linux cần bản dựng riêng.
 
@@ -11,6 +11,8 @@ File đã dựng ở `dist/MachDong.exe`. Đây là ứng dụng desktop dùng g
 Repository riêng tư chỉ cho người có quyền tải bản phát hành. Muốn phát EXE cho mọi người mà vẫn giữ mã nguồn riêng tư, nhóm có thể dùng một repository phân phối công khai riêng hoặc kho tải file công khai. Chưa có bản GitHub Release/đường dẫn tải EXE công khai được tạo; file hiện có sẵn trên máy phát triển để chia sẻ.
 
 Nếu lập trình viên pull code: tạo `.venv`, cài `requirements.txt`, chạy `python main.py` hoặc `python desktop.py`. API mặc định đã nằm trong cấu hình; không cần cấu hình khóa riêng cho từng người.
+
+Trang `/simulation` có bốn thanh trượt, cảnh cánh đồng và Cò Mạ dùng kịch bản giả lập cục bộ. Nút **Báo cáo & nguồn** mở `/simulation/report` để nhập điều kiện chạy báo cáo cloud, xem dự báo và dùng AI.
 
 ## Máy chủ đã triển khai
 

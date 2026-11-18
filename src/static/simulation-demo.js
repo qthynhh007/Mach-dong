@@ -124,7 +124,7 @@ async function getResult(values) {
   const request = new AbortController();
   activeRequest = request;
   try {
-    const response = await fetch("/api/simulation", {
+    const response = await fetch("/api/simulation/preview", {
       method: "POST",
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify(values),

@@ -2,7 +2,7 @@
 
 from typing import Literal, TypedDict
 
-from src.models.simulation import SimulationInput
+from src.models.simulation import SimulationDemoInput
 
 
 SoilState = Literal["dry", "moist", "flooded"]
@@ -44,7 +44,7 @@ def unit_interval(value: float) -> float:
     return max(0.0, min(1.0, value))
 
 
-def describe_physiology(inputs: SimulationInput, stage: str, salt_risk: str) -> Physiology:
+def describe_physiology(inputs: SimulationDemoInput, stage: str, salt_risk: str) -> Physiology:
     depth = inputs.water_depth_cm
     salt = SALT_CUES[salt_risk]
     dryness = unit_interval((-5 - depth) / 5)

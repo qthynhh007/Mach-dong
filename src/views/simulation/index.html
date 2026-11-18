@@ -1,66 +1,164 @@
+{% from "shared/icon.html" import icon %}
+{% from "shared/co-ma.html" import co_ma %}
 <!doctype html>
-<html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Mạch Đồng · Mô phỏng có căn cứ</title>
-{% include "shared/navigation-head.html" %}
-<link rel="icon" href="/static/assets/stitch-simulation/co-ma-logo.png">
-<link rel="stylesheet" href="/static/assets/stitch-simulation/fonts.css">
-<link rel="stylesheet" href="/static/shell.css"><link rel="stylesheet" href="/static/simulation-workbench.css?v=20261118-report2">
+<html lang="vi">
+<head>
+  {% include "shared/navigation-head.html" %}
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mô phỏng cánh đồng lúa · Mạch Đồng</title>
+  <link rel="icon" href="/static/assets/stitch-simulation/co-ma-logo.png">
+  <link rel="stylesheet" href="/static/simulation.css">
+  <link rel="stylesheet" href="/static/shell.css">
+  <link rel="stylesheet" href="/static/co-ma.css">
+  <link rel="stylesheet" href="/static/simulation-view.css">
+  <script src="{{ url_for('static', filename='simulation-demo.js') }}" type="module"></script>
 </head>
 <body class="app-workspace">
-{% include "shared/header.html" %}
-{% include "shared/sidebar.html" %}
-<main id="simContentWrapper" class="simulation-workbench app-content" tabindex="-1">
-  <div class="sim-heading"><div><p class="sim-eyebrow">ĐỒNG BẰNG SÔNG CỬU LONG / OM5451</p><h1>Một thửa ruộng. Nhiều kịch bản.</h1><p>Thay đổi điều kiện, đối chiếu bằng chứng và xem giới hạn của từng kết quả.</p></div><span id="cloudStatus" class="sim-badge">Đang kết nối dữ liệu…</span></div>
-  <nav class="sim-tabs" aria-label="Nội dung mô phỏng">
-    <button type="button" data-panel="scenarioPanel" aria-pressed="true">Mô phỏng</button>
-    <button type="button" data-panel="reportPanel" aria-pressed="false">Báo cáo &amp; nguồn</button>
-    <button type="button" data-panel="weatherPanel" aria-pressed="false">Dữ liệu thời tiết</button>
-  </nav>
-  <p id="pageStatus" role="status" class="sim-status">Đang tải danh mục từ máy chủ…</p>
-  <button id="retryCatalog" type="button" hidden>Kết nối lại dữ liệu</button>
-  <section id="scenarioPanel">
-    <form id="scenarioForm" class="sim-card">
-      <div class="sim-form-heading"><div><h2>Điều kiện bạn đưa vào</h2><p>Đây là kịch bản, không phải số đo tự động tại ruộng.</p></div><button type="button" id="resetScenario" class="sim-quiet">Đặt lại</button></div>
-      <div class="sim-input-grid">
-        <label>Địa điểm đại diện<select id="locationId" name="locationId" required disabled><option value="">Đang tải…</option></select></label>
-        <label>Giai đoạn quan sát<select name="stage" id="stage"><option value="seedling">Mạ</option><option value="tillering">Đẻ nhánh</option><option value="panicle" selected>Làm đòng</option><option value="flowering">Trổ bông</option><option value="ripening">Chín</option></select></label>
-        <label>Ngày sau sạ<input name="dayAfterSowing" type="number" min="0" max="150" step="1" value="48" required></label>
-        <label>Số ngày của kịch bản<input name="exposureDays" type="number" min="1" max="30" step="1" value="7" required></label>
+  {% include "shared/header.html" %}
+  {% include "shared/sidebar.html" %}
+  <main id="simContentWrapper" class="app-content sim-workspace" tabindex="-1">
+    <header class="sim-page-head">
+      <div>
+        <h1 class="app-page-title">Mô phỏng cánh đồng lúa</h1>
+        <p>Thay đổi điều kiện tại ruộng để xem lúa OM5451 phản ứng với mặn, ngập và nhiệt độ.</p>
       </div>
-      <div class="sim-input-grid sim-sliders">
-        <label>Độ mặn <output id="salinityLabel">2,8 g/L</output><input name="salinityGl" type="range" min="0" max="20" step="0.1" value="2.8"></label>
-        <label>Nơi đo độ mặn<select name="salinitySite"><option value="fieldWater">Nước ruộng</option><option value="canalWater">Nước kênh (bối cảnh)</option></select></label>
-        <label>Nước ngập trên mặt đất <output id="waterLabel">4,5 cm</output><input name="waterDepthCm" type="range" min="0" max="150" step="0.5" value="4.5"></label>
-        <label>Nhiệt độ cực đại ngày <output id="temperatureLabel">28,5°C</output><input name="tempMaxC" type="range" min="5" max="55" step="0.5" value="28.5"></label>
+      <span class="sim-scenario-tag">{{ icon("grass") }} Giả lập · OM5451</span>
+    </header>
+
+    <section class="sim-control-panel app-glass" aria-labelledby="sim-controls-title">
+      <div class="sim-control-heading">
+        <h2 id="sim-controls-title">Thông số tại ruộng</h2>
+        <button class="app-button" type="button" id="btnReset">{{ icon("refresh") }} Đặt lại</button>
       </div>
-      <div class="sim-input-grid">
-        <label>Chiều cao cây (cm, nếu đã đo)<input name="plantHeightCm" type="number" min="1" max="200" step="0.1" placeholder="Chưa có số đo"></label>
-        <label>EC nước đất vùng rễ (dS/m)<input name="rootZoneEcDsM" type="number" min="0" max="20" step="0.1" placeholder="Không đổi từ g/L"></label>
-        <label class="sim-check"><input name="ecIsSeasonAverage" type="checkbox">EC là trung bình vụ, đo nước đất vùng rễ khi ruộng ngập</label>
-        <label class="sim-check"><input name="useWeather" type="checkbox">Dùng nhiệt độ cực đại dự báo tại địa điểm này (tối đa 7 ngày)</label>
+      <div class="sim-controls">
+        <div class="sim-control sim-control--salt">
+          <label for="inputSalinity">Độ mặn nước ruộng</label>
+          <output id="valSalinity" for="inputSalinity">2,8 g/L</output>
+          <input id="inputSalinity" type="range" min="0" max="6" step="0.1" value="2.8"
+                 aria-valuetext="2,8 g/L" aria-describedby="sim-salt-hint">
+          <div class="sim-range-scale" aria-hidden="true">
+            <span>0 g/L</span><span class="sim-range-tick" style="--tick: 50%">3</span><span>6 g/L</span>
+          </div>
+          <p class="sim-control-hint" id="sim-salt-hint">Giá trị của nước lấy ngay tại ruộng.</p>
+        </div>
+        <div class="sim-control sim-control--water">
+          <label for="inputWater">Mực nước so với mặt ruộng</label>
+          <output id="valWater" for="inputWater">+4,5 cm</output>
+          <input id="inputWater" type="range" min="-10" max="30" step="0.5" value="4.5"
+                 aria-valuetext="4,5 cm trên mặt ruộng" aria-describedby="sim-water-hint">
+          <div class="sim-range-scale" aria-hidden="true">
+            <span>−10 cm</span><span class="sim-range-tick" style="--tick: 25%">0</span><span>+30 cm</span>
+          </div>
+          <p class="sim-control-hint" id="sim-water-hint">Mốc 0 là mặt đất ruộng.</p>
+        </div>
+        <div class="sim-control sim-control--stage">
+          <label for="inputStage">Ngày sau sạ</label>
+          <output id="valStage" for="inputStage">48 ngày</output>
+          <input id="inputStage" type="range" min="0" max="95" step="1" value="48"
+                 aria-valuetext="48 ngày sau sạ" aria-describedby="sim-stage-hint">
+          <div class="sim-range-scale" aria-hidden="true">
+            <span>Ngày 0</span><span class="sim-range-tick" style="--tick: 45.3%">43</span>
+            <span class="sim-range-tick" style="--tick: 69.5%">66</span><span>Ngày 95</span>
+          </div>
+          <p class="sim-control-hint" id="sim-stage-hint">Giai đoạn sinh trưởng theo ngày sau sạ.</p>
+        </div>
+        <div class="sim-control sim-control--heat">
+          <label for="inputTemp">Nhiệt độ quanh tán lúa</label>
+          <output id="valTemp" for="inputTemp">28,5 °C</output>
+          <input id="inputTemp" type="range" min="20" max="42" step="0.5" value="28.5"
+                 aria-valuetext="28,5 °C" aria-describedby="sim-heat-hint">
+          <div class="sim-range-scale" aria-hidden="true">
+            <span>20 °C</span><span class="sim-range-tick" style="--tick: 68.2%">35</span><span>42 °C</span>
+          </div>
+          <p class="sim-control-hint" id="sim-heat-hint">Ngưỡng nóng của mô hình là 35 °C.</p>
+        </div>
       </div>
-      <div class="sim-actions"><button type="submit" id="runSimulation" class="sim-primary" disabled>Mô phỏng và xem báo cáo</button><button type="button" id="askAi" disabled>Nhờ AI chọn bằng chứng</button><span>Mô phỏng không cần khóa AI. AI hỗ trợ đọc báo cáo là tùy chọn.</span></div>
-      <p id="formStatus" class="sim-status">Đang tải danh mục từ máy chủ…</p>
-    </form>
-    <section class="sim-field-card" aria-labelledby="fieldTitle"><div class="sim-field-top"><h2 id="fieldTitle">Thửa ruộng của kịch bản</h2><span id="sceneLabel">Chưa chạy mô phỏng</span></div>
-      <svg id="fieldScene" viewBox="0 0 1000 330" role="img" aria-label="Minh họa thửa ruộng; không thể hiện tỷ lệ cây sống">
-        <defs><linearGradient id="fieldSky" x2="0" y2="1"><stop stop-color="#e3f1e8"/><stop offset="1" stop-color="#f6edcf"/></linearGradient><linearGradient id="fieldWater" x2="0" y2="1"><stop stop-color="#a6cfc0"/><stop offset="1" stop-color="#6d9e89"/></linearGradient><g id="ricePlant"><path d="M0 0 Q-3-25 0-65 M0-20 Q-20-48-25-49 M0-30 Q22-56 27-58 M0-40 Q-10-67-15-71" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><path d="M0-57 Q12-73 18-61" fill="none" stroke="#b1a047" stroke-width="3"/></g></defs>
-        <rect width="1000" height="330" fill="url(#fieldSky)"/><circle id="fieldSun" cx="868" cy="62" r="30" fill="#edcf78"/>
-        <path d="M0 160 Q120 100 250 150 T540 135 T800 155 T1000 130 V330 H0Z" fill="#bfd3b4"/>
-        <path d="M100 200 L740 155 L950 300 L110 318Z" fill="#b49d70"/>
-        <path d="M125 205 L735 165 L923 290 L133 306Z" fill="url(#fieldWater)"/>
-        <g id="ricePlants" color="#52864b"></g>
-        <path id="floodOverlay" d="M125 205 L735 165 L923 290 L133 306Z" fill="#4a9bb7" opacity="0"/>
-        <path d="M133 306 L923 290 L950 300 L110 318Z" fill="#8f8257"/>
-        <text x="28" y="310" fill="#355446" font-size="13">Minh họa định tính · Số cây vẽ không đại diện tỷ lệ sống</text>
-      </svg>
-      <div class="sim-summary-grid"><article><span>Ảnh hưởng mặn theo FAO</span><strong id="relativeYield">Chưa có kết quả</strong><small>Năng suất tương đối tham chiếu; chưa hiệu chuẩn OM5451.</small></article><article><span>Nguy cơ cần chú ý</span><strong id="riskSummary">Chờ mô phỏng</strong><small id="sceneNote">Hình thay đổi theo cảnh báo có căn cứ.</small></article><article><span>Năng suất / tỷ lệ sống thực địa</span><strong>Chưa đủ dữ liệu</strong><small>Không dùng điểm minh họa thay cho xác suất sống.</small></article></div>
     </section>
-    <section class="sim-card sim-assistant"><img src="/static/assets/stitch-simulation/co-ma-logo.png" alt="" width="56" height="56"><div><h2>Cò Mạ · Đọc kết quả có căn cứ</h2><p id="assistantAdvice">Chọn điều kiện rồi chạy mô phỏng. Các cảnh báo và nguồn sẽ xuất hiện ở báo cáo.</p><p id="aiStatus" class="sim-muted">Chưa yêu cầu AI.</p></div></section>
-  </section>
-  <section id="reportPanel" hidden><div class="sim-card"><div class="sim-form-heading"><h2 id="reportTitle" tabindex="-1">Báo cáo kịch bản</h2><div><button type="button" id="editScenario">Sửa điều kiện</button><button type="button" id="downloadReport" disabled>Tải báo cáo JSON</button></div></div><p id="reportSummary">Chạy mô phỏng để tạo báo cáo.</p><p id="reportAiStatus" class="sim-muted"></p><p id="reportMeta">Chạy mô phỏng để xem kết quả và phiên bản dữ liệu.</p><div id="evidenceList" class="sim-evidence-list"></div><h3>Diễn biến điều kiện theo ngày</h3><div class="sim-table-wrap"><table><thead><tr><th>Ngày</th><th>Tối đa °C</th><th>Mưa mm</th><th>ET₀ mm</th><th>Nóng lúc trổ</th></tr></thead><tbody id="scenarioRows"></tbody></table></div><h3>Giả định và phần còn thiếu</h3><ul id="assumptionsList"></ul><div id="experimentBox" hidden></div></div>
-    <div class="sim-card"><h2>Nguồn dữ liệu và đặc tính OM5451</h2><p id="varietyInfo"></p><div id="sourceList" class="sim-source-grid"></div></div>
-  </section>
-  <section id="weatherPanel" hidden><div class="sim-card"><h2>Thời tiết tại địa điểm đã chọn</h2><p>Nhiệt độ và mưa là dữ liệu ô lưới. Độ mặn, nước ruộng và chiều cao cây vẫn cần đo tại chỗ.</p><button type="button" id="loadWeather" disabled>Tải dự báo 7 ngày</button><p id="weatherMeta" role="status"></p><div class="sim-table-wrap"><table><thead><tr><th>Ngày</th><th>Thấp nhất °C</th><th>Cao nhất °C</th><th>Mưa mm</th><th>ET₀ mm</th><th>Bức xạ MJ/m²</th></tr></thead><tbody id="weatherRows"></tbody></table></div></div><div class="sim-card"><h2>Dữ liệu lịch sử dùng chung trên máy chủ</h2><p id="historyMeta"></p><a id="downloadHistory" hidden target="_blank" rel="noopener">Mở bộ dữ liệu NASA POWER (JSON)</a><p class="sim-muted">Nguồn: NASA POWER. Dự báo: Open-Meteo, CC BY 4.0; gói API miễn phí dành cho mục đích phi thương mại.</p></div></section>
-  <footer class="sim-footer">Dữ liệu có nguồn · Mô phỏng tham chiếu · Cần kiểm định thực địa trước khi dùng để quyết định canh tác</footer>
-</main><script src="/static/simulation.js?v=20261118-report2" defer></script></body></html>
+
+    <div class="sim-grid">
+      <figure class="sim-field">
+        {% include "simulation/field.html" %}
+        <figcaption class="sim-caption app-pane">
+          <div>
+            <strong id="sceneStage">Ngày 48 sau sạ</strong>
+            <p>Cảnh ruộng minh họa trạng thái của kịch bản.</p>
+          </div>
+          <div class="sim-legend">
+            <span><span class="sim-swatch sim-swatch--canopy"></span>Tán lúa</span>
+            <span><span class="sim-swatch sim-swatch--water"></span>Mặt nước</span>
+          </div>
+        </figcaption>
+      </figure>
+
+      <section class="sim-advice-panel app-glass" aria-labelledby="sim-advice-title">
+        <header class="sim-advice-heading">
+          <h2 id="sim-advice-title">Cò Mạ khuyên gì?</h2>
+          <p>Việc cần kiểm tra theo kịch bản đang xem</p>
+        </header>
+
+        <div class="sim-advice-overview">
+          <dl class="sim-results">
+            <div class="sim-chi">
+              <dt>Điểm sức khỏe lúa (CHI)</dt>
+              <dd id="chiScore">—</dd>
+            </div>
+            <div><dt>Rủi ro mặn</dt><dd id="sim-salt-risk" class="sim-risk">—</dd></div>
+            <div><dt>Rủi ro ngập</dt><dd id="sim-flood-risk" class="sim-risk">—</dd></div>
+          </dl>
+          <div class="sim-mascot" id="sim-mascot" data-mood="watch">
+            {{ co_ma() }}
+            <p id="sim-mood">Cò Mạ đang xem ruộng</p>
+          </div>
+          <div class="sim-advice-summary">
+            <ol class="sim-advice-steps" id="sim-advice-summary"></ol>
+          </div>
+        </div>
+        <footer class="sim-advice-footer">
+          <p class="sim-result-status" id="simulation-status" role="status">Đang tính kịch bản…</p>
+          <div class="sim-advice-actions">
+            <button class="app-button app-button--primary" id="open-advice" type="button"
+                    aria-haspopup="dialog" aria-controls="sim-advice-dialog" disabled>
+              Xem lời khuyên {{ icon("arrow_forward") }}
+            </button>
+            <button class="app-button" id="lowerSalt" type="button" aria-label="Thử kịch bản hạ mặn" disabled>
+              Thử hạ mặn
+            </button>
+            <a class="app-button" href="{{ url_for('simulation.report') }}">Báo cáo &amp; nguồn</a>
+          </div>
+        </footer>
+        <noscript><p>Bật JavaScript để thay đổi kịch bản và đọc lời khuyên.</p></noscript>
+      </section>
+    </div>
+
+    <section class="sim-science app-glass" aria-labelledby="sim-science-title">
+      <header class="sim-science-heading">
+        <h2 id="sim-science-title">Lúa thay đổi thế nào?</h2>
+        <p>Quan sát khóm lúa, mặt nước và vùng rễ khi đổi thông số.</p>
+      </header>
+      <figure class="sim-plant-study">
+        {% include "simulation/plant.html" %}
+        <figcaption><strong>Cận cảnh khóm lúa</strong><span id="sim-plant-cues">Minh họa dấu hiệu sinh lý</span></figcaption>
+      </figure>
+      <div class="sim-mechanisms" id="sim-mechanisms"></div>
+    </section>
+  </main>
+  <dialog class="sim-advice-dialog app-glass" id="sim-advice-dialog" aria-labelledby="sim-advice-dialog-title">
+    <header class="sim-advice-dialog-heading">
+      <h2 id="sim-advice-dialog-title">Lời khuyên chi tiết của Cò Mạ</h2>
+      <form method="dialog">
+        <button class="app-button" type="submit" autofocus>{{ icon("close") }} Đóng</button>
+      </form>
+    </header>
+    <div class="sim-advice-dialog-body">
+      <p class="sim-advice-context" id="sim-advice-context"></p>
+      <p class="sim-advice-stale" id="sim-advice-stale" hidden>Lời khuyên thuộc lần tính thành công gần nhất.</p>
+      <div class="sim-advice-detail">
+        <ol class="sim-advice-steps" id="sim-advice-steps"></ol>
+        <div class="sim-advice-illustration" aria-hidden="true">{{ co_ma() }}</div>
+      </div>
+      <p class="sim-model-note">CHI là điểm mô phỏng trên thang 100. Cần đếm cây trên ô mẫu để tính tỷ lệ sống.</p>
+    </div>
+  </dialog>
+</body>
+</html>

@@ -29,8 +29,6 @@ class SimulationResult(TypedDict):
     salinity_risk: str
     flood_risk: str
     survival_rate_pct: None
-    spikelet_abortion_pct: float | None
-    illustrative_yield_tonnes_ha: float
     advice: str
     advice_steps: list[AdviceStep]
     physiology: Physiology
@@ -104,13 +102,9 @@ def evaluate(inputs: SimulationDemoInput) -> SimulationResult:
         "is_simulated": True,
         "stage": stage,
         "chi": round(chi, 1),
-        "illustrative_yield_tonnes_ha": 2.5 + (6.2 - 2.5) * chi / 100,
         "salinity_risk": salt_risk,
         "flood_risk": flood_risk,
         "survival_rate_pct": None,
-        "spikelet_abortion_pct": 10 + 35 * salt_excess
-        if stage == "Làm đòng" and salt > 2
-        else None,
         "advice": explain_risk(stage, salt_risk, flood_risk, depth, inputs.temp_c),
         "advice_steps": detailed_advice(inputs, stage, salt_risk),
         "physiology": describe_physiology(inputs, stage, salt_risk),
