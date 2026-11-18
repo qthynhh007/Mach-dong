@@ -1,5 +1,6 @@
 """Published CSV catalog. Each download resolves to a server-owned path."""
 
+import json
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -8,6 +9,7 @@ from src.services.quality_service import preview_csv
 
 STATION_CSV = ROOT / "data" / "station-context" / "dbscl-man-muc-nuoc-2026.csv"
 FLOOD_DEMO_CSV = REFERENCE_DIR / "long-huu-man-ngap-demo.csv"
+PUBLISHED_CSV_DIR = REFERENCE_DIR / "published-csv"
 VILO_URL = (
     "https://snnmt.vinhlong.gov.vn/Portals/1041/2026/5/19/"
     "VILO_XMAN_20260514_1700%20%281%29.pdf?ver=ULoxeqRZg5BrKdp7JslwyA%3D%3D"
@@ -43,6 +45,19 @@ class CsvDataset:
             return f"{size} B"
         return f"{size / 1024:.1f}".replace(".", ",") + " KB"
 
+
+def published_datasets() -> tuple[CsvDataset, ...]:
+    catalog = json.loads((PUBLISHED_CSV_DIR / "catalog.json").read_text(encoding="utf-8"))
+    return tuple(
+        CsvDataset(
+            item["slug"], PUBLISHED_CSV_DIR / item["file"], item["title"], item["details"],
+            tuple(item["categories"]), item["location"], item["period"],
+            tuple((label, url) for label, url in item["sources"]),
+        )
+        for item in catalog
+    )
+
+
 DATASETS = (
     CsvDataset(
         "dbscl-stations", STATION_CSV, "Mặn và mực nước tại trạm ĐBSCL",
@@ -74,6 +89,7 @@ DATASETS = (
         "ph", REFERENCE_DIR / "cu-lao-dung-do-ph.csv", "Độ pH tại ruộng",
         "Mẫu ghi độ pH", ("ph",), "Cù Lao Dung", "15/11/2026",
     ),
+    *published_datasets(),
 )
 
 DATASET_BY_SLUG = {dataset.slug: dataset for dataset in DATASETS}

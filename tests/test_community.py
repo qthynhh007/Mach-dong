@@ -573,6 +573,15 @@ class communityTests(TestCase):
             self.assertEqual(len({item["sourceUrl"] for item in items}), 20)
             self.assertTrue(all(item["author"] == "Admin" for item in items))
             self.assertTrue(all(not item["isSample"] and not item["canEdit"] for item in items))
+            for item in items[:10]:
+                self.assertEqual(len(item["photos"]), 1)
+                src = item["photos"][0]
+                credit = item["photoCredits"][src]
+                self.assertTrue(credit["author"] and credit["license"] and credit["alt"])
+                self.assertTrue(credit["sourceUrl"].startswith("https://commons.wikimedia.org/"))
+                with client.get(src) as photo:
+                    self.assertEqual(photo.status_code, 200)
+                    self.assertEqual(photo.mimetype, "image/jpeg")
             first = client.get("/api/community/posts/bai-tham-khao-01").json["data"]["post"]
             self.assertIn("Trần Khắc Thi", first["body"])
             self.assertIn("19/12/2012", first["body"])

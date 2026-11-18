@@ -10,6 +10,14 @@ EDITORIAL_POSTS = {
     )
 }
 
+POST_PHOTOS = {
+    post_id: {key: value for key, value in asset.items() if key != "posts"}
+    for asset in json.loads(
+        (REFERENCE_DIR / "forum-photo-assets.json").read_text(encoding="utf-8")
+    )
+    for post_id in asset["posts"]
+}
+
 DISCUSSION_TOPICS = {
     "water": "Trữ ngọt rãnh liếp",
     "crop-care": "Chăm sóc lúa",

@@ -1,3 +1,4 @@
+from csv import DictReader
 from io import BytesIO
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -54,6 +55,26 @@ class TestApp(TestCase):
             data={"file": (BytesIO(b"site,unit,value\nfield,g/L"), "invalid.csv")},
         )
         self.assertEqual(response.status_code, 400)
+
+    def test_published_csv_previews_match_downloads_and_sources(self) -> None:
+        expected = {
+            "nasa-power-can-tho-2025": (365, "rain_mm_day", "0.02"),
+            "faostat-viet-nam-rice-production": (64, "rice_production_tonnes", "43450450"),
+            "faostat-viet-nam-rice-yields": (64, "rice_yield_tonnes_per_ha", "6.1517005"),
+        }
+        catalog = self.client.get("/community").get_data(as_text=True)
+        for slug, (count, column, value) in expected.items():
+            with self.subTest(slug=slug):
+                self.assertIn(f'id="csv-title-{slug}"', catalog)
+                preview = self.client.get(f"/api/community/datasets/{slug}").json["data"]
+                self.assertEqual(preview["row_count"], count)
+                self.assertEqual(preview["rows"][0][preview["columns"].index(column)], value)
+                with self.client.get(f"/community/samples/{slug}") as download:
+                    self.assertEqual(download.status_code, 200)
+                    self.assertIn("attachment", download.headers["Content-Disposition"])
+                    rows = list(DictReader(download.get_data(as_text=True).splitlines()))
+                self.assertEqual(len(rows), count)
+                self.assertEqual(rows[0][column], value)
 
     def test_simulation_has_no_fabricated_physiology(self) -> None:
         response = self.client.get("/simulation/report")

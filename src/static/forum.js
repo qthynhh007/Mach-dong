@@ -60,13 +60,43 @@
       return button;
     }
 
-    picture(src) {
-      if (!/^(?:\/static\/assets\/stitch-forum-(?:field|roots)\.jpg|data:image\/jpeg;base64,[A-Za-z0-9+/]+=*)$/.test(src)) return null;
+    picture(src, credit) {
+      if (!/^(?:\/static\/assets\/(?:stitch-forum-(?:field|roots)\.jpg|forum-photos\/[a-z0-9-]+\.jpg)|data:image\/jpeg;base64,[A-Za-z0-9+/]+=*)$/.test(src)) return null;
       const image = new Image();
-      image.src = src;
-      image.alt = "Ảnh đính kèm bài chia sẻ";
+      image.alt = credit?.alt || "Ảnh đính kèm bài chia sẻ";
       image.loading = "lazy";
+      image.decoding = "async";
+      if (credit) {
+        image.width = credit.width;
+        image.height = credit.height;
+      }
+      image.src = src;
       return image;
+    }
+
+    postPhoto(src, credit) {
+      const image = this.picture(src, credit);
+      if (!image || !credit) return image;
+
+      const figure = this.element("figure", "", "forum-sourced-photo");
+      const caption = this.element("figcaption");
+      const source = this.element("a", credit.author);
+      source.href = credit.sourceUrl;
+      source.target = "_blank";
+      source.rel = "noopener noreferrer";
+      caption.append(`${credit.alt} · Ảnh minh họa · `, source, " · ");
+
+      if (credit.licenseUrl) {
+        const license = this.element("a", credit.license);
+        license.href = credit.licenseUrl;
+        license.target = "_blank";
+        license.rel = "noopener noreferrer";
+        caption.append(license);
+      } else {
+        caption.append(credit.license);
+      }
+      figure.append(image, caption);
+      return figure;
     }
 
     bindVote(root, post) {
@@ -103,7 +133,7 @@
         `${post.answerCount} câu trả lời`, post.acceptedReplyId ? "✓ Đã giải đáp" : "",
       ].filter(Boolean).join(" · ");
       const gallery = root.querySelector("[data-photos]");
-      gallery.replaceChildren(...post.photos.map((src) => this.picture(src)).filter(Boolean));
+      gallery.replaceChildren(...post.photos.map((src) => this.postPhoto(src, post.photoCredits?.[src])).filter(Boolean));
       gallery.hidden = !gallery.childElementCount;
       this.bindVote(root, post);
     }

@@ -16,6 +16,7 @@ from src.services.forum_service import (
     DISCUSSION_TOPICS,
     EDITORIAL_AUTHOR,
     EDITORIAL_POSTS,
+    POST_PHOTOS,
     SAMPLE_POSTS,
     SAMPLE_REPLIES,
     STAGES,
@@ -249,6 +250,10 @@ class communityService:
         post["isSample"] = bool(post["isSample"])
         if post["authorId"] == EDITORIAL_AUTHOR and post["id"] in EDITORIAL_POSTS:
             post["sourceUrl"] = EDITORIAL_POSTS[post["id"]]["url"]
+        if post["authorId"] == EDITORIAL_AUTHOR or post["isSample"]:
+            if photo := POST_PHOTOS.get(post["id"]):
+                post["photos"] = [photo["src"]]
+                post["photoCredits"] = {photo["src"]: photo}
         post.pop("requestId", None)
         if summary:
             post["body"] = post["body"][:300] + ("…" if len(post["body"]) > 300 else "")

@@ -22,8 +22,8 @@ Khi thêm class Tailwind vào HTML, chạy `npm install` và `npm run build:css`
 
 | Trang | Đường dẫn | Xem thử |
 |---|---|---|
-| Kho CSV cộng đồng | `/community` | Tìm và lọc 4 bộ mẫu, tải CSV, chọn hoặc thả tệp UTF-8 để kiểm tra cấu trúc và xem trước |
-| Diễn đàn | `/forum` | Tìm không dấu, lọc chủ đề/trạng thái/bài của tôi, sắp xếp và phân trang |
+| Kho CSV cộng đồng | `/community` | Tìm, lọc, xem trước và tải bộ dữ liệu. Tệp UTF-8 do người dùng chọn được kiểm tra cấu trúc trước khi xem |
+| Diễn đàn | `/forum` | Tìm không dấu, lọc chủ đề/trạng thái/bài của tôi, sắp xếp và phân trang. Các bài tham khảo đầu có ảnh minh họa ghi tác giả và giấy phép |
 | Đăng bài | `/forum/new` | Soạn bài, đính kèm tối đa 4 ảnh, lưu/khôi phục/xóa bản nháp riêng |
 | Chi tiết bài | `/forum/<postId>` | Trả lời theo chuỗi, đánh dấu hữu ích, chọn giải đáp, sửa/xóa nội dung của mình |
 | Sửa bài | `/forum/<postId>/edit` | Chỉnh sửa bài và ảnh; kiểm tra quyền tác giả trên máy chủ |
@@ -34,7 +34,7 @@ Khi thêm class Tailwind vào HTML, chạy `npm install` và `npm run build:css`
 | Đăng ký | `/register` | Nhập thông tin mẫu, kiểm tra mật khẩu xác nhận và quay lại đăng nhập |
 | Tài khoản | `/profile` | Mở từ avatar, lưu hồ sơ demo trên trình duyệt và xem thử biểu mẫu đổi mật khẩu |
 
-Đăng nhập và đăng ký vẫn là biểu mẫu xem thử, thuộc phần tích hợp tài khoản của nhóm. CSV tải lên hiện chỉ được đọc để xem trước. Bốn CSV cũ trong `data/reference` và bài có nhãn “Dữ liệu mẫu” là giả lập; bộ NASA POWER trên cloud là dữ liệu thực từ nguồn có ghi metadata. Phần trăm cây sống chờ số liệu thực địa và mô hình được kiểm định.
+Đăng nhập và đăng ký vẫn là biểu mẫu xem thử, thuộc phần tích hợp tài khoản của nhóm. CSV tải lên hiện chỉ được đọc để xem trước. Kho đánh dấu các bộ giả lập và dẫn nguồn trên các bộ công bố. CSV khí tượng NASA POWER và thống kê lúa FAOSTAT nằm trong `data/reference/published-csv/`. Ảnh chụp được thu nhỏ và nén JPEG trong `src/static/assets/forum-photos/`. Tác giả, giấy phép và liên kết ảnh gốc nằm trong `data/reference/forum-photo-assets.json`. Phần trăm cây sống chờ số liệu thực địa và mô hình được kiểm định.
 
 Bài viết, ảnh, bản nháp, câu trả lời và lượt hữu ích được lưu vào `data/community.sqlite3`, tự tạo khi khởi động. Mặc định mỗi trình duyệt có một **phiên khách dùng thử**; giữ cookie để tiếp tục sửa bài của phiên đó. Đây chưa phải tài khoản đăng nhập. Có sẵn adapter cho tài khoản của Tân và cấu hình tắt khách.
 

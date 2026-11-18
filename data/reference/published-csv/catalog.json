@@ -1,0 +1,180 @@
+[
+  {
+    "slug": "nasa-power-can-tho-2025",
+    "file": "nasa-power-can-tho-2025.csv",
+    "title": "Khí tượng theo ngày tại Cần Thơ",
+    "details": "Dữ liệu hồi cứu ô lưới · Mưa, nhiệt độ, độ ẩm, gió và bức xạ · LST",
+    "categories": [
+      "weather"
+    ],
+    "location": "Cần Thơ",
+    "period": "2025",
+    "sources": [
+      [
+        "NASA POWER · Dữ liệu gốc",
+        "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M_MIN%2CT2M_MAX%2CT2M%2CPRECTOTCORR%2CRH2M%2CWS2M%2CALLSKY_SFC_SW_DWN&community=AG&latitude=10.04&longitude=105.78&start=20250101&end=20251231&format=JSON&time-standard=LST"
+      ]
+    ]
+  },
+  {
+    "slug": "nasa-power-long-my-2025",
+    "file": "nasa-power-long-my-2025.csv",
+    "title": "Khí tượng theo ngày tại Long Mỹ, Hậu Giang",
+    "details": "Dữ liệu hồi cứu ô lưới · Mưa, nhiệt độ, độ ẩm, gió và bức xạ · LST",
+    "categories": [
+      "weather"
+    ],
+    "location": "Long Mỹ, Hậu Giang",
+    "period": "2025",
+    "sources": [
+      [
+        "NASA POWER · Dữ liệu gốc",
+        "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M_MIN%2CT2M_MAX%2CT2M%2CPRECTOTCORR%2CRH2M%2CWS2M%2CALLSKY_SFC_SW_DWN&community=AG&latitude=9.68&longitude=105.57&start=20250101&end=20251231&format=JSON&time-standard=LST"
+      ]
+    ]
+  },
+  {
+    "slug": "nasa-power-ba-tri-2025",
+    "file": "nasa-power-ba-tri-2025.csv",
+    "title": "Khí tượng theo ngày tại Ba Tri, Bến Tre",
+    "details": "Dữ liệu hồi cứu ô lưới · Mưa, nhiệt độ, độ ẩm, gió và bức xạ · LST",
+    "categories": [
+      "weather"
+    ],
+    "location": "Ba Tri, Bến Tre",
+    "period": "2025",
+    "sources": [
+      [
+        "NASA POWER · Dữ liệu gốc",
+        "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M_MIN%2CT2M_MAX%2CT2M%2CPRECTOTCORR%2CRH2M%2CWS2M%2CALLSKY_SFC_SW_DWN&community=AG&latitude=10.04&longitude=106.59&start=20250101&end=20251231&format=JSON&time-standard=LST"
+      ]
+    ]
+  },
+  {
+    "slug": "nasa-power-go-cong-2025",
+    "file": "nasa-power-go-cong-2025.csv",
+    "title": "Khí tượng theo ngày tại Gò Công, Tiền Giang",
+    "details": "Dữ liệu hồi cứu ô lưới · Mưa, nhiệt độ, độ ẩm, gió và bức xạ · LST",
+    "categories": [
+      "weather"
+    ],
+    "location": "Gò Công, Tiền Giang",
+    "period": "2025",
+    "sources": [
+      [
+        "NASA POWER · Dữ liệu gốc",
+        "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M_MIN%2CT2M_MAX%2CT2M%2CPRECTOTCORR%2CRH2M%2CWS2M%2CALLSKY_SFC_SW_DWN&community=AG&latitude=10.36&longitude=106.67&start=20250101&end=20251231&format=JSON&time-standard=LST"
+      ]
+    ]
+  },
+  {
+    "slug": "nasa-power-tra-vinh-2025",
+    "file": "nasa-power-tra-vinh-2025.csv",
+    "title": "Khí tượng theo ngày tại Trà Vinh",
+    "details": "Dữ liệu hồi cứu ô lưới · Mưa, nhiệt độ, độ ẩm, gió và bức xạ · LST",
+    "categories": [
+      "weather"
+    ],
+    "location": "Trà Vinh",
+    "period": "2025",
+    "sources": [
+      [
+        "NASA POWER · Dữ liệu gốc",
+        "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M_MIN%2CT2M_MAX%2CT2M%2CPRECTOTCORR%2CRH2M%2CWS2M%2CALLSKY_SFC_SW_DWN&community=AG&latitude=9.93&longitude=106.34&start=20250101&end=20251231&format=JSON&time-standard=LST"
+      ]
+    ]
+  },
+  {
+    "slug": "nasa-power-soc-trang-2025",
+    "file": "nasa-power-soc-trang-2025.csv",
+    "title": "Khí tượng theo ngày tại Sóc Trăng",
+    "details": "Dữ liệu hồi cứu ô lưới · Mưa, nhiệt độ, độ ẩm, gió và bức xạ · LST",
+    "categories": [
+      "weather"
+    ],
+    "location": "Sóc Trăng",
+    "period": "2025",
+    "sources": [
+      [
+        "NASA POWER · Dữ liệu gốc",
+        "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M_MIN%2CT2M_MAX%2CT2M%2CPRECTOTCORR%2CRH2M%2CWS2M%2CALLSKY_SFC_SW_DWN&community=AG&latitude=9.6&longitude=105.97&start=20250101&end=20251231&format=JSON&time-standard=LST"
+      ]
+    ]
+  },
+  {
+    "slug": "nasa-power-chau-doc-2025",
+    "file": "nasa-power-chau-doc-2025.csv",
+    "title": "Khí tượng theo ngày tại Châu Đốc, An Giang",
+    "details": "Dữ liệu hồi cứu ô lưới · Mưa, nhiệt độ, độ ẩm, gió và bức xạ · LST",
+    "categories": [
+      "weather"
+    ],
+    "location": "Châu Đốc, An Giang",
+    "period": "2025",
+    "sources": [
+      [
+        "NASA POWER · Dữ liệu gốc",
+        "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M_MIN%2CT2M_MAX%2CT2M%2CPRECTOTCORR%2CRH2M%2CWS2M%2CALLSKY_SFC_SW_DWN&community=AG&latitude=10.7&longitude=105.12&start=20250101&end=20251231&format=JSON&time-standard=LST"
+      ]
+    ]
+  },
+  {
+    "slug": "nasa-power-ca-mau-2025",
+    "file": "nasa-power-ca-mau-2025.csv",
+    "title": "Khí tượng theo ngày tại Cà Mau",
+    "details": "Dữ liệu hồi cứu ô lưới · Mưa, nhiệt độ, độ ẩm, gió và bức xạ · LST",
+    "categories": [
+      "weather"
+    ],
+    "location": "Cà Mau",
+    "period": "2025",
+    "sources": [
+      [
+        "NASA POWER · Dữ liệu gốc",
+        "https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M_MIN%2CT2M_MAX%2CT2M%2CPRECTOTCORR%2CRH2M%2CWS2M%2CALLSKY_SFC_SW_DWN&community=AG&latitude=9.18&longitude=105.15&start=20250101&end=20251231&format=JSON&time-standard=LST"
+      ]
+    ]
+  },
+  {
+    "slug": "faostat-viet-nam-rice-production",
+    "file": "faostat-viet-nam-rice-production.csv",
+    "title": "Sản lượng lúa Việt Nam",
+    "details": "Thống kê theo năm cấp quốc gia · tấn · FAOSTAT qua Our World in Data",
+    "categories": [
+      "production"
+    ],
+    "location": "Việt Nam",
+    "period": "1961–2024",
+    "sources": [
+      [
+        "Our World in Data · Bộ CSV gốc",
+        "https://ourworldindata.org/grapher/rice-production?tab=chart"
+      ],
+      [
+        "FAOSTAT · Dữ liệu cây trồng",
+        "https://www.fao.org/faostat/en/#data/QCL"
+      ]
+    ]
+  },
+  {
+    "slug": "faostat-viet-nam-rice-yields",
+    "file": "faostat-viet-nam-rice-yields.csv",
+    "title": "Năng suất lúa Việt Nam",
+    "details": "Thống kê theo năm cấp quốc gia · tấn/ha · FAOSTAT qua Our World in Data",
+    "categories": [
+      "production"
+    ],
+    "location": "Việt Nam",
+    "period": "1961–2024",
+    "sources": [
+      [
+        "Our World in Data · Bộ CSV gốc",
+        "https://ourworldindata.org/grapher/rice-yields?tab=chart"
+      ],
+      [
+        "FAOSTAT · Dữ liệu cây trồng",
+        "https://www.fao.org/faostat/en/#data/QCL"
+      ]
+    ]
+  }
+]
