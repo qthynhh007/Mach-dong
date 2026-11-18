@@ -83,6 +83,26 @@ test("Gemini accepted output contains only validated IDs and never changes predi
 test("quota errors are explicit and preserve deterministic result",async()=> {
   assert.equal((await new aiClient({GEMINI_API_KEY:"test-only"},async()=>new Response("",{status:429})).explain(evaluate({}))).status,"quotaExceeded");
 });
+
+test("Groq selects existing evidence through a fixed cloud endpoint",async()=> {
+  const fetcher = async function(url,request) {
+    assert.equal(this,undefined); assert.equal(url,"https://api.groq.com/openai/v1/chat/completions");
+    assert.equal(request.headers.Authorization,"Bearer test-only");
+    const body = JSON.parse(request.body);
+    assert.equal(body.model,"openai/gpt-oss-20b"); assert.equal(body.response_format.json_schema.strict,true);
+    return Response.json({choices:[{finish_reason:"stop",message:{content:JSON.stringify({priorityEvidenceIds:["missing-ec"],missingInputIds:["rootZoneEc"]})}}]});
+  };
+  const result = evaluate({});
+  const ai = await new aiClient({GROQ_API_KEY:"test-only"},fetcher).explain(result);
+  assert.equal(ai.status,"ready"); assert.equal(ai.provider,"Groq");
+  assert.equal(result.metrics.fieldYieldTonnesHa,null);
+});
+
+test("Groq rejects fabricated evidence and explicit provider never falls back silently",async()=> {
+  const fetcher = async()=>Response.json({choices:[{finish_reason:"stop",message:{content:'{"priorityEvidenceIds":["fake"],"missingInputIds":[]}'}}]});
+  assert.equal((await new aiClient({GROQ_API_KEY:"test-only"},fetcher).explain(evaluate({}))).status,"rejectedOrUnavailable");
+  assert.equal((await new aiClient({AI_PROVIDER:"groq",GEMINI_API_KEY:"test-only"},()=>assert.fail("No Groq key")).explain(evaluate({}))).status,"notConfigured");
+});
 test("weather validates units and does not coerce null to zero",async()=> {
   const response = {daily_units:{temperature_2m_max:"°C",temperature_2m_min:"°C",precipitation_sum:"mm",et0_fao_evapotranspiration:"mm",shortwave_radiation_sum:"MJ/m²"},daily:{time:["2026-11-18"],temperature_2m_max:[null],temperature_2m_min:[24],precipitation_sum:[null],et0_fao_evapotranspiration:[2],shortwave_radiation_sum:[10]}};
   const client = new weatherClient(catalog,async function() {
