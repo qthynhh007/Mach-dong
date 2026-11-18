@@ -124,7 +124,6 @@
             <button class="app-button" id="lowerSalt" type="button" aria-label="Thử kịch bản hạ mặn" disabled>
               Thử hạ mặn
             </button>
-            <a class="app-button" href="{{ url_for('simulation.report') }}">Báo cáo &amp; nguồn</a>
           </div>
         </footer>
         <noscript><p>Bật JavaScript để thay đổi kịch bản và đọc lời khuyên.</p></noscript>
@@ -142,6 +141,9 @@
       </figure>
       <div class="sim-mechanisms" id="sim-mechanisms"></div>
     </section>
+    <footer class="mt-3">
+      <a class="app-button" href="{{ url_for('simulation.report') }}">Báo cáo &amp; nguồn</a>
+    </footer>
   </main>
   <dialog class="sim-advice-dialog app-glass" id="sim-advice-dialog" aria-labelledby="sim-advice-dialog-title">
     <header class="sim-advice-dialog-heading">
