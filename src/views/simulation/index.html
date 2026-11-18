@@ -4,7 +4,7 @@
 {% include "shared/navigation-head.html" %}
 <link rel="icon" href="/static/assets/stitch-simulation/co-ma-logo.png">
 <link rel="stylesheet" href="/static/assets/stitch-simulation/fonts.css">
-<link rel="stylesheet" href="/static/shell.css"><link rel="stylesheet" href="/static/simulation-workbench.css">
+<link rel="stylesheet" href="/static/shell.css"><link rel="stylesheet" href="/static/simulation-workbench.css?v=20261118-report2">
 </head><body>{% include "shared/header.html" %}
 <main id="simContentWrapper" class="simulation-workbench">
   <div class="sim-heading"><div><p class="sim-eyebrow">ĐỒNG BẰNG SÔNG CỬU LONG / OM5451</p><h1>Một thửa ruộng. Nhiều kịch bản.</h1><p>Thay đổi điều kiện, đối chiếu bằng chứng và xem giới hạn của từng kết quả.</p></div><span id="cloudStatus" class="sim-badge">Đang kết nối dữ liệu…</span></div>
@@ -14,6 +14,7 @@
     <button type="button" data-panel="weatherPanel" aria-pressed="false">Dữ liệu thời tiết</button>
   </nav>
   <p id="pageStatus" role="status" class="sim-status">Đang tải danh mục từ máy chủ…</p>
+  <button id="retryCatalog" type="button" hidden>Kết nối lại dữ liệu</button>
   <section id="scenarioPanel">
     <form id="scenarioForm" class="sim-card">
       <div class="sim-form-heading"><div><h2>Điều kiện bạn đưa vào</h2><p>Đây là kịch bản, không phải số đo tự động tại ruộng.</p></div><button type="button" id="resetScenario" class="sim-quiet">Đặt lại</button></div>
@@ -35,7 +36,8 @@
         <label class="sim-check"><input name="ecIsSeasonAverage" type="checkbox">EC là trung bình vụ, đo nước đất vùng rễ khi ruộng ngập</label>
         <label class="sim-check"><input name="useWeather" type="checkbox">Dùng nhiệt độ cực đại dự báo tại địa điểm này (tối đa 7 ngày)</label>
       </div>
-      <div class="sim-actions"><button type="submit" id="runSimulation" class="sim-primary" disabled>Mô phỏng kịch bản</button><button type="button" id="askAi" disabled>Nhờ AI chọn bằng chứng</button><span>AI chạy trên máy chủ. Cần kết nối Internet.</span></div>
+      <div class="sim-actions"><button type="submit" id="runSimulation" class="sim-primary" disabled>Mô phỏng và xem báo cáo</button><button type="button" id="askAi" disabled>Nhờ AI chọn bằng chứng</button><span>Mô phỏng không cần khóa AI. AI hỗ trợ đọc báo cáo là tùy chọn.</span></div>
+      <p id="formStatus" class="sim-status">Đang tải danh mục từ máy chủ…</p>
     </form>
     <section class="sim-field-card" aria-labelledby="fieldTitle"><div class="sim-field-top"><h2 id="fieldTitle">Thửa ruộng của kịch bản</h2><span id="sceneLabel">Chưa chạy mô phỏng</span></div>
       <svg id="fieldScene" viewBox="0 0 1000 330" role="img" aria-label="Minh họa thửa ruộng; không thể hiện tỷ lệ cây sống">
@@ -53,9 +55,9 @@
     </section>
     <section class="sim-card sim-assistant"><img src="/static/assets/stitch-simulation/co-ma-logo.png" alt="" width="56" height="56"><div><h2>Cò Mạ · Đọc kết quả có căn cứ</h2><p id="assistantAdvice">Chọn điều kiện rồi chạy mô phỏng. Các cảnh báo và nguồn sẽ xuất hiện ở báo cáo.</p><p id="aiStatus" class="sim-muted">Chưa yêu cầu AI.</p></div></section>
   </section>
-  <section id="reportPanel" hidden><div class="sim-card"><div class="sim-form-heading"><h2>Báo cáo kịch bản</h2><button type="button" id="downloadReport" disabled>Tải báo cáo JSON</button></div><p id="reportMeta">Chạy mô phỏng để xem kết quả và phiên bản dữ liệu.</p><div id="evidenceList" class="sim-evidence-list"></div><h3>Diễn biến điều kiện theo ngày</h3><div class="sim-table-wrap"><table><thead><tr><th>Ngày</th><th>Tối đa °C</th><th>Mưa mm</th><th>ET₀ mm</th><th>Nóng lúc trổ</th></tr></thead><tbody id="scenarioRows"></tbody></table></div><h3>Giả định và phần còn thiếu</h3><ul id="assumptionsList"></ul><div id="experimentBox" hidden></div></div>
+  <section id="reportPanel" hidden><div class="sim-card"><div class="sim-form-heading"><h2 id="reportTitle" tabindex="-1">Báo cáo kịch bản</h2><div><button type="button" id="editScenario">Sửa điều kiện</button><button type="button" id="downloadReport" disabled>Tải báo cáo JSON</button></div></div><p id="reportSummary">Chạy mô phỏng để tạo báo cáo.</p><p id="reportAiStatus" class="sim-muted"></p><p id="reportMeta">Chạy mô phỏng để xem kết quả và phiên bản dữ liệu.</p><div id="evidenceList" class="sim-evidence-list"></div><h3>Diễn biến điều kiện theo ngày</h3><div class="sim-table-wrap"><table><thead><tr><th>Ngày</th><th>Tối đa °C</th><th>Mưa mm</th><th>ET₀ mm</th><th>Nóng lúc trổ</th></tr></thead><tbody id="scenarioRows"></tbody></table></div><h3>Giả định và phần còn thiếu</h3><ul id="assumptionsList"></ul><div id="experimentBox" hidden></div></div>
     <div class="sim-card"><h2>Nguồn dữ liệu và đặc tính OM5451</h2><p id="varietyInfo"></p><div id="sourceList" class="sim-source-grid"></div></div>
   </section>
   <section id="weatherPanel" hidden><div class="sim-card"><h2>Thời tiết tại địa điểm đã chọn</h2><p>Nhiệt độ và mưa là dữ liệu ô lưới. Độ mặn, nước ruộng và chiều cao cây vẫn cần đo tại chỗ.</p><button type="button" id="loadWeather" disabled>Tải dự báo 7 ngày</button><p id="weatherMeta" role="status"></p><div class="sim-table-wrap"><table><thead><tr><th>Ngày</th><th>Thấp nhất °C</th><th>Cao nhất °C</th><th>Mưa mm</th><th>ET₀ mm</th><th>Bức xạ MJ/m²</th></tr></thead><tbody id="weatherRows"></tbody></table></div></div><div class="sim-card"><h2>Dữ liệu lịch sử dùng chung trên máy chủ</h2><p id="historyMeta"></p><a id="downloadHistory" hidden target="_blank" rel="noopener">Mở bộ dữ liệu NASA POWER (JSON)</a><p class="sim-muted">Nguồn: NASA POWER. Dự báo: Open-Meteo, CC BY 4.0; gói API miễn phí dành cho mục đích phi thương mại.</p></div></section>
   <footer class="sim-footer">Dữ liệu có nguồn · Mô phỏng tham chiếu · Cần kiểm định thực địa trước khi dùng để quyết định canh tác</footer>
-</main><script src="/static/simulation.js" defer></script></body></html>
+</main><script src="/static/simulation.js?v=20261118-report2" defer></script></body></html>

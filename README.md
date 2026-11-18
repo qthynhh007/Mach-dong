@@ -2,7 +2,7 @@
 
 Bản MVC + Service phục vụ cộng đồng và mô phỏng điều kiện canh tác OM5451. Mô phỏng và dữ liệu chạy qua API cloud; có bản Windows EXE không cần cài Python hoặc AI cục bộ. Xem [hướng dẫn mô phỏng, nguồn dữ liệu, cấu hình Gemini và phát hành EXE](docs/simulation.md).
 
-API công khai: [Mạch Đồng · Dữ liệu mô phỏng](https://mach-dong-rice-data.artfulmica6.chatgpt.site). Có 2.920 dòng NASA POWER năm 2025 tại 8 điểm ĐBSCL, dự báo Open-Meteo và 12 nguồn tham chiếu. Gemini cần quản trị viên cấu hình key một lần trên máy chủ; chưa có key thì chỉ chạy engine có nguồn, hiển thị rõ AI chưa bật.
+API công khai: [Mạch Đồng · Dữ liệu mô phỏng](https://mach-dong-rice-data.artfulmica6.chatgpt.site). Có 2.920 dòng NASA POWER năm 2025 tại 8 điểm ĐBSCL, dự báo Open-Meteo và 12 nguồn tham chiếu. Groq/Gemini cần quản trị viên cấu hình key một lần trên máy chủ; chưa có key thì vẫn chạy mô phỏng có nguồn và tự mở báo cáo. Gói AI miễn phí có hạn mức.
 
 Người dùng tải `MachDong.exe` từ Assets của bản phát hành, nhấp đúp để chạy. File dựng cục bộ nằm ở `dist/MachDong.exe`; deploy API không tự phát hành EXE. Không cần đăng nhập ChatGPT để dùng API công khai. Cần Internet.
 
@@ -46,6 +46,7 @@ Mã ứng dụng nằm trong [src/](src). Sửa template ở `src/views/`, CSS v
 ```powershell
 .\.venv\Scripts\python.exe -m unittest discover -s tests -v
 node --test server/tests/simulation.test.mjs
+node --test tests/simulation-view.test.mjs
 ```
 
 Repository đã có cấu hình Git; không cần `git init` hoặc thêm lại remote sau khi clone. Xem [hướng dẫn bản Windows](docs/simulation.md) để dựng `MachDong.exe`, cấu hình Gemini trên máy chủ và cập nhật dữ liệu. Workflow Windows có thể chạy thủ công hoặc tạo prerelease khi đẩy tag `desktop-v*`. EXE nằm trong bản phát hành, không đưa vào lịch sử mã nguồn. Không commit môi trường ảo, cơ sở dữ liệu người dùng hoặc khóa cấu hình.

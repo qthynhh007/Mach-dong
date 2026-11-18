@@ -39,17 +39,23 @@ Số ngày sau sạ không tự quyết định giai đoạn. Người dùng xá
 
 ## AI hoạt động như thế nào?
 
-Engine tham chiếu chạy **trên cloud**, tạo kết quả và các thẻ bằng chứng. Gemini nhận thông số cùng các thẻ đã tính, chọn ID bằng chứng cần chú ý và ID dữ liệu còn thiếu. JSON trả về chỉ được chứa ID nằm trong danh sách cho phép; sai schema, ID lạ, con số mới, phản hồi bị cắt hoặc lỗi quota đều không được hiển thị như kết quả AI thành công. Giao diện lấy nội dung/số liệu từ thẻ nguồn của engine, không từ văn bản tự sinh.
+Engine tham chiếu chạy **trên cloud**, tạo kết quả và các thẻ bằng chứng. Groq hoặc Gemini nhận thông số cùng các thẻ đã tính, chọn ID bằng chứng cần chú ý và ID dữ liệu còn thiếu. JSON trả về chỉ được chứa ID nằm trong danh sách cho phép; sai schema, ID lạ, con số mới, phản hồi bị cắt hoặc lỗi quota đều không được hiển thị như kết quả AI thành công. Giao diện lấy nội dung/số liệu từ thẻ nguồn của engine, không từ văn bản tự sinh.
 
 Đây là **AI hỗ trợ đọc bằng chứng**, không phải mô hình ML đã học quan hệ năng suất OM5451. Cách này hạn chế bịa số/citation trong phần hiển thị nhưng không bảo đảm dữ liệu gốc hay công thức phù hợp mọi ruộng. Kết quả luôn ghi phạm vi và phần còn thiếu.
 
-Hiện **chưa có Gemini API key**, nên AI trả `notConfigured`; mô phỏng tham chiếu vẫn hoạt động. Không gọi một mô hình cục bộ nào và không giả vờ rằng đã gọi AI.
+Hiện **chưa có khóa Groq/Gemini**, nên AI trả `notConfigured`; mô phỏng tham chiếu vẫn hoạt động. Không gọi một mô hình cục bộ nào và không giả vờ rằng đã gọi AI. Nút **Mô phỏng và xem báo cáo** luôn tự mở báo cáo sau khi nhận kết quả, không phụ thuộc khóa AI.
 
 ### Cấu hình miễn phí một lần cho quản trị viên
 
+**Lựa chọn Groq đã tích hợp:** model `openai/gpt-oss-20b` với Structured Outputs. Tạo tài khoản và API key tại [Groq Console](https://console.groq.com/keys); giữ tài khoản ở **Free**, không nâng cấp Developer. Theo [Groq Billing FAQs](https://console.groq.com/docs/billing-faqs), nâng cấp Developer mới dùng thanh toán theo lượt. [Hạn mức](https://console.groq.com/docs/rate-limits) vẫn áp dụng theo tổ chức, gồm số yêu cầu và token. Không có cam kết miễn phí không giới hạn.
+
+Đặt `AI_PROVIDER=groq`, **secret** `GROQ_API_KEY` và `GROQ_MODEL=openai/gpt-oss-20b` trong runtime environment của Site. Deploy lại saved version để áp dụng; kiểm tra `/api/health` có `aiProvider=groq`, `aiConfigured=true`, rồi thử nút AI. Chưa kiểm thử lời gọi Groq thật vì chưa có khóa; các test transport giả chỉ kiểm tra tích hợp và chặn nội dung không có nguồn. Khóa chỉ thuộc máy chủ, không nằm trong EXE hoặc code JavaScript trình duyệt.
+
+**Lựa chọn Gemini vẫn được giữ:**
+
 1. Tạo khóa trong [Google AI Studio](https://aistudio.google.com/api-keys), chọn dự án đủ điều kiện dùng free tier; không bật thanh toán nếu nhóm muốn giới hạn ở gói miễn phí.
 2. Đặt **secret** `GEMINI_API_KEY` trong runtime environment của Site `appgprj_6afcfbe9375c8191af0a348ebb094ff8`. Dùng công cụ quản lý biến môi trường Sites; không gửi khóa vào chat, commit, template hay file EXE.
-3. Đặt `GEMINI_MODEL=gemini-2.5-flash-lite` hoặc model có free tier mà dự án thực sự được cấp; kiểm tra lại model/hạn mức tại thời điểm cấu hình.
+3. Đặt `AI_PROVIDER=gemini`, `GEMINI_MODEL=gemini-2.5-flash-lite` hoặc model có free tier mà dự án thực sự được cấp; kiểm tra lại model/hạn mức tại thời điểm cấu hình.
 4. Deploy lại saved version để áp dụng revision môi trường mới. Kiểm tra `/api/health` có `aiConfigured=true`, rồi chạy một kịch bản bằng nút AI.
 
 [Bảng giá Gemini](https://ai.google.dev/gemini-api/docs/pricing) có free tier giới hạn; free-tier data có thể được dùng cải thiện sản phẩm theo điều khoản Google. Không cam kết quota hay miễn phí vĩnh viễn. API demo giới hạn AI tối đa 3 yêu cầu/phút/IP và 2 lời gọi đồng thời **trong từng Worker isolate**; đây không phải quota toàn cục. Trước khi cấu hình khóa có thanh toán hoặc phát hành quy mô lớn, cần cơ chế hạn mức toàn cục và xác thực phía gateway. Kết quả không có nguồn sẽ không được dùng làm phương án dự phòng khi AI lỗi.
@@ -113,9 +119,16 @@ Server sử dụng JavaScript Worker ES module để chạy trên hosting hiện
 .\.venv\Scripts\python.exe -m unittest discover -s tests -v
 .\.venv\Scripts\ruff.exe check src tests scripts/collect_weather.py desktop.py
 node --test server/tests/simulation.test.mjs
+node --test tests/simulation-view.test.mjs
 node server/build.mjs
 .\.venv\Scripts\python.exe -m pip install -r requirements-build.txt
 .\scripts\build-desktop.ps1
 ```
 
 Windows launcher có chế độ `--smoke-output <path>` kiểm tra resource trong EXE mà không mở cửa sổ. Các test dùng transport giả lập để kiểm tra lỗi và validation, không gửi yêu cầu Gemini có tính quota. Kiểm thử gọi Gemini thật chỉ thực hiện được sau khi có key; không coi mock là bằng chứng AI đã chạy thật.
+
+## Nếu bấm mô phỏng mà không thấy báo cáo
+
+Bản sửa giao diện ngày 18/11/2026 tự chuyển sang báo cáo, cuộn và đưa tiêu điểm vào tiêu đề. Kết quả thiếu EC vẫn có báo cáo nhiệt độ/nước, không hiện màn hình trống. Trạng thái/lỗi xuất hiện cả cạnh nút bấm; yêu cầu quá 45 giây dừng và cho thử lại. Lỗi tải danh mục có nút **Kết nối lại dữ liệu**. JavaScript/CSS có phiên bản URL để tránh dùng bản cũ từ bộ nhớ đệm.
+
+Nếu đang chạy source, khởi động lại ứng dụng rồi tải lại trang. Nếu đang dùng EXE, đóng cửa sổ Mạch Đồng cũ, thay bằng file mới trong `dist`, mở lại. Tab đã mở từ phiên bản trước vẫn giữ JavaScript cũ cho đến khi tải lại. Thiếu khóa AI không chặn mô phỏng hoặc báo cáo.

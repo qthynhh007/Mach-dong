@@ -1,9 +1,24 @@
 class simulationApi {
   async request(path, payload, signal) {
-    const response = await fetch(path, {method:payload ? "POST" : "GET",headers:{"Content-Type":"application/json"},body:payload ? JSON.stringify(payload) : undefined,signal});
-    const result = await response.json();
-    if (!response.ok || result.error) throw new Error(result.error || "Chưa tải được dữ liệu.");
-    return result.data;
+    const controller = new AbortController();
+    const cancel = () => controller.abort();
+    let timedOut = false;
+    const timer = setTimeout(() => { timedOut = true; controller.abort(); },45000);
+    signal?.addEventListener("abort",cancel,{once:true});
+    if (signal?.aborted) cancel();
+    try {
+      const response = await fetch(path, {method:payload ? "POST" : "GET",headers:{"Content-Type":"application/json"},body:payload ? JSON.stringify(payload) : undefined,signal:controller.signal,cache:"no-store"});
+      let result;
+      try { result = await response.json(); }
+      catch { throw new Error(`Máy chủ không trả dữ liệu hợp lệ (HTTP ${response.status}). Hãy mở lại ứng dụng hoặc thử lại.`); }
+      if (!response.ok || result?.error) throw new Error(result?.error || "Chưa tải được dữ liệu.");
+      if (!result?.data || typeof result.data !== "object") throw new Error("Máy chủ trả kết quả rỗng. Hãy thử lại.");
+      return result.data;
+    } catch (error) {
+      if (timedOut) throw new Error("Máy chủ phản hồi quá lâu. Kiểm tra Internet rồi thử lại; chưa có báo cáo cho lần chạy này.");
+      if (error instanceof TypeError) throw new Error("Mất kết nối ứng dụng hoặc máy chủ. Hãy mở lại ứng dụng và thử lại.");
+      throw error;
+    } finally { clearTimeout(timer); signal?.removeEventListener("abort",cancel); }
   }
 }
 
@@ -14,16 +29,23 @@ class simulationView {
     this.byId("scenarioForm").addEventListener("submit", event => { event.preventDefault(); this.run(false); });
     this.byId("askAi").addEventListener("click", () => this.run(true));
     this.form.addEventListener("input", () => this.invalidate());
+    this.form.addEventListener("invalid", () => this.status("Có điều kiện chưa hợp lệ. Hãy sửa ô được đánh dấu rồi chạy lại.",true),true);
     this.byId("resetScenario").addEventListener("click", () => { this.form.reset(); this.invalidate(); });
     this.byId("loadWeather").addEventListener("click", () => this.loadWeather());
     this.byId("downloadReport").addEventListener("click", () => this.download());
+    this.byId("retryCatalog").addEventListener("click", () => this.loadCatalog());
+    this.byId("editScenario").addEventListener("click", () => { this.showPanel("scenarioPanel"); this.byId("runSimulation").focus(); });
     document.querySelectorAll("[data-panel]").forEach(button => button.addEventListener("click", () => this.showPanel(button.dataset.panel)));
     this.drawField(); this.updateLabels(); this.loadCatalog();
   }
   byId(id) { return document.getElementById(id); }
   number(value) { return value === null || value === undefined ? "Chưa có" : Number(value).toLocaleString("vi-VN",{maximumFractionDigits:2}); }
   setText(id, value) { this.byId(id).textContent = value; }
-  status(message, error = false) { this.setText("pageStatus",message); this.byId("pageStatus").classList.toggle("is-error",error); }
+  status(message, error = false) {
+    for (const id of ["pageStatus","formStatus"]) {
+      this.setText(id,message); this.byId(id).classList.toggle("is-error",error);
+    }
+  }
   field(name) { return this.form.elements.namedItem(name); }
   inputs(requestAi) {
     const values = {varietyId:"OM5451",requestAi};
@@ -41,7 +63,7 @@ class simulationView {
   setBusy(busy) {
     this.byId("runSimulation").disabled = busy || !this.catalog;
     this.byId("askAi").disabled = busy || !this.catalog;
-    this.setText("runSimulation",busy ? "Đang mô phỏng…" : "Mô phỏng kịch bản");
+    this.setText("runSimulation",busy ? "Đang mô phỏng…" : "Mô phỏng và xem báo cáo");
   }
   invalidate() {
     this.revision++; this.activeRequest?.abort(); this.weatherRequest?.abort(); this.result = null;
@@ -49,11 +71,14 @@ class simulationView {
     this.setText("relativeYield","Chưa có kết quả"); this.setText("riskSummary","Kịch bản đã thay đổi");
     this.setText("sceneLabel","Chưa chạy kịch bản mới"); this.setText("assistantAdvice","Chạy lại mô phỏng để lấy kết quả ứng với điều kiện mới.");
     this.setText("aiStatus","Chưa yêu cầu AI cho kịch bản mới."); this.setText("reportMeta","Điều kiện đã thay đổi. Chạy lại để xem báo cáo mới.");
+    this.setText("reportSummary","Chưa có báo cáo cho điều kiện mới."); this.setText("reportAiStatus","");
     for (const id of ["evidenceList","scenarioRows","assumptionsList","weatherRows"]) this.byId(id).replaceChildren();
     this.byId("experimentBox").hidden = true; this.setText("weatherMeta","");
     this.paintField(null); this.status("Điều kiện đã thay đổi. Nhấn Mô phỏng kịch bản.");
   }
   async loadCatalog() {
+    this.byId("retryCatalog").hidden = true;
+    this.status("Đang kết nối máy chủ dữ liệu…");
     try {
       this.catalog = await this.api.request("/api/simulation/catalog");
       const select = this.byId("locationId"); select.replaceChildren();
@@ -66,17 +91,20 @@ class simulationView {
       this.setText("historyMeta",`${this.number(history.rowCount)} dòng tại ${this.catalog.locations.length} địa điểm, năm ${history.year}. Phiên bản ${history.version}; thu thập ${history.retrievedAt}. Đây là dữ liệu khí tượng, chưa có nhãn năng suất/thất thoát để huấn luyện AI dự báo OM5451.`);
       const link = this.byId("downloadHistory"); link.href = "/api/simulation/history"; link.hidden = false;
       this.status("Đã tải dữ liệu có nguồn. Chọn điều kiện và chạy kịch bản.");
-    } catch (error) { this.setText("cloudStatus","Chưa kết nối được"); this.status(error.message+" Tải lại trang để thử lại.",true); }
+    } catch (error) { this.catalog = null; this.setBusy(false); this.byId("retryCatalog").hidden = false; this.setText("cloudStatus","Chưa kết nối được"); this.status(error.message,true); }
   }
   async run(requestAi) {
-    if (!this.form.reportValidity()) return;
+    if (!this.form.reportValidity()) { this.status("Có điều kiện chưa hợp lệ. Hãy sửa ô được đánh dấu rồi chạy lại.",true); return; }
     this.invalidate();
     this.activeRequest?.abort(); const controller = new AbortController(); this.activeRequest = controller;
     const revision = this.revision; this.setBusy(true); this.status("Máy chủ đang tính kịch bản và đối chiếu nguồn…");
     try {
       const result = await this.api.request("/api/simulation",this.inputs(requestAi),controller.signal);
       if (controller.signal.aborted || revision !== this.revision) return;
-      this.result = result; this.renderResult(); this.status("Đã tính xong. Xem Báo cáo & nguồn để kiểm tra từng kết luận.");
+      this.result = result; this.renderResult(); this.status("Đã tạo báo cáo cho điều kiện bạn vừa nhập.");
+      this.showPanel("reportPanel");
+      this.byId("reportTitle").focus({preventScroll:true});
+      this.byId("reportPanel").scrollIntoView({block:"start"});
     } catch (error) {
       if (error.name !== "AbortError") { this.result = null; this.byId("downloadReport").disabled = true; this.status(error.message,true); }
     } finally { if (this.activeRequest === controller) this.setBusy(false); }
@@ -89,6 +117,8 @@ class simulationView {
     this.setText("sceneLabel",`${result.stage} · Kịch bản ${result.inputs.exposureDays} ngày`);
     this.setText("assistantAdvice",warnings.length ? warnings.map(item => item.title).join(". ")+". Xem nguồn và giới hạn trong báo cáo." : "Chưa đủ căn cứ để kết luận cây an toàn hoặc dự đoán năng suất thực địa. Báo cáo ghi rõ những gì tính được và dữ liệu còn thiếu.");
     this.setText("aiStatus",result.ai.message);
+    this.setText("reportAiStatus",result.ai.message);
+    this.setText("reportSummary",`Đã tính ${result.dailyScenario.length} ngày kịch bản. ${warnings.length ? warnings.length+" điều kiện cần chú ý." : "Chưa kích hoạt cảnh báo trong phạm vi mô hình."} ${metric === null ? "Chưa đủ điều kiện để tính năng suất tương đối do mặn; báo cáo vẫn có đối chiếu nhiệt độ, nước và nguồn dữ liệu." : "Năng suất tương đối tham chiếu do mặn: "+this.number(metric)+"% so với đối chứng."}`);
     this.setText("reportMeta",`${result.engineVersion} · ${result.dataVersion} · OM5451 · Giai đoạn ${result.stage} · Mô phỏng tham chiếu, chưa kiểm định ngoài đồng.`);
     const list = this.byId("evidenceList"); list.replaceChildren();
     for (const item of result.evidence) {
@@ -146,4 +176,4 @@ class simulationView {
   paintField(scene) { this.byId("ricePlants").setAttribute("color",scene?.heatConcern || scene?.saltReferenceConcern ? "#a29043" : "#52864b"); this.byId("floodOverlay").setAttribute("opacity",scene?.submerged ? ".55" : "0"); this.byId("fieldSun").setAttribute("fill",scene?.heatConcern ? "#e9a15a" : "#edcf78"); }
   download() { if (!this.result) return; const url = URL.createObjectURL(new Blob([JSON.stringify(this.result,null,2)],{type:"application/json"})); const link = document.createElement("a"); link.href = url; link.download = "MachDong-Simulation.json"; link.click(); setTimeout(() => URL.revokeObjectURL(url),1000); }
 }
-new simulationView();
+if (typeof document !== "undefined") new simulationView();
