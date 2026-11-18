@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import {createContext,runInContext} from "node:vm";
+import {sceneState} from "../src/static/simulation-scene.js";
 
 const source = readFileSync(new URL("../src/static/simulation.js",import.meta.url),"utf8");
 function classes(overrides = {}) {
@@ -63,4 +64,23 @@ test("a stalled request times out with an actionable message",async()=> {
 test("missing response data never creates a successful report",async()=> {
   const {simulationApi} = classes({fetch:async()=>Response.json({data:null,error:null})});
   await assert.rejects(()=>new simulationApi().request("/api/simulation"),/kết quả rỗng/);
+});
+
+test("new field scene uses verified cloud flags, not water salinity to invent damage",()=> {
+  const state = sceneState({inputs:{stage:"seedling",salinityGl:20},scene:{}});
+  assert.equal(state.stage,"Mạ non");
+  assert.equal(state.signals.tip_burn,0);
+  assert.equal(state.signals.water_cover,0);
+  const warning = sceneState({inputs:{stage:"flowering"},scene:{heatConcern:true,submerged:true}});
+  assert.equal(warning.stage,"Trổ bông");
+  assert.ok(warning.signals.leaf_roll > 0);
+  assert.equal(warning.signals.water_cover,1);
+});
+
+test("editing a scenario clears scene warnings and preserves the selected stage",()=> {
+  const state = sceneState(null,"ripening");
+  assert.equal(state.stage,"Chín vàng");
+  assert.equal(state.signals.tip_burn,0);
+  assert.equal(state.signals.leaf_roll,0);
+  assert.equal(state.signals.water_cover,0);
 });

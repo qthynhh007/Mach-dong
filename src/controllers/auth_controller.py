@@ -22,6 +22,7 @@ from src.controllers.session_guard import (
     require_session,
 )
 from src.services.auth_service import AuthService
+from src.services.credit_service import default_credit_service
 
 blueprint = Blueprint("auth", __name__)
 
@@ -86,10 +87,17 @@ def profile() -> str:
         if auth
         else []
     )
+    onchain_credits = None
+    if auth and user_dict and user_dict.get("wallet_address"):
+        onchain_credits = default_credit_service.get_onchain_balance(
+            str(user_dict["wallet_address"])
+        )
+
     return render_template(
         "auth/profile.html",
         current_page="profile",
         current_user=user_dict,
+        onchain_credits=onchain_credits,
         credit_transactions=tx_list,
         credits_per_avax=CREDITS_PER_AVAX,
         wallet_guide=get_auth_service().get_wallet_guide_info(
@@ -104,6 +112,11 @@ def get_session_status() -> tuple[Response, int]:
     if auth is None:
         return jsonify(data={"authenticated": False, "user": None}, error=None), 200
     user, session = auth
+    wallet_info = get_auth_service().get_wallet_guide_info(user.wallet_address)
+    onchain_credits = default_credit_service.get_onchain_balance(user.wallet_address)
+    if onchain_credits is not None:
+        wallet_info["onchain_credits"] = onchain_credits
+
     return (
         jsonify(
             data={
@@ -111,9 +124,7 @@ def get_session_status() -> tuple[Response, int]:
                 "csrf_token": session.csrf_token,
                 "expires_at": session.expires_at,
                 "user": user.to_public_dict(),
-                "wallet_info": get_auth_service().get_wallet_guide_info(
-                    user.wallet_address
-                ),
+                "wallet_info": wallet_info,
                 "transactions": get_auth_service().repo.list_credit_transactions(
                     user.user_id, limit=8
                 ),

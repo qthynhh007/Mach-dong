@@ -22,6 +22,7 @@ from src.services.forum_service import (
     TOPICS,
 )
 
+
 class communityError(ValueError):
     def __init__(self, message: str, statusCode: int = 400) -> None:
         super().__init__(message)

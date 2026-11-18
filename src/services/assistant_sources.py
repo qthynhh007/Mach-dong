@@ -61,13 +61,13 @@ def knowledge() -> tuple[dict, ...]:
     rice = json.loads(
         (REFERENCE_DIR / "lua-man-ngap-sources.json").read_text(encoding="utf-8")
     )["sources"]
-    return tuple([
+    return (
         *(item for item in curated if item["status"] == "reviewed"),
         *(
             {**item, "crops": ["lúa"], "topic": "water", "terms": item["topics"]}
             for item in rice
         ),
-    ])
+    )
 
 
 def crop_names(text: str) -> set[str]:

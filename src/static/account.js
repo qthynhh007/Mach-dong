@@ -219,6 +219,41 @@
   });
 
   // Bind / Update Manually Created C-Chain Fuji Wallet Address on /profile
+  const btnConnectInjected = document.getElementById("btn-connect-injected-wallet");
+  if (btnConnectInjected && customWalletInput) {
+    btnConnectInjected.addEventListener("click", async () => {
+      if (typeof window.ethereum !== "undefined") {
+        try {
+          const accounts = await window.ethereum.request({
+            method: "eth_requestAccounts",
+          });
+          if (accounts && accounts.length > 0) {
+            customWalletInput.value = accounts[0];
+            if (walletBindMsg) {
+              walletBindMsg.textContent = `Đã nhận địa chỉ từ ví Core / MetaMask: ${accounts[0].slice(
+                0,
+                6
+              )}...${accounts[0].slice(-4)}. Nhấn 'Gửi mã Email' để xác nhận.`;
+              walletBindMsg.style.color = "#1a654d";
+            }
+          }
+        } catch (err) {
+          if (walletBindMsg) {
+            walletBindMsg.textContent =
+              "Từ chối kết nối ví hoặc lỗi: " + (err.message || err);
+            walletBindMsg.style.color = "#b84245";
+          }
+        }
+      } else {
+        if (walletBindMsg) {
+          walletBindMsg.textContent =
+            "Không tìm thấy tiện ích Core hoặc MetaMask trong trình duyệt. Bạn có thể dán thủ công địa chỉ 0x.";
+          walletBindMsg.style.color = "#a87316";
+        }
+      }
+    });
+  }
+
   walletBindForm?.addEventListener("submit", async (event) => {
     event.preventDefault();
     const csrf = getCsrfToken();
@@ -349,6 +384,14 @@
             : tx.credit_delta >= 0
             ? `+${tx.credit_delta} LÚA`
             : `${tx.credit_delta} LÚA`;
+        const isRealOnchain =
+          tx.note?.endsWith("(On-chain Fuji)") && /^0x[0-9a-fA-F]{64}$/.test(tx.tx_hash || "");
+        const hashHtml = isRealOnchain
+          ? `On-chain Fuji: <a href="https://testnet.snowtrace.io/tx/${tx.tx_hash}" target="_blank" rel="noopener" class="underline font-bold text-primary hover:text-primary/80"><code>${tx.tx_hash.slice(
+              0,
+              10
+            )}...${tx.tx_hash.slice(-6)} ↗</code></a>`
+          : `Mã mô phỏng: <code>${tx.tx_hash.slice(0, 14)}...${tx.tx_hash.slice(-6)}</code>`;
         row.innerHTML = `
           <div class="flex items-center gap-2 min-w-0">
             <span class="w-7 h-7 rounded-full bg-primary-fixed text-primary flex items-center justify-center font-bold text-sm shrink-0">${
@@ -356,10 +399,7 @@
             }</span>
             <div class="flex flex-col min-w-0">
               <span class="font-body-sm text-body-sm font-semibold text-on-surface truncate">${tx.note}</span>
-              <span class="font-label-sm text-label-sm text-on-surface-variant truncate">Mã mô phỏng: <code>${tx.tx_hash.slice(
-                0,
-                14
-              )}...${tx.tx_hash.slice(-6)}</code></span>
+              <span class="font-label-sm text-label-sm text-on-surface-variant truncate">${hashHtml}</span>
             </div>
           </div>
           <span class="font-label-md text-label-md font-bold ${

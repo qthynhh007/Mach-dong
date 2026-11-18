@@ -120,7 +120,12 @@
     <span data-profile-avax>{{ '%.4f'|format(current_user.avax_balance) if current_user else '2.5000' }}</span> <span>AVAX</span>
   </div>
 </div>
-<p class="font-body-sm text-body-sm text-on-primary/85">[Giả lập] Số dư AVAX và điểm LÚA · Ví thử nghiệm Fuji (43113)</p>
+<p class="font-body-sm text-body-sm text-on-primary/85">
+  [Giả lập] Số dư AVAX và điểm LÚA · Ví thử nghiệm Fuji (43113)
+  {% if onchain_credits is not none %}
+  · <span class="bg-primary-fixed/20 px-1.5 py-0.5 rounded font-mono font-bold text-primary-fixed text-xs">On-chain Fuji: {{ onchain_credits }} LÚA</span>
+  {% endif %}
+</p>
 <p class="text-xs text-on-primary/90 mt-1 break-all">
   Ví Fuji (secp256k1): <code data-profile-wallet>{{ current_user.wallet_address if current_user else 'Đăng nhập để hiển thị địa chỉ 0x...' }}</code>
   {% if current_user and current_user.wallet_address %}
@@ -188,7 +193,11 @@
       <span class="w-7 h-7 rounded-full bg-primary-fixed text-primary flex items-center justify-center font-bold text-sm shrink-0">{{ '↓' if tx.credit_delta >= 0 else '↑' }}</span>
       <div class="flex flex-col min-w-0">
         <span class="font-body-sm text-body-sm font-semibold text-on-surface truncate">{{ tx.note }}</span>
+        {% if tx.note.endswith('(On-chain Fuji)') and tx.tx_hash and tx.tx_hash.startswith('0x') and tx.tx_hash|length == 66 %}
+        <span class="font-label-sm text-label-sm text-on-surface-variant truncate">On-chain Fuji: <a href="https://testnet.snowtrace.io/tx/{{ tx.tx_hash }}" target="_blank" rel="noopener" class="underline font-bold text-primary hover:text-primary/80"><code>{{ tx.tx_hash[:10] }}...{{ tx.tx_hash[-6:] }} ↗</code></a></span>
+        {% else %}
         <span class="font-label-sm text-label-sm text-on-surface-variant truncate">Mã mô phỏng: <code>{{ tx.tx_hash[:14] }}...{{ tx.tx_hash[-6:] }}</code></span>
+        {% endif %}
       </div>
     </div>
     <span class="font-label-md text-label-md font-bold {{ 'text-primary' if tx.credit_delta >= 0 else 'text-secondary' }} shrink-0">
@@ -355,7 +364,12 @@
       </div>
 
       <div class="flex flex-col gap-1">
-        <label class="font-label-sm text-label-sm font-bold text-on-surface-variant uppercase" for="custom-wallet-input">Địa chỉ ví C-Chain Fuji mới (0x...)</label>
+        <div class="flex items-center justify-between">
+          <label class="font-label-sm text-label-sm font-bold text-on-surface-variant uppercase" for="custom-wallet-input">Địa chỉ ví C-Chain Fuji mới (0x...)</label>
+          <button type="button" id="btn-connect-injected-wallet" class="text-xs font-semibold text-primary hover:underline flex items-center gap-1 cursor-pointer">
+            <span>🦊 Kết nối Core / MetaMask</span>
+          </button>
+        </div>
         <input id="custom-wallet-input" type="text" placeholder="Dán địa chỉ ví C-Chain Fuji (0x... 42 ký tự)" value="{{ current_user.wallet_address if current_user else '' }}" class="w-full h-10 px-3 rounded-lg bg-surface-container-lowest text-xs text-on-surface border border-outline-variant">
       </div>
 

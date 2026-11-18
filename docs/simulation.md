@@ -113,7 +113,7 @@ Không tạo tài nguyên trả phí hay mua gói hosting riêng trong lần tri
 
 Server sử dụng JavaScript Worker ES module để chạy trên hosting hiện có; lớp MVC + Service Python của ứng dụng được giữ. Tên class/hàm/biến mới dùng camelCase theo yêu cầu của nhóm (ngoại trừ API bắt buộc của thư viện).
 
-**Cộng đồng/tài khoản:** lần này chỉ đưa dữ liệu và mô phỏng lên cloud. SQLite diễn đàn của bản EXE vẫn là dữ liệu trên từng máy; đăng nhập hiện vẫn demo. Chưa phải một diễn đàn nhiều người dùng dùng chung cloud. Cần backend tài khoản và cộng đồng riêng để phát hành toàn bộ sản phẩm cho nhiều người.
+**Cộng đồng/tài khoản:** dữ liệu và mô phỏng dùng cloud. Bản hợp nhất đã có backend đăng nhập/OTP/phiên và danh tính diễn đàn; SQLite tài khoản/diễn đàn của EXE vẫn nằm trên từng máy. SMTP, Gemini chat và Fuji cần cấu hình riêng. Chưa phải diễn đàn nhiều người dùng chung cloud; xem [biên bản hợp nhất](integration-2026-11-18.md).
 
 ## Kiểm tra và build
 
