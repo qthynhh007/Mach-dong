@@ -17,4 +17,6 @@ test("Windows download comes from cloud file storage",async()=> {
   assert.equal(await head.text(),"");
   assert.equal((await controller.handle(new Request(url,{method:"POST"}))).status,405);
   assert.equal((await new simulationController({BUCKET:{get:async()=>null}}).handle(new Request(url))).status,404);
+  const landing=await controller.handle(new Request("https://example.test/"));
+  assert.match(await landing.text(),/href="\/downloads\/MachDong.exe"/);
 });
