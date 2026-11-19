@@ -33,6 +33,19 @@ export class simulationController {
     if (url.pathname.startsWith("/api/account/")) return new accountController(this.env,this.fetcher).handle(request);
     if (url.pathname.startsWith("/api/community/")) return new communityController(this.env).handle(request);
     if (url.pathname === "/api/assistant/generate") return new assistantController(this.env,this.fetcher).handle(request);
+    if (url.pathname === "/downloads/MachDong.exe") {
+      if (request.method !== "GET" && request.method !== "HEAD") return jsonResponse(null,405,"Chỉ hỗ trợ tải tệp.");
+      const file = await this.env.BUCKET.get("releases/MachDong-v0.1.1.exe");
+      if (!file) return jsonResponse(null,404,"Chưa có bản Windows để tải.");
+      return new Response(request.method === "HEAD" ? null : file.body,{headers:{
+        "Content-Type":"application/vnd.microsoft.portable-executable",
+        "Content-Disposition":"attachment; filename=MachDong.exe",
+        "Content-Length":String(file.size),
+        "Cache-Control":"public, max-age=3600",
+        "X-Content-Type-Options":"nosniff",
+        ...(file.httpEtag ? {ETag:file.httpEtag} : {}),
+      }});
+    }
     if (url.pathname.startsWith("/api/reference/")) {
       const name = url.pathname.slice("/api/reference/".length);
       if (request.method !== "GET" && request.method !== "HEAD") return jsonResponse(null,405,"Chỉ hỗ trợ đọc dữ liệu tham chiếu.");

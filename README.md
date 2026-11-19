@@ -4,7 +4,7 @@ Bản MVC + Service phục vụ cộng đồng và mô phỏng điều kiện ca
 
 API công khai: [Mạch Đồng · Dữ liệu mô phỏng](https://mach-dong-rice-data.artfulmica6.chatgpt.site). Có 2.920 dòng NASA POWER năm 2025 tại 8 điểm ĐBSCL, dự báo Open-Meteo và 12 nguồn tham chiếu. Groq với model `openai/gpt-oss-20b` đã được bật trên máy chủ và kiểm thử gọi thật ngày 18/11/2026. Trong tab Mô phỏng, chọn **Nhờ AI chọn bằng chứng** để nhận báo cáo có các mục AI lưu ý. Người dùng không cần nhập key; gói AI miễn phí có hạn mức. AI chọn bằng chứng có sẵn, không tự sinh con số năng suất.
 
-Người dùng tải `MachDong.exe` từ Assets của bản phát hành, nhấp đúp để chạy. File dựng cục bộ nằm ở `dist/MachDong.exe`; deploy API không tự phát hành EXE. Không cần đăng nhập ChatGPT để dùng API công khai. Cần Internet.
+Người dùng tải trực tiếp [MachDong.exe](https://mach-dong-rice-data.artfulmica6.chatgpt.site/downloads/MachDong.exe) (Windows 64-bit, khoảng 40,6 MB), nhấp đúp để chạy. Không cần đăng nhập GitHub hoặc ChatGPT, không cần cài Python. Giao diện mở trong trình duyệt; đóng cửa sổ Mạch Đồng để thoát. Cần Internet để đăng nhập, đọc diễn đàn, lấy dữ liệu và mô phỏng. SHA-256 của bản phát hành: `15be15bebde1fd82d1ed026853eb1d9b31ce1c6b88c739f8ea191e545a05b1de`.
 
 ## Chạy trên Windows
 
@@ -51,6 +51,6 @@ node --test server/tests/*.test.mjs
 node --test tests/simulation-view.test.mjs
 ```
 
-Repository đã có cấu hình Git; không cần `git init` hoặc thêm lại remote sau khi clone. Xem [hướng dẫn bản Windows](docs/simulation.md) để dựng `MachDong.exe`, cấu hình AI trên máy chủ và cập nhật dữ liệu. Workflow Windows có thể chạy thủ công hoặc tạo prerelease khi đẩy tag `desktop-v*`. EXE nằm trong bản phát hành, không đưa vào lịch sử mã nguồn. Không commit môi trường ảo, cơ sở dữ liệu người dùng hoặc khóa cấu hình.
+Repository đã có cấu hình Git; không cần `git init` hoặc thêm lại remote sau khi clone. Xem [hướng dẫn bản Windows](docs/simulation.md) để dựng `MachDong.exe`, cấu hình AI trên máy chủ và cập nhật dữ liệu. Workflow Windows có thể chạy thủ công hoặc tạo prerelease khi đẩy tag `desktop-v*`; kho GitHub riêng tư chỉ cho người có quyền tải Assets. Bản EXE công khai được lưu riêng trong R2 của Site ở link trên, không đưa vào lịch sử mã nguồn. Không commit môi trường ảo, cơ sở dữ liệu người dùng hoặc khóa cấu hình.
 
 Đọc [kiến trúc và cây thư mục](docs/architecture.md), [hướng dẫn đóng góp](AGENTS.md) và [danh mục Stitch](docs/stitch/README.md).

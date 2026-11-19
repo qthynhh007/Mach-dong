@@ -2,13 +2,13 @@
 
 ## Người dùng tải gì và chạy thế nào?
 
-Người dùng Windows 64-bit chỉ cần **MachDong.exe**. Nhấp đúp file để mở cửa sổ Mạch Đồng; ứng dụng tự mở giao diện bằng trình duyệt mặc định. Nút **Mở ứng dụng** mở lại giao diện, đóng cửa sổ Mạch Đồng để thoát hoàn toàn. Không cần Python, Node, Ollama, GPU hay API key trên máy người dùng. Cần Internet để mô phỏng và lấy dữ liệu.
+Người dùng Windows 64-bit tải [**MachDong.exe**](https://mach-dong-rice-data.artfulmica6.chatgpt.site/downloads/MachDong.exe) rồi nhấp đúp để mở cửa sổ Mạch Đồng; ứng dụng tự mở giao diện bằng trình duyệt mặc định. Nút **Mở ứng dụng** mở lại giao diện, đóng cửa sổ Mạch Đồng để thoát hoàn toàn. Không cần Python, Node, Ollama, GPU, tài khoản GitHub hay API key trên máy người dùng. Cần Internet để mô phỏng và lấy dữ liệu.
 
 File đã dựng ở `dist/MachDong.exe`. Đây là ứng dụng desktop dùng giao diện web trên loopback; không phải bộ cài và chưa ký chứng thư phát hành Windows. Kiểm tra nguồn tải/chữ ký khi phân phối; không tắt bảo vệ Windows. Bản này chỉ dành Windows x64; macOS/Linux cần bản dựng riêng.
 
-**Deploy máy chủ không tự tạo nơi tải EXE.** Khi phát hành, tải file EXE lên GitHub Releases hoặc kênh phân phối của nhóm. Người dùng tải EXE trong **Assets**, không tải “Source code” nếu chỉ muốn chạy. Workflow `.github/workflows/windows-release.yml` dựng file và checksum trên Windows khi chạy thủ công hoặc đẩy tag `desktop-v*`; với tag, workflow tạo bản prerelease có EXE. Không cần đưa EXE vào lịch sử Git.
+Đường tải công khai trên được phục vụ từ R2 của Site, đã đối chiếu SHA-256 với file dựng. Mã băm của bản `desktop-v0.1.1`: `15be15bebde1fd82d1ed026853eb1d9b31ce1c6b88c739f8ea191e545a05b1de`. Workflow `.github/workflows/windows-release.yml` vẫn dựng file và checksum trên Windows khi chạy thủ công hoặc đẩy tag `desktop-v*`; với tag, workflow tạo prerelease cho người có quyền vào kho riêng tư. Không đưa EXE vào lịch sử Git.
 
-Repository riêng tư chỉ cho người có quyền tải bản phát hành. Muốn phát EXE cho mọi người mà vẫn giữ mã nguồn riêng tư, nhóm có thể dùng một repository phân phối công khai riêng hoặc kho tải file công khai. Chưa có bản GitHub Release/đường dẫn tải EXE công khai được tạo; file hiện có sẵn trên máy phát triển để chia sẻ.
+Repository GitHub hiện riêng tư, nên người ngoài nhóm dùng link R2 công khai phía trên. Mỗi khi dựng EXE mới, phải cập nhật bản tải trên R2 và mã băm trong tài liệu; deploy API riêng không tự thay file EXE.
 
 Nếu lập trình viên pull code: tạo `.venv`, cài `requirements.txt`, chạy `python main.py` hoặc `python desktop.py`. API mặc định đã nằm trong cấu hình; không cần cấu hình khóa riêng cho từng người.
 
