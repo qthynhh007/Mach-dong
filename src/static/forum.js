@@ -61,7 +61,7 @@
     }
 
     picture(src, credit) {
-      if (!/^(?:\/static\/assets\/(?:stitch-forum-(?:field|roots)\.jpg|forum-photos\/[a-z0-9-]+\.jpg)|data:image\/jpeg;base64,[A-Za-z0-9+/]+=*)$/.test(src)) return null;
+      if (!/^(?:\/static\/assets\/(?:stitch-forum-(?:field|roots)\.jpg|forum-photos\/[a-z0-9-]+\.jpg)|https:\/\/mach-dong-rice-data\.artfulmica6\.chatgpt\.site\/api\/community\/photos\/[0-9a-f-]{36}|data:image\/jpeg;base64,[A-Za-z0-9+/]+=*)$/.test(src)) return null;
       const image = new Image();
       image.alt = credit?.alt || "Ảnh đính kèm bài chia sẻ";
       image.loading = "lazy";

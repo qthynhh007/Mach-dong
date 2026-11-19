@@ -122,6 +122,13 @@ class AuthService:
                     avax_balance=item["avax"],
                 )
 
+    @staticmethod
+    def email_otp_available() -> bool:
+        return True
+
+    def list_credit_transactions(self, user_id: str, limit: int = 10) -> list[dict]:
+        return self.repo.list_credit_transactions(user_id, limit)
+
     def _sign_session_id(self, session_id: str) -> str:
         sig = hmac.new(
             self.secret_key.encode("utf-8"),
@@ -150,7 +157,7 @@ class AuthService:
         clean_code = code.strip()
         return hmac.new(
             self.secret_key.encode("utf-8"),
-            f"email-otp:{clean_email}:{clean_code}".encode("utf-8"),
+            f"email-otp:{clean_email}:{clean_code}".encode(),
             hashlib.sha256,
         ).hexdigest()
 
@@ -420,13 +427,12 @@ class AuthService:
                     429,
                     error=f"Tài khoản đang tạm khóa. Vui lòng thử lại sau {remaining} giây.",
                 )
-            if password and password.strip():
-                if not existing.verify_password(password):
-                    existing.failed_login_attempts += 1
-                    if existing.failed_login_attempts >= self.max_login_attempts:
-                        existing.locked_until = time.time() + self.lockout_duration_seconds
-                    self.repo.save_user(existing)
-                    return AuthResult(False, 401, error="Mật khẩu không đúng.")
+            if password and password.strip() and not existing.verify_password(password):
+                existing.failed_login_attempts += 1
+                if existing.failed_login_attempts >= self.max_login_attempts:
+                    existing.locked_until = time.time() + self.lockout_duration_seconds
+                self.repo.save_user(existing)
+                return AuthResult(False, 401, error="Mật khẩu không đúng.")
             existing.failed_login_attempts = 0
             existing.locked_until = 0.0
             if name and name.strip():
@@ -641,7 +647,7 @@ class AuthService:
                 encode_defunct(text=payload), private_key="0x" + priv_hex
             )
             return "0x" + signed.message_hash.hex()[-64:]
-        except Exception:
+        except (ImportError, ValueError, TypeError):
             return "0x" + hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
     def exchange_credits_with_avax(
@@ -687,7 +693,7 @@ class AuthService:
                 return AuthResult(
                     False, 400, error="Số lượng AVAX cần lớn hơn 0 (tối thiểu 0.01 AVAX)."
                 )
-            credits_to_mint = int(round(avax_to_spend * CREDITS_PER_AVAX))
+            credits_to_mint = round(avax_to_spend * CREDITS_PER_AVAX)
             if credits_to_mint < 1:
                 return AuthResult(
                     False,
@@ -739,7 +745,7 @@ class AuthService:
 
         if clean_dir == "CREDIT_TO_AVAX":
             try:
-                credits_to_spend = int(round(float(amount)))
+                credits_to_spend = round(float(amount))
             except (TypeError, ValueError):
                 return AuthResult(False, 400, error="Số Điểm LÚA không hợp lệ.")
             if credits_to_spend < 1:
@@ -803,13 +809,12 @@ class AuthService:
         now = time.time()
         if session.is_expired(now):
             return None
-        if require_csrf:
-            if (
-                not isinstance(csrf_token, str)
-                or not csrf_token.isascii()
-                or not hmac.compare_digest(session.csrf_token, csrf_token)
-            ):
-                return None
+        if require_csrf and (
+            not isinstance(csrf_token, str)
+            or not csrf_token.isascii()
+            or not hmac.compare_digest(session.csrf_token, csrf_token)
+        ):
+            return None
         user = self.repo.get_by_id(session.user_id)
         if user is None:
             return None
@@ -831,7 +836,8 @@ class AuthService:
     def revoke_all_user_sessions(self, user_id: str) -> int:
         return self.repo.revoke_all_user_sessions(user_id)
 
-    def export_wallet_key(self, user: User) -> AuthResult:
+    def export_wallet_key(self, user: User, password: str | None = None) -> AuthResult:
+        del password
         if user.wallet_type != "AUTO_EMAIL" or not user.encrypted_wallet_key:
             return AuthResult(False, 400, error="Khóa riêng của ví gắn ngoài do ứng dụng ví quản lý.")
         from eth_account import Account
@@ -909,8 +915,10 @@ class AuthService:
         wallet_address: str | None = None,
         wallet_mode: str | None = None,
         otp_code: str | None = None,
+        password: str | None = None,
         require_wallet_otp: bool = True,
     ) -> AuthResult:
+        del password
         if name is not None and name.strip():
             user.name = name.strip()
         if phone is not None and phone.strip():

@@ -37,14 +37,14 @@
   </div>
 
   <!-- Mode Toggle: Sign-In vs Forgot Password -->
-  <div class="auth-mode-tabs">
+  {% if email_otp_available %}<div class="auth-mode-tabs">
     <button type="button" data-login-tab="signin" aria-pressed="true" class="app-button app-button--toggle font-label-sm">
       Đăng nhập
     </button>
     <button type="button" data-login-tab="forgot" aria-pressed="false" class="app-button app-button--toggle font-label-sm">
       Quên mật khẩu
     </button>
-  </div>
+  </div>{% endif %}
 
   <!-- 1. Sign-In Form (No wallet address displayed on login page) -->
   <form class="space-y-space-md" id="loginForm" data-auth-form="login">
@@ -57,9 +57,9 @@
           <span class="absolute left-3 text-outline app-icon-wrap text-[18px]">{{ render_icon("account_circle") }}</span>
           <input class="w-full pl-10 pr-3 py-2.5 bg-surface-container-low rounded-lg font-body-md text-on-surface placeholder:text-outline focus:outline-none focus:bg-surface focus:ring-2 focus:ring-primary-container transition-colors" required autocomplete="username" id="identifierInput" name="identifier" placeholder="Email, tên đăng nhập hoặc số điện thoại" type="text">
         </div>
-        <button type="button" id="btnSendOtpLogin" class="app-button px-3 py-2 font-label-sm font-bold shrink-0">
+        {% if email_otp_available %}<button type="button" id="btnSendOtpLogin" class="app-button px-3 py-2 font-label-sm font-bold shrink-0">
           Gửi mã Email
-        </button>
+        </button>{% endif %}
       </div>
     </div>
 
@@ -69,9 +69,9 @@
           <label class="font-label-sm text-on-surface font-semibold" for="secretInput">
             Mật khẩu
           </label>
-          <button type="button" id="btnForgotPasswordLink" class="text-xs text-primary font-bold hover:underline">
+          {% if email_otp_available %}<button type="button" id="btnForgotPasswordLink" class="text-xs text-primary font-bold hover:underline">
             Quên mật khẩu?
-          </button>
+          </button>{% endif %}
         </div>
         <div class="relative flex items-center">
           <span class="absolute left-3 text-outline app-icon-wrap text-[18px]">{{ render_icon("lock") }}</span>
@@ -80,12 +80,12 @@
         </div>
       </div>
 
-      <div class="auth-field-group">
+      {% if email_otp_available %}<div class="auth-field-group">
         <label class="font-label-sm text-on-surface font-semibold" for="otpCodeInput">
           Mã xác nhận Email (6 số)
         </label>
         <input class="w-full px-3 py-2.5 bg-surface-container-low rounded-lg font-label-md text-on-surface placeholder:text-outline focus:outline-none focus:bg-surface focus:ring-2 focus:ring-primary-container tracking-widest" id="otpCodeInput" name="otp_code" maxlength="6" inputmode="numeric" placeholder="Nhập 6 số (nếu dùng OTP)" type="text">
-      </div>
+      </div>{% endif %}
     </div>
 
     <div class="flex flex-wrap items-center justify-between gap-2 text-xs pt-1">
@@ -102,7 +102,7 @@
   </form>
 
   <!-- 2. Forgot Password Form (Receive 6-digit confirmation code via Email & Set New Password) -->
-  <form class="space-y-space-md hidden" id="forgotPasswordForm">
+  {% if email_otp_available %}<form class="space-y-space-md hidden" id="forgotPasswordForm">
     <div class="p-3 rounded-lg bg-surface-container-low text-xs text-on-surface-variant leading-relaxed">
       Nhập <strong>Email</strong> hoặc <strong>Tên đăng nhập (Username)</strong> đã đăng ký và bấm <strong>"Gửi mã xác nhận"</strong>. Hệ thống sẽ kiểm tra tài khoản tồn tại rồi gửi mã 6 chữ số tới Email của bạn.
     </div>
@@ -148,7 +148,7 @@
       <span>Đặt lại mật khẩu</span>
       <span class="app-icon-wrap text-[20px] group-hover:translate-x-1 transition-transform">{{ render_icon("arrow_forward") }}</span>
     </button>
-  </form>
+  </form>{% endif %}
 
   <p role="status" class="auth-status text-sm font-medium" data-auth-message></p>
 </div>

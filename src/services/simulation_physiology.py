@@ -4,7 +4,6 @@ from typing import Literal, TypedDict
 
 from src.models.simulation import SimulationDemoInput
 
-
 SoilState = Literal["dry", "moist", "flooded"]
 
 

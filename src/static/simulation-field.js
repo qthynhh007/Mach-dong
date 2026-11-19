@@ -56,6 +56,7 @@ export function connectFieldScene(scene, study) {
   let stage = "Làm đòng";
   let signals = neutralSignals;
   let salinity = 2.8;
+  let evidenceOnly = false;
   let seed = 2048;
 
   function random() {
@@ -104,7 +105,7 @@ export function connectFieldScene(scene, study) {
 
   function colorCanopy() {
     const style = stages[stage];
-    const stress = clamp((salinity - 1.5) / 4.5) * .7;
+    const stress = evidenceOnly ? signals.tip_burn : clamp((salinity - 1.5) / 4.5) * .7;
     for (const svg of [scene, study]) {
       svg.style.setProperty("--field-leaves", blend(style.leaves, [171, 127, 65], stress));
       svg.style.setProperty("--field-tips", blend(style.tips, [214, 157, 82], stress));
@@ -202,12 +203,13 @@ export function connectFieldScene(scene, study) {
       }
     },
     setConditions(input) {
+      evidenceOnly = input.evidenceOnly === true;
       salinity = input.salinity_gl;
       const depth = input.water_depth_cm;
       scene.style.setProperty("--field-water", clamp(.24 + depth / 40));
-      scene.style.setProperty("--field-submerged", clamp((depth - 14) / 60));
+      scene.style.setProperty("--field-submerged", evidenceOnly ? signals.water_cover : clamp((depth - 14) / 60));
       scene.style.setProperty("--field-dry", clamp((1 - depth) / 10));
-      scene.style.setProperty("--field-salt", clamp((salinity - .5) / 9));
+      scene.style.setProperty("--field-salt", evidenceOnly ? signals.tip_burn : clamp((salinity - .5) / 9));
       scene.style.setProperty("--field-heat", .18 + clamp((input.temp_c - 28) / 14) * .48);
       colorCanopy();
     },

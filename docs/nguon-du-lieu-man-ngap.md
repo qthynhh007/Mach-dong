@@ -1,6 +1,6 @@
 # Nguồn dữ liệu mặn và mực nước ở Đồng bằng sông Cửu Long
 
-[CSV đã làm sạch](../data/station-context/dbscl-man-muc-nuoc-2026.csv) chứa 22 bản ghi lịch sử. Trong đó có 7 giá trị mặn thực đo tổng hợp theo kỳ, 9 giá trị dự báo mặn, 4 giá trị mực nước lớn nhất ngày và 2 dòng nghỉ đo. Chọn tệp ở Kho CSV để xem trước. Với Cò Mạ, dùng số liệu này để trả lời câu hỏi về trạm và kỳ báo cáo. Số đo ở ruộng Long Hữu cần sổ đo thực địa của HTX hoặc nông hộ.
+[CSV đã làm sạch](../server/data/reference/dbscl-man-muc-nuoc-2026.csv) chứa 22 bản ghi lịch sử. Trong đó có 7 giá trị mặn thực đo tổng hợp theo kỳ, 9 giá trị dự báo mặn, 4 giá trị mực nước lớn nhất ngày và 2 dòng nghỉ đo. Chọn tệp ở Kho CSV để xem trước. Với Cò Mạ, dùng số liệu này để trả lời câu hỏi về trạm và kỳ báo cáo. Số đo ở ruộng Long Hữu cần sổ đo thực địa của HTX hoặc nông hộ.
 
 ## Điểm bắt đầu để thu thập thêm
 
@@ -10,7 +10,7 @@
 | Viện Khoa học Thủy lợi miền Nam | Mực nước tại trạm, dự báo triều và xâm nhập mặn vùng ĐBSCL | Duyệt mục Dự báo chuyên ngành và lấy tệp PDF gốc theo tuần. Với bảng scan, đối chiếu từng số sau khi nhận dạng chữ. [Kho bản tin](https://www.siwrr.org.vn/?gid=94) · [PDF đã dùng](https://www.siwrr.org.vn/docs/2023/files/20260409-20-VKHTLMN-Bantintuan-DubaoNguonnuoc-09_04_2026.pdf) |
 | Ủy hội sông Mê Công (MRC) | Mực nước và mưa theo trạm. Tân Châu có mã `019803`, Châu Đốc có mã `039801`. | Tìm trạm trên cổng giám sát. Dùng cột quan trắc trong bản tin và lưu mốc chuẩn trạm nếu nguồn có ghi. Kiểm tra điều khoản của bộ dữ liệu trước khi tải hàng loạt hoặc công bố lại. [Giám sát theo trạm](https://monitoring.mrcmekong.org/) · [Bảng bản tin MRC](https://ffw.mrcmekong.org/bulletin.php) · [Điều khoản Data Portal](https://portal.mrcmekong.org/about/terms-of-service) |
 | HTX hoặc nông hộ ở Long Hữu | Độ sâu và thời gian ngập, độ mặn tại ruộng, giai đoạn lúa | Thu qua biểu mẫu hoặc sổ đo có mã điểm. Giữ đơn vị gốc và ghi riêng ruộng, kênh, cống. [Mẫu cột thu thập](du-lieu-mau-man-ngap.md) |
-| Tạp chí khoa học | Kết quả nghiên cứu để giải thích phản ứng của lúa với mặn và ngập | Dùng bài gốc, giữ tên giống, giai đoạn, đơn vị và phạm vi thí nghiệm. [Danh mục JSON học thuật](../data/reference/lua-man-ngap-sources.json) |
+| Tạp chí khoa học | Kết quả nghiên cứu để giải thích phản ứng của lúa với mặn và ngập | Dùng bài gốc, giữ tên giống, giai đoạn, đơn vị và phạm vi thí nghiệm. [Danh mục JSON học thuật](../server/data/reference/lua-man-ngap-sources.json) |
 
 ## Lô đã trích và cách đối chiếu
 

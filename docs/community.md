@@ -7,7 +7,7 @@ Module dùng giao diện diễn đàn đã có ở `/forum`. Kho CSV tại `/com
 .\.venv\Scripts\python.exe main.py
 ```
 
-Mở http://127.0.0.1:5000/forum. Dữ liệu được lưu vào SQLite và có thể đọc từ các trình duyệt khác cùng truy cập máy chủ đó.
+Mở http://127.0.0.1:5000/forum. Bài viết được lưu trên Site công khai của nhóm, nên các máy dùng cùng diễn đàn. Máy cần Internet để đăng hoặc xem bài.
 
 ## Các lớp và trách nhiệm
 
@@ -16,18 +16,19 @@ Mở http://127.0.0.1:5000/forum. Dữ liệu được lưu vào SQLite và có 
 | View | `src/views/forum/` và `src/static/forum.js` | Giữ bố cục cũ, nhận thao tác, hiển thị kết quả API bằng `textContent` |
 | View OOP | `communityApi`, `communityView`, `communityFeedView`, `communityComposeView`, `communityDetailView` | Gửi HTTP, danh sách, soạn bài, chi tiết và cây trả lời |
 | Controller | `src/controllers/community_controller.py` / `communityController` | Đọc request/session, xác thực CSRF, gọi service, trả HTML hoặc `{data, error}` |
-| Service | `src/services/community_service.py` / `communityService` | Kiểm tra nội dung/ảnh, quyền, lượt hữu ích, câu giải đáp, bản nháp, phiên bản |
-| Model | `src/models/community.py` / `communityModel`, `communityStore`, `communityMember` | Khởi tạo schema, truy vấn tham số hóa, giao dịch SQLite, thông tin thành viên |
+| Service | `src/services/cloud_community_service.py` / `cloudCommunityService` | Gửi yêu cầu HTTPS và chuyển lỗi máy chủ về giao diện |
+| Model cloud | `server/community.mjs` / `communityController` | Kiểm tra phiên, quyền, nội dung, ảnh, phiên bản; truy vấn D1 và lưu ảnh R2 |
+| Model thử nghiệm | `src/models/community.py` / `communityModel`, `communityStore` | SQLite chỉ chạy trong bộ kiểm thử cục bộ |
 | Khởi tạo | `src/main.py` / `createApp` | Tạo model/service theo từng app, đăng ký controller; `create_app` là alias tương thích |
 
-Luồng: **View → Controller → Service → Model → SQLite**, kết quả đi ngược về View. Service không phụ thuộc Flask; controller không chứa SQL. Model không xử lý HTTP. Các class, hàm và biến mới dùng camelCase theo yêu cầu của nhóm. Tên tệp Python giữ dạng `community_controller.py`, `community_service.py` như cấu trúc ban đầu; các API bắt buộc của thư viện như `__init__` giữ tên gốc.
+Luồng phát hành: **View → Flask Controller → cloudCommunityService → Worker Controller → D1/R2**, kết quả đi ngược về View. Worker là ranh giới tin cậy: không lấy danh tính tác giả từ JSON của trình duyệt. `communityService` và `communityModel` vẫn kiểm tra hành vi trong bộ thử cục bộ.
 
 `forum_controller.py` chỉ xuất Blueprint `forum` từ `communityController` để các liên kết `url_for('forum.index')` đang có tiếp tục hoạt động. `forum_service.py` hiện chỉ chứa danh mục chủ đề và dữ liệu mẫu ban đầu.
 
 ## Chức năng và quy tắc
 
 - Bài viết: tạo, xem, sửa, xóa; chủ đề, giống lúa, giai đoạn, tiêu đề tối đa 120 ký tự và nội dung tối đa 5.000 ký tự. Chỉ tác giả được sửa/xóa. Xóa bài xóa cả chuỗi trao đổi và lượt hữu ích liên quan.
-- Ảnh: chọn/kéo thả JPG, PNG, WebP tối đa 5 MB mỗi tệp, tối đa 4 ảnh. Trình duyệt thu nhỏ thành JPEG tối đa 800 px, 240.000 ký tự mỗi data URL. Máy chủ đọc và mã hóa lại ảnh bằng Pillow, loại metadata; ảnh lưu cùng bài trong SQLite. API nhận ảnh JPEG đã thu nhỏ, không nhận trực tiếp tệp gốc 5 MB.
+- Ảnh: chọn/kéo thả JPG, PNG, WebP tối đa 5 MB mỗi tệp, tối đa 4 ảnh. Trình duyệt thu nhỏ thành JPEG tối đa 800 px; ảnh đi qua API và lưu vào R2. D1 chỉ lưu URL ảnh, không lưu chuỗi base64.
 - Bản nháp: riêng cho từng thành viên, lưu bằng nút “Lưu bản nháp”, tự khôi phục khi mở `/forum/new`; hỗ trợ xóa. Bản nháp cho bài mới, không dùng chung với màn hình sửa bài. Trang cảnh báo trước khi rời đi nếu có thay đổi chưa lưu.
 - Hỏi đáp: trả lời trực tiếp bài hoặc trả lời một câu trước đó, tối đa 5 cấp lồng. Chỉ cho phép nối các câu trả lời trong cùng bài. Nội dung tối đa 5.000 ký tự.
 - Sửa/xóa câu trả lời: chỉ tác giả. Xóa mềm, giữ vị trí trong cây để không mất các trao đổi bên dưới; nội dung bị xóa không còn được trả về.
@@ -42,7 +43,7 @@ Bài mẫu và số lượt hữu ích mẫu có nhãn “Dữ liệu mẫu”. 
 
 ## Nối phần đăng nhập của Tân
 
-Mặc định server cấp phiên khách ký bằng Flask session. Danh tính tác giả không lấy từ JSON, header tự khai hay localStorage. Phiên khách giúp thử module độc lập; xóa cookie sẽ mất quyền quản lý bài của phiên khách đó. Bài khách không tự chuyển quyền khi đăng nhập.
+Trong bản phát hành, khách chưa đăng nhập chỉ xem bài; thao tác ghi cần tài khoản cloud. Danh tính tác giả và CSRF được Worker xác minh bằng phiên tài khoản. Các ví dụ cấu hình bên dưới chỉ dành cho thử nghiệm SQLite độc lập.
 
 Cách đơn giản: sau khi phần đăng nhập đã kiểm tra tài khoản thành công, đặt session **ở phía server**:
 
@@ -86,15 +87,16 @@ app = createApp({
 
 | Cấu hình | Mặc định | Ý nghĩa |
 |---|---|---|
-| `COMMUNITY_DATABASE` | `data/community.sqlite3` | Đường dẫn tệp SQLite; đặt qua biến môi trường hoặc `createApp({...})` |
-| `COMMUNITY_ALLOW_GUESTS` | `True` | Dùng thử bằng khách; biến môi trường `1` hoặc `0` |
+| `COMMUNITY_API_URL` | Site Mạch Đồng | HTTPS đến kho diễn đàn cloud; bắt buộc trong bản phát hành |
+| `COMMUNITY_DATABASE` | `data/community.sqlite3` | Chỉ dùng khi kiểm thử với `COMMUNITY_API_URL=""` |
+| `COMMUNITY_ALLOW_GUESTS` | `False` | Chỉ dùng khi kiểm thử SQLite độc lập |
 | `COMMUNITY_SEED_SAMPLES` | `True` | Đặt `False` trong `createApp({...})` nếu muốn cơ sở dữ liệu mới trống |
 | `COMMUNITY_IDENTITY_PROVIDER` | `None` | Mặc định dùng phiên Mạch Đồng hoặc danh tính từ Flask session. Có thể truyền callback riêng |
 | `SECRET_KEY` | Biến môi trường hoặc khóa tự sinh cục bộ | Khóa ký session; khóa cục bộ lưu tại `.community-secret` cạnh tệp SQLite |
 
-Các bảng: `communityMembers`, `communityPosts`, `communityReplies`, `communityPostVotes`, `communityReplyVotes`, `communityDrafts`, `communityMetadata`. Giao dịch ghi dùng `BEGIN IMMEDIATE`, khóa ngoại bật trên từng kết nối; ràng buộc duy nhất ngăn trùng lượt hữu ích và `requestId`.
+Trên cloud, D1 có các bảng `community_members`, `community_posts`, `community_replies`, `community_post_votes`, `community_reply_votes`, `community_drafts`, `community_metadata`. R2 giữ ảnh. Ràng buộc duy nhất ngăn trùng lượt hữu ích và `requestId`.
 
-Tệp SQLite và khóa phiên không được đưa vào Git. Sao lưu cơ sở dữ liệu cùng khóa nếu cần giữ phiên khách; thiết lập một `SECRET_KEY` ổn định từ môi trường khi triển khai nhiều tiến trình. Khi chạy HTTPS, đặt `SESSION_COOKIE_SECURE=True`. `HttpOnly` và `SameSite=Lax` đã bật. SQLite dành cho bản chạy tại một máy chủ; chưa có lưu trữ ảnh ngoài, giới hạn tốc độ theo tài khoản hoặc kiểm duyệt diễn đàn.
+Tệp SQLite thử nghiệm và khóa phiên không được đưa vào Git. Khi chạy HTTPS, đặt `SESSION_COOKIE_SECURE=True`. `HttpOnly` và `SameSite=Lax` đã bật. Diễn đàn cloud chưa có kiểm duyệt nội dung hay giới hạn tốc độ theo tài khoản; cần bổ sung trước khi mở rộng lượng người dùng lớn.
 
 ## API
 

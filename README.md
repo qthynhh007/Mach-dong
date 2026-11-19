@@ -32,16 +32,18 @@ Khi thêm class Tailwind vào HTML, chạy `npm install` và `npm run build:css`
 | Mô phỏng | `/simulation` | Chỉnh bốn thanh trượt để xem cảnh ruộng giả lập, bổ sung điều kiện rồi mở tab Báo cáo & nguồn hoặc Dữ liệu thời tiết |
 | Báo cáo & nguồn | `/simulation/report` | Đường dẫn trực tiếp để lập báo cáo, xem bằng chứng, tải dự báo 7 ngày và dữ liệu NASA POWER |
 | Trợ lý Cò Mạ | `/assistant` | Trò chuyện từ nút Cò Mạ ở góc dưới các trang hoặc mở tab trợ lý đầy đủ |
-| Đăng nhập | `/login` | Nhập thông tin mẫu, hiện/ẩn mật khẩu và chuyển sang đăng ký |
-| Đăng ký | `/register` | Nhập thông tin mẫu, kiểm tra mật khẩu xác nhận và quay lại đăng nhập |
-| Tài khoản | `/profile` | Lưu hồ sơ canh tác vào SQLite cho tài khoản đăng nhập và xem số bài viết, câu trả lời trên diễn đàn |
+| Đăng nhập | `/login` | Đăng nhập tài khoản cloud, hiện/ẩn mật khẩu và chuyển sang đăng ký |
+| Đăng ký | `/register` | Tạo tài khoản và ví Fuji trên cloud, kiểm tra mật khẩu xác nhận |
+| Tài khoản | `/profile` | Lưu hồ sơ canh tác vào tài khoản cloud và xem số bài viết, câu trả lời trên diễn đàn |
 | Thể lệ dùng điểm LÚA | `/wallet/rules` | Mở từ túi LÚA trên thanh đầu trang để xem tỷ lệ quy đổi và cách dùng ví thử nghiệm |
 
-CSV tải lên chỉ được đọc để xem trước. Kho đánh dấu các bộ giả lập và dẫn nguồn trên các bộ công bố. CSV khí tượng NASA POWER và thống kê lúa FAOSTAT nằm trong `data/reference/published-csv/`. Ảnh chụp được thu nhỏ và nén JPEG trong `src/static/assets/forum-photos/`. Tác giả, giấy phép và liên kết ảnh gốc nằm trong `data/reference/forum-photo-assets.json`. Phần trăm cây sống chờ số liệu thực địa và mô hình được kiểm định.
+Đăng nhập và đăng ký dùng [kho tài khoản cloud](docs/cloud-accounts.md). Xác minh email và khôi phục mật khẩu cần cấu hình dịch vụ email trên Site. CSV tải lên chỉ được đọc để xem trước. Kho đánh dấu các bộ giả lập và dẫn nguồn trên các bộ công bố. CSV khí tượng NASA POWER và thống kê lúa FAOSTAT nằm trong `server/data/reference/published-csv/`. Ảnh chụp được thu nhỏ và nén JPEG trong `src/static/assets/forum-photos/`. Tác giả, giấy phép và liên kết ảnh gốc nằm trong `server/data/reference/forum-photo-assets.json`. Phần trăm cây sống chờ số liệu thực địa và mô hình được kiểm định.
 
-Bài viết, ảnh, bản nháp, câu trả lời và lượt hữu ích được lưu vào `data/community.sqlite3`, tự tạo khi khởi động. Mặc định mỗi trình duyệt có một **phiên khách dùng thử**; giữ cookie để tiếp tục sửa bài của phiên đó. Đây chưa phải tài khoản đăng nhập. Có sẵn adapter cho tài khoản của Tân và cấu hình tắt khách.
+Bài viết, câu trả lời, lượt hữu ích, bản nháp và thông tin ruộng của tài khoản được lưu trong D1 trên máy chủ; ảnh diễn đàn nằm trong R2. CSV mẫu, bản tin trạm và nguồn tra cứu của Cò Mạ cũng được đọc từ Site, không đóng gói trong EXE. Hai máy đăng nhập cùng tài khoản sẽ thấy cùng dữ liệu. Khách chưa đăng nhập chỉ được đọc diễn đàn. SQLite cộng đồng chỉ còn dùng cho kiểm thử cục bộ. Xem [sơ đồ lưu trữ cloud](docs/cloud-storage.md) và [hướng dẫn module](docs/community.md).
 
-Đọc [hướng dẫn module Cộng đồng và API](docs/community.md) để xem cách nối đăng nhập, các lớp MVC, cấu hình và quy tắc nghiệp vụ. Dữ liệu và khóa phiên được loại khỏi Git. Bài demo cũ trong localStorage vẫn được giữ nguyên trong trình duyệt nhưng không tự chuyển sang cơ sở dữ liệu mới.
+Bản hợp nhất các nhánh ngày 18/11/2026 giữ mô phỏng Groq trên cloud, hình ruộng mới, bộ dữ liệu cộng đồng, trợ lý, đăng nhập và ví Fuji. Xem [biên bản hợp nhất và kiểm tra](docs/integration-2026-11-18.md). Khóa Groq chỉ nằm trên cloud; Gemini của tab Trợ lý là cấu hình riêng của backend Flask. `.env` được giữ ngoài Git.
+
+Đọc [hướng dẫn module Cộng đồng và API](docs/community.md) để xem lớp MVC, cấu hình và quy tắc nghiệp vụ. Dữ liệu và khóa phiên được loại khỏi Git. Nếu trình duyệt từng lưu thông tin ruộng của tài khoản, trang hồ sơ điền lại dữ liệu để chuyển lên cloud khi lưu; dữ liệu demo chưa đăng nhập vẫn ở thiết bị.
 
 Mã ứng dụng nằm trong [src/](src). Sửa template ở `src/views/`, CSS và JavaScript ở `src/static/`, route Flask ở `src/controllers/` và logic nghiệp vụ ở `src/services/`.
 
@@ -49,7 +51,7 @@ Mã ứng dụng nằm trong [src/](src). Sửa template ở `src/views/`, CSS v
 
 ```powershell
 .\.venv\Scripts\python.exe -m unittest discover -s tests -v
-node --test server/tests/simulation.test.mjs
+node --test server/tests/*.test.mjs
 node --test tests/simulation-view.test.mjs
 ```
 

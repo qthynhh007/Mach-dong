@@ -1,5 +1,7 @@
 # Local Environment Setup Guide (`.env`) · AgriData (Mạch Đồng)
 
+> Current releases use the [cloud account service](cloud-accounts.md) by default. The SMTP and local account instructions below apply only to the legacy/local development mode; configuring local Gmail SMTP does not enable email verification on the cloud Site.
+
 This guide explains how to configure your local `.env` file for **Email OTP verification**, **session signing**, and **Avalanche Fuji (Chain ID `43113`)** smart contract integration.
 
 > [!IMPORTANT]

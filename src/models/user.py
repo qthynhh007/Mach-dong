@@ -68,9 +68,7 @@ def _derive_private_key_hex(email: str, secret_key: str) -> str:
     cleaned_email = (email or "").strip().lower()
     return hmac.new(
         secret_key.encode("utf-8"),
-        f"avalanche-fuji-{AVALANCHE_CHAIN_ID}-secp256k1:{cleaned_email}".encode(
-            "utf-8"
-        ),
+        f"avalanche-fuji-{AVALANCHE_CHAIN_ID}-secp256k1:{cleaned_email}".encode(),
         hashlib.sha256,
     ).hexdigest()
 
@@ -95,7 +93,7 @@ def generate_email_bound_wallet(
     priv_hex = _derive_private_key_hex(normalized, secret_key)
     acct = Account.from_key("0x" + priv_hex)
     address = str(acct.address)
-    mask = hashlib.sha256(f"{secret_key}:{normalized}:mask".encode("utf-8")).digest()
+    mask = hashlib.sha256(f"{secret_key}:{normalized}:mask".encode()).digest()
     raw_priv = bytes.fromhex(priv_hex)
     encrypted_bytes = bytes(b ^ mask[i % len(mask)] for i, b in enumerate(raw_priv))
     encrypted_key = f"fuji-{AVALANCHE_CHAIN_ID}:" + encrypted_bytes.hex()
@@ -113,7 +111,7 @@ def decrypt_email_bound_private_key(
         encrypted_bytes = bytes.fromhex(hex_payload)
     except ValueError:
         return None
-    mask = hashlib.sha256(f"{secret_key}:{normalized}:mask".encode("utf-8")).digest()
+    mask = hashlib.sha256(f"{secret_key}:{normalized}:mask".encode()).digest()
     raw_priv = bytes(b ^ mask[i % len(mask)] for i, b in enumerate(encrypted_bytes))
     return "0x" + raw_priv.hex()
 
@@ -137,6 +135,7 @@ class User:
     failed_login_attempts: int = 0
     locked_until: float = 0.0
     created_at: float = field(default_factory=time.time)
+    email_verified: bool = True
 
     @property
     def id(self) -> str:
@@ -173,6 +172,7 @@ class User:
             "username": self.username,
             "name": self.name,
             "email": self.email,
+            "email_verified": self.email_verified,
             "phone": self.phone,
             "role": str(self.role),
             "wallet_address": self.wallet_address,

@@ -63,6 +63,8 @@ def login() -> str:
         wallet_guide=get_auth_service().get_wallet_guide_info(
             str(user_dict["wallet_address"]) if user_dict else ""
         ),
+        email_otp_available=get_auth_service().email_otp_available(),
+        cloud_auth=bool(current_app.config["AUTH_API_URL"]),
     )
 
 
@@ -77,6 +79,8 @@ def register() -> str:
         wallet_guide=get_auth_service().get_wallet_guide_info(
             str(user_dict["wallet_address"]) if user_dict else ""
         ),
+        email_otp_available=get_auth_service().email_otp_available(),
+        cloud_auth=bool(current_app.config["AUTH_API_URL"]),
     )
 
 
@@ -84,24 +88,21 @@ def register() -> str:
 def profile() -> str:
     auth = get_current_auth()
     user_dict = auth[0].to_public_dict() if auth else None
-    farm = get_auth_service().repo.get_farm_profile(auth[0].user_id) if auth else None
+    farm = get_auth_service().get_farm_profile(auth[0].user_id) if auth else None
     post_count, reply_count = (
         current_app.extensions["communityService"].contribution_counts(f"user:{auth[0].user_id}")
         if auth else (28, 12)
     )
     tx_list = (
-        get_auth_service().repo.list_credit_transactions(auth[0].user_id, limit=8)
+        get_auth_service().list_credit_transactions(auth[0].user_id, limit=8)
         if auth
         else []
     )
     onchain_credits = None
     if auth and user_dict and user_dict.get("wallet_address"):
-        try:
-            onchain_credits = default_credit_service.get_onchain_balance(
-                str(user_dict["wallet_address"])
-            )
-        except Exception:
-            onchain_credits = None
+        onchain_credits = default_credit_service.get_onchain_balance(
+            str(user_dict["wallet_address"])
+        )
 
     return render_template(
         "auth/profile.html",
@@ -118,6 +119,8 @@ def profile() -> str:
         wallet_guide=get_auth_service().get_wallet_guide_info(
             str(user_dict["wallet_address"]) if user_dict else ""
         ),
+        email_otp_available=get_auth_service().email_otp_available(),
+        cloud_auth=bool(current_app.config["AUTH_API_URL"]),
     )
 
 
@@ -138,12 +141,9 @@ def get_session_status() -> tuple[Response, int]:
         return jsonify(data={"authenticated": False, "user": None}, error=None), 200
     user, session = auth
     wallet_info = get_auth_service().get_wallet_guide_info(user.wallet_address)
-    try:
-        onchain_credits = default_credit_service.get_onchain_balance(user.wallet_address)
-        if onchain_credits is not None:
-            wallet_info["onchain_credits"] = onchain_credits
-    except Exception:
-        pass
+    onchain_credits = default_credit_service.get_onchain_balance(user.wallet_address)
+    if onchain_credits is not None:
+        wallet_info["onchain_credits"] = onchain_credits
 
     return (
         jsonify(
@@ -153,7 +153,7 @@ def get_session_status() -> tuple[Response, int]:
                 "expires_at": session.expires_at,
                 "user": user.to_public_dict(),
                 "wallet_info": wallet_info,
-                "transactions": get_auth_service().repo.list_credit_transactions(
+                "transactions": get_auth_service().list_credit_transactions(
                     user.user_id, limit=8
                 ),
             },
@@ -280,7 +280,10 @@ def api_exchange_credits() -> tuple[Response, int]:
 @blueprint.post("/api/auth/export-wallet-key")
 @require_session()
 def api_export_wallet_key() -> tuple[Response, int]:
-    result = get_auth_service().export_wallet_key(g.current_user)
+    body = request.get_json(silent=True) or {}
+    result = get_auth_service().export_wallet_key(
+        g.current_user, password=str(body.get("password") or "")
+    )
     return jsonify(data=result.data, error=result.error), result.status_code
 
 
@@ -308,6 +311,7 @@ def api_update_profile() -> tuple[Response, int]:
         wallet_address=body.get("wallet_address"),
         wallet_mode=body.get("wallet_mode"),
         otp_code=body.get("otp_code"),
+        password=body.get("password"),
     )
     if not result.ok:
         return jsonify(data=None, error=result.error), result.status_code
@@ -317,7 +321,7 @@ def api_update_profile() -> tuple[Response, int]:
 @blueprint.get("/api/auth/avatar/<version>")
 @require_session(require_csrf=False)
 def avatar_image(version: str) -> Response | tuple[Response, int]:
-    avatar = get_auth_service().repo.get_avatar(g.current_user.user_id, version)
+    avatar = get_auth_service().get_avatar(g.current_user.user_id, version)
     if avatar is None:
         return jsonify(data=None, error="Chưa tìm thấy ảnh đại diện."), 404
     return Response(avatar, mimetype="image/jpeg", headers={"X-Content-Type-Options": "nosniff"})
@@ -343,6 +347,29 @@ def api_update_farm_profile() -> tuple[Response, int]:
     if not isinstance(body, dict):
         return jsonify(data=None, error="Dữ liệu hồ sơ không hợp lệ."), 400
     result = get_auth_service().update_farm_profile(g.current_user, body)
+    return jsonify(data=result.data, error=result.error), result.status_code
+
+
+@blueprint.get("/api/auth/field-profile")
+@require_session(require_csrf=False)
+def api_get_field_profile() -> tuple[Response, int]:
+    service = get_auth_service()
+    if not hasattr(service, "get_field_profile"):
+        return jsonify(data=None, error="Hồ sơ ruộng cloud chưa được cấu hình."), 503
+    result = service.get_field_profile()
+    return jsonify(data=result.data, error=result.error), result.status_code
+
+
+@blueprint.post("/api/auth/field-profile")
+@require_session()
+def api_save_field_profile() -> tuple[Response, int]:
+    service = get_auth_service()
+    if not hasattr(service, "save_field_profile"):
+        return jsonify(data=None, error="Hồ sơ ruộng cloud chưa được cấu hình."), 503
+    body = request.get_json(silent=True)
+    if not isinstance(body, dict):
+        return jsonify(data=None, error="Dữ liệu hồ sơ ruộng không hợp lệ."), 400
+    result = service.save_field_profile(body)
     return jsonify(data=result.data, error=result.error), result.status_code
 
 

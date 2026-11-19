@@ -108,10 +108,10 @@ class FujiCreditService:
         try:
             from web3 import Web3
 
-            w3, contract = self._get_web3_and_contract()
+            _, contract = self._get_web3_and_contract()
             checksum_wallet = Web3.to_checksum_address(wallet_address)
             return int(contract.functions.balanceOf(checksum_wallet).call())
-        except Exception:
+        except Exception:  # noqa: BLE001 - Optional RPC boundary; balance stays unknown on failure.
             return None
 
     def _send_contract_tx(
@@ -147,11 +147,11 @@ class FujiCreditService:
                 "tx_hash": tx_hash,
                 "snowtrace_url": snowtrace_tx_url(tx_hash),
             }
-        except Exception as exc:
+        except Exception:  # noqa: BLE001 - Provider errors must not expose signed payloads or keys.
             return {
                 "onchain": False,
                 "tx_hash": None,
-                "reason": str(exc),
+                "reason": "Không gửi được giao dịch Fuji. Kiểm tra kết nối và cấu hình máy chủ.",
             }
 
     def award_contribution_onchain(

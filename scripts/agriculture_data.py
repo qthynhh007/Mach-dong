@@ -12,7 +12,6 @@ from pathlib import Path
 from urllib.parse import urlsplit
 from urllib.request import HTTPRedirectHandler, Request, build_opener
 
-from src.config import REFERENCE_DIR
 from src.services.assistant_sources import knowledge
 from src.services.csv_library import FLOOD_DEMO_CSV, SIWRR_URL, STATION_CSV, VILO_URL
 from src.services.forum_service import EDITORIAL_POSTS

@@ -1,4 +1,4 @@
-"""Select reviewed material from local knowledge and approved CSV snapshots."""
+"""Select reviewed material from published knowledge and CSV snapshots."""
 
 import csv
 import json
@@ -6,12 +6,13 @@ import re
 from calendar import monthrange
 from collections.abc import Sequence
 from datetime import date, datetime
-from functools import lru_cache
+from io import StringIO
 from pathlib import Path
 
 from src.config import REFERENCE_DIR
 from src.models.community import normalizeText
 from src.services.ai_client import ChatMessage
+from src.services.cloud_reference_service import referenceBytes
 from src.services.csv_library import FLOOD_DEMO_CSV, STATION_CSV
 
 ALIASES = {
@@ -53,21 +54,20 @@ def matches(text: str, terms: Sequence[str]) -> bool:
     return any(contains(text, term) for term in terms)
 
 
-@lru_cache(maxsize=1)
 def knowledge() -> tuple[dict, ...]:
     curated = json.loads(
-        (REFERENCE_DIR / "co-ma-knowledge.json").read_text(encoding="utf-8")
+        referenceBytes(REFERENCE_DIR / "co-ma-knowledge.json").decode("utf-8-sig")
     )["sources"]
     rice = json.loads(
-        (REFERENCE_DIR / "lua-man-ngap-sources.json").read_text(encoding="utf-8")
+        referenceBytes(REFERENCE_DIR / "lua-man-ngap-sources.json").decode("utf-8-sig")
     )["sources"]
-    return tuple([
+    return (
         *(item for item in curated if item["status"] == "reviewed"),
         *(
             {**item, "crops": ["lúa"], "topic": "water", "terms": item["topics"]}
             for item in rice
         ),
-    ])
+    )
 
 
 def crop_names(text: str) -> set[str]:
@@ -157,10 +157,8 @@ def select_knowledge(messages: Sequence[ChatMessage]) -> list[dict]:
     ][:4]
 
 
-@lru_cache(maxsize=2)
 def read_rows(path: Path) -> tuple[dict, ...]:
-    with path.open(encoding="utf-8-sig", newline="") as source:
-        return tuple(csv.DictReader(source))
+    return tuple(csv.DictReader(StringIO(referenceBytes(path).decode("utf-8-sig"), newline="")))
 
 
 def citation(source_id: str, title: str, url: str) -> dict:

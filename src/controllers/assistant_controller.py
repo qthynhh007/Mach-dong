@@ -5,6 +5,7 @@ from werkzeug.exceptions import RequestEntityTooLarge
 
 from src.services.ai_client import GEMINI_MODEL_LABEL, ChatMessage, GeminiError
 from src.services.assistant_service import answer_question
+from src.services.cloud_reference_service import referenceUnavailable
 
 blueprint = Blueprint("assistant", __name__)
 ASSISTANT_WAIT_SECONDS = 20
@@ -70,6 +71,8 @@ def chat() -> tuple[Response, int]:
     started = perf_counter()
     try:
         answer = answer_question(api_key, messages)
+    except referenceUnavailable as error:
+        response, status = jsonify(data=None, error=str(error)), 503
     except GeminiError as error:
         response, status = jsonify(data=None, error=str(error)), error.status
     else:

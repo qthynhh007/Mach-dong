@@ -234,7 +234,7 @@
           "Content-Type": "application/json",
           "X-CSRF-Token": csrf,
         },
-        body: JSON.stringify({}),
+        body: JSON.stringify({password: document.getElementById("wallet-export-password")?.value || ""}),
       });
       const payload = await res.json();
       if (!res.ok || payload.error) {
@@ -315,6 +315,7 @@
           wallet_address: addr,
           wallet_mode: addr ? "EXTERNAL" : "AUTO_EMAIL",
           otp_code: otpCode,
+          password: document.getElementById("wallet-change-password")?.value || "",
         }),
       });
       const payload = await res.json();
@@ -423,7 +424,7 @@
             ? `+${tx.credit_delta} LÚA`
             : `${tx.credit_delta} LÚA`;
         const isRealOnchain = tx.direction === "AVAX_TO_CREDIT"
-          && tx.note.endsWith("(On-chain Fuji)") && /^0x[0-9a-f]{64}$/i.test(tx.tx_hash);
+          && tx.note?.endsWith("(On-chain Fuji)") && /^0x[0-9a-f]{64}$/i.test(tx.tx_hash);
         const hashHtml = isRealOnchain
           ? `Đã gửi Fuji · <a href="https://testnet.snowtrace.io/tx/${tx.tx_hash}" target="_blank" rel="noopener" class="underline font-bold text-primary hover:text-primary/80"><code>${tx.tx_hash.slice(
               0,

@@ -17,7 +17,8 @@ class desktopApplication:
             result = {"pages": {route: client.get(route).status_code for route in
                                 ("/simulation", "/forum", "/community", "/assistant")},
                       "static": client.get("/static/simulation.js").status_code,
-                      "cloudApi": app.config["SIMULATION_API_URL"]}
+                      "cloudApi": app.config["SIMULATION_API_URL"],
+                      "cloudAuthApi": app.config["AUTH_API_URL"]}
             Path(smokeOutput).write_text(json.dumps(result), encoding="utf-8")
             return
         import tkinter as tk

@@ -3,11 +3,10 @@ import json
 from src.config import REFERENCE_DIR
 
 EDITORIAL_AUTHOR = "editorial:admin"
+editorialPath = REFERENCE_DIR / "forum-source-posts.json"
 EDITORIAL_POSTS = {
     f"bai-tham-khao-{item['id']:02d}": item
-    for item in json.loads(
-        (REFERENCE_DIR / "forum-source-posts.json").read_text(encoding="utf-8")
-    )
+    for item in (json.loads(editorialPath.read_text(encoding="utf-8")) if editorialPath.exists() else [])
 }
 
 POST_PHOTOS = {
