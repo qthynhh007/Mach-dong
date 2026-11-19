@@ -16,12 +16,12 @@ Mở http://127.0.0.1:5000/forum. Bài viết được lưu trên Site công kha
 | View | `src/views/forum/` và `src/static/forum.js` | Giữ bố cục cũ, nhận thao tác, hiển thị kết quả API bằng `textContent` |
 | View OOP | `communityApi`, `communityView`, `communityFeedView`, `communityComposeView`, `communityDetailView` | Gửi HTTP, danh sách, soạn bài, chi tiết và cây trả lời |
 | Controller | `src/controllers/community_controller.py` / `communityController` | Đọc request/session, xác thực CSRF, gọi service, trả HTML hoặc `{data, error}` |
-| Service | `src/services/cloud_community_service.py` / `CloudCommunityService` | Gửi yêu cầu HTTPS và chuyển lỗi máy chủ về giao diện |
+| Service | `src/services/cloud_community_service.py` / `cloudCommunityService` | Gửi yêu cầu HTTPS và chuyển lỗi máy chủ về giao diện |
 | Model cloud | `server/community.mjs` / `communityController` | Kiểm tra phiên, quyền, nội dung, ảnh, phiên bản; truy vấn D1 và lưu ảnh R2 |
 | Model thử nghiệm | `src/models/community.py` / `communityModel`, `communityStore` | SQLite chỉ chạy trong bộ kiểm thử cục bộ |
 | Khởi tạo | `src/main.py` / `createApp` | Tạo model/service theo từng app, đăng ký controller; `create_app` là alias tương thích |
 
-Luồng phát hành: **View → Flask Controller → CloudCommunityService → Worker Controller → D1/R2**, kết quả đi ngược về View. Worker là ranh giới tin cậy: không lấy danh tính tác giả từ JSON của trình duyệt. `communityService` và `communityModel` vẫn kiểm tra hành vi trong bộ thử cục bộ.
+Luồng phát hành: **View → Flask Controller → cloudCommunityService → Worker Controller → D1/R2**, kết quả đi ngược về View. Worker là ranh giới tin cậy: không lấy danh tính tác giả từ JSON của trình duyệt. `communityService` và `communityModel` vẫn kiểm tra hành vi trong bộ thử cục bộ.
 
 `forum_controller.py` chỉ xuất Blueprint `forum` từ `communityController` để các liên kết `url_for('forum.index')` đang có tiếp tục hoạt động. `forum_service.py` hiện chỉ chứa danh mục chủ đề và dữ liệu mẫu ban đầu.
 

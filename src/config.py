@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR = ROOT / "data"
-REFERENCE_DIR = DATA_DIR / "reference"
+REFERENCE_DIR = ROOT / "server" / "data" / "reference"
 MAX_CSV_BYTES = 1_000_000
 IS_FROZEN = getattr(sys, "frozen", False)
 if not IS_FROZEN:

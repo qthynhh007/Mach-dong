@@ -1,12 +1,13 @@
-"""Published CSV catalog. Each download resolves to a server-owned path."""
+"""Published CSV catalog. Each download resolves through the cloud reference service."""
 
 from dataclasses import dataclass
 from pathlib import Path
 
-from src.config import REFERENCE_DIR, ROOT
+from src.config import REFERENCE_DIR
+from src.services.cloud_reference_service import referenceBytes
 from src.services.quality_service import preview_csv
 
-STATION_CSV = ROOT / "data" / "station-context" / "dbscl-man-muc-nuoc-2026.csv"
+STATION_CSV = REFERENCE_DIR / "dbscl-man-muc-nuoc-2026.csv"
 FLOOD_DEMO_CSV = REFERENCE_DIR / "long-huu-man-ngap-demo.csv"
 VILO_URL = (
     "https://snnmt.vinhlong.gov.vn/Portals/1041/2026/5/19/"
@@ -34,11 +35,14 @@ class CsvDataset:
         return not self.sources
 
     def preview(self) -> dict:
-        return preview_csv(self.path.read_bytes(), limit=25)
+        return preview_csv(self.readBytes(), limit=25)
+
+    def readBytes(self) -> bytes:
+        return referenceBytes(self.path)
 
     @property
     def file_size(self) -> str:
-        size = self.path.stat().st_size
+        size = len(self.readBytes())
         if size < 1024:
             return f"{size} B"
         return f"{size / 1024:.1f}".replace(".", ",") + " KB"

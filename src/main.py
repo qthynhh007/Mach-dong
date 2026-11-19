@@ -20,7 +20,8 @@ from src.models.user import SQLiteUserRepository
 from src.services.auth_service import AuthService
 from src.services.cloud_auth_service import CloudAuthService
 from src.services.cloud_client import cloudClient
-from src.services.cloud_community_service import CloudCommunityService
+from src.services.cloud_community_service import cloudCommunityService
+from src.services.cloud_reference_service import cloudReferenceService
 from src.services.community_service import communityService
 from src.services.simulation_service import simulationService
 
@@ -50,6 +51,8 @@ def createApp(testConfig: dict | None = None) -> Flask:
         AUTH_API_TRANSPORT=None,
         COMMUNITY_API_URL=os.environ.get("COMMUNITY_API_URL", SIMULATION_API_URL).strip(),
         COMMUNITY_API_TRANSPORT=None,
+        REFERENCE_API_URL=os.environ.get("REFERENCE_API_URL", SIMULATION_API_URL).strip(),
+        REFERENCE_API_TRANSPORT=None,
     )
     if testConfig:
         app.config.update(testConfig)
@@ -58,6 +61,8 @@ def createApp(testConfig: dict | None = None) -> Flask:
     if testConfig and app.testing and "COMMUNITY_API_URL" not in testConfig:
         app.config["COMMUNITY_API_URL"] = ""
         app.config["COMMUNITY_ALLOW_GUESTS"] = testConfig.get("COMMUNITY_ALLOW_GUESTS", True)
+    if testConfig and app.testing and "REFERENCE_API_URL" not in testConfig:
+        app.config["REFERENCE_API_URL"] = ""
     if not app.config["SECRET_KEY"]:
         secretPath = Path(app.config["COMMUNITY_DATABASE"]).parent / ".community-secret"
         secretPath.parent.mkdir(parents=True, exist_ok=True)
@@ -101,7 +106,7 @@ def createApp(testConfig: dict | None = None) -> Flask:
         }
 
     if app.config["COMMUNITY_API_URL"]:
-        app.extensions["communityService"] = CloudCommunityService(
+        app.extensions["communityService"] = cloudCommunityService(
             app.config["COMMUNITY_API_URL"], app.config["COMMUNITY_API_TRANSPORT"]
         )
     elif app.testing:
@@ -112,6 +117,12 @@ def createApp(testConfig: dict | None = None) -> Flask:
         )
     else:
         raise RuntimeError("COMMUNITY_API_URL is required; forum posts must use cloud storage")
+    if app.config["REFERENCE_API_URL"]:
+        app.extensions["referenceService"] = cloudReferenceService(
+            app.config["REFERENCE_API_URL"], app.config["REFERENCE_API_TRANSPORT"]
+        )
+    elif not app.testing:
+        raise RuntimeError("REFERENCE_API_URL is required; references must use the cloud service")
     app.extensions["simulationService"] = simulationService(
         cloudClient(app.config["SIMULATION_API_URL"], app.config["SIMULATION_TRANSPORT"])
     )

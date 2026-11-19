@@ -13,9 +13,9 @@ Mỗi luồng có danh sách nguồn, bước làm sạch và đầu ra riêng. 
 
 ## Điểm xuất phát trong repo
 
-- [CSV trạm lịch sử](../data/station-context/dbscl-man-muc-nuoc-2026.csv) có 22 dòng đã đối chiếu với bản tin. [Danh mục nguồn và quy tắc làm sạch](nguon-du-lieu-man-ngap.md) ghi rõ trang tài liệu, kỳ dữ liệu và các dòng cần kiểm tra lại.
-- [CSV mẫu ruộng OM5451](../data/reference/long-huu-man-ngap-demo.csv) có 16 dòng giả lập. Dùng [hướng dẫn từng cột](du-lieu-mau-man-ngap.md) để thiết kế biểu mẫu lấy số đo thật.
-- [JSON nguồn học thuật](../data/reference/lua-man-ngap-sources.json) có bốn nguồn về lúa. [Danh mục căn cứ Cò Mạ](../data/reference/co-ma-knowledge.json) có các đoạn đã đối chiếu về cách trồng, dinh dưỡng, sâu bệnh và mặn trên rau màu, cây ăn trái.
+- [CSV trạm lịch sử](../server/data/reference/dbscl-man-muc-nuoc-2026.csv) có 22 dòng đã đối chiếu với bản tin. [Danh mục nguồn và quy tắc làm sạch](nguon-du-lieu-man-ngap.md) ghi rõ trang tài liệu, kỳ dữ liệu và các dòng cần kiểm tra lại.
+- [CSV mẫu ruộng OM5451](../server/data/reference/long-huu-man-ngap-demo.csv) có 16 dòng giả lập. Dùng [hướng dẫn từng cột](du-lieu-mau-man-ngap.md) để thiết kế biểu mẫu lấy số đo thật.
+- [JSON nguồn học thuật](../server/data/reference/lua-man-ngap-sources.json) có bốn nguồn về lúa. [Danh mục căn cứ Cò Mạ](../server/data/reference/co-ma-knowledge.json) có các đoạn đã đối chiếu về cách trồng, dinh dưỡng, sâu bệnh và mặn trên rau màu, cây ăn trái.
 - `GET /api/community/datasets/<name>` đọc bộ đã công bố cho Kho CSV. `POST /api/community/preview` kiểm tra cú pháp tệp UTF-8 tối đa 1 MB để xem trước. Việc lưu bản nộp và duyệt nghiệp vụ cần luồng riêng.
 - `POST /api/assistant/chat` nhận câu hỏi và lịch sử, trả `data.reply` cùng `data.sources`. [Hợp đồng API](assistant-backend.md#hợp-đồng-api)
 - Chạy `fetch station`, `clean-stations`, `fetch knowledge` hoặc `check` qua `python -X utf8 -m scripts.agriculture_data`. [Lệnh đầy đủ và cách tái tạo](../README.md#thu-thập-và-tái-tạo-dữ-liệu)
@@ -137,7 +137,7 @@ Dùng [danh mục 20 bài đã xuất bản](blog-nguon-dien-dan.md) để chu�
 
 - Lấy **Admin** làm tên hiển thị của tài khoản đăng trên Mạch Đồng. Ghi tác giả gốc, đơn vị xuất bản, mốc nguồn và URL trong phần nội dung của từng bài.
 - Giữ tiêu đề gốc và dùng URL trực tiếp tới bài. Nội dung dạng chia sẻ liên kết lấy từ thông tin đã kiểm chứng trong danh mục. Khi cần đăng lại toàn văn hoặc dùng ảnh gốc, kiểm tra quyền tái sử dụng của từng nguồn.
-- Mỗi URL gốc tương ứng một mục. Flask đọc [danh mục JSON](../data/reference/forum-source-posts.json) khi khởi động, thêm các mục một lần vào nhóm **Bài tham khảo** bằng danh tính Admin của hệ thống. Giữ mã mục cố định trong danh mục.
+- Mỗi URL gốc tương ứng một mục. Máy chủ đã tạo các bài **Bài tham khảo** từ [danh mục JSON](../server/data/reference/forum-source-posts.json) bằng danh tính Admin hệ thống; các bài này được lưu trong D1 và hiển thị chung cho mọi người. Giữ mã mục cố định trong danh mục.
 - Với bài chứa liều phân hoặc thuốc, giữ nguyên thời điểm và phạm vi của nguồn. Khi dùng lại cho chatbot, duyệt từng đoạn theo luồng B và kiểm tra thông tin đang có hiệu lực trước khi đưa khuyến nghị.
 
 ## Thứ tự bàn giao và nghiệm thu

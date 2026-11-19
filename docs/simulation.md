@@ -91,7 +91,7 @@ Các số liệu nghiên cứu được trích dưới dạng dữ kiện có d�
 - **Dữ liệu lịch sử:** `python scripts/collect_weather.py --year 2025` lấy trọn một năm đã kết thúc. Chọn năm khác sau khi năm đó hoàn tất. Collector xác minh đơn vị, đủ ngày, giữ URL gốc và hash; chỉ thay bundle khi tất cả điểm thành công. Chạy test (cập nhật kỳ vọng năm/số ngày nếu đổi năm), build và deploy.
 - **Không trộn số mẫu với số thật**, không tự điền null, không chuyển số liệu kênh/cống thành số đo ruộng.
 
-Site ID trong `server/.openai/hosting.json` phải giữ nguyên. Dùng workflow nguồn/đóng gói của Sites từ thư mục máy chủ, lưu version rồi deploy public; source chính của app vẫn ở GitHub. Không tạo Site mới cho mỗi lần cập nhật. Thư mục checkout triển khai tại máy phát triển: `D:/UniHack/sites/mach-dong-data`; cần đồng bộ nguồn `server/` vào checkout trước khi build/publish. Không copy `.git` hoặc secret. Có thể quay lại saved version trước nếu dữ liệu mới sai. Không có trang quản trị sửa dữ liệu công khai.
+Site ID trong `server/.openai/hosting.json` phải giữ nguyên. Dùng workflow nguồn/đóng gói của Sites từ thư mục máy chủ, lưu version rồi deploy public; source chính của app vẫn ở GitHub. Không tạo Site mới cho mỗi lần cập nhật. Thư mục checkout triển khai hiện tại: `D:/UniHack/sites/mach-dong-auth/.sites-checkout`; cần đồng bộ nguồn `server/` vào checkout trước khi build/publish. Không copy `.git` hoặc secret. Có thể quay lại saved version trước nếu dữ liệu mới sai. Không có trang quản trị sửa dữ liệu công khai.
 
 Không tạo tài nguyên trả phí hay mua gói hosting riêng trong lần triển khai này. Sites sử dụng quyền hosting hiện có của tài khoản; hạn mức nền tảng và nguồn API vẫn áp dụng. Không nên mô tả hệ thống là không giới hạn/miễn phí vĩnh viễn.
 
@@ -113,14 +113,14 @@ Không tạo tài nguyên trả phí hay mua gói hosting riêng trong lần tri
 
 Server sử dụng JavaScript Worker ES module để chạy trên hosting hiện có; lớp MVC + Service Python của ứng dụng được giữ. Tên class/hàm/biến mới dùng camelCase theo yêu cầu của nhóm (ngoại trừ API bắt buộc của thư viện).
 
-**Cộng đồng/tài khoản:** dữ liệu và mô phỏng dùng cloud. Bản hợp nhất đã có backend đăng nhập/OTP/phiên và danh tính diễn đàn; SQLite tài khoản/diễn đàn của EXE vẫn nằm trên từng máy. SMTP, Gemini chat và Fuji cần cấu hình riêng. Chưa phải diễn đàn nhiều người dùng chung cloud; xem [biên bản hợp nhất](integration-2026-11-18.md).
+**Cộng đồng/tài khoản:** tài khoản, hồ sơ ruộng và diễn đàn dùng chung D1; ảnh bài viết dùng R2. CSV mẫu và nguồn của trợ lý được đọc qua API tham chiếu trên cùng Site. SQLite chỉ dùng cho bộ thử cục bộ. SMTP, Gemini chat và gửi giao dịch Fuji cần cấu hình riêng; xem [sơ đồ lưu trữ](cloud-storage.md).
 
 ## Kiểm tra và build
 
 ```powershell
 .\.venv\Scripts\python.exe -m unittest discover -s tests -v
 .\.venv\Scripts\ruff.exe check src tests scripts/collect_weather.py desktop.py
-node --test server/tests/simulation.test.mjs
+node --test server/tests/*.test.mjs
 node --test tests/simulation-view.test.mjs
 node server/build.mjs
 .\.venv\Scripts\python.exe -m pip install -r requirements-build.txt

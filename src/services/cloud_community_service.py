@@ -10,7 +10,7 @@ from src.controllers.session_guard import get_current_auth
 from src.services.community_service import communityError, communityService
 
 
-class CloudCommunityService(communityService):
+class cloudCommunityService(communityService):
     def __init__(self, api_url: str, transport=None) -> None:
         self.api_url = api_url.rstrip("/")
         if not self.api_url.startswith("https://"):

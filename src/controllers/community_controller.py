@@ -2,6 +2,7 @@
 
 import secrets
 import sqlite3
+from io import BytesIO
 from uuid import uuid4
 
 from flask import (
@@ -21,6 +22,7 @@ from werkzeug.exceptions import HTTPException
 from src.config import MAX_CSV_BYTES
 from src.controllers.session_guard import get_current_auth
 from src.models.community import communityMember
+from src.services.cloud_reference_service import referenceUnavailable
 from src.services.community_service import communityError, communityService
 from src.services.csv_library import DATASET_BY_SLUG, DATASETS
 from src.services.forum_service import (
@@ -71,6 +73,7 @@ class communityController:
             target.register_error_handler(communityError, self.handleError)
             target.register_error_handler(HTTPException, self.handleHttpError)
             target.register_error_handler(sqlite3.Error, self.handleDatabaseError)
+            target.register_error_handler(referenceUnavailable, self.handleReferenceError)
             target.after_request(self.responseHeaders)
 
     def service(self) -> communityService:
@@ -176,6 +179,9 @@ class communityController:
             communityError("Chưa lưu được dữ liệu. Hãy thử lại sau.", 503)
         )
 
+    def handleReferenceError(self, error: referenceUnavailable) -> tuple[Response | str, int]:
+        return self.handleError(communityError(str(error), 503))
+
     def responseHeaders(self, response: Response) -> Response:
         if request.path.startswith("/api/community/") or request.path.startswith(
             "/forum"
@@ -202,7 +208,7 @@ class communityController:
         dataset = DATASET_BY_SLUG.get(name)
         if dataset is None:
             abort(404)
-        return send_file(dataset.path, as_attachment=True, mimetype="text/csv")
+        return send_file(BytesIO(dataset.readBytes()), as_attachment=True, mimetype="text/csv", download_name=dataset.path.name)
 
     def dataset_preview(self, name: str) -> tuple[Response, int]:
         dataset = DATASET_BY_SLUG.get(name)

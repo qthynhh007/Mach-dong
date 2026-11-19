@@ -1,6 +1,6 @@
 # Bộ dữ liệu mẫu mặn và ngập trên ruộng lúa OM5451
 
-Chọn [CSV mẫu](../data/reference/long-huu-man-ngap-demo.csv) trong Kho CSV của Mạch Đồng để xem trước 16 dòng thuộc 5 ca. Mỗi dòng mang `is_simulated=true`. Mã nguồn `MD-DEMO-MAN-NGAP-01` chỉ bộ số liệu giả lập dùng để thử phần mềm. Long Hữu là địa bàn minh họa.
+Chọn [CSV mẫu](../server/data/reference/long-huu-man-ngap-demo.csv) trong Kho CSV của Mạch Đồng để xem trước 16 dòng thuộc 5 ca. Mỗi dòng mang `is_simulated=true`. Mã nguồn `MD-DEMO-MAN-NGAP-01` chỉ bộ số liệu giả lập dùng để thử phần mềm. Long Hữu là địa bàn minh họa.
 
 ## Đọc năm ca
 
@@ -34,7 +34,7 @@ Nếu cần **tỷ lệ cây sống**, bổ sung mã ô mẫu cố định, ngà
 
 ## Nguồn để Cò Mạ giải thích
 
-[JSON nguồn học thuật](../data/reference/lua-man-ngap-sources.json) có bốn bản tóm tắt tiếng Việt để thử bước tra cứu. Mỗi mục có mã trích dẫn, URL, mục cần đối chiếu, kết quả và phạm vi của nghiên cứu.
+[JSON nguồn học thuật](../server/data/reference/lua-man-ngap-sources.json) có bốn bản tóm tắt tiếng Việt để thử bước tra cứu. Mỗi mục có mã trích dẫn, URL, mục cần đối chiếu, kết quả và phạm vi của nghiên cứu.
 
 - **Độ sâu và mặn là hai thông tin cần đo riêng.** Zeng và cộng sự thay đổi cả độ sâu nước và EC nước trong thí nghiệm nhà kính trên ba giống lúa. [Zeng và cộng sự](https://www.ars.usda.gov/arsuserfiles/20361500/pdf_pubs/P1801.pdf)
 - **Thời gian và kiểu ngập ảnh hưởng cách đọc số đo.** Thí nghiệm ngập kéo dài của Singh và cộng sự tăng dần mực nước và theo dõi đến thu hoạch. Thí nghiệm ngập toàn cây mạ của Sazali và cộng sự ghi riêng mốc trước ngập, sau khi đưa cây khỏi nước và thời điểm phục hồi. [Singh và cộng sự](https://link.springer.com/article/10.1186/s12284-017-0154-5) · [Sazali và cộng sự](https://journal.unisza.edu.my/agrobiotechnology/index.php/agrobiotechnology/article/view/257)
