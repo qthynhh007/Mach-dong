@@ -47,6 +47,7 @@
   background: #fff;
 }
 .sim-control:focus-within { border-color: var(--sim-accent); }
+.sim-control { transition: transform 200ms cubic-bezier(.2,.7,.25,1), border-color 160ms ease, box-shadow 200ms ease; transform-origin: center; }
 @media (hover: hover) {
   .sim-control:hover { border-color: var(--sim-accent); }
 }
@@ -96,6 +97,7 @@
   border-radius: 50%;
   background: #fffdf6;
   box-shadow: 0 2px 6px #173b3240;
+  transition: transform 180ms ease, box-shadow 180ms ease;
 }
 .sim-control input::-moz-range-thumb {
   inline-size: 20px;
@@ -104,13 +106,65 @@
   border-radius: 50%;
   background: #fffdf6;
   box-shadow: 0 2px 6px #173b3240;
+  transition: transform 180ms ease, box-shadow 180ms ease;
 }
 .sim-control input:focus-visible { border-radius: .4rem; }
 .sim-control input:active { cursor: grabbing; }
 .sim-control input:active::-webkit-slider-thumb { background-color: #e1eee2; }
 .sim-control input:active::-moz-range-thumb { background-color: #e1eee2; }
+.sim-control .sim-slider-shell { position: relative; grid-column: 1 / -1; min-width: 0; height: 44px; }
+.sim-slider-shell input { display: block; position: relative; z-index: 1; }
+.sim-slider-aura {
+  position: absolute;
+  z-index: 0;
+  width: 26px;
+  height: 26px;
+  top: 50%;
+  left: calc(13px + (100% - 26px) * var(--range-fraction, .5));
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  color: var(--sim-accent);
+  box-shadow: 0 0 20px color-mix(in srgb, currentColor 35%, transparent);
+  opacity: 0;
+  transition: opacity 160ms ease;
+  pointer-events: none;
+}
+.sim-slider-aura::before, .sim-slider-aura::after {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border: 1px solid currentColor;
+  border-radius: inherit;
+  background: color-mix(in srgb, currentColor 10%, transparent);
+  animation: sim-slider-ripple 1400ms ease-out infinite paused;
+  pointer-events: none;
+}
+.sim-slider-aura::after { animation-delay: 650ms; }
+.sim-slider-shell:is(:hover, :focus-within) .sim-slider-aura { opacity: 1; }
+.sim-slider-shell:is(:hover, :focus-within) .sim-slider-aura::before,
+.sim-slider-shell:is(:hover, :focus-within) .sim-slider-aura::after { animation-play-state: running; }
+.sim-slider-shell:focus-within input::-webkit-slider-thumb { box-shadow: 0 0 0 5px color-mix(in srgb, var(--sim-accent) 13%, transparent), 0 2px 8px #173b3230; }
+.sim-slider-shell:focus-within input::-moz-range-thumb { box-shadow: 0 0 0 5px color-mix(in srgb, var(--sim-accent) 13%, transparent), 0 2px 8px #173b3230; }
+@keyframes sim-slider-ripple {
+  from { opacity: .32; transform: scale(.85); }
+  to { opacity: 0; transform: scale(2.5); }
+}
+@media (hover: hover) and (pointer: fine) {
+  .sim-control:hover { transform: scale(1.012); box-shadow: 0 6px 18px #183f2d0d; }
+  .sim-slider-shell:hover input::-webkit-slider-thumb { transform: scale(1.12); box-shadow: 0 0 0 5px color-mix(in srgb, var(--sim-accent) 12%, transparent), 0 2px 10px #173b3240; }
+  .sim-slider-shell:hover input::-moz-range-thumb { transform: scale(1.12); box-shadow: 0 0 0 5px color-mix(in srgb, var(--sim-accent) 12%, transparent), 0 2px 10px #173b3240; }
+}
+.sim-control input:active::-webkit-slider-thumb { transform: scale(1.22); }
+.sim-control input:active::-moz-range-thumb { transform: scale(1.22); }
+@media (prefers-reduced-motion: reduce) {
+  .sim-control { transform: none !important; }
+  .sim-control input::-webkit-slider-thumb { transform: none !important; }
+  .sim-control input::-moz-range-thumb { transform: none !important; }
+  .sim-slider-aura::before, .sim-slider-aura::after { animation: none; opacity: 0; }
+}
 @media (forced-colors: active) {
   .sim-control input { appearance: auto; }
+  .sim-slider-aura { display: none; }
 }
 .sim-range-scale {
   position: relative;

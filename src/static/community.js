@@ -7,7 +7,7 @@ const filters = [...document.querySelectorAll("[data-filter]")];
 const cards = Array.from(document.querySelectorAll("[data-dataset]"), (card) => ({
   card,
   categories: card.dataset.dataset.split(" "),
-  text: normalizeSearch(card.textContent),
+  text: normalizeSearch(card.textContent + " " + card.dataset.filename),
 }));
 const count = document.querySelector("#csv-count span");
 const clear = document.querySelector("#csv-clear");
@@ -114,7 +114,7 @@ async function loadPreview(url, options = {}) {
   output.hidden = true;
   output.replaceChildren();
   try {
-    const response = await fetch(url, {...options, signal: request.signal});
+    const response = await fetch(url, {...options, headers: {...options.headers, "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]')?.content || ""}, signal: request.signal});
     if (response.status === 413) throw new Error("Tệp vượt quá giới hạn 1 MB.");
     const {data, error} = await response.json();
     if (request.signal.aborted) return;

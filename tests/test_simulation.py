@@ -124,3 +124,17 @@ class testSimulation(TestCase):
         self.assertEqual(self.client.get("/api/simulation/catalog").status_code, 200)
         self.assertEqual(self.client.get("/api/simulation/weather?locationId=can-tho").status_code, 200)
         self.assertTrue(self.requests[-1].full_url.endswith("/api/weather?locationId=can-tho"))
+
+    def testWeatherGracefulFallbackWhenCloudFails(self):
+        def failed_transport(request, timeout):
+            raise URLError("Cloud connection refused")
+
+        self.app.extensions["simulationService"].weather.cloud.transport = failed_transport
+        with patch("urllib.request.urlopen", side_effect=URLError("Network down")):
+            response = self.client.get("/api/simulation/weather?locationId=can-tho")
+            self.assertEqual(response.status_code, 200)
+            data = response.json.get("data")
+            self.assertIsNotNone(data)
+            self.assertEqual(len(data.get("rows", [])), 7)
+            self.assertEqual(data.get("locationId"), "can-tho")
+

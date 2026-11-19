@@ -1,6 +1,7 @@
 # Dependencies
 .venv/
 node_modules/
+.playwright-cli/
 
 # Python caches
 __pycache__/
@@ -18,3 +19,8 @@ data/*.sqlite3*
 data/.community-secret
 data/agridata.db*
 data/client_session.json
+
+# Generated desktop packages
+build/
+dist/
+*.spec

@@ -262,3 +262,6 @@
 @media (max-width: 1023px) {
   .discussion-panel .stitch-replies { max-height: 60vh; }
 }
+
+.forum-page-head { padding: clamp(1rem, 2.3vw, 2rem); margin-bottom: 1rem; border: 1px solid #c5dbca; border-radius: 1.15rem; background: linear-gradient(112deg, #fffef7, #e1eedf); }
+.forum-page-head p { margin-top: .35rem; line-height: 1.6; }

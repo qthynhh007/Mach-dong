@@ -1,14 +1,21 @@
 {% from "shared/icon.html" import icon %}
 <ul class="csv-list" aria-label="Các bộ dữ liệu CSV">
-  {% for dataset, row_count in datasets %}
+  {% for item in datasets %}
+  {% if item is sequence and item is not string %}
+    {% set dataset = item[0] %}
+    {% set row_count = item[1] %}
+  {% else %}
+    {% set dataset = item %}
+    {% set row_count = dataset.row_count if dataset.row_count is defined else 0 %}
+  {% endif %}
   {% set download = url_for('community.download_sample', name=dataset.slug) %}
-  <li class="csv-row app-pane" data-dataset="{{ dataset.categories | join(' ') }}">
+  <li class="csv-row app-pane" data-filename="{{ dataset.path.name }}" data-dataset="{{ dataset.categories | join(' ') }}">
     <div class="csv-row-main">
-      <h2 id="csv-title-{{ dataset.slug }}">{{ dataset.path.name }}</h2>
+      <h2 id="csv-title-{{ dataset.slug }}">{{ dataset.title }}</h2>
       <span class="csv-badge{{ ' csv-badge-demo' if dataset.simulated else '' }}">
-        {{ '[Giả lập]' if dataset.simulated else 'Có nguồn đối chiếu' }}
+        {{ 'Dữ liệu mẫu' if dataset.simulated else 'Nguồn kiểm chứng' }}
       </span>
-      <p>{{ dataset.title }} · {{ dataset.details }}</p>
+      <p>{{ dataset.details }}</p>
       {% if dataset.sources %}
       <p class="csv-sources">
         {% for title, url in dataset.sources %}

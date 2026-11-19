@@ -31,7 +31,8 @@
   }
   :where(small, time, figcaption, dt, [role="status"], .text-label-sm,
     .app-side-label, .community-meta, .discussion-owner, .assistant-speaker, .assistant-sources,
-    .assistant-chat-header small, .assistant-pending-copy p, .forum-sourced-photo figcaption,
+    .assistant-chat-header small, .assistant-pending-copy p, .assistant-composer-footnote p,
+    .assistant-vision-note, .forum-sourced-photo figcaption,
     .csv-row-main .csv-sources, #csv-count, #csv-modal-file, #profile-avatar-hint,
     .sim-control-hint, .sim-range-scale, .sim-legend, .sim-model-note, .sim-muted,
     .sim-mascot p, .sim-result-status, .sim-advice-context, .sim-advice-stale,

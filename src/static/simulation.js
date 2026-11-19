@@ -7,7 +7,7 @@ class simulationApi {
     signal?.addEventListener("abort",cancel,{once:true});
     if (signal?.aborted) cancel();
     try {
-      const response = await fetch(path, {method:payload ? "POST" : "GET",headers:{"Content-Type":"application/json"},body:payload ? JSON.stringify(payload) : undefined,signal:controller.signal,cache:"no-store"});
+      const response = await fetch(path, {method:payload ? "POST" : "GET",headers:{"Content-Type":"application/json","X-CSRF-Token":globalThis.document?.querySelector('meta[name="csrf-token"]')?.content || ""},body:payload ? JSON.stringify(payload) : undefined,signal:controller.signal,cache:"no-store"});
       let result;
       try { result = await response.json(); }
       catch { throw new Error(`Máy chủ không trả dữ liệu hợp lệ (HTTP ${response.status}). Hãy mở lại ứng dụng hoặc thử lại.`); }
@@ -246,13 +246,27 @@ class simulationView {
   rows(id, rows) { const body = this.byId(id); body.replaceChildren(); for (const row of rows) { const tr = document.createElement("tr"); for (const value of row) { const td = document.createElement("td"); td.textContent = value; tr.append(td); } body.append(tr); } }
   async loadWeather() {
     this.weatherRequest?.abort(); const controller = new AbortController(); this.weatherRequest = controller;
-    this.setText("weatherMeta","Đang lấy dự báo mới từ máy chủ…");
+    const meta = this.byId("weatherMeta");
+    meta.className = "is-loading";
+    meta.textContent = "Đang lấy dự báo mới từ máy chủ…";
     try {
-      const result = await this.api.request("/api/simulation/weather?locationId="+encodeURIComponent(this.field("locationId").value),null,controller.signal);
+      const locId = this.field("locationId") ? this.field("locationId").value : "can-tho";
+      const result = await this.api.request("/api/simulation/weather?locationId="+encodeURIComponent(locId),null,controller.signal);
       if (controller.signal.aborted) return;
       this.rows("weatherRows",result.rows.map(row => [row.date,...[row.tempMinC,row.tempMaxC,row.rainMm,row.et0Mm,row.solarMjM2].map(value => this.number(value))]));
-      this.setText("weatherMeta",`Open-Meteo · Dự báo ô lưới · ${result.locationId} · Cập nhật ${result.retrievedAt} · CC BY 4.0`);
-    } catch (error) { if (error.name !== "AbortError") { this.byId("weatherRows").replaceChildren(); this.setText("weatherMeta",error.message); } }
+      meta.className = "is-success";
+      this.weatherLoaded = true;
+      const isSample = result.sourceId === "weather-history-sample";
+      const badge = isSample ? "Dữ liệu mẫu tham khảo (ngoại tuyến)" : "Open-Meteo · Dự báo ô lưới";
+      const updatedTime = result.retrievedAt ? new Date(result.retrievedAt).toLocaleDateString("vi-VN") : "";
+      meta.textContent = `${badge} · ${result.locationId} ${updatedTime ? '· Cập nhật ' + updatedTime : ''} · ${result.license || 'CC BY 4.0'}`;
+    } catch (error) {
+      if (error.name !== "AbortError") {
+        this.byId("weatherRows").replaceChildren();
+        meta.className = "is-error";
+        meta.textContent = error.message;
+      }
+    }
   }
   showPanel(id, updateUrl = true) {
     const tab = this.tabs.find(button => button.dataset.panel === id);
@@ -264,6 +278,9 @@ class simulationView {
       this.byId(button.dataset.panel).hidden = !selected;
     }
     if (focusedPanel?.hidden) tab.focus({preventScroll: true});
+    if (id === "weatherPanel" && !this.weatherLoaded && this.catalog) {
+      this.loadWeather();
+    }
     if (!updateUrl) return;
     const url = new URL(location.href);
     if (url.searchParams.get("tab") === tab.dataset.tab) return;

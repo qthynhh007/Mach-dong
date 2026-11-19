@@ -4,7 +4,7 @@ import json
 import logging
 from collections.abc import Sequence
 from time import monotonic
-from typing import Literal, TypedDict
+from typing import Literal, NotRequired, TypedDict
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
@@ -19,9 +19,15 @@ GEMINI_FALLBACK_TIMEOUT_SECONDS = 7
 logger = logging.getLogger(__name__)
 
 
+class ChatImage(TypedDict):
+    mime_type: str
+    data: str
+
+
 class ChatMessage(TypedDict):
     role: Literal["user", "model"]
     text: str
+    image: NotRequired[ChatImage]
 
 
 class GeminiError(Exception):
@@ -119,6 +125,11 @@ def generate_reply(
         for turn in messages
     ]
     contents[-1]["parts"].insert(0, {"text": evidence})
+    for turn, content in zip(messages, contents):
+        if image := turn.get("image"):
+            content["parts"].append({"inlineData": {
+                "mimeType": image["mime_type"], "data": image["data"],
+            }})
     payload = {
         "systemInstruction": {"parts": [{"text": instruction}]},
         "contents": contents,
@@ -131,7 +142,7 @@ def generate_reply(
                     "reply": {"type": "STRING"},
                     "source_ids": {
                         "type": "ARRAY",
-                        "items": {"type": "STRING", "enum": list(allowed_source_ids)},
+                        "items": {"type": "STRING", **({"enum": list(allowed_source_ids)} if allowed_source_ids else {})},
                     },
                 },
                 "required": ["reply", "source_ids"],

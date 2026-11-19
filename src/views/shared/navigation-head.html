@@ -1,3 +1,4 @@
+{% if auth_user %}<meta name="csrf-token" content="{{ auth_csrf_token }}">{% endif %}
 <link rel="stylesheet" href="{{ url_for('static', filename='assets/stitch-simulation/fonts.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='typography.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='co-ma-launcher.css') }}">

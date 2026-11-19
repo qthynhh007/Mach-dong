@@ -54,7 +54,7 @@ class TestApp(TestCase):
         self.assertNotIn('id="co-ma-launcher"', page)
 
     def test_co_ma_launcher_passes_context_to_chat_and_full_tab(self) -> None:
-        for name, label in (("simulation", "Mặn ngoài kênh LH-05"), ("community", "Mực nước Cần Thơ"),
+        for name, label in (("simulation", "Mặn ngoài kênh"), ("community", "Mực nước Cần Thơ"),
                             ("forum", "Mặn kênh và mặn ruộng")):
             with self.subTest(context=name):
                 launcher = self.client.get(f"/{name}").text

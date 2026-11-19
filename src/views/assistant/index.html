@@ -2,8 +2,8 @@
 {% from "shared/co-ma.html" import co_ma, co_ma_wave %}
 {% set contextual_questions = {
   'simulation': [
-    ('Ca ngập mẫu LH-03', 'Đọc số đo trong ca LH-03 ở mốc 48 giờ.'),
-    ('Mặn ngoài kênh LH-05', 'Đọc số đo độ mặn ngoài kênh trong ca LH-05.')
+    ('Đo mực nước', 'Đo mực nước tại ruộng như thế nào?'),
+    ('Mặn ngoài kênh', 'Cần kiểm tra gì trước khi lấy nước kênh vào ruộng?')
   ],
   'community': [
     ('Độ mặn Cầu Quan', 'Độ mặn thực đo tại Cầu Quan là bao nhiêu?'),
@@ -20,7 +20,6 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Lời khuyên Cò Mạ về trồng cây, dinh dưỡng, sâu bệnh, mặn và ngập.">
-  <link rel="preload" as="image" href="{{ url_for('static', filename='assets/co-ma/emotions.png') }}">
   <title>Trợ lý Cò Mạ · Mạch Đồng</title>
   <link rel="icon" href="{{ url_for('static', filename='assets/stitch-simulation/co-ma-logo.png') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='shell.css') }}">
@@ -104,11 +103,27 @@
               data-chat-url="{{ url_for('assistant.chat') }}"
               data-wait-seconds="{{ wait_seconds }}"
               data-history-limit="{{ max_history_turns }}">
+          <div class="assistant-attachment" id="assistant-attachment" hidden>
+            <img id="assistant-image-preview" alt="Ảnh chuẩn bị gửi cho Cò Mạ" width="72" height="72">
+            <div><span class="assistant-attachment-eyebrow">Ảnh đính kèm</span><strong id="assistant-image-name"></strong><span>Cò Mạ sẽ xem ảnh cùng câu hỏi.</span></div>
+            <button class="app-button icon-action" id="assistant-image-remove" type="button" aria-label="Gỡ ảnh đính kèm">{{ icon("close") }}</button>
+          </div>
           <label for="assistant-input" class="assistant-visually-hidden">Câu hỏi của bạn</label>
           <textarea id="assistant-input" name="message" rows="2" maxlength="{{ max_message_length }}"
-                    placeholder="{{ 'Ví dụ, ớt bị vàng lá thì kiểm tra gì trước?' if gemini_enabled else 'Ví dụ, độ mặn trạm Cầu Quan hoặc ca LH-03' }}" autocomplete="off" required disabled></textarea>
-          <button type="submit" class="app-button app-button--primary icon-action" id="assistant-send" title="Gửi câu hỏi" aria-label="Gửi câu hỏi" disabled>{{ icon("arrow_forward") }}</button>
+                    placeholder="Ví dụ: lúa đang làm đòng, lá hơi vàng…" aria-describedby="assistant-composer-hint assistant-image-hint" autocomplete="off" disabled></textarea>
+          <p class="assistant-upload-status" id="assistant-upload-status" role="status"></p>
+          <div class="assistant-composer-tools">
+            <input id="assistant-image" name="image" type="file" accept="image/jpeg,image/png,image/webp" hidden>
+            <button type="button" class="app-button action-label assistant-attach" id="assistant-image-choose" title="Đính kèm ảnh cây trồng" aria-label="Đính kèm ảnh cây trồng" aria-describedby="assistant-image-hint">{{ icon("upload_photo") }}<span>Thêm ảnh</span></button>
+            <span class="assistant-composer-count" id="assistant-character-count" aria-label="Số ký tự đã nhập">0 / {{ max_message_length }}</span>
+            <button type="submit" class="app-button app-button--primary action-label assistant-send" id="assistant-send" title="Gửi câu hỏi" aria-label="Gửi câu hỏi" disabled><span class="assistant-send-spinner" aria-hidden="true"></span><span id="assistant-send-label">Gửi</span>{{ icon("arrow_forward") }}</button>
+          </div>
         </form>
+        <div class="assistant-composer-footnote">
+          <p id="assistant-composer-hint"><kbd>Enter</kbd> gửi · <kbd>Shift + Enter</kbd> xuống dòng</p>
+          <p class="assistant-image-hint" id="assistant-image-hint">1 ảnh · JPG, PNG, WebP · Tối đa 5&nbsp;MB</p>
+        </div>
+        {% if not gemini_enabled %}<p class="assistant-vision-note">Phân tích ảnh sẽ khả dụng khi kết nối Gemini được bật.</p>{% endif %}
         <div class="assistant-feedback" id="assistant-feedback" hidden>
           <div>
             <p class="assistant-error" id="assistant-error" role="alert"></p>

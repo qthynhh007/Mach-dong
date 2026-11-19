@@ -10,6 +10,7 @@
     </div>
     <p id="reportSummary">Chọn điều kiện tại ruộng, rồi chạy mô phỏng để xem diễn biến từng ngày.</p>
     <details class="report-fold report-evidence"><summary>Kết quả và bằng chứng <span id="evidenceCount"></span></summary>
+      <figure class="report-visual"><img src="/static/assets/report/field-notes.svg" alt="Minh họa khóm lúa bên sổ ghi chép quan sát" width="640" height="240" loading="lazy"><figcaption>Minh họa · Đối chiếu kết quả với những gì bà con quan sát tại ruộng.</figcaption></figure>
       <div id="evidenceList" class="sim-evidence-list"></div>
     </details>
     <section id="reportAdvice" hidden>
@@ -21,6 +22,7 @@
     </section>
     <details class="report-fold report-days">
     <summary>Diễn biến theo ngày</summary>
+    <figure class="report-visual"><img src="/static/assets/report/weather-days.svg" alt="Minh họa nắng, mây mưa và biểu đồ thời tiết" width="640" height="240" loading="lazy"><figcaption>Minh họa · Các số liệu của kịch bản nằm trong bảng bên dưới.</figcaption></figure>
     <div class="sim-table-wrap">
       <table aria-label="Diễn biến kịch bản theo ngày">
         <thead><tr><th scope="col">Ngày</th><th scope="col">Tối đa °C</th><th scope="col">Mưa mm</th><th scope="col">ET₀ mm</th><th scope="col">Nóng lúc trổ</th></tr></thead>
@@ -30,6 +32,7 @@
     </details>
     <details class="report-fold report-assumptions">
     <summary>Giả định và dữ liệu còn thiếu</summary>
+    <figure class="report-visual"><img src="/static/assets/report/field-notes.svg" alt="Minh họa ghi chép và quan sát ruộng lúa" width="640" height="240" loading="lazy"><figcaption>Minh họa · Bổ sung số đo tại ruộng để đối chiếu điều kiện thực tế.</figcaption></figure>
     <ul id="assumptionsList"></ul>
     </details>
     <details class="report-fold" id="experimentBox" hidden></details>
@@ -40,11 +43,19 @@
   </div>
   <details class="report-fold report-sources">
     <summary>Nguồn dữ liệu và đặc tính OM5451</summary>
+    <figure class="report-visual"><img src="/static/assets/report/data-sources.svg" alt="Minh họa tài liệu tham chiếu và cây lúa" width="640" height="240" loading="lazy"><figcaption>Minh họa · Tài liệu và phạm vi áp dụng được ghi ở từng nguồn.</figcaption></figure>
     <p id="varietyInfo"></p>
     <div id="sourceList" class="sim-source-grid"></div>
   </details>
 </section>
 <section id="weatherPanel" class="sim-reading" role="tabpanel" aria-labelledby="tab-weatherPanel" tabindex="0"{% if active_tab != 'thoi-tiet' %} hidden{% endif %}>
+  <figure class="weather-film" aria-labelledby="weatherSceneTitle" style="background-image:url('/static/assets/weather/field.jpg')">
+    <video id="weatherVideo" autoplay muted loop playsinline preload="none" poster="/static/assets/weather/field.jpg" data-src="/static/assets/weather/field-cycle.mp4" aria-hidden="true" tabindex="-1" disablepictureinpicture></video>
+    <figcaption class="weather-film-caption">
+      <h2 id="weatherSceneTitle">Bầu trời trên cánh đồng</h2>
+      <p id="weatherSceneNote">Nắng và mưa luân phiên trên ruộng lúa. Xem dự báo theo ngày ở bảng bên dưới.</p>
+    </figcaption>
+  </figure>
   <div class="sim-card reading-card">
     <div class="sim-form-heading">
     <h2 id="weatherTitle">Thời tiết tại địa điểm đã chọn</h2>
@@ -67,3 +78,4 @@
     <p class="sim-muted">Dữ liệu lịch sử từ NASA POWER. Dự báo từ Open-Meteo, CC BY 4.0; gói miễn phí dành cho mục đích phi thương mại.</p>
   </div>
 </section>
+<script type="module" src="{{ url_for('static', filename='simulation-weather.js') }}"></script>

@@ -26,7 +26,7 @@
         <h1 class="app-page-title">Mô phỏng cánh đồng lúa</h1>
         <p>Thay đổi điều kiện tại ruộng để xem lúa OM5451 phản ứng với mặn, ngập và nhiệt độ.</p>
       </div>
-      <span class="sim-scenario-tag">{{ icon("grass") }} Giả lập · OM5451</span>
+      <span class="sim-scenario-tag">{{ icon("grass") }} Mô hình số · OM5451</span>
     </header>
 
     {% include "simulation/tabs.html" %}
@@ -43,8 +43,11 @@
         <div class="sim-control sim-control--salt">
           <label for="inputSalinity">Độ mặn nước ruộng</label>
           <output id="valSalinity" for="inputSalinity">2,8 g/L</output>
-          <input id="inputSalinity" name="salinityGl" type="range" min="0" max="6" step="0.1" value="2.8"
+          <div class="sim-slider-shell">
+            <input id="inputSalinity" name="salinityGl" type="range" min="0" max="6" step="0.1" value="2.8"
                  aria-valuetext="2,8 g/L" aria-describedby="sim-salt-hint">
+            <span class="sim-slider-aura" aria-hidden="true"></span>
+          </div>
           <div class="sim-range-scale" aria-hidden="true">
             <span>0 g/L</span><span class="sim-range-tick" style="--tick: 50%">3</span><span>6 g/L</span>
           </div>
@@ -53,8 +56,11 @@
         <div class="sim-control sim-control--water">
           <label for="inputWater">Mực nước so với mặt ruộng</label>
           <output id="valWater" for="inputWater">+4,5 cm</output>
-          <input id="inputWater" name="waterDepthCm" type="range" min="-10" max="30" step="0.5" value="4.5"
+          <div class="sim-slider-shell">
+            <input id="inputWater" name="waterDepthCm" type="range" min="-10" max="30" step="0.5" value="4.5"
                  aria-valuetext="4,5 cm trên mặt ruộng" aria-describedby="sim-water-hint">
+            <span class="sim-slider-aura" aria-hidden="true"></span>
+          </div>
           <div class="sim-range-scale" aria-hidden="true">
             <span>−10 cm</span><span class="sim-range-tick" style="--tick: 25%">0</span><span>+30 cm</span>
           </div>
@@ -63,8 +69,11 @@
         <div class="sim-control sim-control--stage">
           <label for="inputStage">Ngày sau sạ</label>
           <output id="valStage" for="inputStage">48 ngày</output>
-          <input id="inputStage" name="dayAfterSowing" type="range" min="0" max="95" step="1" value="48"
+          <div class="sim-slider-shell">
+            <input id="inputStage" name="dayAfterSowing" type="range" min="0" max="95" step="1" value="48"
                  aria-valuetext="48 ngày sau sạ" aria-describedby="sim-stage-hint">
+            <span class="sim-slider-aura" aria-hidden="true"></span>
+          </div>
           <div class="sim-range-scale" aria-hidden="true">
             <span>Ngày 0</span><span class="sim-range-tick" style="--tick: 45.3%">43</span>
             <span class="sim-range-tick" style="--tick: 69.5%">66</span><span>Ngày 95</span>
@@ -74,8 +83,11 @@
         <div class="sim-control sim-control--heat">
           <label for="inputTemp">Nhiệt độ cao nhất trong ngày</label>
           <output id="valTemp" for="inputTemp">28,5 °C</output>
-          <input id="inputTemp" name="tempMaxC" type="range" min="20" max="42" step="0.5" value="28.5"
+          <div class="sim-slider-shell">
+            <input id="inputTemp" name="tempMaxC" type="range" min="20" max="42" step="0.5" value="28.5"
                  aria-valuetext="28,5 °C" aria-describedby="sim-heat-hint">
+            <span class="sim-slider-aura" aria-hidden="true"></span>
+          </div>
           <div class="sim-range-scale" aria-hidden="true">
             <span>20 °C</span><span class="sim-range-tick" style="--tick: 68.2%">35</span><span>42 °C</span>
           </div>

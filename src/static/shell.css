@@ -2,14 +2,14 @@
   --md-green: #1a654d;
   --md-ink: #0e2c24;
   --md-heading-color: #064e3b;
-  --md-canvas: #e7efe7;
-  --md-surface-solid: #f5faf5;
+  --md-canvas: #f1f5ef;
+  --md-surface-solid: #fcfdf9;
   --md-surface-inset: #eaf3ec;
   --md-surface-line: #ccdfd1;
   --md-glass-fill: rgb(255 255 255 / .56);
   --md-pane-fill: rgb(251 255 252 / .68);
   --md-glass-edge: rgb(255 255 255 / .86);
-  --md-glass-shadow: 0 1px 2px #173c2810, 0 12px 30px #173c2810;
+  --md-glass-shadow: 0 2px 4px #173c2808, 0 8px 22px #173c2808;
   --md-gutter: clamp(1rem, 2.25vw, 2rem);
   --md-control-radius: .65rem;
   --md-control-edge: #739385;
@@ -28,7 +28,17 @@ html {
   background-color: var(--md-canvas);
 }
 * { box-sizing: border-box; }
-body { min-height: 100vh; margin: 0; color: var(--md-ink); }
+body {
+  min-height: 100vh;
+  margin: 0;
+  color: var(--md-ink);
+  background:
+    radial-gradient(ellipse 900px 520px at 12% -4%, rgba(27, 106, 81, 0.12), transparent 70%),
+    radial-gradient(ellipse 650px 480px at 88% 12%, rgba(245, 158, 11, 0.08), transparent 65%),
+    radial-gradient(ellipse 750px 550px at 50% 92%, rgba(6, 182, 212, 0.07), transparent 70%),
+    var(--md-canvas);
+  background-attachment: fixed;
+}
 :is(h1, h2, h3, h4, h5, h6) {
   font-family: var(--md-font);
   color: var(--md-heading-color);
@@ -50,9 +60,11 @@ button:not(:disabled):not([aria-disabled="true"]), summary { cursor: pointer; }
 button:is(:disabled, [aria-disabled="true"]) { cursor: not-allowed; }
 dialog { overscroll-behavior: contain; }
 .app-glass, .app-pane {
-  background-color: var(--md-surface-solid);
-  border: 1px solid var(--md-surface-line);
-  box-shadow: var(--md-glass-shadow);
+  background-color: rgba(253, 255, 252, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  box-shadow: 0 4px 20px -2px rgba(16, 185, 129, 0.06), 0 10px 28px -4px rgba(14, 44, 36, 0.05);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
 }
 .app-glass::backdrop {
   background: rgb(14 44 36 / .32);
@@ -96,7 +108,7 @@ dialog { overscroll-behavior: contain; }
   min-block-size: 44px;
   border: 1px solid var(--control-border);
   border-radius: var(--md-control-radius);
-  background-color: var(--control-bg);
+  background: var(--control-bg);
   color: var(--control-fg);
 }
 .app-button {
@@ -112,11 +124,22 @@ dialog { overscroll-behavior: contain; }
   text-decoration: none;
 }
 .app-button--primary {
-  --control-bg: var(--md-green);
-  --control-hover: #124c39;
-  --control-fg: #fff;
-  --control-border: #155741;
-  box-shadow: 0 2px 3px #173c2824;
+  --control-bg: linear-gradient(135deg, #186045 0%, #104531 100%);
+  --control-hover: linear-gradient(135deg, #13513a 0%, #0b3626 100%);
+  --control-fg: #ffffff;
+  --control-border: #104531;
+  background: linear-gradient(135deg, #186045 0%, #104531 100%) !important;
+  color: #ffffff !important;
+  border-color: #104531 !important;
+  box-shadow: 0 4px 14px rgba(16, 69, 49, 0.35), 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+.app-button--primary * {
+  color: #ffffff !important;
+}
+.app-button--primary:not(:disabled):hover {
+  background: linear-gradient(135deg, #13513a 0%, #0b3626 100%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 6px 20px rgba(11, 54, 38, 0.45);
 }
 .app-button--danger {
   --control-bg: #fff6f2;
@@ -224,9 +247,11 @@ dialog { overscroll-behavior: contain; }
   position: sticky; top: 0; z-index: 50; min-height: var(--md-shell-header);
   display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 0 1rem;
   padding-inline: var(--md-shell-gutter);
-  border-bottom: 1px solid var(--md-shell-line);
-  background-color: #fbfdfb;
-  box-shadow: 0 1px 2px #102e2010;
+  border-bottom: 1px solid rgba(204, 223, 209, 0.75);
+  background-color: rgba(251, 253, 251, 0.86);
+  box-shadow: 0 4px 20px -2px rgba(16, 62, 40, 0.05);
+  -webkit-backdrop-filter: blur(20px) saturate(190%);
+  backdrop-filter: blur(20px) saturate(190%);
 }
 .app-brand, .app-top-nav, .app-side a, .app-location { display: flex; align-items: center; }
 .app-brand {
@@ -451,3 +476,74 @@ button.icon-action { min-width: 44px; min-height: 44px; padding: .5rem; }
 .field-check summary { display: list-item; padding-block: .65rem; font-weight: 650; cursor: pointer; color: #20503c; line-height: 1.45; }
 .field-check summary::marker { color: #568367; }
 .field-check[open] { padding-bottom: .65rem; }
+
+/* A soft light on the right gives surfaces depth without covering their content. */
+.app-content :is(.app-glass, .app-pane, .sim-card, .sim-control, .report-fold):not(dialog) {
+  --md-glow-rgb: 100 177 128;
+  position: relative;
+  isolation: isolate;
+}
+.app-content :is(.app-glass, .app-pane, .sim-card, .sim-control, .report-fold):not(dialog)::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 1px;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(ellipse 240px 150px at 105% 8%, rgb(var(--md-glow-rgb) / .22), transparent 76%),
+    radial-gradient(ellipse 130px 100px at 97% 0%, rgb(229 199 113 / .1), transparent 75%);
+  opacity: .65;
+  transition: opacity 200ms ease, transform 200ms ease;
+}
+.app-content .sim-control--salt { --md-glow-rgb: 218 171 101; }
+.app-content .sim-control--water { --md-glow-rgb: 97 179 198; }
+.app-content .sim-control--heat { --md-glow-rgb: 229 182 96; }
+.app-content :is(.app-glass, .app-pane, .sim-card, .sim-control, .report-fold):focus-within::before { opacity: 1; }
+@media (hover: hover) and (pointer: fine) {
+  .app-content :is(.app-glass, .app-pane, .sim-card, .sim-control, .report-fold):hover::before {
+    opacity: 1;
+    transform: translateX(-5px);
+  }
+  .app-button:not(:disabled, [aria-disabled="true"]) { transition: transform 180ms ease, background-color 160ms, border-color 160ms, box-shadow 160ms; transform-origin: center; }
+  .app-button:not(:disabled, [aria-disabled="true"]):hover { transform: scale(1.025); box-shadow: 0 3px 10px #164c3014; }
+  .app-button:not(:disabled, [aria-disabled="true"]):active { transform: scale(.98); }
+  .assistant-starters button { transition: transform 180ms ease, background-color 160ms, border-color 160ms; }
+  .assistant-starters button:hover { transform: translateY(-2px) scale(1.02); }
+}
+@media (prefers-reduced-motion: reduce) { .app-button, .assistant-starters button { transform: none !important; } }
+@media (forced-colors: active), (prefers-contrast: more) {
+  .app-content :is(.app-glass, .app-pane, .sim-card, .sim-control, .report-fold)::before { display: none; }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .app-content article.app-pane { transition: transform 170ms ease, background-color 170ms ease; }
+  .app-content article.app-pane:hover { background-color: #dce9dd; }
+  .app-content article.app-pane:hover::before { transform: none; opacity: .35; }
+  @media (prefers-reduced-motion: no-preference) {
+    .app-content article.app-pane:hover { transform: scale(1.012); }
+  }
+}
+
+/* The rail anchors the dashboard while the lighter canvas keeps data legible. */
+@media (min-width: 1024px) {
+  .app-side {
+    background: linear-gradient(165deg, #173e32, #102e26 72%);
+    border-inline-end-color: #183a2f;
+    padding: 1.5rem .875rem;
+  }
+  .app-side .app-side-label { margin-bottom: .65rem; color: #bbd4c4; }
+  .app-side .app-nav-group { gap: .35rem; }
+  .app-side .app-nav-group + .app-nav-group { border-color: #426453; }
+  .app-side a { color: #e6f1e9; padding: .65rem .85rem; border-radius: .75rem; transition: transform 180ms ease, background-color 160ms, color 160ms, box-shadow 180ms; }
+  .app-side a:hover { background: #285542; color: #fff; transform: translateX(3px); }
+  .app-side a[aria-current="page"] { background: linear-gradient(135deg, #186045, #104531); color: #fff; box-shadow: 0 3px 12px rgba(16, 69, 49, 0.45); font-weight: 700; }
+  .app-side a:focus-visible { outline-color: #efd592; }
+}
+@media (max-width: 1023px) {
+  .app-header:has(.app-header-account:empty), .app-header:not(:has(.app-account-trigger)) {
+    grid-template-columns: 1fr auto;
+  }
+  .app-header-account:not(:has(a, button)) { display: none; }
+  .app-header:not(:has(.app-account-trigger)) .app-brand > span:last-child { display: inline; }
+  .app-header:not(:has(.app-account-trigger)) .app-more-panel { inset-inline: auto 0; }
+}

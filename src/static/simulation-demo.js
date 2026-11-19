@@ -51,6 +51,7 @@ function updateLabels() {
     const min = Number(input.min);
     const fraction = (values[key] - min) / (Number(input.max) - min);
     input.style.setProperty("--range-progress", (100 * fraction) + "%");
+    input.closest(".sim-control").style.setProperty("--range-fraction", String(fraction));
   }
   byId("sim-water-hint").textContent = depth === 0
     ? "Ngang mặt ruộng."
@@ -134,7 +135,7 @@ async function getResult(values) {
   try {
     const response = await fetch("/api/simulation/preview", {
       method: "POST",
-      headers: {"Content-Type": "application/json"},
+      headers: {"Content-Type": "application/json", "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]')?.content || ""},
       body: JSON.stringify(values),
       signal: request.signal,
     });
@@ -204,7 +205,7 @@ openAdvice.addEventListener("click", async () => {
   label.textContent = "Đang hỏi Gemini về kịch bản này…";
   try {
     const response = await fetch("/api/simulation/advice", {
-      method: "POST", headers: {"Content-Type": "application/json"},
+      method: "POST", headers: {"Content-Type": "application/json", "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]')?.content || ""},
       body: JSON.stringify(scenario), signal: request.signal,
     });
     if (!response.ok) throw new Error();

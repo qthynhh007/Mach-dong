@@ -4,6 +4,7 @@ from flask import Blueprint, Response, current_app, jsonify, render_template, re
 from werkzeug.exceptions import RequestEntityTooLarge
 
 from src.services.ai_client import GEMINI_MODEL_LABEL, ChatMessage, GeminiError
+from src.services.assistant_images import MAX_IMAGE_BASE64, parse_chat_image
 from src.services.assistant_service import answer_question
 
 blueprint = Blueprint("assistant", __name__)
@@ -11,7 +12,7 @@ ASSISTANT_WAIT_SECONDS = 20
 MAX_MESSAGE_LENGTH = 400
 MAX_REPLY_LENGTH = 4096
 MAX_HISTORY_TURNS = 8
-MAX_CHAT_BYTES = 128 * 1024
+MAX_CHAT_BYTES = MAX_IMAGE_BASE64 + 128 * 1024
 
 
 @blueprint.get("/assistant")
@@ -35,11 +36,17 @@ def chat() -> tuple[Response, int]:
     try:
         payload = request.get_json(silent=True)
     except RequestEntityTooLarge:
-        return jsonify(data=None, error="Câu hỏi hoặc lịch sử quá dài."), 413
+        return jsonify(data=None, error="Câu hỏi hoặc ảnh quá lớn. Chọn ảnh tối đa 5 MB nha."), 413
     if not isinstance(payload, dict):
         return jsonify(data=None, error="Gửi câu hỏi dưới dạng JSON nha."), 400
 
-    message = payload.get("message")
+    try:
+        image = parse_chat_image(payload.get("image"))
+    except GeminiError as error:
+        return jsonify(data=None, error=str(error)), error.status
+    message = payload.get("message", "")
+    if image and isinstance(message, str) and not message.strip():
+        message = "Nhờ Cò Mạ xem ảnh cây trồng này và chỉ giúp dấu hiệu cần kiểm tra."
     if not isinstance(message, str) or not 0 < len(message.strip()) <= MAX_MESSAGE_LENGTH:
         error = f"Nhập câu hỏi từ 1 đến {MAX_MESSAGE_LENGTH} ký tự nha."
         return jsonify(data=None, error=error), 400
@@ -65,6 +72,8 @@ def chat() -> tuple[Response, int]:
             return jsonify(data=None, error="Lịch sử trò chuyện chưa hợp lệ."), 400
         messages.append({"role": role, "text": text.strip()})
     messages.append({"role": "user", "text": message.strip()})
+    if image:
+        messages[-1]["image"] = image
 
     api_key = current_app.config["GEMINI_API_KEY"]
     started = perf_counter()
