@@ -92,7 +92,7 @@ class communityController:
             if auth:
                 user, _ = auth
                 member = communityMember("user:" + user.user_id, user.name)
-        if provider is None and member is None and session.get("userId"):
+        if provider is None and member is None and not current_app.config["COMMUNITY_API_URL"] and session.get("userId"):
             member = communityMember(
                 "user:" + str(session["userId"]),
                 str(session.get("displayName", "Thành viên")),

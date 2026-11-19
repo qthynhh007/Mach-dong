@@ -296,6 +296,29 @@ def api_update_profile() -> tuple[Response, int]:
     return jsonify(data=result.data, error=None), 200
 
 
+@blueprint.get("/api/auth/field-profile")
+@require_session(require_csrf=False)
+def api_get_field_profile() -> tuple[Response, int]:
+    service = get_auth_service()
+    if not hasattr(service, "get_field_profile"):
+        return jsonify(data=None, error="Hồ sơ ruộng cloud chưa được cấu hình."), 503
+    result = service.get_field_profile()
+    return jsonify(data=result.data, error=result.error), result.status_code
+
+
+@blueprint.post("/api/auth/field-profile")
+@require_session()
+def api_save_field_profile() -> tuple[Response, int]:
+    service = get_auth_service()
+    if not hasattr(service, "save_field_profile"):
+        return jsonify(data=None, error="Hồ sơ ruộng cloud chưa được cấu hình."), 503
+    body = request.get_json(silent=True)
+    if not isinstance(body, dict):
+        return jsonify(data=None, error="Dữ liệu hồ sơ ruộng không hợp lệ."), 400
+    result = service.save_field_profile(body)
+    return jsonify(data=result.data, error=result.error), result.status_code
+
+
 @blueprint.post("/api/auth/password")
 @require_session()
 def api_change_password() -> tuple[Response, int]:

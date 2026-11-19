@@ -20,6 +20,7 @@ from src.models.user import SQLiteUserRepository
 from src.services.auth_service import AuthService
 from src.services.cloud_auth_service import CloudAuthService
 from src.services.cloud_client import cloudClient
+from src.services.cloud_community_service import CloudCommunityService
 from src.services.community_service import communityService
 from src.services.simulation_service import simulationService
 
@@ -40,18 +41,23 @@ def createApp(testConfig: dict | None = None) -> Flask:
         ),
         COMMUNITY_SEED_SAMPLES=True,
         COMMUNITY_SEED_EDITORIAL=os.environ.get("COMMUNITY_SEED_EDITORIAL", "1") == "1",
-        COMMUNITY_ALLOW_GUESTS=os.environ.get("COMMUNITY_ALLOW_GUESTS", "1") == "1",
+        COMMUNITY_ALLOW_GUESTS=os.environ.get("COMMUNITY_ALLOW_GUESTS", "0") == "1",
         COMMUNITY_IDENTITY_PROVIDER=None,
         GEMINI_API_KEY=os.environ.get("GEMINI_API_KEY", "").strip(),
         SIMULATION_API_URL=os.environ.get("SIMULATION_API_URL", SIMULATION_API_URL),
         SIMULATION_TRANSPORT=None,
         AUTH_API_URL=os.environ.get("AUTH_API_URL", SIMULATION_API_URL).strip(),
         AUTH_API_TRANSPORT=None,
+        COMMUNITY_API_URL=os.environ.get("COMMUNITY_API_URL", SIMULATION_API_URL).strip(),
+        COMMUNITY_API_TRANSPORT=None,
     )
     if testConfig:
         app.config.update(testConfig)
     if testConfig and app.testing and "AUTH_API_URL" not in testConfig:
         app.config["AUTH_API_URL"] = ""
+    if testConfig and app.testing and "COMMUNITY_API_URL" not in testConfig:
+        app.config["COMMUNITY_API_URL"] = ""
+        app.config["COMMUNITY_ALLOW_GUESTS"] = testConfig.get("COMMUNITY_ALLOW_GUESTS", True)
     if not app.config["SECRET_KEY"]:
         secretPath = Path(app.config["COMMUNITY_DATABASE"]).parent / ".community-secret"
         secretPath.parent.mkdir(parents=True, exist_ok=True)
@@ -94,11 +100,18 @@ def createApp(testConfig: dict | None = None) -> Flask:
             "auth_csrf_token": auth_session.csrf_token,
         }
 
-    app.extensions["communityService"] = communityService(
-        communityModel(app.config["COMMUNITY_DATABASE"]),
-        app.config["COMMUNITY_SEED_SAMPLES"],
-        app.config["COMMUNITY_SEED_EDITORIAL"],
-    )
+    if app.config["COMMUNITY_API_URL"]:
+        app.extensions["communityService"] = CloudCommunityService(
+            app.config["COMMUNITY_API_URL"], app.config["COMMUNITY_API_TRANSPORT"]
+        )
+    elif app.testing:
+        app.extensions["communityService"] = communityService(
+            communityModel(app.config["COMMUNITY_DATABASE"]),
+            app.config["COMMUNITY_SEED_SAMPLES"],
+            app.config["COMMUNITY_SEED_EDITORIAL"],
+        )
+    else:
+        raise RuntimeError("COMMUNITY_API_URL is required; forum posts must use cloud storage")
     app.extensions["simulationService"] = simulationService(
         cloudClient(app.config["SIMULATION_API_URL"], app.config["SIMULATION_TRANSPORT"])
     )

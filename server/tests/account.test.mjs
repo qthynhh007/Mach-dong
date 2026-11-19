@@ -6,8 +6,9 @@ import {accountController} from "../auth.mjs";
 
 function database() {
   const sqlite = new DatabaseSync(":memory:");
-  const migration = readFileSync(new URL("../drizzle/0000_cloud_accounts.sql",import.meta.url),"utf8");
-  sqlite.exec(migration.replaceAll("--> statement-breakpoint", ""));
+  sqlite.exec("PRAGMA foreign_keys=ON");
+  for (const migration of ["0000_cloud_accounts.sql","0001_cloud_community.sql","0002_community_search.sql"])
+    sqlite.exec(readFileSync(new URL(`../drizzle/${migration}`,import.meta.url),"utf8").replaceAll("--> statement-breakpoint", ""));
   return {
     prepare(sql) { return {
       bind(...params) { const statement = sqlite.prepare(sql);
@@ -52,6 +53,10 @@ test("central accounts persist only password hashes and enforce session ownershi
   assert.equal(login.status,200);
   const token=login.data.session_token, csrf=login.data.csrf_token;
   assert.equal((await call(api,"/api/account/session",undefined,token)).data.user.user_id,register.data.user.user_id);
+  assert.equal((await call(api,"/api/account/field-profile",undefined,token)).data.address,"");
+  assert.equal((await call(api,"/api/account/field-profile",{address:"Long Hữu",cultivar:"OM5451",area:"1.2 ha",hydrology_station:"Ba Tri"},token,csrf)).data.address,"Long Hữu");
+  assert.equal((await call(api,"/api/account/field-profile",undefined,token)).data.cultivar,"OM5451");
+  assert.equal((await call(api,"/api/account/field-profile",{address:"Khác",cultivar:"",area:"",hydrology_station:""},token,"bad")).status,403);
   assert.equal((await call(api,"/api/account/profile",{name:"Updated"},token,"bad")).status,403);
   assert.equal((await call(api,"/api/account/profile",{name:"Updated"},token,csrf)).data.user.name,"Updated");
   const exchange=await call(api,"/api/account/exchange-credits",{direction:"AVAX_TO_CREDIT",amount:1},token,csrf);

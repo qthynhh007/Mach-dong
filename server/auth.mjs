@@ -2,7 +2,7 @@ const encoder = new TextEncoder();
 const sessionTtl = 7 * 24 * 3600;
 const passwordRounds = 600_000;
 
-class accountError extends Error {
+export class accountError extends Error {
   constructor(message, status = 400) { super(message); this.status = status; }
 }
 
@@ -193,6 +193,20 @@ export class accountController {
       const {row} = await this.session(request);
       const result = await this.db.prepare("SELECT * FROM account_transactions WHERE user_id=? ORDER BY created_at DESC LIMIT 10").bind(row.user_id).all();
       return reply(result.results || []);
+    }
+    if (request.method === "GET" && path === "/api/account/field-profile") {
+      const {row} = await this.session(request);
+      const profile = await this.db.prepare("SELECT address,cultivar,area,hydrology_station FROM account_field_profiles WHERE user_id=?").bind(row.user_id).first();
+      return reply(profile || {address:"",cultivar:"",area:"",hydrology_station:""});
+    }
+    if (post && path === "/api/account/field-profile") {
+      const {row} = await this.session(request,true), b = await bodyJson(request);
+      const values = ["address","cultivar","area","hydrology_station"].map(key => {
+        if (typeof b[key] !== "string" || b[key].length > 200 || b[key].includes("\0")) throw new accountError("Thông tin ruộng không hợp lệ.");
+        return b[key].trim();
+      });
+      await this.db.prepare("INSERT INTO account_field_profiles(user_id,address,cultivar,area,hydrology_station,updated_at) VALUES(?,?,?,?,?,?) ON CONFLICT(user_id) DO UPDATE SET address=excluded.address,cultivar=excluded.cultivar,area=excluded.area,hydrology_station=excluded.hydrology_station,updated_at=excluded.updated_at").bind(row.user_id,...values,new Date().toISOString()).run();
+      return reply({address:values[0],cultivar:values[1],area:values[2],hydrology_station:values[3]});
     }
     if (post && path === "/api/account/bootstrap-admin") {
       const {row} = await this.session(request,true);

@@ -214,6 +214,14 @@ class CloudAuthService:
         result = self._call("transactions", token=token)
         return result.data[:limit] if result.ok and isinstance(result.data, list) else []
 
+    def get_field_profile(self) -> AuthResult:
+        token, _ = self._current_credentials()
+        return self._call("field-profile", token=token)
+
+    def save_field_profile(self, profile: dict) -> AuthResult:
+        token, csrf = self._current_credentials()
+        return self._call("field-profile", profile, token, csrf)
+
     def update_profile(
         self,
         user: User,

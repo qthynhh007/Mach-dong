@@ -62,8 +62,39 @@
     }
   }
 
-  function loadProfile() {
-    const profile = readProfile();
+  async function loadProfile() {
+    let profile = readProfile();
+    if (userId) {
+      try {
+        const response = await fetch("/api/auth/field-profile", {cache: "no-store"});
+        const payload = await response.json();
+        if (response.ok && payload.data) {
+          const cloudProfile = {
+            "farmer-address": payload.data.address || "",
+            "farmer-cultivar": payload.data.cultivar || "",
+            "farmer-area": payload.data.area || "",
+            "hydrology-station": payload.data.hydrology_station || "",
+          };
+          if (Object.values(cloudProfile).every(value => !value) && Object.values(profile).some(Boolean)) {
+            const csrf = getCsrfToken();
+            const migrated = await fetch("/api/auth/field-profile", {
+              method: "POST",
+              headers: {"Content-Type": "application/json", "X-CSRF-Token": csrf},
+              body: JSON.stringify({
+                address: profile["farmer-address"] || "",
+                cultivar: profile["farmer-cultivar"] || "",
+                area: profile["farmer-area"] || "",
+                hydrology_station: profile["hydrology-station"] || "",
+              }),
+            });
+            if (migrated.ok) localStorage.removeItem(profileKey);
+          } else {
+            profile = cloudProfile;
+            localStorage.removeItem(profileKey);
+          }
+        }
+      } catch { /* The profile page remains usable when offline. */ }
+    }
     renderProfile(profile);
     if (!farmForm) return;
     for (const id of fields) {
@@ -538,15 +569,24 @@
     }
 
     try {
-      const localProfile = { ...profile };
       if (userId) {
-        delete localProfile["farmer-fullname"];
-        delete localProfile["farmer-phone"];
-      }
-      localStorage.setItem(profileKey, JSON.stringify(localProfile));
+        const res = await fetch("/api/auth/field-profile", {
+          method: "POST",
+          headers: {"Content-Type": "application/json", "X-CSRF-Token": csrf},
+          body: JSON.stringify({
+            address: profile["farmer-address"],
+            cultivar: profile["farmer-cultivar"],
+            area: profile["farmer-area"],
+            hydrology_station: profile["hydrology-station"],
+          }),
+        });
+        const payload = await res.json();
+        if (!res.ok || payload.error) { status.textContent = payload.error || "Không thể lưu thông tin ruộng trên máy chủ."; return; }
+        localStorage.removeItem(profileKey);
+      } else localStorage.setItem(profileKey, JSON.stringify(profile));
       renderProfile(profile);
       status.textContent = csrf
-        ? "Đã lưu hồ sơ tài khoản và thông tin ruộng trên trình duyệt này."
+        ? "Đã lưu hồ sơ tài khoản và thông tin ruộng trên máy chủ."
         : "Đã lưu hồ sơ demo trên trình duyệt này.";
     } catch {
       status.textContent = "Trình duyệt đang chặn lưu hồ sơ.";

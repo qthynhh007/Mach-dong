@@ -11,6 +11,6 @@ Ví tự tạo được mã hóa AES-GCM trên thiết bị trước khi bản m
 - Xác minh email và khôi phục mật khẩu cần hai biến bí mật của Site: `AUTH_EMAIL_API_KEY` (Resend) và `AUTH_FROM_EMAIL` (địa chỉ gửi đã xác minh). Hiện chưa cấu hình; người dùng vẫn đăng ký và đăng nhập bằng mật khẩu, nhưng email chưa xác minh và chức năng quên mật khẩu chưa hoạt động. Không nhúng khóa vào EXE hay Git.
 - Tài khoản quản trị đầu tiên cần `AUTH_ADMIN_BOOTSTRAP_TOKEN` ngẫu nhiên ít nhất 32 ký tự trên Site. Đăng ký tài khoản chủ sở hữu, rồi gọi `POST /api/account/bootstrap-admin` kèm Bearer token, `X-CSRF-Token`, `X-Admin-Bootstrap-Token`; xóa biến bí mật sau khi hoàn tất. API chỉ cho phép thao tác này khi chưa có quản trị viên.
 
-Tài khoản của các bản EXE cũ dùng SQLite cục bộ **không tự chuyển** sang D1. Cần nhập dữ liệu theo quy trình riêng, hoặc người dùng đăng ký tài khoản mới. Bài viết diễn đàn là kho khác và hiện vẫn lưu trên từng máy, chưa đồng bộ cloud.
+Tài khoản của các bản EXE cũ dùng SQLite cục bộ **không tự chuyển** sang D1. Cần nhập dữ liệu theo quy trình riêng, hoặc người dùng đăng ký tài khoản mới. Diễn đàn và thông tin ruộng của tài khoản hiện dùng D1; ảnh đính kèm dùng R2. Xem [sơ đồ lưu trữ](cloud-storage.md).
 
 Để kiểm thử cục bộ, cấu hình kiểm thử truyền `AUTH_API_URL=""`. Biến này chỉ dành cho phát triển; bản EXE phát hành dùng địa chỉ cloud mặc định.
