@@ -51,8 +51,8 @@
   position: relative;
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
-  width: min(95vw, 78rem);
-  min-height: clamp(44rem, 88vh, 58rem);
+  width: min(96vw, 82rem);
+  min-height: clamp(48rem, 90vh, 64rem);
   margin-inline: auto;
   border-radius: 2rem;
   border: 1px solid rgba(255, 255, 255, 0.85);
@@ -71,8 +71,8 @@
   flex-direction: column;
   justify-content: flex-end;
   min-width: 0;
-  min-height: clamp(44rem, 88vh, 58rem);
-  padding: clamp(3rem, 5.5vw, 5rem) clamp(2.8rem, 5vw, 4.2rem);
+  min-height: clamp(48rem, 90vh, 64rem);
+  padding: clamp(3.2rem, 5.5vw, 5.2rem) clamp(2.8rem, 5vw, 4.5rem);
   background: linear-gradient(155deg, #13382c 0%, #092017 100%);
   color: #fffdf4;
   overflow: hidden;
@@ -163,13 +163,14 @@
 .auth-form-panel {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: center;
+  gap: 2rem;
   min-width: 0;
-  min-height: clamp(44rem, 88vh, 58rem);
-  padding: clamp(2.8rem, 5.5vw, 4.4rem) clamp(2.8rem, 5vw, 4.5rem);
+  min-height: clamp(48rem, 90vh, 64rem);
+  padding: clamp(3rem, 5.5vw, 4.8rem) clamp(2.8rem, 5vw, 4.5rem);
   background: rgba(255, 255, 255, 0.96);
 }
-.auth-card-grid { display: grid; gap: 1.6rem; min-width: 0; }
+.auth-card-grid { display: grid; gap: 1.75rem; min-width: 0; }
 .auth-intro { margin: .45rem 0 0; color: #536f61; font-size: .9rem; line-height: 1.55; }
 
 /* Segmented Switch Tabs */
@@ -242,13 +243,13 @@
 
 .auth-form-panel input:not([type="checkbox"], [type="radio"]) {
   min-width: 0;
-  min-height: 52px;
-  padding: .85rem 1.15rem;
+  min-height: 54px;
+  padding: .9rem 1.2rem;
   border: 1.5px solid #c9ded0;
   border-radius: .85rem;
   background: #fbfdfb;
   color: #0e2c24;
-  font-size: .95rem;
+  font-size: .98rem;
   transition: all 180ms ease;
 }
 .auth-form-panel input:not([type="checkbox"], [type="radio"]):hover {
@@ -264,10 +265,10 @@
 /* Primary Auth Submit Button - Solid Deep Emerald & Crisp White Text */
 .auth-form-panel button[type="submit"],
 .auth-form-panel .app-button--primary {
-  min-height: 52px !important;
+  min-height: 54px !important;
   background: linear-gradient(135deg, #186045 0%, #104531 100%) !important;
   color: #ffffff !important;
-  font-size: 1rem !important;
+  font-size: 1.02rem !important;
   font-weight: 700 !important;
   border: 1px solid #104531 !important;
   border-radius: 0.85rem !important;
@@ -347,10 +348,10 @@
   align-items: center;
   justify-content: center;
   gap: .4rem;
-  margin-top: 1.35rem;
-  padding-top: 1rem;
+  margin-top: 1.5rem;
+  padding-top: 1.15rem;
   border-top: 1px solid #e0ece3;
-  font-size: .88rem;
+  font-size: .92rem;
   color: #557264;
 }
 .auth-footnote a {
