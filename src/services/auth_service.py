@@ -116,6 +116,13 @@ class AuthService:
                     avax_balance=item["avax"],
                 )
 
+    @staticmethod
+    def email_otp_available() -> bool:
+        return True
+
+    def list_credit_transactions(self, user_id: str, limit: int = 10) -> list[dict]:
+        return self.repo.list_credit_transactions(user_id, limit)
+
     def _sign_session_id(self, session_id: str) -> str:
         sig = hmac.new(
             self.secret_key.encode("utf-8"),
@@ -823,7 +830,8 @@ class AuthService:
     def revoke_all_user_sessions(self, user_id: str) -> int:
         return self.repo.revoke_all_user_sessions(user_id)
 
-    def export_wallet_key(self, user: User) -> AuthResult:
+    def export_wallet_key(self, user: User, password: str | None = None) -> AuthResult:
+        del password
         if user.wallet_type != "AUTO_EMAIL" or not user.encrypted_wallet_key:
             return AuthResult(False, 400, error="Khóa riêng của ví gắn ngoài do ứng dụng ví quản lý.")
         from eth_account import Account
@@ -855,8 +863,10 @@ class AuthService:
         wallet_address: str | None = None,
         wallet_mode: str | None = None,
         otp_code: str | None = None,
+        password: str | None = None,
         require_wallet_otp: bool = True,
     ) -> AuthResult:
+        del password
         if name is not None and name.strip():
             user.name = name.strip()
         if phone is not None and phone.strip():

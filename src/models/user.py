@@ -134,6 +134,7 @@ class User:
     failed_login_attempts: int = 0
     locked_until: float = 0.0
     created_at: float = field(default_factory=time.time)
+    email_verified: bool = True
 
     @property
     def id(self) -> str:
@@ -170,6 +171,7 @@ class User:
             "username": self.username,
             "name": self.name,
             "email": self.email,
+            "email_verified": self.email_verified,
             "phone": self.phone,
             "role": str(self.role),
             "wallet_address": self.wallet_address,

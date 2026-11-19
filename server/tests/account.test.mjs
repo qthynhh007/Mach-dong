@@ -1,0 +1,66 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import {readFileSync} from "node:fs";
+import {DatabaseSync} from "node:sqlite";
+import {accountController} from "../auth.mjs";
+
+function database() {
+  const sqlite = new DatabaseSync(":memory:");
+  const migration = readFileSync(new URL("../drizzle/0000_cloud_accounts.sql",import.meta.url),"utf8");
+  sqlite.exec(migration.replaceAll("--> statement-breakpoint", ""));
+  return {
+    prepare(sql) { return {
+      bind(...params) { const statement = sqlite.prepare(sql);
+        return {first:async()=>statement.get(...params) || null,
+          all:async()=>({results:statement.all(...params)}),
+          run:async()=>{const result=statement.run(...params);return {meta:{changes:result.changes}};}};
+      }
+    }; },
+    async batch(statements) { sqlite.exec("BEGIN"); try { const results=[];
+      for (const statement of statements) results.push(await statement.run());
+      sqlite.exec("COMMIT"); return results;
+    } catch(error) {sqlite.exec("ROLLBACK");throw error;} },
+    raw:sqlite
+  };
+}
+
+async function call(api,path,body,token,csrf) {
+  const headers={};
+  if (body !== undefined) headers["Content-Type"]="application/json";
+  if (token) headers.Authorization=`Bearer ${token}`;
+  if (csrf) headers["X-CSRF-Token"]=csrf;
+  const request=new Request(`https://example.test${path}`,{method:body === undefined ? "GET":"POST",headers,
+    body:body === undefined ? undefined : JSON.stringify(body)});
+  const response=await api.handle(request);
+  return {status:response.status,...await response.json()};
+}
+
+test("central accounts persist only password hashes and enforce session ownership",async()=>{
+  const db=database(), api=new accountController({DB:db});
+  const input={name:"Nông hộ A",username:"farmer_a",email:"a@example.test",phone:"+84912345678",
+    password:"long-password-for-test",wallet_type:"EXTERNAL",wallet_address:"0x"+"1".repeat(40)};
+  const register=await call(api,"/api/account/register",input);
+  assert.equal(register.status,201);
+  assert.equal(register.data.user.email_verified,false);
+  assert.equal(register.data.user.role,"FARMER");
+  const stored=db.raw.prepare("SELECT password_hash,password_salt,password_iterations FROM accounts").get();
+  assert.notEqual(stored.password_hash,input.password);
+  assert.equal(stored.password_hash.length,64);
+  assert.equal(stored.password_iterations,600000);
+  assert.equal((await call(api,"/api/account/login",{identifier:input.username,password:"wrong-password"})).status,401);
+  const login=await call(api,"/api/account/login",{identifier:input.email,password:input.password});
+  assert.equal(login.status,200);
+  const token=login.data.session_token, csrf=login.data.csrf_token;
+  assert.equal((await call(api,"/api/account/session",undefined,token)).data.user.user_id,register.data.user.user_id);
+  assert.equal((await call(api,"/api/account/profile",{name:"Updated"},token,"bad")).status,403);
+  assert.equal((await call(api,"/api/account/profile",{name:"Updated"},token,csrf)).data.user.name,"Updated");
+  const exchange=await call(api,"/api/account/exchange-credits",{direction:"AVAX_TO_CREDIT",amount:1},token,csrf);
+  assert.equal(exchange.status,200);
+  assert.equal(exchange.data.user.simulation_credits,103);
+  assert.equal(exchange.data.user.avax_balance,1.5);
+  const denied=await call(api,"/api/account/exchange-credits",{direction:"AVAX_TO_CREDIT",amount:10},token,csrf);
+  assert.equal(denied.status,400);
+  assert.equal(db.raw.prepare("SELECT COUNT(*) AS count FROM account_transactions").get().count,1);
+  assert.equal((await call(api,"/api/account/logout",{},token,csrf)).status,200);
+  assert.equal((await call(api,"/api/account/session",undefined,token)).status,401);
+});

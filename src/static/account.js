@@ -196,7 +196,7 @@
           "Content-Type": "application/json",
           "X-CSRF-Token": csrf,
         },
-        body: JSON.stringify({}),
+        body: JSON.stringify({password: document.getElementById("wallet-export-password")?.value || ""}),
       });
       const payload = await res.json();
       if (!res.ok || payload.error) {
@@ -277,6 +277,7 @@
           wallet_address: addr,
           wallet_mode: addr ? "EXTERNAL" : "AUTO_EMAIL",
           otp_code: otpCode,
+          password: document.getElementById("wallet-change-password")?.value || "",
         }),
       });
       const payload = await res.json();

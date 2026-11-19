@@ -18,6 +18,7 @@ from src.controllers.session_guard import get_current_auth
 from src.models.community import communityModel
 from src.models.user import SQLiteUserRepository
 from src.services.auth_service import AuthService
+from src.services.cloud_auth_service import CloudAuthService
 from src.services.cloud_client import cloudClient
 from src.services.community_service import communityService
 from src.services.simulation_service import simulationService
@@ -44,6 +45,8 @@ def createApp(testConfig: dict | None = None) -> Flask:
         GEMINI_API_KEY=os.environ.get("GEMINI_API_KEY", "").strip(),
         SIMULATION_API_URL=os.environ.get("SIMULATION_API_URL", SIMULATION_API_URL),
         SIMULATION_TRANSPORT=None,
+        AUTH_API_URL=os.environ.get("AUTH_API_URL", "").strip(),
+        AUTH_API_TRANSPORT=None,
     )
     if testConfig:
         app.config.update(testConfig)
@@ -63,13 +66,18 @@ def createApp(testConfig: dict | None = None) -> Flask:
     auth_db_path = app.config["AGRIDATA_DB_PATH"]
     if app.testing and "AGRIDATA_DB_PATH" not in (testConfig or {}):
         auth_db_path = Path(app.config["COMMUNITY_DATABASE"]).with_name("auth-test.sqlite3")
-    app.extensions["auth_service"] = AuthService(
-        repo=SQLiteUserRepository(
-            auth_db_path, app.config["AGRIDATA_SECRET_KEY"] or app.secret_key
-        ),
-        seed_defaults=app.config["AGRIDATA_AUTH_DEMO"],
-        allow_dev_otp=app.config["AGRIDATA_AUTH_DEMO"],
-    )
+    if app.config["AUTH_API_URL"]:
+        app.extensions["auth_service"] = CloudAuthService(
+            app.config["AUTH_API_URL"], app.config["AUTH_API_TRANSPORT"]
+        )
+    else:
+        app.extensions["auth_service"] = AuthService(
+            repo=SQLiteUserRepository(
+                auth_db_path, app.config["AGRIDATA_SECRET_KEY"] or app.secret_key
+            ),
+            seed_defaults=app.config["AGRIDATA_AUTH_DEMO"],
+            allow_dev_otp=app.config["AGRIDATA_AUTH_DEMO"],
+        )
 
     @app.context_processor
     def inject_auth_context() -> dict:

@@ -61,6 +61,8 @@ def login() -> str:
         wallet_guide=get_auth_service().get_wallet_guide_info(
             str(user_dict["wallet_address"]) if user_dict else ""
         ),
+        email_otp_available=get_auth_service().email_otp_available(),
+        cloud_auth=bool(current_app.config["AUTH_API_URL"]),
     )
 
 
@@ -75,6 +77,8 @@ def register() -> str:
         wallet_guide=get_auth_service().get_wallet_guide_info(
             str(user_dict["wallet_address"]) if user_dict else ""
         ),
+        email_otp_available=get_auth_service().email_otp_available(),
+        cloud_auth=bool(current_app.config["AUTH_API_URL"]),
     )
 
 
@@ -83,7 +87,7 @@ def profile() -> str:
     auth = get_current_auth()
     user_dict = auth[0].to_public_dict() if auth else None
     tx_list = (
-        get_auth_service().repo.list_credit_transactions(auth[0].user_id, limit=8)
+        get_auth_service().list_credit_transactions(auth[0].user_id, limit=8)
         if auth
         else []
     )
@@ -103,6 +107,8 @@ def profile() -> str:
         wallet_guide=get_auth_service().get_wallet_guide_info(
             str(user_dict["wallet_address"]) if user_dict else ""
         ),
+        email_otp_available=get_auth_service().email_otp_available(),
+        cloud_auth=bool(current_app.config["AUTH_API_URL"]),
     )
 
 
@@ -125,7 +131,7 @@ def get_session_status() -> tuple[Response, int]:
                 "expires_at": session.expires_at,
                 "user": user.to_public_dict(),
                 "wallet_info": wallet_info,
-                "transactions": get_auth_service().repo.list_credit_transactions(
+                "transactions": get_auth_service().list_credit_transactions(
                     user.user_id, limit=8
                 ),
             },
@@ -252,7 +258,10 @@ def api_exchange_credits() -> tuple[Response, int]:
 @blueprint.post("/api/auth/export-wallet-key")
 @require_session()
 def api_export_wallet_key() -> tuple[Response, int]:
-    result = get_auth_service().export_wallet_key(g.current_user)
+    body = request.get_json(silent=True) or {}
+    result = get_auth_service().export_wallet_key(
+        g.current_user, password=str(body.get("password") or "")
+    )
     return jsonify(data=result.data, error=result.error), result.status_code
 
 
@@ -280,6 +289,7 @@ def api_update_profile() -> tuple[Response, int]:
         wallet_address=body.get("wallet_address"),
         wallet_mode=body.get("wallet_mode"),
         otp_code=body.get("otp_code"),
+        password=body.get("password"),
     )
     if not result.ok:
         return jsonify(data=None, error=result.error), result.status_code

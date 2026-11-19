@@ -37,6 +37,8 @@ Khi thêm class Tailwind vào HTML, chạy `npm install` và `npm run build:css`
 
 Bài viết, ảnh, bản nháp, câu trả lời và lượt hữu ích được lưu vào `data/community.sqlite3`, tự tạo khi khởi động. Người đã đăng nhập dùng danh tính tài khoản khi đăng bài; người chưa đăng nhập có **phiên khách dùng thử** nếu `COMMUNITY_ALLOW_GUESTS=1`. Tài khoản và phiên lưu trong `data/agridata.db`; bản EXE dùng thư mục riêng trong `%LOCALAPPDATA%/MachDong`. Đây vẫn là backend chạy theo máy, chưa phải diễn đàn và tài khoản dùng chung cloud.
 
+Mã chuyển tài khoản sang D1 trên máy chủ đã được chuẩn bị nhưng **chưa triển khai/bật**. Xem [trạng thái và cấu hình kho tài khoản cloud](docs/cloud-accounts.md). Cho đến khi có bản Site và EXE mới, đăng ký/đăng nhập vẫn dùng kho cục bộ.
+
 Bản hợp nhất các nhánh ngày 18/11/2026 giữ mô phỏng Groq trên cloud, hình ruộng mới, bộ dữ liệu cộng đồng, trợ lý, đăng nhập và ví Fuji. Xem [biên bản hợp nhất và kiểm tra](docs/integration-2026-11-18.md). Khóa Groq chỉ nằm trên cloud; Gemini của tab Trợ lý là cấu hình riêng của backend Flask. `.env` được giữ ngoài Git.
 
 Đọc [hướng dẫn module Cộng đồng và API](docs/community.md) để xem cách nối đăng nhập, các lớp MVC, cấu hình và quy tắc nghiệp vụ. Dữ liệu và khóa phiên được loại khỏi Git. Bài demo cũ trong localStorage vẫn được giữ nguyên trong trình duyệt nhưng không tự chuyển sang cơ sở dữ liệu mới.
