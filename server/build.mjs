@@ -12,7 +12,7 @@ const referenceFiles = Object.fromEntries(referenceNames.map(name => [name,read(
 if (history.rowCount !== history.locations.reduce((sum,location) => sum+location.rows.length,0)) throw new Error("History count mismatch");
 const manifest = JSON.parse(read(".openai/hosting.json"));
 if (!manifest.project_id) throw new Error("Missing Site ID");
-const files = ["model.mjs","engine.mjs","weather.mjs","ai.mjs","auth.mjs","community.mjs","worker.mjs"];
+const files = ["model.mjs","engine.mjs","weather.mjs","ai.mjs","auth.mjs","community.mjs","assistant.mjs","worker.mjs"];
 const bundled = files.map(file => read(file).replace(/^import .*;\r?\n/gm,"").replace(/^export class /gm,"class ")).join("\n");
 mkdirSync(resolve(root,"dist/server"),{recursive:true});
 mkdirSync(resolve(root,"dist/.openai"),{recursive:true});

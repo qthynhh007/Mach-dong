@@ -6,6 +6,7 @@ import {weatherClient} from "./weather.mjs";
 import {aiClient} from "./ai.mjs";
 import {accountController} from "./auth.mjs";
 import {communityController} from "./community.mjs";
+import {assistantController} from "./assistant.mjs";
 import {referenceFiles} from "./reference.mjs";
 
 const weatherCache = new Map();
@@ -31,6 +32,7 @@ export class simulationController {
     const url = new URL(request.url);
     if (url.pathname.startsWith("/api/account/")) return new accountController(this.env,this.fetcher).handle(request);
     if (url.pathname.startsWith("/api/community/")) return new communityController(this.env).handle(request);
+    if (url.pathname === "/api/assistant/generate") return new assistantController(this.env,this.fetcher).handle(request);
     if (url.pathname.startsWith("/api/reference/")) {
       const name = url.pathname.slice("/api/reference/".length);
       if (request.method !== "GET" && request.method !== "HEAD") return jsonResponse(null,405,"Chỉ hỗ trợ đọc dữ liệu tham chiếu.");

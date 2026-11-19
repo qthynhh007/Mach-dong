@@ -113,7 +113,7 @@ Không tạo tài nguyên trả phí hay mua gói hosting riêng trong lần tri
 
 Server sử dụng JavaScript Worker ES module để chạy trên hosting hiện có; lớp MVC + Service Python của ứng dụng được giữ. Tên class/hàm/biến mới dùng camelCase theo yêu cầu của nhóm (ngoại trừ API bắt buộc của thư viện).
 
-**Cộng đồng/tài khoản:** tài khoản, hồ sơ ruộng và diễn đàn dùng chung D1; ảnh bài viết dùng R2. CSV mẫu và nguồn của trợ lý được đọc qua API tham chiếu trên cùng Site. SQLite chỉ dùng cho bộ thử cục bộ. SMTP, Gemini chat và gửi giao dịch Fuji cần cấu hình riêng; xem [sơ đồ lưu trữ](cloud-storage.md).
+**Cộng đồng/tài khoản:** tài khoản, hồ sơ ruộng và diễn đàn dùng chung D1; ảnh bài viết dùng R2. CSV mẫu và nguồn của trợ lý được đọc qua API tham chiếu trên cùng Site. Cò Mạ dùng Groq qua Site cho câu hỏi cần AI, không cần khóa ở desktop. SQLite chỉ dùng cho bộ thử cục bộ. SMTP và gửi giao dịch Fuji cần cấu hình riêng; xem [sơ đồ lưu trữ](cloud-storage.md).
 
 ## Kiểm tra và build
 

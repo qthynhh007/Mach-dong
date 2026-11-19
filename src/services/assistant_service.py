@@ -1,6 +1,8 @@
 import re
 from collections.abc import Sequence
 
+from flask import current_app, has_app_context
+
 from src.models.community import normalizeText
 from src.services.ai_client import ChatMessage, GeminiError, generate_reply
 from src.services.assistant_sources import (
@@ -74,16 +76,18 @@ def answer_question(api_key: str, messages: Sequence[ChatMessage]) -> dict:
             ),
             "sources": [],
         }
-    if not api_key:
-        raise GeminiError("Máy chủ chưa cấu hình Gemini API.", 503)
+    cloud = current_app.extensions.get("assistantService") if has_app_context() else None
+    if not cloud and not api_key:
+        raise GeminiError("Máy chủ chưa cấu hình AI cho Cò Mạ.", 503)
     context = "\n\n".join(
         f"{item['source_id']} · {item['citation']} · {item['locator']}\n"
         f"Thông tin: {item['finding_vi']}\nPhạm vi: {item['scope_vi']}"
         for item in evidence
     )
     by_id = {item["source_id"]: item for item in evidence}
-    reply, source_ids = generate_reply(
-        api_key, CO_MA_INSTRUCTION, messages, "CĂN CỨ ĐÃ DUYỆT\n\n" + context, tuple(by_id)
+    reply, source_ids = (
+        cloud.generateReply(list(messages), list(by_id)) if cloud else
+        generate_reply(api_key, CO_MA_INSTRUCTION, messages, "CĂN CỨ ĐÃ DUYỆT\n\n" + context, tuple(by_id))
     )
     if any(source_id not in by_id for source_id in source_ids):
         raise GeminiError("Cò Mạ chưa xác thực được nguồn trong câu trả lời. Bà con thử hỏi lại nha.")

@@ -31,7 +31,7 @@ Flask nạp template từ `src/views/` và phục vụ `src/static/` qua URL `/s
 - **Diễn đàn** · `views/forum/` + `src/static/forum.js` → `communityController` → `cloudCommunityService` → Worker `communityController` → D1/R2. Worker xác minh phiên tài khoản, CSRF, quyền tác giả, phiên bản và dữ liệu. `communityModel`/`communityService` dùng cho kiểm thử SQLite cục bộ. Giữ các URL `/forum` cùng giao diện sẵn có. Xem [tài liệu module](community.md).
 - **Mô phỏng** · `simulationView` → `simulationController` → `simulationService` → `simulationInput` → `aiClient/cloudClient` → HTTPS đến Worker trong `server/`. Engine có phiên bản và dữ liệu có nguồn chạy trên cloud. Không tính CHI/năng suất/tỷ lệ sống minh họa cũ. Groq chọn ID bằng chứng hợp lệ; Gemini là nhà cung cấp tùy chọn. Key chỉ nằm trong secret của máy chủ, không nằm trong EXE. Xem [module mô phỏng](simulation.md).
 - **Tài khoản** · `auth_controller` → `CloudAuthService` → Worker `/api/account/*` → D1 cho đăng nhập, hồ sơ, thông tin ruộng, ví và lịch sử điểm. `AuthService`/`SQLiteUserRepository` chỉ dùng trong kiểm thử cục bộ. Danh tính tài khoản nối vào diễn đàn. Xem [trạng thái và cấu hình](cloud-accounts.md).
-- **Trợ lý** · `assistant_controller` → `assistant_service` → `assistant_sources`/`ai_client`; chọn nguồn tham chiếu và kiểm tra mã nguồn trong phản hồi Gemini. Cấu hình Gemini của backend Flask độc lập với Groq trên máy chủ mô phỏng.
+- **Trợ lý** · `assistant_controller` → `assistant_service` → `assistant_sources` và `cloudAssistantService` → Worker `assistantController` → Groq. Dữ liệu nguồn đọc từ Site; Groq chỉ trả mã nguồn, Worker ghép đoạn đã duyệt thành lời đáp. Gemini còn là đường thử tùy chọn, không cần cấu hình trong EXE.
 
 ## Vị trí tích hợp tiếp theo
 

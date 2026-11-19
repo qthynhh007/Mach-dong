@@ -17,11 +17,12 @@ MAX_CHAT_BYTES = 128 * 1024
 
 @blueprint.get("/assistant")
 def assistant() -> str:
+    cloudEnabled = "assistantService" in current_app.extensions
     return render_template(
         "assistant/index.html",
         current_page="assistant",
-        gemini_enabled=bool(current_app.config["GEMINI_API_KEY"]),
-        gemini_model_label=GEMINI_MODEL_LABEL,
+        gemini_enabled=cloudEnabled or bool(current_app.config["GEMINI_API_KEY"]),
+        gemini_model_label="Groq · AI trên máy chủ" if cloudEnabled else GEMINI_MODEL_LABEL,
         wait_seconds=ASSISTANT_WAIT_SECONDS,
         max_message_length=MAX_MESSAGE_LENGTH,
         max_history_turns=MAX_HISTORY_TURNS,

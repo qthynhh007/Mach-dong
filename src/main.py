@@ -18,6 +18,7 @@ from src.controllers.session_guard import get_current_auth
 from src.models.community import communityModel
 from src.models.user import SQLiteUserRepository
 from src.services.auth_service import AuthService
+from src.services.cloud_assistant_service import cloudAssistantService
 from src.services.cloud_auth_service import CloudAuthService
 from src.services.cloud_client import cloudClient
 from src.services.cloud_community_service import cloudCommunityService
@@ -53,6 +54,8 @@ def createApp(testConfig: dict | None = None) -> Flask:
         COMMUNITY_API_TRANSPORT=None,
         REFERENCE_API_URL=os.environ.get("REFERENCE_API_URL", SIMULATION_API_URL).strip(),
         REFERENCE_API_TRANSPORT=None,
+        ASSISTANT_API_URL=os.environ.get("ASSISTANT_API_URL", SIMULATION_API_URL).strip(),
+        ASSISTANT_API_TRANSPORT=None,
     )
     if testConfig:
         app.config.update(testConfig)
@@ -63,6 +66,8 @@ def createApp(testConfig: dict | None = None) -> Flask:
         app.config["COMMUNITY_ALLOW_GUESTS"] = testConfig.get("COMMUNITY_ALLOW_GUESTS", True)
     if testConfig and app.testing and "REFERENCE_API_URL" not in testConfig:
         app.config["REFERENCE_API_URL"] = ""
+    if testConfig and app.testing and "ASSISTANT_API_URL" not in testConfig:
+        app.config["ASSISTANT_API_URL"] = ""
     if not app.config["SECRET_KEY"]:
         secretPath = Path(app.config["COMMUNITY_DATABASE"]).parent / ".community-secret"
         secretPath.parent.mkdir(parents=True, exist_ok=True)
@@ -123,6 +128,12 @@ def createApp(testConfig: dict | None = None) -> Flask:
         )
     elif not app.testing:
         raise RuntimeError("REFERENCE_API_URL is required; references must use the cloud service")
+    if app.config["ASSISTANT_API_URL"]:
+        app.extensions["assistantService"] = cloudAssistantService(
+            app.config["ASSISTANT_API_URL"], app.config["ASSISTANT_API_TRANSPORT"]
+        )
+    elif not app.testing:
+        raise RuntimeError("ASSISTANT_API_URL is required; assistant AI must use the cloud service")
     app.extensions["simulationService"] = simulationService(
         cloudClient(app.config["SIMULATION_API_URL"], app.config["SIMULATION_TRANSPORT"])
     )

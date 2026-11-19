@@ -1,10 +1,12 @@
-# Kế hoạch backend Trợ lý Cò Mạ
+# Backend Trợ lý Cò Mạ
+
+Bản phát hành hiện dùng `assistant_sources.py` chọn căn cứ từ API tham chiếu, rồi gọi `cloudAssistantService` → `POST /api/assistant/generate` trên Site. Worker kiểm tra mã nguồn đã duyệt, gọi Groq bằng secret máy chủ và giới hạn lượt gọi. Groq chỉ được trả về tối đa hai mã nguồn; Worker ghép nguyên các đoạn đã duyệt và phạm vi áp dụng thành lời đáp, không hiển thị văn bản tự tạo từ AI. Người dùng không cần khóa Gemini. Phần dưới ghi lại thiết kế Gemini cũ dành cho kiểm thử hoặc triển khai tùy chọn; không phải mặc định của EXE.
 
 ## Phạm vi demo
 
 Bà con mở `/assistant` để hỏi cách trồng, đất và dinh dưỡng, sâu bệnh, mặn và ngập cho lúa, rau màu và cây ăn trái. Cò Mạ nhớ tối đa bốn lượt hỏi đáp gần nhất và gắn liên kết tới tài liệu đã dùng.
 
-Luồng đi từ `assistant.js` → Flask `POST /api/assistant/chat` → `assistant_service.py` → `assistant_sources.py`. Tra cứu lịch sử theo trạm, ca giả lập, chào hỏi và hỏi lại khi thiếu thông tin chẩn đoán được xử lý tại Flask. Câu hỏi canh tác có căn cứ gọi `ai_client.py` với tài liệu đã chọn và khóa Gemini. Khi hỏi tiếp về cùng cây, Flask ưu tiên điều kiện trồng được nêu gần nhất. Khi có nguồn đúng cây, đúng chủ đề và đúng điều kiện trồng, Flask bỏ nguồn cùng chủ đề ghi điều kiện khác. Trình duyệt giữ lịch sử trong bộ nhớ của tab. F5 hoặc “Bắt đầu lại” xóa lịch sử đó.
+Luồng đi từ `assistant.js` → Flask `POST /api/assistant/chat` → `assistant_service.py` → `assistant_sources.py`. Tra cứu lịch sử theo trạm, ca giả lập, chào hỏi và hỏi lại khi thiếu thông tin chẩn đoán được xử lý tại Flask. Câu hỏi canh tác có căn cứ gọi Site qua `cloudAssistantService`. Khi hỏi tiếp về cùng cây, Flask ưu tiên điều kiện trồng được nêu gần nhất. Khi có nguồn đúng cây, đúng chủ đề và đúng điều kiện trồng, Flask bỏ nguồn cùng chủ đề ghi điều kiện khác. Trình duyệt giữ lịch sử trong bộ nhớ của tab. F5 hoặc “Bắt đầu lại” xóa lịch sử đó.
 
 ## Hợp đồng API
 

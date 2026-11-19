@@ -10,6 +10,7 @@
 | Ảnh người dùng đính kèm bài | Cloudflare R2 | Tệp ảnh dùng chung; D1 chỉ lưu đường dẫn ảnh |
 | Danh mục nguồn, lịch sử NASA POWER, logic mô phỏng và dự báo thời tiết | Worker/Site công khai và nguồn thời tiết được ghi rõ | Ứng dụng nhận cùng phiên bản dữ liệu và mô phỏng, không dự đoán từ tệp riêng của từng máy |
 | CSV mẫu, bản tin trạm, nguồn tra cứu của Cò Mạ | Worker/Site, API `/api/reference/<tên-tệp>` | Cập nhật dữ liệu tham chiếu bằng cách phát hành Site mới; người dùng không cần tải lại EXE |
+| AI của Cò Mạ | Groq gọi từ Worker/Site; khóa chỉ ở secret máy chủ | Ứng dụng gửi câu hỏi và mã nguồn đã chọn; Groq chỉ chọn lại mã phù hợp, Worker ghép đoạn đã duyệt và giới hạn lượt gọi |
 
 Dữ liệu chỉ phục vụ một thiết bị vẫn ở thiết bị: cookie đăng nhập `HttpOnly`, khóa ký phiên Flask của ứng dụng desktop, vị trí thanh điều khiển mô phỏng trong `sessionStorage`, và tệp CSV người dùng chọn để xem trước (đọc trong bộ nhớ của request, không tải lên kho chung). Hồ sơ **demo chưa đăng nhập** có thể lưu trong trình duyệt; đó không phải hồ sơ tài khoản.
 

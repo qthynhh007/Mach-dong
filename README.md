@@ -28,7 +28,7 @@ Khi thêm class Tailwind vào HTML, chạy `npm install` và `npm run build:css`
 | Chi tiết bài | `/forum/<postId>` | Trả lời theo chuỗi, đánh dấu hữu ích, chọn giải đáp, sửa/xóa nội dung của mình |
 | Sửa bài | `/forum/<postId>/edit` | Chỉnh sửa bài và ảnh; kiểm tra quyền tác giả trên máy chủ |
 | Mô phỏng | `/simulation` | Nhập điều kiện, mô phỏng cloud, minh họa thửa ruộng, báo cáo có nguồn, dự báo 7 ngày và tải lịch sử NASA POWER |
-| Trợ lý Cò Mạ | `/assistant` | Hỏi đáp có chọn nguồn tham chiếu; lời chào và dữ liệu tra cứu có sẵn, Gemini cho câu hỏi cần AI |
+| Trợ lý Cò Mạ | `/assistant` | Hỏi đáp có nguồn; Groq trên máy chủ chọn tài liệu phù hợp, lời đáp lấy từ đoạn đã duyệt |
 | Đăng nhập | `/login` | Đăng nhập bằng tài khoản cloud; phiên có thời hạn và chống CSRF |
 | Đăng ký | `/register` | Tạo hồ sơ và ví Fuji trên cloud; xác minh email cần dịch vụ email của Site |
 | Tài khoản | `/profile` | Hồ sơ, mật khẩu, liên kết ví, lịch sử điểm; phân biệt giao dịch giả lập và Fuji |
@@ -37,7 +37,7 @@ Khi thêm class Tailwind vào HTML, chạy `npm install` và `npm run build:css`
 
 Bài viết, câu trả lời, lượt hữu ích, bản nháp và thông tin ruộng của tài khoản được lưu trong D1 trên máy chủ; ảnh diễn đàn nằm trong R2. CSV mẫu, bản tin trạm và nguồn tra cứu của Cò Mạ cũng được đọc từ Site, không đóng gói trong EXE. Hai máy đăng nhập cùng tài khoản sẽ thấy cùng dữ liệu. Khách chưa đăng nhập chỉ được đọc diễn đàn. SQLite cộng đồng chỉ còn dùng cho kiểm thử cục bộ. Xem [sơ đồ lưu trữ cloud](docs/cloud-storage.md) và [hướng dẫn module](docs/community.md).
 
-Bản hợp nhất các nhánh ngày 18/11/2026 giữ mô phỏng Groq trên cloud, hình ruộng mới, bộ dữ liệu cộng đồng, trợ lý, đăng nhập và ví Fuji. Xem [biên bản hợp nhất và kiểm tra](docs/integration-2026-11-18.md). Khóa Groq chỉ nằm trên cloud; Gemini của tab Trợ lý là cấu hình riêng của backend Flask. `.env` được giữ ngoài Git.
+Bản hợp nhất các nhánh ngày 18/11/2026 giữ mô phỏng Groq trên cloud, hình ruộng mới, bộ dữ liệu cộng đồng, trợ lý, đăng nhập và ví Fuji. Xem [biên bản hợp nhất và kiểm tra](docs/integration-2026-11-18.md). Khóa Groq chỉ nằm trên cloud, dùng cho mô phỏng và trợ lý; người dùng không nhập khóa. `.env` được giữ ngoài Git.
 
 Đọc [hướng dẫn module Cộng đồng và API](docs/community.md) để xem lớp MVC, cấu hình và quy tắc nghiệp vụ. Dữ liệu và khóa phiên được loại khỏi Git. Nếu trình duyệt từng lưu thông tin ruộng của tài khoản, trang hồ sơ chuyển dữ liệu đó lên cloud khi mở lại; dữ liệu demo chưa đăng nhập vẫn ở thiết bị.
 
