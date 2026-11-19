@@ -21,8 +21,21 @@ function hex(bytes) { return [...new Uint8Array(bytes)].map(x => x.toString(16).
 function bytes(hexValue) { return Uint8Array.from(hexValue.match(/../g) || [], x => parseInt(x, 16)); }
 async function sha256(value) { return hex(await crypto.subtle.digest("SHA-256", encoder.encode(value))); }
 async function passwordHash(password, salt, iterations = passwordRounds) {
-  const key = await crypto.subtle.importKey("raw", encoder.encode(password), "PBKDF2", false, ["deriveBits"]);
-  return hex(await crypto.subtle.deriveBits({name:"PBKDF2",salt:bytes(salt),iterations,hash:"SHA-256"},key,256));
+  // Workers caps each PBKDF2 call at 100,000 iterations. Chain domain-separated
+  // rounds so the stored work factor can remain 600,000 without a local secret.
+  let material = encoder.encode(password);
+  const saltBytes = bytes(salt);
+  for (let round = 0, remaining = iterations; remaining > 0; round++) {
+    const key = await crypto.subtle.importKey("raw", material, "PBKDF2", false, ["deriveBits"]);
+    const roundSalt = new Uint8Array(saltBytes.length + 4);
+    roundSalt.set(saltBytes);
+    new DataView(roundSalt.buffer).setUint32(saltBytes.length, round);
+    material = new Uint8Array(await crypto.subtle.deriveBits({
+      name:"PBKDF2",salt:roundSalt,iterations:Math.min(100_000,remaining),hash:"SHA-256"
+    },key,256));
+    remaining -= 100_000;
+  }
+  return hex(material);
 }
 function sameHex(a, b) {
   if (typeof a !== "string" || typeof b !== "string" || a.length !== b.length) return false;
@@ -74,7 +87,10 @@ export class accountController {
     if (!this.db) return reply(null, 503, "Kho tài khoản chưa được cấu hình trên máy chủ.");
     try { return await this.route(request, new URL(request.url).pathname); }
     catch (error) {
-      if (!(error instanceof accountError)) console.error("Account service failure", {type:error?.name || "Error"});
+      if (!(error instanceof accountError)) console.error("Account service failure", {
+        type:error?.name || "Error", message:String(error?.message || "").slice(0,300),
+        stack:String(error?.stack || "").slice(0,600)
+      });
       return reply(null, error instanceof accountError ? error.status : 503,
         error instanceof accountError ? error.message : "Dịch vụ tài khoản tạm thời không khả dụng.");
     }

@@ -29,15 +29,13 @@ Khi thêm class Tailwind vào HTML, chạy `npm install` và `npm run build:css`
 | Sửa bài | `/forum/<postId>/edit` | Chỉnh sửa bài và ảnh; kiểm tra quyền tác giả trên máy chủ |
 | Mô phỏng | `/simulation` | Nhập điều kiện, mô phỏng cloud, minh họa thửa ruộng, báo cáo có nguồn, dự báo 7 ngày và tải lịch sử NASA POWER |
 | Trợ lý Cò Mạ | `/assistant` | Hỏi đáp có chọn nguồn tham chiếu; lời chào và dữ liệu tra cứu có sẵn, Gemini cho câu hỏi cần AI |
-| Đăng nhập | `/login` | Đăng nhập bằng tài khoản hoặc OTP email; phiên có thời hạn và chống CSRF |
-| Đăng ký | `/register` | Xác thực email, tạo hồ sơ và ví Fuji; cần cấu hình SMTP để gửi OTP thật |
+| Đăng nhập | `/login` | Đăng nhập bằng tài khoản cloud; phiên có thời hạn và chống CSRF |
+| Đăng ký | `/register` | Tạo hồ sơ và ví Fuji trên cloud; xác minh email cần dịch vụ email của Site |
 | Tài khoản | `/profile` | Hồ sơ, mật khẩu, liên kết ví, lịch sử điểm; phân biệt giao dịch giả lập và Fuji |
 
-Đăng nhập và đăng ký đã nối backend; xem [cấu hình SMTP và Fuji](docs/ENV_SETUP.md). Tài khoản mẫu chỉ được tạo khi bật `AGRIDATA_AUTH_DEMO=1`. CSV tải lên hiện chỉ được đọc để xem trước. Bốn CSV cũ trong `data/reference` và bài có nhãn “Dữ liệu mẫu” là giả lập; bộ NASA POWER trên cloud là dữ liệu thực từ nguồn có ghi metadata. Phần trăm cây sống chờ số liệu thực địa và mô hình được kiểm định.
+Đăng nhập và đăng ký dùng [kho tài khoản cloud](docs/cloud-accounts.md) theo mặc định; máy người dùng không lưu cơ sở dữ liệu tài khoản. Xác minh email và khôi phục mật khẩu cần cấu hình dịch vụ email trên Site. CSV tải lên hiện chỉ được đọc để xem trước. Bốn CSV cũ trong `data/reference` và bài có nhãn “Dữ liệu mẫu” là giả lập; bộ NASA POWER trên cloud là dữ liệu thực từ nguồn có ghi metadata. Phần trăm cây sống chờ số liệu thực địa và mô hình được kiểm định.
 
-Bài viết, ảnh, bản nháp, câu trả lời và lượt hữu ích được lưu vào `data/community.sqlite3`, tự tạo khi khởi động. Người đã đăng nhập dùng danh tính tài khoản khi đăng bài; người chưa đăng nhập có **phiên khách dùng thử** nếu `COMMUNITY_ALLOW_GUESTS=1`. Tài khoản và phiên lưu trong `data/agridata.db`; bản EXE dùng thư mục riêng trong `%LOCALAPPDATA%/MachDong`. Đây vẫn là backend chạy theo máy, chưa phải diễn đàn và tài khoản dùng chung cloud.
-
-Mã chuyển tài khoản sang D1 trên máy chủ đã được chuẩn bị nhưng **chưa triển khai/bật**. Xem [trạng thái và cấu hình kho tài khoản cloud](docs/cloud-accounts.md). Cho đến khi có bản Site và EXE mới, đăng ký/đăng nhập vẫn dùng kho cục bộ.
+Bài viết, ảnh, bản nháp, câu trả lời và lượt hữu ích vẫn lưu trong `data/community.sqlite3` khi chạy mã nguồn, hoặc `%LOCALAPPDATA%/MachDong` khi chạy EXE. Người đã đăng nhập dùng danh tính tài khoản cloud khi đăng bài; người chưa đăng nhập có **phiên khách dùng thử** nếu `COMMUNITY_ALLOW_GUESTS=1`. Diễn đàn chưa đồng bộ giữa các máy. Xem [trạng thái kho tài khoản cloud](docs/cloud-accounts.md) để biết phần nào đã triển khai và phần nào cần cấu hình thêm.
 
 Bản hợp nhất các nhánh ngày 18/11/2026 giữ mô phỏng Groq trên cloud, hình ruộng mới, bộ dữ liệu cộng đồng, trợ lý, đăng nhập và ví Fuji. Xem [biên bản hợp nhất và kiểm tra](docs/integration-2026-11-18.md). Khóa Groq chỉ nằm trên cloud; Gemini của tab Trợ lý là cấu hình riêng của backend Flask. `.env` được giữ ngoài Git.
 

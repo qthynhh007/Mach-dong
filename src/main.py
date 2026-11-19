@@ -45,11 +45,13 @@ def createApp(testConfig: dict | None = None) -> Flask:
         GEMINI_API_KEY=os.environ.get("GEMINI_API_KEY", "").strip(),
         SIMULATION_API_URL=os.environ.get("SIMULATION_API_URL", SIMULATION_API_URL),
         SIMULATION_TRANSPORT=None,
-        AUTH_API_URL=os.environ.get("AUTH_API_URL", "").strip(),
+        AUTH_API_URL=os.environ.get("AUTH_API_URL", SIMULATION_API_URL).strip(),
         AUTH_API_TRANSPORT=None,
     )
     if testConfig:
         app.config.update(testConfig)
+    if testConfig and app.testing and "AUTH_API_URL" not in testConfig:
+        app.config["AUTH_API_URL"] = ""
     if not app.config["SECRET_KEY"]:
         secretPath = Path(app.config["COMMUNITY_DATABASE"]).parent / ".community-secret"
         secretPath.parent.mkdir(parents=True, exist_ok=True)
@@ -70,7 +72,7 @@ def createApp(testConfig: dict | None = None) -> Flask:
         app.extensions["auth_service"] = CloudAuthService(
             app.config["AUTH_API_URL"], app.config["AUTH_API_TRANSPORT"]
         )
-    else:
+    elif app.testing:
         app.extensions["auth_service"] = AuthService(
             repo=SQLiteUserRepository(
                 auth_db_path, app.config["AGRIDATA_SECRET_KEY"] or app.secret_key
@@ -78,6 +80,8 @@ def createApp(testConfig: dict | None = None) -> Flask:
             seed_defaults=app.config["AGRIDATA_AUTH_DEMO"],
             allow_dev_otp=app.config["AGRIDATA_AUTH_DEMO"],
         )
+    else:
+        raise RuntimeError("AUTH_API_URL is required; accounts must use the cloud service")
 
     @app.context_processor
     def inject_auth_context() -> dict:

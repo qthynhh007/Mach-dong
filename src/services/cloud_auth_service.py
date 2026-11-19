@@ -56,7 +56,7 @@ class CloudAuthService:
         token: str | None = None,
         csrf: str | None = None,
     ) -> AuthResult:
-        headers = {"Accept": "application/json"}
+        headers = {"Accept": "application/json", "User-Agent": "MachDongDesktop/2.0"}
         if payload is not None:
             headers["Content-Type"] = "application/json"
         if token:

@@ -16,6 +16,7 @@ class CloudAuthTests(unittest.TestCase):
     def test_flask_cloud_mode_renders_without_local_account_database(self):
         def transport(req, timeout):
             self.assertEqual(req.full_url, "https://example.test/api/account/config")
+            self.assertEqual(req.get_header("User-agent"), "MachDongDesktop/2.0")
             response = FakeResponse(b'{"data":{"email_otp_enabled":false},"error":null}')
             response.status = 200
             return response
@@ -31,6 +32,15 @@ class CloudAuthTests(unittest.TestCase):
             self.assertEqual(client.get("/register").status_code, 200)
             self.assertNotIn('id="registerOtpInput"',client.get("/register").get_data(as_text=True))
             self.assertEqual(client.get("/login").status_code, 200)
+            self.assertFalse(account_db.exists())
+
+    def test_production_cannot_fall_back_to_local_accounts(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            account_db = Path(temp_dir) / "accounts.sqlite3"
+            with self.assertRaisesRegex(RuntimeError, "AUTH_API_URL is required"):
+                createApp({"AUTH_API_URL": "", "SECRET_KEY": "test-only",
+                           "AGRIDATA_DB_PATH": str(account_db),
+                           "COMMUNITY_DATABASE": str(Path(temp_dir) / "community.sqlite3")})
             self.assertFalse(account_db.exists())
 
     def test_registration_sends_only_encrypted_wallet_key(self):
