@@ -25,6 +25,7 @@ from src.services.simulation_service import simulationService
 
 def createApp(testConfig: dict | None = None) -> Flask:
     app = Flask(__name__, template_folder="views", static_folder="static")
+    app.config["TEMPLATES_AUTO_RELOAD"] = True
     app.config["MAX_CONTENT_LENGTH"] = MAX_CSV_BYTES + 64_000
     app.config.update(
         SECRET_KEY=os.environ.get("SECRET_KEY"),
