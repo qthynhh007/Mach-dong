@@ -22,5 +22,6 @@ data/client_session.json
 
 # Generated desktop packages
 build/
-dist/
+dist/*
+!dist/MachDong.exe
 *.spec

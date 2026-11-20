@@ -54,3 +54,9 @@ node --test tests/simulation-view.test.mjs
 Repository đã có cấu hình Git; không cần `git init` hoặc thêm lại remote sau khi clone. Xem [hướng dẫn bản Windows](docs/simulation.md) để dựng `MachDong.exe`, cấu hình AI trên máy chủ và cập nhật dữ liệu. Workflow Windows có thể chạy thủ công hoặc tạo prerelease khi đẩy tag `desktop-v*`; kho GitHub riêng tư chỉ cho người có quyền tải Assets. Bản EXE công khai được lưu riêng trong R2 của Site ở link trên, không đưa vào lịch sử mã nguồn. Không commit môi trường ảo, cơ sở dữ liệu người dùng hoặc khóa cấu hình.
 
 Đọc [kiến trúc và cây thư mục](docs/architecture.md), [hướng dẫn đóng góp](AGENTS.md) và [danh mục Stitch](docs/stitch/README.md).
+
+## Tải bản EXE từ GitHub
+
+Để dùng bản có giao diện codex và các chức năng Simulation đã hợp nhất, mở [dist/MachDong.exe](dist/MachDong.exe) trong nhánh `feature/Simulation` trên GitHub, chọn **Download raw file** rồi lưu file về máy Windows 64-bit. Nếu kho GitHub yêu cầu quyền truy cập, hãy đăng nhập tài khoản được cấp quyền trước khi tải. Link tải cloud ở phần trên là bản phát hành trước.
+
+Nhấp đúp `MachDong.exe` để chạy. Ứng dụng mở giao diện trong trình duyệt; giữ cửa sổ Mạch Đồng đang chạy và đóng cửa sổ đó khi muốn thoát. Không cần cài Python hay mô hình AI; cần Internet để đăng nhập, dùng diễn đàn, lấy dữ liệu và mô phỏng. File trong Git có dung lượng 46.932.688 byte; SHA-256: `2d64c023d4a22328a21750689634addc016c803702595a6ef45d9a6e0e6add53`.
