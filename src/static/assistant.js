@@ -37,6 +37,9 @@
   let retryImage = null;
   let selectedImage = null;
   let readingImage = false;
+  window.addEventListener("workspace-session-ended", () => {
+    activeRequest?.abort(); history.length = 0; messages.replaceChildren(); input.value = "";
+  });
 
   function appendMessage(speaker, text, sources = [], image = null) {
     const entry = document.createElement("li");
@@ -192,7 +195,7 @@
         errorMessage.textContent = result.error || "Cò Mạ chưa có câu trả lời. Bà con thử lại nha.";
       } else {
         history.push({role: "user", text: message}, {role: "model", text: reply});
-        if (history.length > historyLimit) history.splice(0, 2);
+        while (history.length > historyLimit) history.splice(0, 2);
         appendMessage("Cò Mạ", reply, result.data.sources ?? []);
       }
     } catch {
@@ -229,13 +232,18 @@
   const mascotVideo = byId("assistant-mascot-video");
   if (mascotVideo) {
     const still = byId("assistant-mascot-still");
-    const replay = byId("assistant-mascot-replay");
     const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
+    let alphaSupported = true;
     const showStill = () => { mascotVideo.hidden = true; still.hidden = false; };
     const play = async () => {
+      if (!alphaSupported || reducedMotion.matches || document.hidden) {
+        mascotVideo.pause();
+        showStill();
+        return;
+      }
       try {
         mascotVideo.src ||= mascotVideo.dataset.source;
-        mascotVideo.currentTime = 0;
+        mascotVideo.loop = true;
         await mascotVideo.play();
       } catch { showStill(); }
     };
@@ -246,22 +254,31 @@
       if (!context) return;
       context.drawImage(mascotVideo, 0, 0);
       if (context.getImageData(0, 0, 1, 1).data[3] === 0) return;
+      alphaSupported = false;
       mascotVideo.pause();
-      replay.hidden = true;
       showStill();
     }, {once: true});
     mascotVideo.addEventListener("playing", () => {
-      if (!mascotVideo.paused) { still.hidden = true; mascotVideo.hidden = false; }
+      if (!mascotVideo.paused && alphaSupported && !reducedMotion.matches) {
+        still.hidden = true;
+        mascotVideo.hidden = false;
+      }
     });
-    mascotVideo.addEventListener("ended", showStill);
-    mascotVideo.addEventListener("error", () => { replay.hidden = true; showStill(); });
-    replay.addEventListener("click", play);
+    mascotVideo.addEventListener("ended", () => {
+      if (!reducedMotion.matches) play();
+      else showStill();
+    });
+    mascotVideo.addEventListener("error", showStill);
     if (mascotVideo.canPlayType('video/webm; codecs="vp9"')) {
-      replay.hidden = false;
       if (!reducedMotion.matches) play();
     }
-    reducedMotion.addEventListener("change", event => {
-      if (event.matches) { mascotVideo.pause(); showStill(); }
+    reducedMotion.addEventListener("change", () => {
+      if (reducedMotion.matches) { mascotVideo.pause(); showStill(); }
+      else play();
+    });
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) mascotVideo.pause();
+      else if (!reducedMotion.matches) play();
     });
   }
 

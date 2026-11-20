@@ -1,5 +1,6 @@
 {% from "shared/icon.html" import icon %}
 {% from "shared/co-ma.html" import co_ma %}
+{% from "simulation/co-ma-advice.html" import advice_card %}
 <!doctype html>
 <html lang="vi">
 <head>
@@ -16,6 +17,7 @@
   <script src="{{ url_for('static', filename='simulation.js') }}" defer></script>
   <script src="{{ url_for('static', filename='simulation-demo.js') }}" type="module"></script>
   <link rel="stylesheet" href="{{ url_for('static', filename='simulation-reading.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='co-ma-advice.css') }}">
 </head>
 <body class="app-workspace">
   {% include "shared/header.html" %}
@@ -131,7 +133,7 @@
       </fieldset>
       <div class="sim-actions">
         <button type="submit" id="runSimulation" class="sim-primary" disabled>Mô phỏng và xem báo cáo</button>
-        <button type="button" id="askAi" disabled>Nhờ AI chọn bằng chứng</button>
+        <button type="button" id="askAi" disabled>Nhờ Cò Mạ tư vấn</button>
         <button id="retryCatalog" type="button" hidden>Kết nối lại dữ liệu</button>
         <span id="cloudStatus">Đang kết nối dữ liệu…</span>
       </div>
@@ -220,13 +222,12 @@
     </header>
     <div class="sim-advice-dialog-body">
       <p class="sim-advice-context" id="sim-advice-context"></p>
-      <p id="preview-gemini-status" role="status"></p>
-      <p id="preview-gemini-text" style="white-space:pre-line"></p>
       <p class="sim-advice-stale" id="sim-advice-stale" hidden>Lời khuyên thuộc lần tính thành công gần nhất.</p>
       <div class="sim-advice-detail">
         <ul class="sim-advice-steps" id="sim-advice-steps" role="list"></ul>
         <div class="sim-advice-illustration" aria-hidden="true">{{ co_ma() }}</div>
       </div>
+      {{ advice_card("preview") }}
       <p class="sim-model-note">Cảnh ruộng chỉ minh họa cảnh báo có nguồn. Chưa có mô hình kiểm định để tính CHI hoặc tỷ lệ sống OM5451.</p>
     </div>
   </dialog>

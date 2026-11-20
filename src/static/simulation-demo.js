@@ -44,5 +44,23 @@ byId("lowerSalt").addEventListener("click", () => {
   byId("inputSalinity").value = Math.min(1, Number(byId("inputSalinity").value));
   byId("inputSalinity").dispatchEvent(new Event("input", {bubbles:true}));
 });
-byId("open-advice").addEventListener("click", () => byId("sim-advice-dialog").showModal());
+byId("open-advice").addEventListener("click", () => {
+  byId("sim-advice-dialog").showModal();
+  byId("explainReport").click();
+});
+document.addEventListener("simulationAdvice", event => {
+  const answer = event.detail;
+  const card = byId("previewAdviceCard");
+  card.setAttribute("aria-busy",String(Boolean(answer?.pending)));
+  card.classList.toggle("is-error",Boolean(answer?.error));
+  byId("previewExplanationStatus").textContent = !answer ? "Chạy mô phỏng để Cò Mạ tư vấn theo điều kiện mới." : answer.pending ? "Cò Mạ đang phân tích điều kiện và kiểm tra căn cứ…" : answer.error || `${answer.provider} · Phân tích theo thông số của lần chạy này`;
+  for (const suffix of ["Explanation","AdviceContext","AdviceSources"]) {
+    const target = byId("preview"+suffix); target.replaceChildren();
+    if (answer?.reply) for (const node of byId("report"+suffix).childNodes) target.append(node.cloneNode(true));
+  }
+  byId("previewAdviceSourcesFold").hidden = !answer?.sources?.length;
+  byId("previewAdviceSourceCount").textContent = String(answer?.sources?.length || 0);
+  if (answer?.limitation) byId("previewAdviceLimitation").textContent = answer.limitation;
+  if(answer?.reply) byId("simulation-status").textContent="Đã có lời khuyên Gemini cho lần chạy này.";
+});
 updateLabels();

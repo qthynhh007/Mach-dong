@@ -7,6 +7,7 @@ from urllib import error, parse, request
 from flask import current_app, has_app_context
 
 from src.config import MAX_CSV_BYTES
+from src.services.cloud_session import cloud_session_headers
 
 
 class referenceUnavailable(RuntimeError):
@@ -40,7 +41,7 @@ class cloudReferenceService:
             if cached and cached[0] > monotonic():
                 return cached[1]
         url = self.apiUrl + "/api/reference/" + parse.quote(name, safe="")
-        req = request.Request(url, headers={"Accept": "text/csv, application/json", "User-Agent": "MachDongDesktop/2.0"})
+        req = request.Request(url, headers={"Accept": "text/csv, application/json", "User-Agent": "MachDongDesktop/2.0", **cloud_session_headers()})
         try:
             with self.transport(req, timeout=15) as response:
                 data = response.read(MAX_CSV_BYTES + 1)

@@ -106,6 +106,7 @@ export class accountController {
   async session(request, csrfRequired = false) {
     const token = request.headers.get("authorization")?.replace(/^Bearer\s+/i, "").trim();
     if (!token || !/^[a-f0-9]{64}$/.test(token)) throw new accountError("Chưa đăng nhập hoặc phiên đã hết hạn.", 401);
+    if (!this.db) throw new accountError("Kho tài khoản chưa được cấu hình trên máy chủ.",503);
     const hash = await sha256(token);
     const row = await this.db.prepare("SELECT s.*,a.* FROM account_sessions s JOIN accounts a ON a.user_id=s.user_id WHERE s.token_hash=? AND s.revoked=0 AND s.expires_at>?").bind(hash,Math.floor(Date.now()/1000)).first();
     if (!row) throw new accountError("Phiên đăng nhập không hợp lệ hoặc đã hết hạn.", 401);
@@ -125,7 +126,8 @@ export class accountController {
     const valid = sameHex(row.code_hash, await sha256(`${row.salt}:${code}`));
     await this.db.prepare("UPDATE account_otps SET attempts=attempts+1 WHERE email=?").bind(email).run();
     if (!valid) throw new accountError("Mã email không hợp lệ hoặc đã hết hạn.",400);
-    await this.db.prepare("UPDATE account_otps SET used=1 WHERE email=?").bind(email).run();
+    const consumed = await this.db.prepare("UPDATE account_otps SET used=1 WHERE email=? AND used=0 AND code_hash=? AND expires_at>=? AND attempts<=5").bind(email,row.code_hash,Math.floor(Date.now()/1000)).run();
+    if (!consumed.meta?.changes) throw new accountError("Mã đã được dùng hoặc hết hạn. Hãy gửi mã mới.",400);
     await this.db.prepare("UPDATE accounts SET email_verified=1 WHERE email=?").bind(email).run();
   }
   async sendOtp(request, body) {
@@ -139,6 +141,8 @@ export class accountController {
       email = row.email;
     }
     if (!email) throw new accountError("Email không hợp lệ.");
+    const previous = await this.db.prepare("SELECT expires_at FROM account_otps WHERE email=?").bind(email).first();
+    if (previous && previous.expires_at > Math.floor(Date.now()/1000)+240) throw new accountError("Bà con chờ 60 giây trước khi gửi lại mã nha.",429);
     const code = String(crypto.getRandomValues(new Uint32Array(1))[0] % 1_000_000).padStart(6,"0");
     const salt = randomHex(16);
     const sent = await this.fetcher("https://api.resend.com/emails",{method:"POST",headers:{Authorization:`Bearer ${this.env.AUTH_EMAIL_API_KEY}`,"Content-Type":"application/json"},body:JSON.stringify({from:this.env.AUTH_FROM_EMAIL,to:[email],subject:"Mã xác nhận Mạch Đồng",text:`Mã xác nhận của bạn: ${code}. Mã có hiệu lực 5 phút.`})});
@@ -159,7 +163,10 @@ export class accountController {
       const email = cleanEmail(b.email), phone = cleanPhone(b.phone), password = checkPassword(b.password);
       const wallet = checkWallet(b.wallet_address);
       const emailEnabled = Boolean(this.env.AUTH_EMAIL_API_KEY && this.env.AUTH_FROM_EMAIL);
-      if (emailEnabled) await this.verifyOtp(email,b.otp_code);
+      if (!emailEnabled) throw new accountError("Máy chủ chưa cấu hình gửi email xác nhận. Chưa thể tạo tài khoản; bà con thử lại sau nha.",503);
+      const duplicate = await this.db.prepare("SELECT 1 FROM accounts WHERE username=? OR email=?").bind(username,email).first();
+      if (duplicate) throw new accountError("Tên đăng nhập hoặc email đã được sử dụng.",409);
+      await this.verifyOtp(email,b.otp_code);
       const salt = randomHex(16), hash = await passwordHash(password,salt);
       const userId = crypto.randomUUID(), now = Math.floor(Date.now()/1000);
       try { await this.db.prepare("INSERT INTO accounts (user_id,username,name,email,email_verified,phone,password_hash,password_salt,password_iterations,wallet_address,wallet_type,managed_wallet_address,encrypted_wallet_key,created_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)").bind(userId,username,name,email,emailEnabled ? 1 : 0,phone,hash,salt,passwordRounds,wallet,b.wallet_type === "AUTO_EMAIL" ? "AUTO_EMAIL" : wallet ? "EXTERNAL" : "UNLINKED",b.wallet_type === "AUTO_EMAIL" ? wallet : "",b.encrypted_wallet_key || null,now).run(); }
@@ -176,8 +183,7 @@ export class accountController {
       const now = Math.floor(Date.now()/1000);
       if (row.locked_until > now) throw new accountError("Tài khoản đang tạm khóa. Vui lòng thử lại sau.",429);
       let valid = false;
-      if (b.otp_code) { await this.verifyOtp(row.email,b.otp_code); valid = true; }
-      else if (typeof b.password === "string" && b.password.length < 257) valid = sameHex(row.password_hash,await passwordHash(b.password,row.password_salt,row.password_iterations));
+      if (typeof b.password === "string" && b.password.length < 257) valid = sameHex(row.password_hash,await passwordHash(b.password,row.password_salt,row.password_iterations));
       if (!valid) {
         await this.db.prepare("UPDATE accounts SET failed_login_attempts=failed_login_attempts+1,locked_until=CASE WHEN failed_login_attempts+1>=5 THEN ? ELSE 0 END WHERE user_id=?").bind(now+300,row.user_id).run();
         throw new accountError("Tài khoản hoặc mật khẩu không đúng.",401);
@@ -231,6 +237,7 @@ export class accountController {
       const {row} = await this.session(request,true);
       const configured = String(this.env.AUTH_ADMIN_BOOTSTRAP_TOKEN || "");
       if (configured.length < 32 || !sameHex(configured,request.headers.get("x-admin-bootstrap-token"))) throw new accountError("Không được phép.",403);
+      if (!row.email_verified || !row.name || !row.phone) throw new accountError("Cần hồ sơ đầy đủ và email đã xác nhận để làm quản trị viên.",400);
       const result = await this.db.prepare("UPDATE accounts SET role='ADMIN' WHERE user_id=? AND NOT EXISTS (SELECT 1 FROM accounts WHERE role='ADMIN')").bind(row.user_id).run();
       if (!result.meta?.changes) throw new accountError("Tài khoản quản trị đã được khởi tạo.",409);
       return reply({user:publicUser(await this.db.prepare("SELECT * FROM accounts WHERE user_id=?").bind(row.user_id).first())});

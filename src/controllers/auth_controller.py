@@ -20,6 +20,7 @@ from src.controllers.session_guard import (
     get_auth_service,
     get_current_auth,
     require_session,
+    safe_workspace_path,
 )
 from src.models.farm_profile import DEMO_FARM_PROFILE, FARM_CULTIVARS, FARM_STATIONS, FarmProfile
 from src.services.avatar_service import normalizeAvatar
@@ -262,7 +263,6 @@ def api_register() -> tuple[Response, int]:
 
 @blueprint.post("/api/auth/login")
 @blueprint.post("/api/auth/signin")
-@blueprint.post("/api/auth/verify-otp")
 def api_login() -> tuple[Response, int]:
     body = request.get_json(silent=True) or {}
     if not isinstance(body, dict):
@@ -282,11 +282,11 @@ def api_login() -> tuple[Response, int]:
         phone=body.get("phone"),
         wallet_address=body.get("wallet_address"),
         wallet_mode=str(body.get("wallet_mode") or "AUTO_EMAIL"),
-        otp_code=body.get("otp_code"),
     )
     if not result.ok or not result.data:
         return jsonify(data=None, error=result.error), result.status_code
 
+    result.data["redirect_to"] = safe_workspace_path(body.get("next"))
     resp = make_response(jsonify(data=result.data, error=None))
     _attach_session_cookie(resp, result.data, remember_me=remember_me)
     return resp, result.status_code

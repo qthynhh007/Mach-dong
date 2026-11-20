@@ -1,6 +1,13 @@
-{% from "shared/icon.html" import icon as render_icon %}
+{% from "shared/icon.html" import icon %}
 <aside class="app-side">
   <nav aria-label="Danh mục Mạch Đồng">
     {% include "shared/workspace-links.html" %}
   </nav>
+  {% if auth_user %}
+  <div class="app-side-footer">
+    <button type="button" class="app-side-sign-out" aria-label="Đăng xuất" data-logout-btn>
+      {{ icon("log_out") }}<span>Đăng xuất</span>
+    </button>
+  </div>
+  {% endif %}
 </aside>

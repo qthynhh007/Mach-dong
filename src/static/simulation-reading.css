@@ -223,3 +223,5 @@
 .sim-reading .sim-table-wrap tbody tr:nth-child(even) { background: #f0f6f0; }
 .sim-reading .sim-table-wrap tbody tr:hover { background: #e3efe5; }
 .sim-reading .sim-table-wrap td { font-variant-numeric: tabular-nums; }
+.sim-weather-location{display:flex;align-items:center;flex-wrap:wrap;gap:12px;margin:16px 0;font-size:14px;font-weight:600}
+.sim-weather-location select{min-width:220px;max-width:100%;padding:10px 36px 10px 12px;border:1px solid #c8d9ce;border-radius:9px;background-color:#fff;color:#173d32;font:inherit}

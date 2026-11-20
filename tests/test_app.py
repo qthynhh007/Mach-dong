@@ -4,6 +4,7 @@ from tempfile import TemporaryDirectory
 from unittest import TestCase
 
 from main import create_app
+from workspace_helpers import sign_in
 
 
 class TestApp(TestCase):
@@ -17,21 +18,21 @@ class TestApp(TestCase):
                 "COMMUNITY_DATABASE": str(Path(directory.name) / "community.sqlite3"),
             }
         ).test_client()
+        sign_in(self.client)
 
     def test_views_render(self) -> None:
         for route, title in (
             ("/community", "Kho CSV cộng đồng"),
-            ("/forum", "Thảo Luận Bà Con"),
+            ("/forum", "Thảo luận bà con"),
             ("/forum/new", "Viết bài chia sẻ"),
             ("/forum/muong-lo", "Khung trao đổi"),
             ("/simulation", "Mô phỏng cánh đồng lúa"),
             ("/simulation/report", "Báo cáo kịch bản"),
             ("/wallet/rules", "Thể lệ"),
-            ("/login", "Đăng Nhập Nông Hộ"),
+            ("/login", "Đăng nhập nông hộ"),
             ("/register", "Đăng ký nông hộ"),
-            ("/profile", "Bảo Mật &amp; Đổi Mật Khẩu"),
+            ("/profile", "Bảo mật và đổi mật khẩu"),
             ("/assistant", "Lời khuyên Cò Mạ"),
-            ("/admin", "Duyệt dữ liệu"),
         ):
             with self.subTest(route=route):
                 response = self.client.get(route)
@@ -39,9 +40,7 @@ class TestApp(TestCase):
                 self.assertIn(title, response.get_data(as_text=True))
 
     def test_csv_preview_and_download(self) -> None:
-        with self.client.get("/community/samples/salinity") as sample:
-            self.assertIn("attachment", sample.headers["Content-Disposition"])
-            raw = sample.get_data()
+        raw = b"site,unit,value\nfield,g/L,2.8\n"
         response = self.client.post(
             "/api/community/preview", data={"file": (BytesIO(raw), "sample.csv")}
         )

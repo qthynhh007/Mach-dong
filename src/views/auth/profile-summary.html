@@ -1,0 +1,57 @@
+<div class="app-glass rounded-xl p-space-lg relative overflow-hidden">
+<div class="relative flex flex-col sm:flex-row items-center gap-space-md">
+<div class="profile-avatar-block shrink-0">
+  <img class="profile-avatar" data-user-avatar src="{{ auth_avatar_url }}" width="104" height="104" alt="Ảnh đại diện">
+
+</div>
+<div class="flex flex-col text-center sm:text-left min-w-0 flex-1">
+<div class="flex flex-wrap items-center justify-center sm:justify-start gap-space-xs">
+<h2 class="text-headline-sm font-bold" data-profile-value="farmer-fullname">{{ current_user.name if current_user else 'Chú Năm Ruộng' }}</h2>
+
+</div>
+{% if current_user %}
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5 break-all">
+  {{ current_user.email }} · <span data-profile-value="farmer-phone">{{ current_user.phone }}</span>
+</p>
+{% endif %}
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5" data-profile-value="farmer-address" data-profile-empty="Chưa cập nhật địa bàn">{{ farm_profile.address or 'Chưa cập nhật địa bàn' }}</p>
+<div class="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-surface-container-high w-fit mx-auto sm:mx-0">
+{% set roles = {'FARMER': 'Nông hộ', 'REVIEWER': 'Người duyệt', 'ADMIN': 'Quản trị viên'} %}
+<span class="font-label-sm text-label-sm font-semibold text-primary">{{ (roles.get(current_user.role, current_user.role) ~ ' · @' ~ current_user.username) if current_user else 'Thành viên HTX Long Hữu' }}</span>
+</div>
+<div class="profile-avatar-actions">
+  {% if current_user %}
+  <input id="profile-avatar-file" name="avatar" type="file" accept="image/jpeg,image/png,image/webp" hidden>
+  <button class="app-button" id="profile-avatar-choose" type="button" aria-describedby="profile-avatar-hint">
+    {{ render_icon("upload_photo") }} Đổi ảnh đại diện
+  </button>
+  <p id="profile-avatar-hint">JPG, PNG, WebP · Tối đa 1 MB</p>
+  {% else %}
+  <a class="app-button" href="{{ url_for('auth.login') }}">Đăng nhập để đổi ảnh</a>
+  {% endif %}
+</div>
+</div>
+</div>
+<p class="profile-avatar-status" id="profile-avatar-status" role="status"></p>
+<div class="mt-space-md pt-space-md flex flex-col gap-space-xs">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-bold">Đóng góp trên diễn đàn</span>
+<div class="grid grid-cols-2 gap-space-sm mt-1">
+<div class="flex items-center gap-space-xs p-2 rounded-lg bg-surface-container-high">
+<div class="w-8 h-8 rounded-lg bg-surface-container-highest flex items-center justify-center text-primary shrink-0">
+<span class="app-icon-wrap text-[18px]">{{ render_icon("description") }}</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-md text-label-md font-bold text-on-surface" id="profile-post-count">{{ contribution_posts }} bài viết</span>
+</div>
+</div>
+<div class="flex items-center gap-space-xs p-2 rounded-lg bg-surface-container-high">
+<div class="w-8 h-8 rounded-lg bg-surface-container-highest flex items-center justify-center text-secondary shrink-0">
+<span class="app-icon-wrap text-[18px]">{{ render_icon("chat") }}</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-md text-label-md font-bold text-on-surface" id="profile-reply-count">{{ contribution_replies }} câu trả lời</span>
+</div>
+</div>
+</div>
+</div>
+</div>

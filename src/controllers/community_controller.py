@@ -118,6 +118,9 @@ class communityController:
         return member.id if member else ""
 
     def csrfToken(self) -> str:
+        auth = get_current_auth()
+        if auth:
+            return auth[1].csrf_token
         if "communityCsrfToken" not in session:
             session["communityCsrfToken"] = secrets.token_urlsafe(32)
         return session["communityCsrfToken"]
@@ -133,7 +136,7 @@ class communityController:
         token = request.headers.get("X-CSRF-Token", "")
         if (
             not secrets.compare_digest(
-                token.encode(), session.get("communityCsrfToken", "").encode()
+                token.encode(), self.csrfToken().encode()
             )
             or not token
         ):

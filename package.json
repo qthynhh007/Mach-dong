@@ -3,7 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build:css": "node scripts/build-css.mjs"
+    "build:css": "node scripts/build-css.mjs",
+    "check:js": "node scripts/check-client-js.mjs"
   },
   "devDependencies": {
     "postcss": "^8.4.49",

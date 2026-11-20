@@ -28,13 +28,23 @@ class simulationView {
     this.fieldPreview = this.form.hasAttribute("data-field-preview");
     this.weatherRequest = null; this.revision = 0;
     this.byId("scenarioForm").addEventListener("submit", event => { event.preventDefault(); this.run(false); });
-    this.byId("askAi").addEventListener("click", () => this.run(true));
+    this.byId("askAi").addEventListener("click", async () => {
+      if (!this.result) await this.run(false);
+      if (this.result) await this.explainReport();
+    });
     this.byId("explainReport").addEventListener("click", () => this.explainReport());
-    this.form.addEventListener("input", () => this.invalidate());
+    this.form.addEventListener("input", event => {
+      if (event.target.name === "locationId" && this.byId("weatherLocation")) this.byId("weatherLocation").value = event.target.value;
+      this.invalidate();
+    });
     this.form.addEventListener("invalid", () => this.status("Có điều kiện chưa hợp lệ. Hãy sửa ô được đánh dấu rồi chạy lại.",true),true);
     const reset = this.byId(this.fieldPreview ? "btnReset" : "resetScenario");
     reset.addEventListener("click", () => { this.form.reset(); this.invalidate(); });
     this.byId("loadWeather").addEventListener("click", () => this.loadWeather());
+    this.byId("weatherLocation")?.addEventListener("change", () => {
+      this.field("locationId").value = this.byId("weatherLocation").value;
+      this.invalidate(); this.loadWeather();
+    });
     this.byId("downloadReport").addEventListener("click", () => this.download());
     this.byId("retryCatalog").addEventListener("click", () => this.loadCatalog());
     this.byId("editScenario").addEventListener("click", () => { this.showPanel("scenarioPanel"); this.byId("runSimulation").focus(); });
@@ -62,7 +72,7 @@ class simulationView {
   }
   byId(id) { return document.getElementById(id); }
   number(value) { return value === null || value === undefined ? "Chưa có" : Number(value).toLocaleString("vi-VN",{maximumFractionDigits:2}); }
-  setText(id, value) { this.byId(id).textContent = value; }
+  setText(id, value) { const element = this.byId(id); if (element) element.textContent = value; }
   status(message, error = false) {
     for (const id of ["pageStatus","formStatus"]) {
       const target = this.byId(id);
@@ -106,6 +116,7 @@ class simulationView {
   invalidate() {
     this.weatherLoaded = false;
     this.revision++; this.activeRequest?.abort(); this.weatherRequest?.abort(); this.result = null;
+    this.adviceRequest?.abort();
     this.setBusy(false); this.updateLabels(); this.byId("downloadReport").disabled = true;
     this.setText("relativeYield","Chưa có kết quả"); this.setText("riskSummary","Kịch bản đã thay đổi");
     if (!this.fieldPreview) {
@@ -120,15 +131,25 @@ class simulationView {
     this.paintField(null);
     this.byId("explainReport").disabled = true;
     this.setText("reportExplanation", ""); this.setText("reportExplanationStatus", "");
+    this.byId("reportAdviceSources")?.replaceChildren();
+    this.byId("reportAdviceContext")?.replaceChildren();
+    this.byId("reportAdviceSourcesFold").hidden = true;
+    document.dispatchEvent(new CustomEvent("simulationAdvice",{detail:null}));
     if (this.catalog) this.status("Điều kiện đã thay đổi. Chạy lại để xem báo cáo mới.");
   }
-  async loadCatalog() {
+  async loadCatalog(loadInitialWeather = true) {
     this.byId("retryCatalog").hidden = true;
     this.status("Đang kết nối máy chủ dữ liệu…");
     try {
       this.catalog = await this.api.request("/api/simulation/catalog");
       const select = this.byId("locationId"); select.replaceChildren();
       for (const location of this.catalog.locations) select.add(new Option(location.name,location.id));
+      const weatherLocation = this.byId("weatherLocation");
+      if (weatherLocation) {
+        weatherLocation.replaceChildren();
+        for (const location of this.catalog.locations) weatherLocation.add(new Option(location.name,location.id));
+        weatherLocation.value = select.value; weatherLocation.disabled = false;
+      }
       select.disabled = false; this.byId("loadWeather").disabled = false; this.setBusy(false);
       const source = this.catalog.localService ? "Máy chủ cục bộ" : "Dữ liệu trực tuyến";
       this.setText("cloudStatus",source+" · "+this.catalog.reviewedAt);
@@ -138,7 +159,9 @@ class simulationView {
       this.setText("historyMeta",`${this.number(history.rowCount)} dòng tại ${this.catalog.locations.length} địa điểm, năm ${history.year}. Phiên bản ${history.version}; thu thập ${history.retrievedAt}. Đây là dữ liệu khí tượng, chưa có nhãn năng suất/thất thoát để huấn luyện AI dự báo OM5451.`);
       const link = this.byId("downloadHistory"); link.href = "/api/simulation/history"; link.hidden = false;
       this.status("Đã tải dữ liệu có nguồn. Chọn điều kiện và chạy kịch bản.");
-    } catch (error) { this.catalog = null; this.setBusy(false); this.byId("retryCatalog").hidden = false; this.setText("cloudStatus","Chưa kết nối được"); this.status(error.message,true); }
+      if (loadInitialWeather && this.tabs.find(tab=>tab.getAttribute("aria-selected") === "true")?.dataset.panel === "weatherPanel") await this.loadWeather();
+    } catch (error) { this.catalog = null; this.setBusy(false); this.byId("retryCatalog").hidden = false; this.setText("cloudStatus","Chưa kết nối được"); this.status(error.message,true); this.setText("weatherMeta",error.message+" Bấm Tải dự báo để thử kết nối lại."); }
+    finally { this.byId("loadWeather").disabled = false; }
   }
   async run(requestAi) {
     if (!this.form.reportValidity()) { this.status("Có điều kiện chưa hợp lệ. Hãy sửa ô được đánh dấu rồi chạy lại.",true); return; }
@@ -202,7 +225,85 @@ class simulationView {
     this.byId("explainReport").disabled = false;
     this.byId("downloadReport").disabled = false;
   }
-  async explainReport() { await this.run(true); }
+  async explainReport() {
+    if (!this.result || this.adviceRequest) return;
+    const snapshot = {...this.result.inputs};
+    const revision = this.revision;
+    const controller = new AbortController(); this.adviceRequest = controller;
+    this.byId("explainReport").disabled = true;
+    this.byId("reportAdviceCard").setAttribute("aria-busy","true");
+    this.byId("reportAdviceCard").classList.remove("is-error");
+    this.setText("reportExplanationStatus","Cò Mạ đang phân tích điều kiện và kiểm tra căn cứ…");
+    document.dispatchEvent(new CustomEvent("simulationAdvice",{detail:{pending:true}}));
+    try {
+      const answer = await this.api.request("/api/simulation/advice",snapshot,controller.signal);
+      if (controller.signal.aborted || revision !== this.revision) return;
+      this.renderAdvice(answer);
+      this.setText("reportAiStatus",`${answer.provider} đã tư vấn theo thông số của lần chạy này.`);
+      this.setText("reportExplanationStatus",`${answer.provider} · Phân tích theo thông số của lần chạy này`);
+      this.setText("reportAdviceLimitation",answer.limitation);
+      const target = this.byId("reportAdviceSources"); target?.replaceChildren();
+      for (const source of answer.sources || []) target?.append(this.sourceLink({title:source.title,url:source.url}));
+      this.byId("reportAdviceSourcesFold").hidden = !answer.sources?.length;
+      this.setText("reportAdviceSourceCount",String(answer.sources?.length || 0));
+      document.dispatchEvent(new CustomEvent("simulationAdvice",{detail:answer}));
+    } catch (error) {
+      if (error.name !== "AbortError") {
+        this.setText("reportExplanationStatus",error.message);
+        this.byId("reportAdviceCard").classList.add("is-error");
+        document.dispatchEvent(new CustomEvent("simulationAdvice",{detail:{error:error.message}}));
+      }
+    } finally {
+      if (this.adviceRequest === controller) {
+        this.adviceRequest = null; this.byId("explainReport").disabled = !this.result;
+        this.byId("reportAdviceCard").setAttribute("aria-busy","false");
+      }
+    }
+  }
+  adviceParts(reply) {
+    const text = String(reply || "").trim();
+    const markers = [...text.matchAll(/\*{0,2}(Điều kiện đáng chú ý|Việc nên làm|Cần đo thêm|Khi nào cần nhờ cán bộ nông nghiệp)\*{0,2}\s*:\s*\*{0,2}/giu)];
+    const parts = [];
+    const intro = text.slice(0,markers[0]?.index ?? text.length).trim();
+    if (intro) parts.push({heading:"",body:intro});
+    markers.forEach((marker,index) => {
+      const body = text.slice(marker.index+marker[0].length,markers[index+1]?.index ?? text.length).trim();
+      const part = {heading:marker[1],body};
+      if (marker[1].toLocaleLowerCase("vi") === "việc nên làm") {
+        // A numbered step needs whitespace after its dot; decimal readings stay intact.
+        const steps = [...body.matchAll(/(?:^|\s)([1-9]\d?)\.\s+/g)];
+        if (steps.length && !body.slice(0,steps[0].index).trim()) {
+          part.steps = steps.map((step,i)=>body.slice(step.index+step[0].length,steps[i+1]?.index ?? body.length).trim());
+        }
+      }
+      parts.push(part);
+    });
+    return parts;
+  }
+  renderAdvice(answer) {
+    const target = this.byId("reportExplanation"); target.replaceChildren();
+    for (const part of this.adviceParts(answer.reply)) {
+      const section = document.createElement(part.heading ? "section" : "div");
+      const kind = part.heading.toLocaleLowerCase("vi");
+      section.className = "co-ma-advice-section"+(!part.heading ? " co-ma-advice-intro" : kind === "việc nên làm" ? " co-ma-advice-actions" : kind === "điều kiện đáng chú ý" ? " co-ma-advice-conditions" : "");
+      if (part.heading) { const heading = document.createElement("h4"); heading.textContent = part.heading; section.append(heading); }
+      if (part.steps) {
+        const list = document.createElement("ol");
+        for (const step of part.steps) { const item = document.createElement("li"); item.textContent = step; list.append(item); }
+        section.append(list);
+      } else {
+        for (const text of part.body.split(/\n\s*\n/).filter(Boolean)) { const paragraph = document.createElement("p"); paragraph.textContent = text; section.append(paragraph); }
+      }
+      target.append(section);
+    }
+    const inputs = answer.inputSnapshot || this.result.inputs;
+    const context = this.byId("reportAdviceContext"); context.replaceChildren();
+    const chips = [this.result.stage,
+      `${inputs.salinitySite === "canalWater" ? "Mặn kênh" : "Mặn ruộng"} ${this.number(inputs.salinityGl)} g/L`,
+      `Nước ruộng ${this.number(inputs.waterDepthCm)} cm`,
+      inputs.useWeather ? "Có dữ liệu dự báo" : `${this.number(inputs.tempMaxC)}°C`];
+    for (const label of chips.filter(Boolean)) { const chip = document.createElement("span"); chip.textContent = label; context.append(chip); }
+  }
   sourceLink(source) {
     const link = document.createElement("a"); link.textContent = source.title+" ↗ ";
     try { const url = new URL(source.url); if (url.protocol === "https:") { link.href = url.href; link.target = "_blank"; link.rel = "noopener noreferrer"; } } catch { /* Invalid source URLs stay as plain text. */ }
@@ -229,12 +330,14 @@ class simulationView {
   }
   rows(id, rows) { const body = this.byId(id); body.replaceChildren(); for (const row of rows) { const tr = document.createElement("tr"); for (const value of row) { const td = document.createElement("td"); td.textContent = value; tr.append(td); } body.append(tr); } }
   async loadWeather() {
+    if (!this.catalog) { await this.loadCatalog(false); if (!this.catalog) return; }
     this.weatherRequest?.abort(); const controller = new AbortController(); this.weatherRequest = controller;
+    this.byId("loadWeather").disabled = true;
     const meta = this.byId("weatherMeta");
     meta.className = "is-loading";
     meta.textContent = "Đang lấy dự báo mới từ máy chủ…";
     try {
-      const locId = this.field("locationId") ? this.field("locationId").value : "can-tho";
+      const locId = this.byId("weatherLocation")?.value || this.field("locationId").value;
       const result = await this.api.request("/api/simulation/weather?locationId="+encodeURIComponent(locId),null,controller.signal);
       if (controller.signal.aborted) return;
       this.rows("weatherRows",result.rows.map(row => [row.date,...[row.tempMinC,row.tempMaxC,row.rainMm,row.et0Mm,row.solarMjM2].map(value => this.number(value))]));
@@ -250,7 +353,7 @@ class simulationView {
         meta.className = "is-error";
         meta.textContent = error.message;
       }
-    }
+    } finally { if (this.weatherRequest === controller) this.byId("loadWeather").disabled = false; }
   }
   showPanel(id, updateUrl = true) {
     const tab = this.tabs.find(button => button.dataset.panel === id);

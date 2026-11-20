@@ -6,6 +6,7 @@ from pathlib import Path
 
 from src.main import createApp
 from src.services.cloud_auth_service import CloudAuthService
+from urllib.error import URLError
 
 
 class FakeResponse(io.BytesIO):
@@ -13,6 +14,19 @@ class FakeResponse(io.BytesIO):
 
 
 class CloudAuthTests(unittest.TestCase):
+    def test_account_service_outage_is_not_reported_as_a_logged_out_session(self):
+        def transport(req, timeout):
+            raise URLError("offline")
+        with tempfile.TemporaryDirectory() as directory:
+            app=createApp({"TESTING":True,"SECRET_KEY":"test-only","AUTH_API_URL":"https://example.test",
+                           "AUTH_API_TRANSPORT":transport,"COMMUNITY_DATABASE":str(Path(directory)/"community.sqlite3")})
+            client=app.test_client()
+            client.set_cookie("agridata_session","a"*64)
+            response=client.get("/api/simulation/catalog")
+            self.assertEqual(response.status_code,503)
+            self.assertIsNone(response.json["data"])
+            self.assertEqual(client.get("/profile").status_code,503)
+
     def test_flask_cloud_mode_renders_without_local_account_database(self):
         def transport(req, timeout):
             self.assertEqual(req.full_url, "https://example.test/api/account/config")
@@ -30,7 +44,7 @@ class CloudAuthTests(unittest.TestCase):
                              "COMMUNITY_DATABASE": str(Path(temp_dir) / "community.sqlite3")})
             client = app.test_client()
             self.assertEqual(client.get("/register").status_code, 200)
-            self.assertNotIn('id="registerOtpInput"',client.get("/register").get_data(as_text=True))
+            self.assertIn('id="registerOtpInput"',client.get("/register").get_data(as_text=True))
             self.assertEqual(client.get("/login").status_code, 200)
             self.assertFalse(account_db.exists())
 

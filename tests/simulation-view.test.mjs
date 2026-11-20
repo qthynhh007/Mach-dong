@@ -7,7 +7,7 @@ import {sceneState} from "../src/static/simulation-scene.js";
 const source = readFileSync(new URL("../src/static/simulation.js",import.meta.url),"utf8");
 function classes(overrides = {}) {
   const context = createContext({AbortController,Response,TypeError,setTimeout,clearTimeout,...overrides});
-  runInContext(source,context);
+  runInContext(source.replace('if (typeof document !== "undefined") new simulationView();',''),context);
   return runInContext("({simulationApi,simulationView})",context);
 }
 function viewHarness(request) {
@@ -115,4 +115,71 @@ test("editing a scenario clears scene warnings and preserves the selected stage"
   assert.equal(state.signals.tip_burn,0);
   assert.equal(state.signals.leaf_roll,0);
   assert.equal(state.signals.water_cover,0);
+});
+
+test("a weather deep link loads the forecast after the location catalog becomes ready",async()=> {
+  const {simulationView}=classes({Option:class {constructor(text,value){this.text=text;this.value=value;}}});
+  const elements=new Map();
+  const element=id=>{
+    if(!elements.has(id)) elements.set(id,{value:"can-tho",disabled:true,replaceChildren(){},add(){},hidden:false});
+    return elements.get(id);
+  };
+  const view=Object.create(simulationView.prototype);
+  Object.assign(view,{tabs:[{getAttribute:()=>"true",dataset:{panel:"weatherPanel"}}],
+    byId:element,setBusy(){},status(){},renderSources(){},setText(){},number:String,
+    api:{request:async()=>({locations:[{name:"Cần Thơ",id:"can-tho"}],varieties:[{}],history:{},reviewedAt:"test"})},
+    loadWeather:async()=>{view.weatherCalls=(view.weatherCalls || 0)+1;}});
+  await view.loadCatalog();
+  assert.equal(view.weatherCalls,1); assert.equal(element("loadWeather").disabled,false);
+  assert.equal(element("weatherLocation").disabled,false);
+});
+
+test("a catalog failure leaves the weather button available for a retry",async()=> {
+  const {simulationView}=classes(); const view=Object.create(simulationView.prototype);
+  const button={disabled:true};
+  Object.assign(view,{byId:id=>id==="loadWeather" ? button : {},setBusy(){},status(){},setText(){},api:{request:async()=>{throw new Error("Mất mạng");}}});
+  await view.loadCatalog();
+  assert.equal(view.catalog,null); assert.equal(button.disabled,false);
+});
+
+test("late weather results cannot overwrite a newly selected location",async()=> {
+  const {simulationView}=classes(); const view=Object.create(simulationView.prototype);
+  const elements={loadWeather:{},weatherMeta:{},weatherLocation:{value:"can-tho"}};
+  const pending=[]; const rendered=[];
+  Object.assign(view,{catalog:{},byId:id=>elements[id],field:()=>({value:"can-tho"}),number:String,
+    api:{request:(url)=>new Promise(resolve=>pending.push({url,resolve}))},rows:(id,rows)=>rendered.push(rows)});
+  const first=view.loadWeather(); elements.weatherLocation.value="tra-vinh";
+  const second=view.loadWeather();
+  const result=locationId=>({locationId,sourceId:"open-meteo",rows:[{date:locationId}],retrievedAt:"2026-11-20",license:"test"});
+  pending[1].resolve(result("tra-vinh")); await second;
+  pending[0].resolve(result("can-tho")); await first;
+  assert.match(pending[1].url,/tra-vinh/); assert.equal(rendered.length,1);
+  assert.equal(rendered[0][0][0],"tra-vinh"); assert.equal(elements.loadWeather.disabled,false);
+});
+
+test("advice for an edited scenario never appears as current advice",async()=> {
+  const events=[]; const {simulationView}=classes({document:{dispatchEvent:event=>events.push(event)},CustomEvent:class {constructor(type,options){this.type=type;this.detail=options.detail;}}});
+  const view=Object.create(simulationView.prototype); const text={}; let finish;
+  Object.assign(view,{result:{inputs:{salinityGl:2.8}},revision:0,byId:()=>({setAttribute(){},classList:{remove(){},add(){}}}),setText:(id,value)=>{text[id]=value;},
+    api:{request:()=>new Promise(resolve=>{finish=resolve;})}});
+  const waiting=view.explainReport(); view.revision++; view.adviceRequest.abort();
+  finish({reply:"Old advice",sources:[]}); await waiting;
+  assert.notEqual(text.reportExplanation,"Old advice");
+  assert.equal(events.some(event=>event.detail?.reply==="Old advice"),false);
+});
+
+test("advice separates the four sections and keeps decimal measurements intact",()=> {
+  const {simulationView}=classes(); const view=Object.create(simulationView.prototype);
+  const parts=view.adviceParts("Chào bà con. Điều kiện đáng chú ý: Mặn 2.8 g/L, nước 42.5 cm. Việc nên làm: 1. Đo lại nước ruộng. 2. Theo dõi lá lúa. Cần đo thêm: Chiều cao cây. Khi nào cần nhờ cán bộ nông nghiệp: Khi lúa héo kéo dài.");
+  assert.equal(parts.length,5);
+  assert.equal(parts[1].body,"Mặn 2.8 g/L, nước 42.5 cm.");
+  assert.equal(parts[2].steps.length,2);
+  assert.equal(parts[4].heading,"Khi nào cần nhờ cán bộ nông nghiệp");
+});
+
+test("advice without standard headings preserves each paragraph",()=> {
+  const {simulationView}=classes(); const view=Object.create(simulationView.prototype);
+  const parts=view.adviceParts("Quan sát tại ruộng.\n\nChưa đủ dữ liệu để kết luận.");
+  assert.equal(parts.length,1);
+  assert.equal(parts[0].body,"Quan sát tại ruộng.\n\nChưa đủ dữ liệu để kết luận.");
 });

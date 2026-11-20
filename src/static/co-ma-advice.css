@@ -1,0 +1,58 @@
+.co-ma-advice-card {
+  margin-top: 22px; padding: 24px; min-width: 0;
+  border: 1px solid #bcd5c5; border-radius: 18px;
+  background: linear-gradient(145deg, #f3f9f3, #fff 45%);
+  box-shadow: 0 5px 22px #163c2910; color: #264b3b;
+}
+.co-ma-advice-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; padding-bottom: 18px; border-bottom: 1px solid #dce8df; }
+.co-ma-advice-identity { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.co-ma-advice-identity img { display: block; flex: none; width: 46px; height: 46px; border: 1px solid #cadfce; border-radius: 14px; background: #fff9e7; object-fit: cover; }
+.co-ma-advice-eyebrow { display: block; margin-bottom: 3px; color: #617b6b; font-size: 11px; font-weight: 600; letter-spacing: .025em; }
+.co-ma-advice-card .co-ma-advice-header h3 { margin: 0; font: 750 20px/1.35 "Be Vietnam Pro", system-ui, sans-serif; letter-spacing: -.025em; color: #14503b; }
+.co-ma-advice-card .co-ma-advice-button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 14px; background: #195d43; border: 1px solid #195d43; border-radius: 10px; color: #fff; font-size: 13px; }
+.co-ma-advice-card .co-ma-advice-button:hover:enabled { background: #104c34; }
+.co-ma-advice-card .co-ma-advice-button:disabled { opacity: .6; }
+.co-ma-advice-badge { padding: 6px 10px; border-radius: 20px; background: #e7f1e9; color: #42664e; font-size: 11px; font-weight: 650; }
+.co-ma-advice-context { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 16px; }
+.co-ma-advice-context:empty { display: none; }
+.co-ma-advice-context span { padding: 5px 9px; border: 1px solid #d6e5da; border-radius: 7px; background: #f5faf6; color: #3d6250; font-size: 12px; font-weight: 600; }
+.co-ma-advice-card .co-ma-advice-status { margin: 14px 0 0; color: #65806d; font-size: 12px; line-height: 1.65; }
+.co-ma-advice-card[aria-busy="true"] .co-ma-advice-status { padding: 12px 14px; border-radius: 10px; background: #eaf4ec; color: #205f40; }
+.co-ma-advice-card.is-error .co-ma-advice-status { padding: 12px 14px; border-radius: 10px; background: #fff3e4; color: #835b20; }
+.co-ma-advice-body { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 18px; }
+.co-ma-advice-body:empty { display: none; }
+.co-ma-advice-section { min-width: 0; padding: 16px 18px; background: #f5f8f3; border: 1px solid #e2eadd; border-radius: 12px; }
+.co-ma-advice-card .co-ma-advice-section h4 { margin: 0 0 9px; font-size: 14px; font-weight: 750; line-height: 1.5; color: #1c543c; }
+.co-ma-advice-card .co-ma-advice-section p, .co-ma-advice-card .co-ma-advice-section li { margin: 0; font-size: 14px; line-height: 1.85; overflow-wrap: anywhere; white-space: pre-line; }
+.co-ma-advice-card .co-ma-advice-section p + p { margin-top: 12px; }
+.co-ma-advice-intro, .co-ma-advice-conditions, .co-ma-advice-actions { grid-column: 1 / -1; }
+.co-ma-advice-intro { padding: 0 0 2px; background: transparent; border: 0; }
+.co-ma-advice-actions { border-color: #c5dfcc; background: #edf6ee; }
+.co-ma-advice-section ol { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 28px; margin: 0; padding-left: 23px; }
+.co-ma-advice-section li::marker { color: #24704b; font-weight: 750; }
+.co-ma-advice-sources { margin-top: 18px; padding: 0 14px; border: 1px solid #d9e5dc; border-radius: 10px; background: #fbfdfb; }
+.co-ma-advice-sources > summary { display: flex; align-items: center; gap: 8px; min-height: 46px; list-style: none; color: #3d6650; font-size: 12px; font-weight: 650; cursor: pointer; }
+.co-ma-advice-sources > summary::-webkit-details-marker { display: none; }
+.co-ma-advice-sources > summary > span { padding: 1px 6px; border-radius: 5px; background: #e7efe8; font-variant-numeric: tabular-nums; }
+.co-ma-advice-sources > summary > svg:last-child { margin-left: auto; transition: transform 150ms; }
+.co-ma-advice-sources[open] > summary > svg:last-child { transform: rotate(180deg); }
+.co-ma-advice-source-list { display: grid; gap: 10px; padding: 2px 0 15px; }
+.co-ma-advice-source-list a { display: block; padding: 9px 12px; border-radius: 7px; background: #f0f6f0; color: #2b6449; font-size: 12px; line-height: 1.6; overflow-wrap: anywhere; }
+.co-ma-advice-source-list a:hover { text-decoration: underline; text-underline-offset: 3px; }
+.co-ma-advice-note { display: flex; align-items: flex-start; gap: 9px; margin-top: 18px; padding-top: 15px; border-top: 1px solid #e2e9e0; }
+.co-ma-advice-card .co-ma-advice-note p { margin: 0; color: #71806e; font-size: 11px; line-height: 1.75; }
+.co-ma-advice-card .app-icon { position: static; display: block; flex: 0 0 17px; width: 17px; height: 17px; transform: none; }
+.co-ma-advice-note .app-icon { margin-top: 2px; color: #73886f; }
+.co-ma-advice-card :is(button,summary,a):focus-visible { outline: 2px solid #27734b; outline-offset: 3px; }
+.sim-advice-dialog { width: min(48rem, calc(100% - 1.5rem)); background: #f9fbf7; }
+.sim-advice-dialog .co-ma-advice-card { padding: 20px; }
+.sim-advice-dialog .co-ma-advice-body, .sim-advice-dialog .co-ma-advice-section ol { grid-template-columns: minmax(0,1fr); }
+.sim-advice-dialog .sim-advice-context { margin-bottom: 12px; font-size: 11px; color: #71816f; }
+.sim-advice-dialog .sim-advice-detail { padding: 8px 0 4px; }
+.sim-advice-dialog .sim-advice-steps strong { display: block; margin-bottom: 5px; font-size: 14px; color: #244e38; }
+@media (max-width: 800px) {
+  .co-ma-advice-card { padding: 18px; }
+  .co-ma-advice-body, .co-ma-advice-section ol { grid-template-columns: minmax(0,1fr); }
+  .co-ma-advice-section { padding: 14px; }
+  .co-ma-advice-intro { padding: 0; }
+}

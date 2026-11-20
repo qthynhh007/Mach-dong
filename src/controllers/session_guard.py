@@ -3,13 +3,42 @@ from __future__ import annotations
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from functools import wraps
+from hmac import compare_digest
 from typing import Any
+from urllib.parse import urlencode, urlsplit
 
-from flask import current_app, g, has_request_context, jsonify, request
+from flask import current_app, g, has_request_context, jsonify, redirect, request
 
 from src.config import SESSION_COOKIE_NAME
 from src.models.user import User, UserRole, UserSession
 from src.services.auth_service import AuthService
+
+
+def safe_workspace_path(value: str | None) -> str:
+    if not isinstance(value, str) or not value.startswith("/") or value.startswith("//") or "\\" in value or any(ord(char) < 32 for char in value):
+        return "/community"
+    parsed = urlsplit(value)
+    if parsed.scheme or parsed.netloc or parsed.path in ("/login", "/register", "/admin") or parsed.path.startswith("/api/"):
+        return "/community"
+    return value
+
+
+def protect_workspace():
+    public_endpoints = {"static", "auth.login", "auth.register", "auth.api_login",
+                        "auth.api_register", "auth.api_send_email_otp", "auth.api_reset_password",
+                        "auth.get_session_status"}
+    if request.endpoint is None or request.endpoint in public_endpoints or request.path == "/":
+        return None
+    auth = get_current_auth()
+    if auth is None:
+        if request.path.startswith("/api/"):
+            return jsonify(data=None, error="Bà con đăng nhập để dùng Mạch Đồng nha."), 401
+        return redirect("/login?" + urlencode({"next": request.full_path.rstrip("?")}))
+    if request.method not in ("GET", "HEAD", "OPTIONS"):
+        _, csrf = extract_tokens_from_context()
+        if not isinstance(csrf, str) or not compare_digest(csrf.encode(), auth[1].csrf_token.encode()):
+            return jsonify(data=None, error="Thiếu hoặc sai mã bảo mật CSRF. Hãy tải lại trang."), 403
+    return None
 
 
 @dataclass

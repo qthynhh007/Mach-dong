@@ -25,7 +25,7 @@
   </div>
 
   <!-- Registration Form -->
-  <form class="space-y-space-md" id="registerForm" data-auth-form="register">
+  <form class="space-y-space-md" id="registerForm" data-auth-form="register" method="post" action="/api/auth/register">
     <div class="auth-two-col">
       <div class="auth-field-group">
         <label class="font-label-sm text-on-surface font-semibold" for="displayName">Tên nông hộ hoặc HTX *</label>
@@ -38,24 +38,24 @@
     </div>
 
     <div class="auth-two-col auth-email-verification">
-      <div class="auth-field-group">
+      <div class="auth-field-group auth-register-email">
         <label class="font-label-sm text-on-surface font-semibold" for="emailInput">Email nhận mã OTP *</label>
         <div class="auth-otp-row">
           <input id="emailInput" name="email" type="email" autocomplete="email" required data-wallet-email-source placeholder="vidu@gmail.com" class="flex-1 min-w-0">
-          {% if email_otp_available %}<button type="button" id="btnSendOtpRegister" class="app-button px-3 py-2 font-label-sm font-bold shrink-0">
-            Gửi mã
-          </button>{% endif %}
+          <button type="button" id="btnSendOtpRegister" class="app-button px-3 py-2 font-label-sm font-bold shrink-0">
+            Gửi mã xác nhận
+          </button>
         </div>
       </div>
-      {% if email_otp_available %}<div class="auth-field-group">
+      <div class="auth-field-group auth-register-phone">
+        <label class="font-label-sm text-on-surface font-semibold" for="identifierInput">Số điện thoại (+84) *</label>
+        <input required autocomplete="tel" id="identifierInput" name="phone" value="+84" placeholder="+84912345678" type="tel">
+      </div>
+      <div class="auth-field-group auth-register-code">
         <label class="font-label-sm text-on-surface font-semibold" for="registerOtpInput">Mã xác nhận (6 số) *</label>
-        <input id="registerOtpInput" name="otp_code" type="text" required maxlength="6" inputmode="numeric" placeholder="6 chữ số">
-      </div>{% endif %}
-    </div>
-
-    <div class="auth-field-group">
-      <label class="font-label-sm text-on-surface font-semibold" for="identifierInput">Số điện thoại (+84) *</label>
-      <input required autocomplete="tel" id="identifierInput" name="phone" value="+84" placeholder="+84912345678" type="tel">
+        <input id="registerOtpInput" name="otp_code" type="text" required pattern="[0-9]{6}" maxlength="6" inputmode="numeric" autocomplete="one-time-code">
+      </div>
+      <p class="auth-otp-help">Mã có hiệu lực 5 phút. Kiểm tra cả thư rác nếu chưa nhận được email.</p>
     </div>
 
     <div class="auth-two-col">

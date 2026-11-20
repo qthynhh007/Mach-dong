@@ -139,12 +139,11 @@
       <div class="assistant-stage">
         <img id="assistant-mascot-still" src="{{ url_for('static', filename='assets/co-ma/welcome.webp') }}"
              width="360" height="420" alt="Cò Mạ đội nón lá vẫy cánh">
-        <video id="assistant-mascot-video" width="360" height="420" muted playsinline preload="none" hidden
+        <video id="assistant-mascot-video" width="360" height="420" autoplay loop muted playsinline preload="auto" hidden
                data-source="{{ url_for('static', filename='assets/co-ma/welcome.webm') }}" aria-hidden="true"></video>
       </div>
       <div class="assistant-mascot-footer">
         <h2>Cò Mạ</h2>
-        <button class="app-button" id="assistant-mascot-replay" type="button" hidden>{{ icon("play") }} Phát lại</button>
       </div>
       <a class="assistant-simulation-link" href="{{ url_for('simulation.simulation') }}">
         {{ icon("grass") }}<span>Thử điều kiện ruộng trong mô phỏng</span>{{ icon("arrow_forward") }}

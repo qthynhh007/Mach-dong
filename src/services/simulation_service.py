@@ -20,5 +20,9 @@ class simulationService:
     def forecast(self, locationId: str) -> dict:
         return self.weather.forecast(locationId)
 
+    def advice(self, payload: object) -> dict:
+        inputs = simulationInput.parse(payload)
+        return self.cloud.request("/api/simulation/advice", inputs.payload)
+
     def history(self) -> dict:
         return self.cloud.request("/api/datasets/weather-history")

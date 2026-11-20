@@ -4,10 +4,11 @@ import {simulationError, simulationInput} from "./model.mjs";
 import {simulationEngine} from "./engine.mjs";
 import {weatherClient} from "./weather.mjs";
 import {aiClient} from "./ai.mjs";
-import {accountController} from "./auth.mjs";
+import {accountController, accountError} from "./auth.mjs";
 import {communityController} from "./community.mjs";
 import {assistantController} from "./assistant.mjs";
 import {referenceFiles} from "./reference.mjs";
+import {adviseScenario} from "./advice.mjs";
 
 const weatherCache = new Map();
 const aiRates = new Map();
@@ -31,8 +32,13 @@ export class simulationController {
   async handle(request) {
     const url = new URL(request.url);
     if (url.pathname.startsWith("/api/account/")) return new accountController(this.env,this.fetcher).handle(request);
+    let caller;
+    if (url.pathname.startsWith("/api/") && url.pathname !== "/api/health") {
+      try { caller = (await new accountController(this.env,this.fetcher).session(request,!["GET","HEAD","OPTIONS"].includes(request.method))).row; }
+      catch (error) { return jsonResponse(null,error instanceof accountError ? error.status : 503,error instanceof accountError ? error.message : "Không kiểm tra được phiên đăng nhập. Bà con thử lại sau nha."); }
+    }
     if (url.pathname.startsWith("/api/community/")) return new communityController(this.env).handle(request);
-    if (url.pathname === "/api/assistant/generate") return new assistantController(this.env,this.fetcher).handle(request);
+    if (url.pathname === "/api/assistant/generate") return new assistantController(this.env,this.fetcher,caller.user_id).handle(request);
     if (url.pathname === "/downloads/MachDong.exe") {
       if (request.method !== "GET" && request.method !== "HEAD") return jsonResponse(null,405,"Chỉ hỗ trợ tải tệp.");
       const file = await this.env.BUCKET.get("releases/MachDong-v0.1.1.exe");
@@ -50,7 +56,7 @@ export class simulationController {
       const name = url.pathname.slice("/api/reference/".length);
       if (request.method !== "GET" && request.method !== "HEAD") return jsonResponse(null,405,"Chỉ hỗ trợ đọc dữ liệu tham chiếu.");
       if (!Object.hasOwn(referenceFiles,name)) return jsonResponse(null,404,"Không tìm thấy dữ liệu tham chiếu.");
-      return new Response(request.method === "HEAD" ? null : referenceFiles[name],{headers:{"Content-Type":name.endsWith(".csv") ? "text/csv; charset=utf-8" : "application/json; charset=utf-8","Cache-Control":"public, max-age=300","X-Content-Type-Options":"nosniff"}});
+      return new Response(request.method === "HEAD" ? null : referenceFiles[name],{headers:{"Content-Type":name.endsWith(".csv") ? "text/csv; charset=utf-8" : "application/json; charset=utf-8","Cache-Control":"no-store, private","X-Content-Type-Options":"nosniff"}});
     }
     if (request.method === "GET" && url.pathname === "/") {
       return new Response(`<!doctype html><html lang="vi"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Mạch Đồng · Dữ liệu mô phỏng</title><style>body{font:17px system-ui;background:#f4f7f4;color:#163d2b;max-width:850px;margin:8vh auto;padding:24px;line-height:1.7}a{color:#166849}section{background:white;padding:25px;border-radius:20px;margin:20px 0}code{font-size:14px}</style><h1>Mạch Đồng · Dữ liệu mô phỏng lúa</h1><p>API dùng chung cho ứng dụng. Dữ liệu có nguồn, đơn vị và phiên bản; không suy diễn tỷ lệ cây sống khi thiếu dữ liệu kiểm định.</p><p><a href="/downloads/MachDong.exe"><strong>Tải ứng dụng Windows · MachDong.exe</strong></a> · Tải một tệp, nhấp đúp để chạy; cần Internet.</p><section><h2>${catalog.version}</h2><p>${history.rowCount} dòng thời tiết NASA POWER năm ${history.year} tại ${catalog.locations.length} địa điểm đại diện ĐBSCL. Dữ liệu ô lưới, không phải số đo ruộng.</p><p><a href="/api/catalog">Danh mục nguồn và đặc tính OM5451</a> · <a href="/api/datasets/weather-history">Tải dữ liệu lịch sử JSON</a> · <a href="/api/weather?locationId=can-tho">Dự báo Cần Thơ</a> · <a href="/api/health">Trạng thái dịch vụ</a></p></section><section><h2>Giới hạn rõ ràng</h2><p>Mô hình tham chiếu FAO tính ảnh hưởng mặn theo EC nước đất vùng rễ, chưa hiệu chuẩn OM5451. AI chỉ chọn các bằng chứng đã xác minh để giải thích; không tự tạo con số.</p><p>Nguồn: <a href="https://power.larc.nasa.gov/">NASA POWER</a>, <a href="https://open-meteo.com/">Open-Meteo (CC BY 4.0)</a>, FAO, IRRI, Viện Lúa ĐBSCL và các nghiên cứu gốc. API Open-Meteo miễn phí cho mục đích phi thương mại.</p></section></html>`,{headers:{"Content-Type":"text/html; charset=utf-8","Content-Security-Policy":"default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; frame-ancestors 'none'"}});
@@ -63,7 +69,7 @@ export class simulationController {
     if (request.method === "GET" && url.pathname === "/api/catalog") return jsonResponse({...catalog,history:{version:history.version,year:history.year,rowCount:history.rowCount,retrievedAt:history.retrievedAt,downloadPath:"/api/datasets/weather-history"}});
     if (request.method === "GET" && url.pathname === "/api/datasets/weather-history") return jsonResponse(history);
     if (request.method === "GET" && url.pathname === "/api/weather") return jsonResponse(await getWeather(url.searchParams.get("locationId"),this.fetcher));
-    if (url.pathname === "/api/simulation") {
+    if (url.pathname === "/api/simulation" || url.pathname === "/api/simulation/advice") {
       if (request.method !== "POST") return jsonResponse(null,405,"Dùng POST để gửi kịch bản.");
       if (!request.headers.get("content-type")?.startsWith("application/json")) return jsonResponse(null,415,"Yêu cầu JSON.");
       if (Number(request.headers.get("content-length") || 0) > 8192) return jsonResponse(null,413,"Kịch bản quá lớn.");
@@ -79,12 +85,27 @@ export class simulationController {
       let payload;
       try { payload = JSON.parse(await new Blob(parts).text()); } catch { throw new simulationError("JSON không hợp lệ."); }
       const inputs = simulationInput.parse(payload,catalog);
+      if (url.pathname.endsWith("/advice")) {
+        for (const [key,item] of aiRates) if (item.until < Date.now()) aiRates.delete(key);
+        const key = "advice:"+caller.user_id;
+        const rate = aiRates.get(key);
+        if (rate && rate.until > Date.now() && rate.count >= 6) return jsonResponse(null,429,"Đã đạt hạn mức tư vấn. Bà con chờ một phút rồi thử lại nha.");
+        if (aiInFlight >= 2 || aiRates.size >= 5000) return jsonResponse(null,429,"Cò Mạ đang bận. Bà con thử lại sau nha.");
+        aiRates.set(key,{count:rate && rate.until > Date.now() ? rate.count+1 : 1,until:rate && rate.until > Date.now() ? rate.until : Date.now()+60_000});
+        const cached = weatherCache.get(inputs.locationId);
+        if (inputs.useWeather && (!cached || cached.expiresAt < Date.now())) return jsonResponse(null,409,"Chạy lại mô phỏng có dự báo trước khi nhờ tư vấn nha.");
+        const scenario = new simulationEngine(catalog).evaluate(inputs,inputs.useWeather ? cached.value : null);
+        aiInFlight++;
+        try { return jsonResponse(await adviseScenario(this.env,this.fetcher,scenario)); }
+        catch (error) { return jsonResponse(null,error.status || 502,error.message || "Chưa nhận được tư vấn hợp lệ."); }
+        finally { aiInFlight--; }
+      }
       // Fail closed if the explicitly requested weather source is unavailable.
       const weather = inputs.useWeather ? await getWeather(inputs.locationId,this.fetcher) : null;
       const result = new simulationEngine(catalog).evaluate(inputs,weather);
       result.ai = {status:"notRequested",message:"Có thể nhờ AI chọn các bằng chứng cần chú ý."};
       if (inputs.requestAi) {
-        const ip = request.headers.get("cf-connecting-ip") || "unknown";
+        const ip = caller.user_id;
         const now = Date.now();
         for (const [key,item] of aiRates) if (item.until < now) aiRates.delete(key);
         const rate = aiRates.get(ip) || {count:0,until:now+60_000};

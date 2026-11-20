@@ -8,7 +8,7 @@ from src.services.assistant_service import answer_question
 from src.services.cloud_reference_service import referenceUnavailable
 
 blueprint = Blueprint("assistant", __name__)
-ASSISTANT_WAIT_SECONDS = 180
+ASSISTANT_WAIT_SECONDS = 45
 MAX_MESSAGE_LENGTH = 400
 MAX_REPLY_LENGTH = 4096
 MAX_HISTORY_TURNS = 8
@@ -24,7 +24,7 @@ def assistant() -> str:
         compact=request.args.get("view") == "dialog",
         quick_context=request.args.get("context"),
         gemini_enabled=cloudEnabled or bool(current_app.config["GEMINI_API_KEY"]),
-        gemini_model_label="Groq · AI trên máy chủ" if cloudEnabled else GEMINI_MODEL_LABEL,
+        gemini_model_label="AI trên máy chủ · Trả lời theo căn cứ" if cloudEnabled else GEMINI_MODEL_LABEL,
         wait_seconds=ASSISTANT_WAIT_SECONDS,
         max_message_length=MAX_MESSAGE_LENGTH,
         max_history_turns=MAX_HISTORY_TURNS,

@@ -6,6 +6,7 @@
 <link rel="stylesheet" href="/static/assets/stitch-simulation/fonts.css">
 <link rel="stylesheet" href="/static/shell.css"><link rel="stylesheet" href="/static/simulation-workbench.css?v=20261118-report2">
   <link rel="stylesheet" href="{{ url_for('static', filename='simulation-reading.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='co-ma-advice.css') }}">
 </head>
 <body class="app-workspace simulation-report-page">
 {% include "shared/header.html" %}
@@ -37,7 +38,7 @@
         <label class="sim-check"><input name="ecIsSeasonAverage" type="checkbox">EC là trung bình vụ, đo nước đất vùng rễ khi ruộng ngập</label>
         <label class="sim-check"><input name="useWeather" type="checkbox">Dùng nhiệt độ cực đại dự báo tại địa điểm này (tối đa 7 ngày)</label>
       </div>
-      <div class="sim-actions"><button type="submit" id="runSimulation" class="sim-primary" disabled>Mô phỏng và xem báo cáo</button><button type="button" id="askAi" disabled>Nhờ AI chọn bằng chứng</button><span>Mô phỏng không cần khóa AI. AI hỗ trợ đọc báo cáo là tùy chọn.</span></div>
+      <div class="sim-actions"><button type="submit" id="runSimulation" class="sim-primary" disabled>Mô phỏng và xem báo cáo</button><button type="button" id="askAi" disabled>Nhờ Cò Mạ tư vấn</button><span>Mô phỏng không cần khóa AI. AI hỗ trợ đọc báo cáo là tùy chọn.</span></div>
       <p id="formStatus" class="sim-status">Đang tải danh mục từ máy chủ…</p>
     </form>
     <section class="sim-field-card" aria-labelledby="fieldTitle"><div class="sim-field-top"><h2 id="fieldTitle">Thửa ruộng của kịch bản</h2><span id="sceneLabel">Chưa chạy mô phỏng</span></div>

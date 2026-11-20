@@ -7,6 +7,7 @@ import {simulationEngine} from "../engine.mjs";
 import {weatherClient} from "../weather.mjs";
 import {aiClient} from "../ai.mjs";
 import worker from "../worker.mjs";
+import {sessionEnv,sessionHeaders} from "./fixtures/session.mjs";
 
 const base = {varietyId:"OM5451",locationId:"can-tho",stage:"panicle",dayAfterSowing:48,
   salinityGl:2.8,salinitySite:"fieldWater",waterDepthCm:4.5,plantHeightCm:null,
@@ -124,12 +125,12 @@ test("historical bundle is complete with attribution and original missing values
 });
 test("API rejects malformed and oversized requests with JSON errors",async()=> {
   for (const [body,status] of [["bad",400],["x".repeat(8200),413]]) {
-    const response = await worker.fetch(new Request("https://example.test/api/simulation",{method:"POST",headers:{"Content-Type":"application/json"},body}),{});
+    const response = await worker.fetch(new Request("https://example.test/api/simulation",{method:"POST",headers:{...sessionHeaders,"Content-Type":"application/json"},body}),sessionEnv);
     assert.equal(response.status,status); assert.equal((await response.json()).data,null);
   }
 });
 test("API evaluates requested input and missing-key AI state end to end",async()=> {
-  const response = await worker.fetch(new Request("https://example.test/api/simulation",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({...base,requestAi:true})}),{});
+  const response = await worker.fetch(new Request("https://example.test/api/simulation",{method:"POST",headers:{...sessionHeaders,"Content-Type":"application/json"},body:JSON.stringify({...base,requestAi:true})}),sessionEnv);
   assert.equal(response.status,200);
   const result = (await response.json()).data;
   assert.equal(result.ai.status,"notConfigured"); assert.equal(result.inputs.salinityGl,2.8);

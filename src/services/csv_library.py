@@ -77,22 +77,6 @@ DATASETS = (
         "5 ca minh họa · Đo riêng tại ruộng và ngoài kênh",
         ("salinity", "water", "long-huu", "om5451"), "Long Hữu", "15–16/11/2026",
     ),
-    CsvDataset(
-        "salinity", REFERENCE_DIR / "long-huu-man-ruong.csv", "Độ mặn tại ruộng",
-        "Lúa OM5451 · Độ mặn g/L", ("salinity", "long-huu", "om5451"), "Long Hữu", "15/11/2026",
-    ),
-    CsvDataset(
-        "water", REFERENCE_DIR / "ba-tri-muc-nuoc.csv", "Mực nước ruộng",
-        "Độ sâu nước tính từ mặt ruộng · cm", ("water",), "Ba Tri", "15/11/2026",
-    ),
-    CsvDataset(
-        "weather", REFERENCE_DIR / "go-cong-nhiet-do.csv", "Nhiệt độ tại ruộng",
-        "Đơn vị °C", ("weather",), "Gò Công Tây", "15/11/2026",
-    ),
-    CsvDataset(
-        "ph", REFERENCE_DIR / "cu-lao-dung-do-ph.csv", "Độ pH tại ruộng",
-        "Mẫu ghi độ pH", ("ph",), "Cù Lao Dung", "15/11/2026",
-    ),
 )
 
 def listDatasets() -> tuple[CsvDataset, ...]:

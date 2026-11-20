@@ -38,7 +38,7 @@ class mergeIntegrationTests(TestCase):
         self.assertEqual(self.client.get("/forum/" + postId).status_code, 200)
         logout = self.client.post("/api/auth/logout", headers={"X-CSRF-Token": self.login["csrf_token"]}, json={})
         self.assertEqual(logout.status_code, 200)
-        self.assertIsNone(self.client.get("/api/community/session").json["data"]["member"])
+        self.assertEqual(self.client.get("/api/community/session").status_code, 401)
         denied = self.client.delete("/api/community/posts/" + postId, headers={"X-CSRF-Token": session["csrfToken"]})
         self.assertEqual(denied.status_code, 401)
 

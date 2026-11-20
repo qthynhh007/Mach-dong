@@ -8,6 +8,7 @@ from urllib.error import URLError
 from src.main import createApp
 from src.models.simulation import simulationError, simulationInput
 from src.services.cloud_client import cloudClient
+from workspace_helpers import sign_in
 
 
 class testSimulation(TestCase):
@@ -31,6 +32,7 @@ class testSimulation(TestCase):
                               "COMMUNITY_DATABASE": str(Path(directory.name) / "test.sqlite3"),
                               "SIMULATION_TRANSPORT": transport})
         self.client = self.app.test_client()
+        sign_in(self.client)
 
     def testRemoteForwardingPreservesUserData(self):
         self.payload["requestAi"] = True

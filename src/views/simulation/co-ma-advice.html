@@ -1,0 +1,20 @@
+{% from "shared/icon.html" import icon %}
+{% macro advice_card(prefix, with_button=false) -%}
+<section class="co-ma-advice-card" id="{{ prefix }}AdviceCard" aria-labelledby="{{ prefix }}AdviceTitle">
+  <header class="co-ma-advice-header">
+    <div class="co-ma-advice-identity">
+      <img src="{{ url_for('static', filename='assets/co-ma/avatar-co-ma.webp') }}" width="44" height="44" alt="">
+      <div><span class="co-ma-advice-eyebrow">Gợi ý chăm sóc ruộng lúa</span><h3 id="{{ prefix }}AdviceTitle">Cò Mạ tư vấn</h3></div>
+    </div>
+    {% if with_button %}<button type="button" class="app-button co-ma-advice-button" id="explainReport" disabled>{{ icon("sparkles") }} Nhờ Cò Mạ tư vấn</button>{% else %}<span class="co-ma-advice-badge">Tham khảo từ AI</span>{% endif %}
+  </header>
+  <div class="co-ma-advice-context" id="{{ prefix }}AdviceContext"></div>
+  <p class="co-ma-advice-status" id="{{ prefix }}ExplanationStatus" role="status">Chọn Nhờ Cò Mạ tư vấn để xem gợi ý theo điều kiện vừa nhập.</p>
+  <div class="co-ma-advice-body" id="{{ prefix }}Explanation"></div>
+  <details class="co-ma-advice-sources" id="{{ prefix }}AdviceSourcesFold" hidden>
+    <summary>{{ icon("description") }} Nguồn tham khảo <span id="{{ prefix }}AdviceSourceCount"></span>{{ icon("expand_more") }}</summary>
+    <div class="co-ma-advice-source-list" id="{{ prefix }}AdviceSources"></div>
+  </details>
+  <footer class="co-ma-advice-note">{{ icon("fact_check") }}<p id="{{ prefix }}AdviceLimitation">Lời khuyên dựa trên kịch bản giả lập; cần đối chiếu ngoài ruộng và ý kiến cán bộ nông nghiệp.</p></footer>
+</section>
+{%- endmacro %}

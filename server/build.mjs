@@ -14,8 +14,8 @@ for (const name of ["forum-photo-assets.json","rice-field-diaries.json"]) refere
 if (history.rowCount !== history.locations.reduce((sum,location) => sum+location.rows.length,0)) throw new Error("History count mismatch");
 const manifest = JSON.parse(read(".openai/hosting.json"));
 if (!manifest.project_id) throw new Error("Missing Site ID");
-const files = ["model.mjs","engine.mjs","weather.mjs","ai.mjs","auth.mjs","community.mjs","assistant.mjs","worker.mjs"];
-const bundled = files.map(file => read(file).replace(/^import .*;\r?\n/gm,"").replace(/^export class /gm,"class ")).join("\n");
+const files = ["model.mjs","engine.mjs","weather.mjs","ai.mjs","auth.mjs","community.mjs","generative.mjs","advice.mjs","assistant.mjs","worker.mjs"];
+const bundled = files.map(file => read(file).replace(/^import .*;\r?\n/gm,"").replace(/^export (class |async function |const )/gm,"$1")).join("\n");
 mkdirSync(resolve(root,"dist/server"),{recursive:true});
 mkdirSync(resolve(root,"dist/.openai"),{recursive:true});
 writeFileSync(resolve(root,"dist/server/index.js"),`const catalog = ${JSON.stringify(catalog)};\nconst history = ${JSON.stringify(history)};\nconst forumSeed = ${JSON.stringify(forumSeed)};\nconst referenceFiles = ${JSON.stringify(referenceFiles)};\n${bundled}`);

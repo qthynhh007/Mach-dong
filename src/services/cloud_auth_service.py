@@ -19,6 +19,10 @@ from src.models.user import User, UserRole, UserSession
 from src.services.auth_service import AuthResult, AuthService
 
 
+class AuthUnavailable(RuntimeError):
+    """Authentication could not be checked, rather than an invalid session."""
+
+
 class CloudAuthService:
     def __init__(self, api_url: str, transport: Any = None) -> None:
         self.api_url = api_url.rstrip("/")
@@ -174,9 +178,9 @@ class CloudAuthService:
         otp_code: str | None = None,
         auto_create_on_full_profile: bool = False,
     ) -> AuthResult:
-        del name, wallet_address, wallet_mode, auto_create_on_full_profile
+        del name, wallet_address, wallet_mode, auto_create_on_full_profile, otp_code
         return self._call("login", {"identifier": identifier or username or email or phone,
-                                    "password": password, "otp_code": otp_code,
+                                    "password": password,
                                     "device_info": device_info})
 
     def validate_session(
@@ -188,6 +192,8 @@ class CloudAuthService:
         if not session_token:
             return None
         result = self._call("session", token=session_token, csrf=csrf_token if require_csrf else None)
+        if result.status_code >= 500:
+            raise AuthUnavailable("Chưa kết nối được kho tài khoản. Bà con kiểm tra Internet rồi thử lại nha.")
         if not result.ok or not result.data:
             return None
         data = result.data

@@ -1,6 +1,5 @@
 (() => {
   const headerEl = document.querySelector(".app-header");
-  const moreLinks = headerEl?.querySelector(".app-more-links");
   const userId = headerEl?.dataset.userId;
   const profileKey = userId ? `mach-dong-farm-profile-v1:${userId}` : "mach-dong-demo-profile-v1";
   const farmForm = document.getElementById("farm-info-form");
@@ -29,6 +28,13 @@
     "hydrology-station",
   ];
   const field = (id) => document.getElementById(id);
+  document.querySelector("[data-copy-wallet]")?.addEventListener("click", async () => {
+    const status = field("wallet-copy-status");
+    try {
+      await navigator.clipboard.writeText(document.querySelector("[data-profile-wallet]").textContent.trim());
+      status.textContent = "Đã sao chép địa chỉ ví.";
+    } catch { status.textContent = "Chưa sao chép được. Bà con chọn địa chỉ ở trên để sao chép nha."; }
+  });
 
   const avatarInput = field("profile-avatar-file");
   const avatarChoose = field("profile-avatar-choose");
@@ -51,17 +57,6 @@
     } catch (error) { status.textContent = error.message; }
     finally { avatarChoose.disabled = false; avatarInput.value = ""; }
   });
-
-  if (moreLinks) {
-    document.addEventListener("pointerdown", (event) => {
-      if (moreLinks.open && !moreLinks.contains(event.target)) moreLinks.open = false;
-    });
-    document.addEventListener("keydown", (event) => {
-      if (event.key !== "Escape" || !moreLinks.open) return;
-      moreLinks.open = false;
-      moreLinks.querySelector("summary").focus();
-    });
-  }
 
   function getCsrfToken() {
     return headerEl?.dataset.csrfToken || "";
@@ -157,7 +152,7 @@
 
   loadProfile();
   window.addEventListener("pageshow", (event) => {
-    if (event.persisted) loadProfile();
+    if (event.persisted && userId) window.location.reload();
   });
 
   // Inline Dropdown Privacy & Security Panel (drops directly from the label)
@@ -232,12 +227,12 @@
     }
   });
 
-  // Export secp256k1 Private Key to import into Core Wallet / MetaMask
+  // Export secp256k1 khóa riêng tư to import into Core Wallet / MetaMask
   btnExportPrivKey?.addEventListener("click", async () => {
     const csrf = getCsrfToken();
     if (!csrf) {
       if (walletBindMsg) {
-        walletBindMsg.textContent = "Vui lòng đăng nhập để xem Private Key.";
+        walletBindMsg.textContent = "Vui lòng đăng nhập để xem khóa riêng tư.";
         walletBindMsg.style.color = "#b84245";
       }
       return;
@@ -254,7 +249,7 @@
       const payload = await res.json();
       if (!res.ok || payload.error) {
         if (walletBindMsg) {
-          walletBindMsg.textContent = payload.error || "Không thể lấy Private Key.";
+          walletBindMsg.textContent = payload.error || "Không thể lấy khóa riêng tư.";
           walletBindMsg.style.color = "#b84245";
         }
         return;
@@ -428,6 +423,7 @@
       }
       const tx = data?.transaction;
       if (tx && creditTxList) {
+        field("credit-tx-empty")?.remove();
         const row = document.createElement("div");
         row.className =
           "p-2.5 rounded-lg bg-surface-container-low flex items-center justify-between gap-2";

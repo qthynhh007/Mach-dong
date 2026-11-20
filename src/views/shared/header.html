@@ -1,6 +1,6 @@
 {% from "shared/icon.html" import icon %}
 <a class="app-skip-link" href="{{ '#simContentWrapper' if current_page == 'simulation' else '#main-content' }}">Đến nội dung chính</a>
-{% set section_names = {'community':'Kho CSV cộng đồng', 'forum':'Thảo luận bà con', 'simulation':'Mô phỏng sinh lý lúa', 'assistant':'Trợ lý Cò Mạ', 'admin':'Duyệt dữ liệu', 'profile':'Thông tin cá nhân', 'wallet-rules':'Thể lệ quy đổi LÚA'} %}
+{% set section_names = {'community':'Kho CSV cộng đồng', 'forum':'Thảo luận bà con', 'simulation':'Mô phỏng sinh lý lúa', 'assistant':'Trợ lý Cò Mạ', 'profile':'Thông tin cá nhân', 'wallet-rules':'Thể lệ quy đổi LÚA'} %}
 <header class="app-header"{% if auth_user %} data-csrf-token="{{ auth_csrf_token }}" data-user-id="{{ auth_user.user_id }}"{% endif %}>
   <a href="/community" class="app-brand">
     <span class="app-brand-mark">
@@ -8,17 +8,11 @@
     </span>
     <span translate="no">Mạch Đồng</span>
   </a>
+  {% if current_page in section_names %}
   <div class="app-top-nav">
-    {% if current_page in section_names %}
     <span class="app-current-section">{{ section_names[current_page] }}</span>
-    {% endif %}
-    <details class="app-more-links">
-      <summary>{{ icon("menu") }} Danh mục</summary>
-      <nav class="app-more-panel" aria-label="Danh mục Mạch Đồng">
-        {% include "shared/workspace-links.html" %}
-      </nav>
-    </details>
   </div>
+  {% endif %}
   <div class="app-header-account">
     {% if auth_user %}
     {% set role_labels = {"ADMIN": "Quản trị viên", "REVIEWER": "Người duyệt", "FARMER": "Nông hộ"} %}
@@ -31,9 +25,6 @@
       </span>
       {{ icon("chevron_right") }}
     </a>
-    <button type="button" class="app-header-sign-out" aria-label="Đăng xuất" data-logout-btn>
-      {{ icon("log_out") }}<span>Đăng xuất</span>
-    </button>
     {% else %}
     <a class="app-header-sign-in" href="{{ url_for('auth.login') }}" {% if current_page == "login" %}aria-current="page"{% endif %}>Đăng nhập</a>
     <a class="app-button app-button--primary" href="{{ url_for('auth.register') }}" {% if current_page == "register" %}aria-current="page"{% endif %}>Đăng ký</a>

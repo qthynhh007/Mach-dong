@@ -9,6 +9,7 @@
 
 <link rel="stylesheet" href="/static/profile.css">
 <link rel="stylesheet" href="/static/shell.css">
+<link rel="stylesheet" href="/static/wallet.css">
 </head>
 <body class="app-workspace profile-page text-on-surface antialiased" data-cloud-auth="{{ '1' if cloud_auth else '0' }}">
 {% include "shared/header.html" %}
@@ -20,13 +21,13 @@
         Thông tin cá nhân
       </h1>
 <p class="font-body-md text-body-md text-on-surface-variant mt-1">
-        Cập nhật thông tin nông hộ, vùng canh tác và xem thử biểu mẫu đổi mật khẩu.
+        Cập nhật thông tin nông hộ, vùng canh tác và quản lý ví và bảo mật tài khoản.
       </p>
 </div>
 <div class="flex flex-wrap items-center gap-space-sm self-start md:self-auto">
 <button type="button" id="btn-open-privacy-panel" class="app-button app-button--primary px-3.5 py-2 font-label-md text-label-md font-bold flex items-center gap-1.5 shadow-sm">
   <span class="app-icon-wrap text-[16px]">{{ render_icon("lock") }}</span>
-  <span>Bảo mật &amp; Quyền riêng tư</span>
+  <span>Bảo mật và quyền riêng tư</span>
 </button>
 <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary-fixed text-on-primary-fixed font-label-md text-label-md font-semibold">
 <span class="w-2 h-2 rounded-full bg-primary"></span>
@@ -36,179 +37,8 @@
 </div>
 <div class="grid grid-cols-1 xl:grid-cols-12 gap-space-lg items-start">
 <div class="xl:col-span-5 flex flex-col gap-space-lg">
-<div class="app-glass rounded-xl p-space-lg relative overflow-hidden">
-<div class="relative flex flex-col sm:flex-row items-center gap-space-md">
-<div class="profile-avatar-block shrink-0">
-  <img class="profile-avatar" data-user-avatar src="{{ auth_avatar_url }}" width="104" height="104" alt="Ảnh đại diện">
-
-</div>
-<div class="flex flex-col text-center sm:text-left min-w-0 flex-1">
-<div class="flex flex-wrap items-center justify-center sm:justify-start gap-space-xs">
-<h2 class="text-headline-sm font-bold" data-profile-value="farmer-fullname">{{ current_user.name if current_user else 'Chú Năm Ruộng' }}</h2>
-
-</div>
-{% if current_user %}
-<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5 break-all">
-  {{ current_user.email }} · <span data-profile-value="farmer-phone">{{ current_user.phone }}</span>
-</p>
-{% endif %}
-<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5" data-profile-value="farmer-address" data-profile-empty="Chưa cập nhật địa bàn">{{ farm_profile.address or 'Chưa cập nhật địa bàn' }}</p>
-<div class="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-surface-container-high w-fit mx-auto sm:mx-0">
-{% set roles = {'FARMER': 'Nông hộ', 'REVIEWER': 'Người duyệt', 'ADMIN': 'Quản trị viên'} %}
-<span class="font-label-sm text-label-sm font-semibold text-primary">{{ (roles.get(current_user.role, current_user.role) ~ ' · @' ~ current_user.username) if current_user else 'Thành viên HTX Long Hữu' }}</span>
-</div>
-<div class="profile-avatar-actions">
-  {% if current_user %}
-  <input id="profile-avatar-file" name="avatar" type="file" accept="image/jpeg,image/png,image/webp" hidden>
-  <button class="app-button" id="profile-avatar-choose" type="button" aria-describedby="profile-avatar-hint">
-    {{ render_icon("upload_photo") }} Đổi ảnh đại diện
-  </button>
-  <p id="profile-avatar-hint">JPG, PNG, WebP · Tối đa 1 MB</p>
-  {% else %}
-  <a class="app-button" href="{{ url_for('auth.login') }}">Đăng nhập để đổi ảnh</a>
-  {% endif %}
-</div>
-</div>
-</div>
-<p class="profile-avatar-status" id="profile-avatar-status" role="status"></p>
-<div class="mt-space-md pt-space-md flex flex-col gap-space-xs">
-<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-bold">Đóng góp trên diễn đàn</span>
-<div class="grid grid-cols-2 gap-space-sm mt-1">
-<div class="flex items-center gap-space-xs p-2 rounded-lg bg-surface-container-high">
-<div class="w-8 h-8 rounded-lg bg-surface-container-highest flex items-center justify-center text-primary shrink-0">
-<span class="app-icon-wrap text-[18px]">{{ render_icon("description") }}</span>
-</div>
-<div class="flex flex-col min-w-0">
-<span class="font-label-md text-label-md font-bold text-on-surface" id="profile-post-count">{{ contribution_posts }} bài viết</span>
-</div>
-</div>
-<div class="flex items-center gap-space-xs p-2 rounded-lg bg-surface-container-high">
-<div class="w-8 h-8 rounded-lg bg-surface-container-highest flex items-center justify-center text-secondary shrink-0">
-<span class="app-icon-wrap text-[18px]">{{ render_icon("chat") }}</span>
-</div>
-<div class="flex flex-col min-w-0">
-<span class="font-label-md text-label-md font-bold text-on-surface" id="profile-reply-count">{{ contribution_replies }} câu trả lời</span>
-</div>
-</div>
-</div>
-</div>
-</div>
-<div class="app-glass rounded-xl p-space-lg relative overflow-hidden">
-<div class="flex items-center justify-between">
-<div class="flex items-center gap-space-xs">
-<div>
-<h3 class="text-headline-sm font-bold">Ví Điểm Nông Nghiệp</h3>
-<p class="font-label-sm text-label-sm text-on-surface-variant uppercase">Quỹ hỗ trợ mùa màng</p>
-</div>
-</div>
-<a class="app-button" href="{{ url_for('auth.wallet_rules') }}">{{ render_icon("wallet") }} Thể lệ</a>
-</div>
-<div class="mt-space-md p-space-md rounded-xl bg-primary text-on-primary flex flex-col justify-between relative overflow-hidden min-h-[130px]">
-<div class="flex items-center justify-between z-10">
-<span class="font-label-sm text-label-sm tracking-widest uppercase text-on-primary/80">Số Dư Hiện Có</span>
-<span class="font-label-sm text-label-sm bg-on-primary/20 backdrop-blur-sm px-2 py-0.5 rounded text-on-primary">Số dư minh họa</span>
-</div>
-<div class="z-10 my-2">
-<div class="flex flex-wrap items-baseline justify-between gap-2">
-  <div class="flex items-baseline gap-2">
-    <span class="tabular-nums text-[36px] font-bold tracking-tight" data-profile-credits>{{ current_user.simulation_credits if current_user else 350 }}</span>
-    <span class="font-headline-sm text-headline-sm font-bold text-primary-fixed">LÚA</span>
-  </div>
-  <div class="px-2.5 py-1 rounded-lg bg-on-primary/15 text-sm font-bold">
-    <span data-profile-avax>{{ '%.4f'|format(current_user.avax_balance) if current_user else '2.5000' }}</span> <span>AVAX</span>
-  </div>
-</div>
-<p class="font-body-sm text-body-sm text-on-primary/85">
-  Số dư AVAX và điểm thưởng LÚA · Ví Avalanche Fuji Testnet (43113)
-  {% if onchain_credits is not none %}
-  · <span class="bg-primary-fixed/20 px-1.5 py-0.5 rounded font-mono font-bold text-primary-fixed text-xs">On-chain Fuji: {{ onchain_credits }} LÚA</span>
-  {% endif %}
-</p>
-<p class="text-xs text-on-primary/90 mt-1 break-all">
-  Ví Fuji (secp256k1): <code data-profile-wallet>{{ current_user.wallet_address if current_user else 'Đăng nhập để hiển thị địa chỉ 0x...' }}</code>
-  {% if current_user and current_user.wallet_address %}
-  · <a href="https://testnet.snowtrace.io/address/{{ current_user.wallet_address }}" target="_blank" rel="noopener" class="underline font-bold text-primary-fixed">Xem trên Snowtrace ↗</a>
-  {% endif %}
-</p>
-</div>
-<div class="z-10 flex items-center justify-between pt-2 border-t border-on-primary/15 font-label-sm text-label-sm text-on-primary/75">
-<span>Chủ thẻ · <span data-profile-value="farmer-fullname">{{ current_user.name if current_user else 'Trần Văn Năm' }}</span></span>
-<span data-profile-wallet-type>{{ current_user.wallet_type if current_user else 'AUTO_EMAIL' }}</span>
-</div>
-</div>
-
-<!-- Credit Changer: Transact In-App LÚA Token <-> AVAX on Avalanche Fuji -->
-<div class="mt-space-md p-space-md rounded-xl bg-surface-container-low border border-outline-variant/40 space-y-space-sm" id="credit-changer-box" data-credits-per-avax="{{ credits_per_avax or 100 }}">
-  <div class="flex flex-wrap items-center justify-between gap-2">
-    <div>
-      <h4 class="text-label-md font-bold uppercase">Quy đổi điểm LÚA ↔ AVAX (Fuji Testnet)</h4>
-      <p class="font-label-sm text-label-sm text-on-surface-variant">Tỷ giá: 1 AVAX = {{ credits_per_avax or 100 }} LÚA (0.01 AVAX = 1 LÚA)</p>
-    </div>
-    <button type="button" id="btn-faucet-avax" class="app-button px-2.5 py-1 font-label-sm text-label-sm font-bold">
-      + Nhận 1 AVAX thử nghiệm
-    </button>
-  </div>
-
-  <form id="credit-exchange-form" class="space-y-space-sm">
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-      <label class="app-choice text-xs font-semibold">
-        <input type="radio" name="exchange_direction" value="AVAX_TO_CREDIT" checked>
-        <span>AVAX → Điểm LÚA (Nạp điểm)</span>
-      </label>
-      <label class="app-choice text-xs font-semibold">
-        <input type="radio" name="exchange_direction" value="CREDIT_TO_AVAX">
-        <span>Điểm LÚA → AVAX (Rút về ví)</span>
-      </label>
-    </div>
-
-    <div class="flex flex-wrap items-center gap-2">
-      <div class="relative flex-1 min-w-[160px]">
-        <input id="exchange-amount-input" type="number" step="0.01" min="0.01" value="0.50" required class="w-full h-10 px-3 rounded-lg bg-surface-container-lowest text-on-surface font-label-md text-label-md focus:outline-none focus:ring-2 focus:ring-primary">
-        <span id="exchange-unit-label" class="absolute right-3 top-2.5 font-label-sm text-label-sm font-bold text-on-surface-variant">AVAX</span>
-      </div>
-      <button type="submit" id="btn-submit-exchange" class="app-button app-button--primary h-10 px-4 font-label-md text-label-md font-bold">
-        Quy đổi giả lập
-      </button>
-    </div>
-
-    <div class="flex items-center justify-between text-xs text-on-surface-variant">
-      <span>Ước tính nhận: <strong id="exchange-preview-output" class="text-primary">+50 LÚA</strong></span>
-      <span id="exchange-status-msg" role="status" class="font-semibold text-primary"></span>
-    </div>
-  </form>
-</div>
-
-<div class="mt-space-md">
-<div class="flex items-center justify-between mb-space-xs">
-<span class="font-label-sm text-label-sm font-bold uppercase text-on-surface-variant">Biến động ví điểm</span>
-
-</div>
-<div class="flex flex-col gap-2" id="credit-tx-list">
-{% if credit_transactions %}
-  {% for tx in credit_transactions %}
-  <div class="p-2.5 rounded-lg bg-surface-container-low flex items-center justify-between gap-2">
-    <div class="flex items-center gap-2 min-w-0">
-      <span class="w-7 h-7 rounded-full bg-primary-fixed text-primary flex items-center justify-center font-bold text-sm shrink-0">{{ '↓' if tx.credit_delta >= 0 else '↑' }}</span>
-      <div class="flex flex-col min-w-0">
-        <span class="font-body-sm text-body-sm font-semibold text-on-surface truncate">{{ tx.note }}</span>
-        {% if tx.direction == 'AVAX_TO_CREDIT' and tx.note.endswith('(On-chain Fuji)') and tx.tx_hash.startswith('0x') and tx.tx_hash|length == 66 %}
-        <span class="font-label-sm text-label-sm text-on-surface-variant truncate">Đã gửi Fuji · <a href="https://testnet.snowtrace.io/tx/{{ tx.tx_hash }}" target="_blank" rel="noopener" class="underline font-bold text-primary hover:text-primary/80"><code>{{ tx.tx_hash[:10] }}...{{ tx.tx_hash[-6:] }} ↗</code></a></span>
-        {% else %}
-        <span class="font-label-sm text-label-sm text-on-surface-variant truncate">Mã mô phỏng: <code>{{ tx.tx_hash[:14] }}...{{ tx.tx_hash[-6:] }}</code></span>
-        {% endif %}
-      </div>
-    </div>
-    <span class="font-label-md text-label-md font-bold {{ 'text-primary' if tx.credit_delta >= 0 else 'text-secondary' }} shrink-0">
-      {% if tx.direction == 'FAUCET_TOPUP' %}+{{ '%.2f'|format(tx.avax_amount) }} AVAX{% elif tx.credit_delta >= 0 %}+{{ tx.credit_delta }} LÚA{% else %}{{ tx.credit_delta }} LÚA{% endif %}
-    </span>
-  </div>
-  {% endfor %}
-{% else %}
-  <p id="credit-tx-empty" class="text-sm text-on-surface-variant">Chưa có giao dịch trong ví.</p>
-{% endif %}
-</div>
-</div>
-</div>
+{% include "auth/profile-summary.html" %}
+{% include "auth/wallet.html" %}
 </div>
 <div class="xl:col-span-7 flex flex-col gap-space-lg">
 <div class="app-glass rounded-xl p-space-lg">
@@ -218,7 +48,7 @@
 <span class="app-icon-wrap text-[22px]">{{ render_icon("description") }}</span>
 </div>
 <div>
-<h3 class="text-headline-sm font-bold">Thông tin Nông hộ &amp; Vùng canh tác</h3>
+<h3 class="text-headline-sm font-bold">Thông tin nông hộ và vùng canh tác</h3>
 <p class="font-body-sm text-body-sm text-on-surface-variant">{{ 'Thông tin được lưu vào tài khoản của bạn.' if current_user else 'Hồ sơ dùng thử được lưu trên trình duyệt này.' }}</p>
 </div>
 </div>
@@ -284,7 +114,7 @@
 <p id="save-info-msg" role="status" class="font-body-sm text-body-sm text-primary font-semibold"></p>
 <button class="app-button app-button--primary ml-auto px-space-lg py-2.5 font-headline-sm text-body-md font-bold flex items-center gap-2" id="btn-save-farmer-info" type="submit">
 <span class="app-icon-wrap text-[18px]">{{ render_icon("save") }}</span>
-<span>Lưu Thông Tin Canh Tác</span>
+<span>Lưu thông tin canh tác</span>
 </button>
 </div>
 </form>
@@ -301,8 +131,8 @@
         <span class="app-icon-wrap text-[22px]">{{ render_icon("lock") }}</span>
       </div>
       <div>
-        <h3 class="text-headline-sm font-bold text-on-surface group-hover:text-primary transition-colors">Bảo Mật &amp; Đổi Mật Khẩu</h3>
-        <p class="font-body-sm text-body-sm text-on-surface-variant">Nhấn để mở xuống: đổi địa chỉ ví C-Chain Fuji, xem Private Key và đổi mật khẩu.</p>
+        <h3 class="text-headline-sm font-bold text-on-surface group-hover:text-primary transition-colors">Bảo mật và đổi mật khẩu</h3>
+        <p class="font-body-sm text-body-sm text-on-surface-variant">Mở để quản lý địa chỉ ví, xem khóa riêng tư và đổi mật khẩu.</p>
       </div>
     </div>
     <span id="privacy-dropdown-chevron" class="app-icon-wrap text-[22px] text-primary transition-transform duration-200 shrink-0">{{ render_icon("expand_more") }}</span>
@@ -315,12 +145,12 @@
       <div class="flex flex-wrap items-center justify-between gap-2">
         <span class="font-label-md font-bold text-primary uppercase">🔗 Ví C-Chain Fuji (secp256k1)</span>
         <button type="button" id="btn-export-privkey" class="app-button px-2.5 py-1 font-label-sm text-label-sm font-bold">
-          🔑 Hiện Private Key
+          🔑 Hiện khóa riêng tư
         </button>
       </div>
 
       <div id="exported-privkey-box" class="hidden p-2.5 rounded-lg bg-surface-container-lowest border border-primary/40 text-xs break-all space-y-1">
-        <span class="font-semibold text-primary">Private Key (secp256k1) để Import vào Core / MetaMask:</span>
+        <span class="font-semibold text-primary">Khóa riêng tư (secp256k1) để nhập vào Core / MetaMask:</span>
         <code id="exported-privkey-value" class="block font-bold text-on-surface select-all"></code>
       </div>
 
@@ -338,7 +168,7 @@
       </div>
 
       {% if email_otp_available %}<div class="flex flex-col gap-1">
-        <label class="font-label-sm text-label-sm font-bold text-on-surface-variant uppercase" for="wallet-otp-input">Mã xác nhận Email (6 chữ số) *</label>
+        <label class="font-label-sm text-label-sm font-bold text-on-surface-variant uppercase" for="wallet-otp-input">Mã xác nhận email (6 chữ số) *</label>
         <div class="flex gap-2">
           <input id="wallet-otp-input" type="text" maxlength="6" inputmode="numeric" placeholder="Nhập 6 số gửi về Email" class="flex-1 h-10 px-3 rounded-lg bg-surface-container-lowest text-xs font-label-md text-on-surface border border-outline-variant tracking-widest">
           <button type="button" id="btn-send-wallet-otp" class="app-button h-10 px-3 font-label-sm text-label-sm font-bold shrink-0">

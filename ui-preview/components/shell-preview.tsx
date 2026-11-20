@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  ChevronDown, ChevronRight, ClipboardCheck, LogOut, MapPin,
+  ChevronDown, ChevronRight, LogOut, MapPin,
   MessageSquareText, Sparkles, Sprout, Table2,
 } from "lucide-react";
 import { MotionConfig, motion } from "motion/react";
@@ -11,19 +11,18 @@ import coMaLogo from "../../src/static/assets/stitch-simulation/co-ma-logo.png";
 import portrait from "../../src/static/assets/stitch-profile-portrait.jpg";
 import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
 
-type SectionId = "community" | "forum" | "simulation" | "assistant" | "admin" | "profile";
+type SectionId = "community" | "forum" | "simulation" | "assistant" | "profile";
 
 const sections = {
   community: { title: "Kho CSV cộng đồng", short: "Kho CSV", icon: Table2 },
   forum: { title: "Thảo luận bà con", short: "Diễn đàn", icon: MessageSquareText },
   simulation: { title: "Mô phỏng sinh lý lúa", short: "Mô phỏng", icon: Sprout },
   assistant: { title: "Trợ lý Cò Mạ", short: "Trợ lý Cò Mạ", icon: Sparkles },
-  admin: { title: "Duyệt dữ liệu", short: "Duyệt dữ liệu", icon: ClipboardCheck },
   profile: { title: "Hồ sơ nông hộ", short: "Hồ sơ", icon: Sprout },
 };
 
 const primarySections: SectionId[] = ["community", "forum", "simulation"];
-const secondarySections: SectionId[] = ["assistant", "admin"];
+const secondarySections: SectionId[] = ["assistant"];
 const sidebarSections = [...primarySections, ...secondarySections];
 
 interface NavButtonProps {

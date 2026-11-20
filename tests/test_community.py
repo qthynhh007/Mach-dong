@@ -13,6 +13,7 @@ from PIL import Image
 from src.main import createApp
 from src.models.community import communityMember
 from src.services.community_service import communityError
+from workspace_helpers import sign_in
 
 
 class communityTests(TestCase):
@@ -30,6 +31,8 @@ class communityTests(TestCase):
         self.app = createApp(self.config)
         self.owner = self.app.test_client()
         self.reader = self.app.test_client()
+        sign_in(self.owner, "test_owner")
+        sign_in(self.reader, "test_reader")
         self.ownerSession = self.owner.get("/api/community/session").json["data"]
         self.readerSession = self.reader.get("/api/community/session").json["data"]
 
@@ -87,6 +90,7 @@ class communityTests(TestCase):
         self.assertFalse(other["canEdit"])
         self.assertEqual(other["title"], post["title"])
         restarted = createApp(self.config).test_client()
+        sign_in(restarted, "test_owner")
         self.assertEqual(
             restarted.get("/api/community/posts/" + post["id"]).json["data"]["post"][
                 "body"
@@ -430,7 +434,7 @@ class communityTests(TestCase):
 
     def testValidationCsrfAndMalformedRequests(self) -> None:
         path = "/api/community/posts"
-        self.assertEqual(self.owner.post(path, json=self.payload()).status_code, 403)
+        self.assertEqual(self.owner.post(path, json=self.payload(), headers={"X-CSRF-Token":""}).status_code, 403)
         self.assertEqual(
             self.owner.post(
                 path, json=self.payload(), headers={"X-CSRF-Token": "wrong"}
@@ -499,18 +503,19 @@ class communityTests(TestCase):
     def testLoginAdapterAndReadOnlyAnonymousMode(self) -> None:
         self.app.config["COMMUNITY_ALLOW_GUESTS"] = False
         anonymous = self.app.test_client()
-        self.assertEqual(anonymous.get("/forum").status_code, 200)
-        self.assertEqual(anonymous.get("/forum/new").status_code, 200)
+        self.assertEqual(anonymous.get("/forum").status_code, 302)
+        self.assertEqual(anonymous.get("/forum/new").status_code, 302)
         self.assertEqual(anonymous.get("/api/community/draft").status_code, 401)
         self.assertEqual(
-            self.send(anonymous, "posts", "POST", self.payload()).status_code, 401
+            anonymous.post("/api/community/posts",json=self.payload()).status_code, 401
         )
         with anonymous.session_transaction() as loginSession:
             loginSession["userId"] = "tan-user-1"
             loginSession["displayName"] = "Nông hộ thật"
+        self.assertEqual(anonymous.get("/forum").status_code, 302)
+        identity = sign_in(anonymous, "test_adapter")
         post = self.createPost(anonymous)
-        self.assertEqual(post["authorId"], "user:tan-user-1")
-        self.assertEqual(post["author"], "Nông hộ thật")
+        self.assertEqual(post["authorId"], "user:"+identity["user"]["user_id"])
         self.app.config["COMMUNITY_IDENTITY_PROVIDER"] = lambda: communityMember(
             "provider:1", "Tài khoản tích hợp"
         )
@@ -519,10 +524,13 @@ class communityTests(TestCase):
     def testSamplesAreLabeledAndSeededOnlyOnce(self) -> None:
         config = {**self.config, "COMMUNITY_SEED_SAMPLES": True}
         app = createApp(config)
-        posts = app.test_client().get("/api/community/posts").json["data"]
+        client = app.test_client()
+        sign_in(client)
+        posts = client.get("/api/community/posts").json["data"]
         self.assertEqual(posts["total"], 13)
         self.assertTrue(all(post["isSample"] for post in posts["items"]))
         client = app.test_client()
+        sign_in(client)
         diaries = [p for p in client.get("/api/community/posts?pageSize=30").json["data"]["items"]
                    if p["id"].startswith("nhat-ky-")]
         self.assertEqual(len(diaries), 10)
@@ -537,13 +545,9 @@ class communityTests(TestCase):
             self.assertIn(diary["authorId"], {reply["authorId"] for reply in replies})
         with app.extensions["communityService"].model.transaction() as store:
             store.deletePost("muong-lo")
-        self.assertEqual(
-            createApp(config)
-            .test_client()
-            .get("/api/community/posts")
-            .json["data"]["total"],
-            12,
-        )
+        restarted = createApp(config).test_client()
+        sign_in(restarted)
+        self.assertEqual(restarted.get("/api/community/posts").json["data"]["total"],12)
 
     def testUnknownResourcesDoNotCreateLocalPlaceholderPages(self) -> None:
         for path in (
@@ -553,7 +557,7 @@ class communityTests(TestCase):
         ):
             self.assertEqual(self.owner.get(path).status_code, 404)
         response = self.owner.get("/api/community/posts")
-        self.assertEqual(response.headers["Cache-Control"], "no-store")
+        self.assertIn("no-store", response.headers["Cache-Control"])
 
     def test_member_profile_only_lists_public_activity_for_that_member(self) -> None:
         post = self.createPost(title="Quan trắc ruộng")
@@ -561,7 +565,7 @@ class communityTests(TestCase):
         self.send(self.owner, "draft", "PUT", self.payload(title="Bản nháp riêng", version=0))
         self.send(self.owner, "posts/" + other["id"] + "/replies", "POST", {"body": "Đã xem số đo."})
         self.send(self.reader, "posts/" + post["id"] + "/vote", "PUT", {"active": True})
-        response = self.app.test_client().get("/api/community/members/" + post["authorId"])
+        response = self.reader.get("/api/community/members/" + post["authorId"])
         self.assertEqual(response.status_code, 200)
         profile = response.json["data"]
         self.assertEqual(profile["displayName"], post["author"])
@@ -580,6 +584,7 @@ class communityTests(TestCase):
         config["COMMUNITY_SEED_EDITORIAL"] = True
         for _ in range(2):
             client = createApp(config).test_client()
+            sign_in(client)
             listing = client.get("/api/community/posts?topic=references&pageSize=25").json["data"]
             self.assertEqual(listing["total"], 20)
             items = listing["items"]

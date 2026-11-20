@@ -1,5 +1,8 @@
 # AgriData · Mạch Đồng
 
+> Bản sửa cục bộ 21/11/2026: chạy `scripts/run-local.py`, bắt buộc đăng nhập, có tư vấn Gemini, ví mới và ẩn tab duyệt trong MVP. Xem [kế hoạch và kiểm thử](docs/ke-hoach-sua-chuc-nang-2026-11-20.md). Thay đổi chưa phát hành cloud; thông tin bản EXE công khai bên dưới là bản trước.
+
+
 Bản MVC + Service phục vụ cộng đồng và mô phỏng điều kiện canh tác OM5451. Mô phỏng và dữ liệu chạy qua API cloud; có bản Windows EXE không cần cài Python hoặc AI cục bộ. Xem [hướng dẫn mô phỏng, nguồn dữ liệu, cấu hình AI và phát hành EXE](docs/simulation.md).
 
 API công khai: [Mạch Đồng · Dữ liệu mô phỏng](https://mach-dong-rice-data.artfulmica6.chatgpt.site). Có 2.920 dòng NASA POWER năm 2025 tại 8 điểm ĐBSCL, dự báo Open-Meteo và 12 nguồn tham chiếu. Groq với model `openai/gpt-oss-20b` đã được bật trên máy chủ và kiểm thử gọi thật ngày 18/11/2026. Trong tab Mô phỏng, chọn **Nhờ AI chọn bằng chứng** để nhận báo cáo có các mục AI lưu ý. Người dùng không cần nhập key; gói AI miễn phí có hạn mức. AI chọn bằng chứng có sẵn, không tự sinh con số năng suất.
@@ -22,7 +25,7 @@ Khi thêm class Tailwind vào HTML, chạy `npm install` và `npm run build:css`
 
 | Trang | Đường dẫn | Xem thử |
 |---|---|---|
-| Kho CSV cộng đồng | `/community` | Tìm và lọc 4 bộ mẫu, tải CSV, chọn hoặc thả tệp UTF-8 để kiểm tra cấu trúc và xem trước |
+| Kho CSV cộng đồng | `/community` | Tìm và lọc các bộ dữ liệu có nguồn, tải CSV, chọn hoặc thả tệp UTF-8 để kiểm tra cấu trúc và xem trước |
 | Diễn đàn | `/forum` | Tìm không dấu, lọc chủ đề/trạng thái/bài của tôi, sắp xếp và phân trang |
 | Đăng bài | `/forum/new` | Soạn bài, đính kèm tối đa 4 ảnh, lưu/khôi phục/xóa bản nháp riêng |
 | Chi tiết bài | `/forum/<postId>` | Trả lời theo chuỗi, đánh dấu hữu ích, chọn giải đáp, sửa/xóa nội dung của mình |
@@ -35,7 +38,7 @@ Khi thêm class Tailwind vào HTML, chạy `npm install` và `npm run build:css`
 
 Đăng nhập và đăng ký dùng [kho tài khoản cloud](docs/cloud-accounts.md) theo mặc định; máy người dùng không lưu cơ sở dữ liệu tài khoản. Xác minh email và khôi phục mật khẩu cần cấu hình dịch vụ email trên Site. CSV tải lên hiện chỉ được đọc để xem trước. Các CSV minh họa trong `server/data/reference` và bài có nhãn “Dữ liệu mẫu” là giả lập; bộ NASA POWER trên cloud là dữ liệu thực từ nguồn có ghi metadata. Phần trăm cây sống chờ số liệu thực địa và mô hình được kiểm định.
 
-Bài viết, câu trả lời, lượt hữu ích, bản nháp và thông tin ruộng của tài khoản được lưu trong D1 trên máy chủ; ảnh diễn đàn nằm trong R2. CSV mẫu, bản tin trạm và nguồn tra cứu của Cò Mạ cũng được đọc từ Site, không đóng gói trong EXE. Hai máy đăng nhập cùng tài khoản sẽ thấy cùng dữ liệu. Khách chưa đăng nhập chỉ được đọc diễn đàn. SQLite cộng đồng chỉ còn dùng cho kiểm thử cục bộ. Xem [sơ đồ lưu trữ cloud](docs/cloud-storage.md) và [hướng dẫn module](docs/community.md).
+Bài viết, câu trả lời, lượt hữu ích, bản nháp và thông tin ruộng của tài khoản được lưu trong D1 trên máy chủ; ảnh diễn đàn nằm trong R2. CSV mẫu, bản tin trạm và nguồn tra cứu của Cò Mạ cũng được đọc từ Site, không đóng gói trong EXE. Hai máy đăng nhập cùng tài khoản sẽ thấy cùng dữ liệu. Bản mã nguồn hiện tại yêu cầu đăng nhập để dùng các trang và API ứng dụng. SQLite cộng đồng chỉ còn dùng cho kiểm thử cục bộ. Xem [sơ đồ lưu trữ cloud](docs/cloud-storage.md) và [hướng dẫn module](docs/community.md).
 
 Bản hợp nhất các nhánh ngày 18/11/2026 giữ mô phỏng Groq trên cloud, hình ruộng mới, bộ dữ liệu cộng đồng, trợ lý, đăng nhập và ví Fuji. Xem [biên bản hợp nhất và kiểm tra](docs/integration-2026-11-18.md). Khóa Groq chỉ nằm trên cloud, dùng cho mô phỏng và trợ lý; người dùng không nhập khóa. `.env` được giữ ngoài Git.
 

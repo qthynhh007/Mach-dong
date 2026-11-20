@@ -13,7 +13,6 @@
   const revealedCredits = document.getElementById("revealedCredits");
   const revealedAvax = document.getElementById("revealedAvax");
 
-  const btnSendOtpLogin = document.getElementById("btnSendOtpLogin");
   const btnSendOtpForgot = document.getElementById("btnSendOtpForgot");
   const btnSendOtpRegister = document.getElementById("btnSendOtpRegister");
   const btnForgotPasswordLink = document.getElementById("btnForgotPasswordLink");
@@ -94,18 +93,20 @@
   });
 
   // Send 6-digit Email Confirmation Code (OTP) — never shows wallet code on login
-  async function requestEmailOtp(emailOrUsername, otpInputEl, requireExisting = false) {
+  async function requestEmailOtp(emailOrUsername, otpInputEl, requireExisting = false, button = null) {
     const cleanInput = (emailOrUsername || "").trim();
-    if (!cleanInput || (!requireExisting && !cleanInput.includes("@"))) {
+    if (!cleanInput || (!requireExisting && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanInput))) {
       setStatus(
         requireExisting
-          ? "Vui lòng nhập Email hoặc Tên đăng nhập trước khi bấm Gửi mã."
+          ? "Vui lòng nhập Email hoặc tên đăng nhập trước khi bấm Gửi mã."
           : "Vui lòng nhập địa chỉ Email hợp lệ trước khi bấm Gửi mã.",
         true
       );
       return;
     }
     setStatus(`Đang kiểm tra và gửi mã xác nhận 6 số cho ${cleanInput}...`);
+    if (button) button.disabled = true;
+    let sent = false;
     try {
       const response = await fetch("/api/auth/send-otp", {
         method: "POST",
@@ -121,34 +122,36 @@
         return;
       }
       const data = result.data;
+      sent = true;
       if (data.smtp_sent) {
         setStatus(
           `Đã gửi mã xác nhận 6 số tới hộp thư ${data.email} (hiệu lực 5 phút). Vui lòng kiểm tra Email!`
         );
       } else if (data.dev_otp_code) {
         setStatus(
-          `Đã gửi mã xác nhận cho ${data.email}: [${data.dev_otp_code}] (Chế độ thử nghiệm chưa cấu hình SMTP_APP_PASSWORD).`
+          `[Giả lập cục bộ] Mã xác nhận: ${data.dev_otp_code}. Chưa gửi email thật.`
         );
       }
       otpInputEl?.focus();
     } catch {
       setStatus("Lỗi kết nối máy chủ khi gửi mã xác nhận Email.", true);
+    } finally {
+      if (button && sent) {
+        let remaining = 60;
+        button.textContent = `Gửi lại sau ${remaining}s`;
+        const timer = window.setInterval(() => {
+          button.textContent = `Gửi lại sau ${--remaining}s`;
+          if (remaining <= 0) { window.clearInterval(timer); button.textContent = "Gửi lại mã"; button.disabled = false; }
+        },1000);
+      } else if (button) button.disabled = false;
     }
   }
-
-  btnSendOtpLogin?.addEventListener("click", () => {
-    requestEmailOtp(
-      document.getElementById("identifierInput")?.value,
-      document.getElementById("otpCodeInput"),
-      false
-    );
-  });
 
   btnSendOtpForgot?.addEventListener("click", () => {
     requestEmailOtp(
       document.getElementById("forgotEmailInput")?.value,
       document.getElementById("forgotOtpInput"),
-      true
+      true, btnSendOtpForgot
     );
   });
 
@@ -156,8 +159,15 @@
     requestEmailOtp(
       document.getElementById("emailInput")?.value,
       document.getElementById("registerOtpInput"),
-      false
+      false, btnSendOtpRegister
     );
+  });
+  document.getElementById("emailInput")?.addEventListener("input", () => {
+    const code = document.getElementById("registerOtpInput");
+    if (code) code.value = "";
+  });
+  document.getElementById("registerOtpInput")?.addEventListener("input", event => {
+    event.target.value = event.target.value.replace(/\D/g, "").slice(0,6);
   });
 
   // Connect Browser Wallet (Core / MetaMask) on /register
@@ -186,15 +196,14 @@
     event.preventDefault();
     const idVal = document.getElementById("identifierInput")?.value?.trim() || "";
     const password = document.getElementById("secretInput")?.value || "";
-    const otpCode = document.getElementById("otpCodeInput")?.value?.trim() || "";
     const rememberMe = Boolean(document.getElementById("rememberMeInput")?.checked);
 
     const payload = {
       identifier: idVal,
       email: idVal.includes("@") ? idVal : "",
       password,
-      otp_code: otpCode,
       remember_me: rememberMe,
+      next: new URLSearchParams(window.location.search).get("next"),
     };
 
     setStatus("Đang xác thực đăng nhập...");
@@ -214,7 +223,7 @@
         `Đăng nhập thành công! Xin chào ${u.name} (${u.role}) · Điểm hiện có: ${u.simulation_credits} LÚA`
       );
       setTimeout(() => {
-        window.location.href = "/profile";
+        window.location.replace(result.data.redirect_to || "/community");
       }, 700);
     } catch {
       setStatus("Lỗi kết nối máy chủ khi đăng nhập.", true);

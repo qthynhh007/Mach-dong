@@ -7,6 +7,7 @@ from unittest.mock import patch
 from urllib.error import URLError
 
 from src.main import createApp
+from workspace_helpers import sign_in
 from src.services.cloud_reference_service import (
     cloudReferenceService,
     referenceUnavailable,
@@ -26,6 +27,7 @@ class cloudReferenceTests(TestCase):
 
         app = createApp({"TESTING": True, "SECRET_KEY": "test-only", "REFERENCE_API_URL": "https://example.test", "REFERENCE_API_TRANSPORT": transport})
         client = app.test_client()
+        sign_in(client)
         with patch.object(Path, "read_bytes", side_effect=AssertionError("local file read")):
             library = client.get("/community")
             self.assertEqual(library.status_code, 200)

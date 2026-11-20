@@ -319,13 +319,13 @@ class TestAuthAndSession(TestCase):
         otp_code = otp_resp.json["data"].get("dev_otp_code")
         self.assertTrue(otp_code)
 
-        # Login with seeded admin via Email + 6-digit OTP code
+        # Login uses email and password; confirmation codes belong to signup/recovery.
         login = client.post(
             "/api/auth/login",
             json={
                 "identifier": "tanvuthanh313130911@gmail.com",
                 "email": "tanvuthanh313130911@gmail.com",
-                "otp_code": otp_code,
+                "password": "adminadmin",
             },
         )
         self.assertEqual(login.status_code, 200)
@@ -399,5 +399,5 @@ class TestAuthAndSession(TestCase):
         )
         self.assertEqual(ok_logout.status_code, 200)
         self.assertFalse(client.get("/api/auth/session").json["data"]["authenticated"])
-        self.assertTrue(client.get("/api/community/session").json["data"]["member"]["isGuest"])
+        self.assertEqual(client.get("/api/community/session").status_code, 401)
         self.assertEqual(normalize_vn_phone("0911421604"), "+84911421604")

@@ -5,6 +5,7 @@ from urllib.parse import urlsplit
 from urllib.request import Request, urlopen
 
 from src.models.simulation import simulationError
+from src.services.cloud_session import cloud_session_headers
 
 
 class cloudClient:
@@ -19,7 +20,7 @@ class cloudClient:
         body = json.dumps(payload, allow_nan=False).encode("utf-8") if payload is not None else None
         request = Request(self.baseUrl + path, data=body,
                           headers={"Content-Type": "application/json", "Accept": "application/json",
-                                   "User-Agent": "MachDongDesktop/2.0"})
+                                   "User-Agent": "MachDongDesktop/2.0", **cloud_session_headers()})
         try:
             with self.transport(request, timeout=35) as response:
                 raw = response.read(2_000_001)
@@ -37,6 +38,6 @@ class cloudClient:
                     message = parsed["error"][:500]
             except (ValueError, AttributeError):
                 pass
-            raise simulationError(message, error.code if error.code in (400, 413, 415, 429, 502, 503) else 502) from error
+            raise simulationError(message, error.code if error.code in (400, 401, 403, 413, 415, 429, 502, 503, 504) else 502) from error
         except (URLError, TimeoutError, OSError, ValueError) as error:
             raise simulationError("Không kết nối được máy chủ. Cần Internet để mô phỏng; hãy thử lại.", 503) from error

@@ -2,24 +2,23 @@ import os
 import secrets
 from pathlib import Path
 
-from flask import Flask, Response, redirect, request
+from flask import Flask, Response, g, jsonify, redirect, render_template, request
 from werkzeug.exceptions import HTTPException
 
 from src.config import DB_PATH, MAX_CSV_BYTES, SIMULATION_API_URL, STATE_DIR
 from src.controllers import (
-    admin_controller,
     assistant_controller,
     auth_controller,
     community_controller,
     forum_controller,
     simulation_controller,
 )
-from src.controllers.session_guard import get_current_auth
+from src.controllers.session_guard import get_current_auth, protect_workspace
 from src.models.community import communityModel
 from src.models.user import SQLiteUserRepository
 from src.services.auth_service import AuthService
 from src.services.cloud_assistant_service import cloudAssistantService
-from src.services.cloud_auth_service import CloudAuthService
+from src.services.cloud_auth_service import AuthUnavailable, CloudAuthService
 from src.services.cloud_client import cloudClient
 from src.services.cloud_community_service import cloudCommunityService
 from src.services.cloud_reference_service import cloudReferenceService
@@ -144,9 +143,23 @@ def createApp(testConfig: dict | None = None) -> Flask:
         simulation_controller,
         auth_controller,
         assistant_controller,
-        admin_controller,
     ):
         app.register_blueprint(controller.blueprint)
+
+    app.before_request(protect_workspace)
+
+    @app.errorhandler(AuthUnavailable)
+    def handle_auth_unavailable(error: AuthUnavailable):
+        g.current_auth = None
+        if request.path.startswith("/api/"):
+            return jsonify(data=None, error=str(error)), 503
+        return render_template("forum/error.html",current_page="login",message=str(error)),503
+
+    @app.after_request
+    def prevent_workspace_caching(response: Response) -> Response:
+        if request.endpoint != "static":
+            response.headers["Cache-Control"] = "no-store, private"
+        return response
 
     @app.get("/")
     def home() -> Response:

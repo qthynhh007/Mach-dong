@@ -91,7 +91,7 @@ def answer_question(api_key: str, messages: Sequence[ChatMessage]) -> dict:
     )
     if any(source_id not in by_id for source_id in source_ids):
         raise GeminiError("Cò Mạ chưa xác thực được nguồn trong câu trả lời. Bà con thử hỏi lại nha.")
-    if not source_ids:
+    if not source_ids and not cloud:
         reply = (
             "Cò Mạ cần thêm căn cứ trước khi hướng dẫn. Bà con cho biết nơi trồng, "
             "giai đoạn cây và dấu hiệu đang gặp nha."

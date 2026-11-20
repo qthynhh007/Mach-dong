@@ -7,6 +7,7 @@ from unittest.mock import MagicMock, patch
 from urllib.error import HTTPError, URLError
 
 from main import create_app
+from workspace_helpers import sign_in
 from src.services.assistant_sources import select_knowledge
 
 
@@ -22,6 +23,7 @@ class TestAssistant(TestCase):
                 "GEMINI_API_KEY": "",
             }
         ).test_client()
+        sign_in(self.client)
 
     def test_local_mode_and_missing_api_key(self) -> None:
         self.assertIn("Chưa kết nối Gemini", self.client.get("/assistant").text)
@@ -40,7 +42,7 @@ class TestAssistant(TestCase):
         self.client.application.config["GEMINI_API_KEY"] = "test-key"
         page = self.client.get("/assistant").text
         self.assertIn("Gemini 3.5 Flash", page)
-        self.assertIn('data-wait-seconds="180"', page)
+        self.assertIn('data-wait-seconds="45"', page)
         self.assertNotIn("test-key", page)
         source_id = "KN-RICE-SALINITY-SOC-TRANG"
         urlopen.return_value = BytesIO(

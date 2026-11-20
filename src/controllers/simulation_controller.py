@@ -32,6 +32,12 @@ class simulationController:
 
     def catalog(self):
         return self.respond(lambda: self.service().catalog())
+    def advice(self):
+        if not request.is_json:
+            return jsonify(data=None, error="Yêu cầu JSON."), 415
+        if request.content_length and request.content_length > 8192:
+            return jsonify(data=None, error="Kịch bản quá lớn."), 413
+        return self.respond(lambda: self.service().advice(request.get_json(silent=True)))
     def weather(self):
         return self.respond(lambda: self.service().forecast(request.args.get("locationId", "")))
     def history(self):
@@ -46,6 +52,7 @@ controller = simulationController()
 blueprint.add_url_rule("/simulation", endpoint="simulation", view_func=controller.index)
 blueprint.add_url_rule("/simulation/report", endpoint="report", view_func=controller.report)
 blueprint.add_url_rule("/api/simulation", view_func=controller.simulate, methods=["POST"])
+blueprint.add_url_rule("/api/simulation/advice", view_func=controller.advice, methods=["POST"])
 blueprint.add_url_rule("/api/simulation/catalog", view_func=controller.catalog)
 blueprint.add_url_rule("/api/simulation/weather", view_func=controller.weather)
 blueprint.add_url_rule("/api/simulation/history", view_func=controller.history)

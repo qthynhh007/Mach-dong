@@ -1,4 +1,5 @@
 {% from "shared/icon.html" import icon %}
+{% from "simulation/co-ma-advice.html" import advice_card %}
 <section id="reportPanel" class="sim-reading" role="tabpanel" aria-labelledby="tab-reportPanel" tabindex="0"{% if active_tab != 'bao-cao' %} hidden{% endif %}>
   <div class="sim-card reading-card">
     <div class="sim-form-heading">
@@ -16,9 +17,7 @@
     <section id="reportAdvice" hidden>
       <h3>Việc cần kiểm tra ngoài ruộng</h3>
       <div id="reportAdviceSteps"></div>
-      <button type="button" class="action-label" id="explainReport">{{ icon("chat") }} Nhờ AI chọn bằng chứng</button>
-      <p id="reportExplanationStatus" role="status"></p>
-      <p id="reportExplanation" style="white-space:pre-line"></p>
+      {{ advice_card("report", true) }}
     </section>
     <details class="report-fold report-days">
     <summary>Diễn biến theo ngày</summary>
@@ -63,6 +62,9 @@
     <button type="button" class="action-label" id="loadWeather" disabled>{{ icon("download") }} Tải dự báo 7 ngày</button>
     </div>
     <p>Nhiệt độ và mưa là dữ liệu ô lưới. Độ mặn, nước ruộng và chiều cao cây vẫn cần đo tại chỗ.</p>
+    <label class="sim-weather-location" for="weatherLocation">Địa điểm xem dự báo
+      <select id="weatherLocation" disabled><option value="">Đang tải địa điểm…</option></select>
+    </label>
     <p id="weatherMeta" role="status">Tải dự báo để xem số liệu từng ngày tại địa điểm đã chọn.</p>
     <div class="sim-table-wrap">
       <table aria-label="Dự báo thời tiết theo ngày">
