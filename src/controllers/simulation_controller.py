@@ -1,13 +1,19 @@
 from flask import Blueprint, current_app, jsonify, render_template, request
-
 from src.models.simulation import simulationError
 
 blueprint = Blueprint("simulation", __name__)
 
-
 class simulationController:
+    @staticmethod
+    def activeTab(default):
+        value = request.args.get("tab", default)
+        return value if value in {"mo-phong", "bao-cao", "thoi-tiet"} else default
+
     def index(self):
-        return render_template("simulation/index.html", current_page="simulation")
+        return render_template("simulation/index.html", current_page="simulation", active_tab=self.activeTab("mo-phong"), stage_options=zip(("seedling", "tillering", "panicle", "flowering", "ripening"), ((0,"Mạ non"),(0,"Đẻ nhánh"),(0,"Làm đòng"),(0,"Trổ bông"),(0,"Chín vàng"))))
+
+    def report(self):
+        return render_template("simulation/cloud.html", current_page="simulation", active_tab=self.activeTab("bao-cao"))
 
     def respond(self, action):
         try:
@@ -26,22 +32,19 @@ class simulationController:
 
     def catalog(self):
         return self.respond(lambda: self.service().catalog())
-
     def weather(self):
         return self.respond(lambda: self.service().forecast(request.args.get("locationId", "")))
-
     def history(self):
         response = self.respond(lambda: self.service().history())
         if not isinstance(response, tuple):
             response.headers["Content-Disposition"] = 'attachment; filename="NASA-POWER-Mekong.json"'
         return response
-
     def service(self):
         return current_app.extensions["simulationService"]
 
-
 controller = simulationController()
 blueprint.add_url_rule("/simulation", endpoint="simulation", view_func=controller.index)
+blueprint.add_url_rule("/simulation/report", endpoint="report", view_func=controller.report)
 blueprint.add_url_rule("/api/simulation", view_func=controller.simulate, methods=["POST"])
 blueprint.add_url_rule("/api/simulation/catalog", view_func=controller.catalog)
 blueprint.add_url_rule("/api/simulation/weather", view_func=controller.weather)

@@ -1,12 +1,25 @@
 {% from "shared/icon.html" import icon %}
-{% from "shared/co-ma.html" import co_ma %}
+{% from "shared/co-ma.html" import co_ma, co_ma_wave %}
+{% set contextual_questions = {
+  'simulation': [
+    ('Đo mực nước', 'Đo mực nước tại ruộng như thế nào?'),
+    ('Mặn ngoài kênh', 'Cần kiểm tra gì trước khi lấy nước kênh vào ruộng?')
+  ],
+  'community': [
+    ('Độ mặn Cầu Quan', 'Độ mặn thực đo tại Cầu Quan là bao nhiêu?'),
+    ('Mực nước Cần Thơ', 'Mực nước thực đo tại trạm Cần Thơ là bao nhiêu?')
+  ],
+  'forum': [
+    ('Mặn kênh và mặn ruộng', 'Độ mặn ở trạm Cầu Quan có dùng tưới ruộng được không?'),
+    ('Số đo ở ruộng Long Hữu', 'Mực nước hiện tại tại ruộng Long Hữu là bao nhiêu?')
+  ]
+}.get(quick_context) %}
 <!doctype html>
-<html lang="vi">
+<html lang="vi"{% if compact %} class="assistant-dialog-document"{% endif %}>
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Lời khuyên Cò Mạ về trồng cây, dinh dưỡng, sâu bệnh, mặn và ngập.">
-  <link rel="preload" as="image" href="{{ url_for('static', filename='assets/co-ma/emotions.png') }}">
   <title>Trợ lý Cò Mạ · Mạch Đồng</title>
   <link rel="icon" href="{{ url_for('static', filename='assets/stitch-simulation/co-ma-logo.png') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='shell.css') }}">
@@ -15,29 +28,30 @@
   {% include "shared/navigation-head.html" %}
   <script src="{{ url_for('static', filename='assistant.js') }}" defer></script>
 </head>
-<body class="app-workspace">
+<body class="{{ 'assistant-compact' if compact else 'app-workspace' }}">
+{% if not compact %}
 {% include "shared/header.html" %}
 {% include "shared/sidebar.html" %}
+{% endif %}
 <main id="main-content" class="assistant-main app-content" tabindex="-1">
+  {% if not compact %}
   <div class="assistant-heading">
     <div>
       <h1 class="app-page-title">Trợ lý Cò Mạ</h1>
-      <p>Hỏi về cách trồng, cải tạo đất, sâu bệnh, mặn và ngập. Lời đáp chỉ dùng tài liệu tham khảo đã duyệt.</p>
+      <p>Hỏi về cách trồng, cải tạo đất, sâu bệnh, mặn và ngập.</p>
     </div>
-    <a class="assistant-secondary app-button app-control" href="{{ url_for('simulation.simulation') }}">
-      Mở mô phỏng {{ icon("arrow_forward") }}
-    </a>
   </div>
+  {% endif %}
 
   <div class="assistant-layout">
     <section class="assistant-chat app-glass" aria-labelledby="assistant-chat-title">
       <div class="assistant-chat-header">
         <div class="assistant-chat-identity">
-          <div class="assistant-avatar">{{ co_ma() }}</div>
+          {% if not compact %}{{ co_ma_wave(44) }}{% endif %}
           <div>
-            <h2 id="assistant-chat-title">Trò chuyện với Cò Mạ</h2>
+            <h2 id="assistant-chat-title"{% if compact %} class="assistant-visually-hidden"{% endif %}>Trò chuyện với Cò Mạ</h2>
             <span class="assistant-mode" id="assistant-status" role="status">
-              {{ gemini_model_label if gemini_enabled else "Tra cứu dữ liệu · Chưa kết nối Gemini" }}
+              {{ gemini_model_label if gemini_enabled else "Tra cứu tài liệu · Chưa kết nối Gemini" }}
             </span>
           </div>
         </div>
@@ -47,12 +61,21 @@
       <div class="assistant-transcript" id="assistant-transcript" role="log"
            aria-labelledby="assistant-chat-title" tabindex="0">
         <ol class="assistant-messages" id="assistant-messages">
+          {% if not compact %}
+          <li class="assistant-welcome">
+            <span class="assistant-welcome-icon">{{ icon("sparkles") }}</span>
+            <h2>Hôm nay bà con muốn hỏi gì?</h2>
+            <p>Cho Cò biết cây đang trồng, giai đoạn và điều bà con thấy ngoài ruộng.</p>
+            {% include "assistant/starters.html" %}
+          </li>
+          {% else %}
           <li class="assistant-message assistant-message--co-ma">
             <span class="assistant-speaker">Cò Mạ</span>
             <div class="assistant-bubble">
               <p>Chào bà con, Cò Mạ đây! Bà con đang trồng cây gì? Cho Cò biết cây ở giai đoạn nào và trồng chậu, lên luống hay ngoài vườn nha.</p>
             </div>
           </li>
+          {% endif %}
         </ol>
       </div>
 
@@ -60,7 +83,7 @@
         <section class="assistant-pending" id="assistant-pending" aria-labelledby="assistant-pending-title" hidden>
           <div class="assistant-pending-avatar" aria-hidden="true">{{ co_ma() }}</div>
           <div class="assistant-pending-copy">
-            <h3 id="assistant-pending-title"><span aria-hidden="true"></span>Cò Mạ đang soạn lời đáp</h3>
+            <h3 id="assistant-pending-title">Cò Mạ đang soạn lời đáp…</h3>
             <p id="assistant-pending-detail">Bà con có thể soạn câu hỏi tiếp theo trong lúc chờ.</p>
           </div>
           <div class="assistant-pending-actions">
@@ -75,24 +98,32 @@
           </div>
           <div class="assistant-wait-track" aria-hidden="true"><span id="assistant-wait-fill"></span></div>
         </section>
-        <div class="assistant-starters" id="assistant-starters" aria-label="Câu hỏi gợi ý" role="group">
-          {% if gemini_enabled %}
-          <button type="button" class="app-button" data-question="Trồng dưa leo trong chậu bắt đầu thế nào?">Trồng dưa leo</button>
-          <button type="button" class="app-button" data-question="Làm sao cải tạo đất để trồng rau cải?">Cải tạo đất</button>
-          <button type="button" class="app-button" data-question="Cà chua trồng chậu bị đen ở đáy quả. Có cần bón canxi ngay không?">Cà chua đen đáy quả</button>
-          {% endif %}
-          <button type="button" class="app-button" data-question="Đọc số đo mặn và ngập tại LH-03">Ca ngập mẫu LH-03</button>
-          <button type="button" class="app-button" data-question="Độ mặn thực đo tại Cầu Quan là bao nhiêu?">Độ mặn Cầu Quan</button>
-        </div>
+        {% if compact %}{% include 'assistant/starters.html' %}{% endif %}
         <form class="assistant-composer" id="assistant-form"
               data-chat-url="{{ url_for('assistant.chat') }}"
               data-wait-seconds="{{ wait_seconds }}"
               data-history-limit="{{ max_history_turns }}">
+          <div class="assistant-attachment" id="assistant-attachment" hidden>
+            <img id="assistant-image-preview" alt="Ảnh chuẩn bị gửi cho Cò Mạ" width="72" height="72">
+            <div><span class="assistant-attachment-eyebrow">Ảnh đính kèm</span><strong id="assistant-image-name"></strong><span>Cò Mạ sẽ xem ảnh cùng câu hỏi.</span></div>
+            <button class="app-button icon-action" id="assistant-image-remove" type="button" aria-label="Gỡ ảnh đính kèm">{{ icon("close") }}</button>
+          </div>
           <label for="assistant-input" class="assistant-visually-hidden">Câu hỏi của bạn</label>
           <textarea id="assistant-input" name="message" rows="2" maxlength="{{ max_message_length }}"
-                    placeholder="{{ 'Ví dụ, ớt bị vàng lá thì kiểm tra gì trước?' if gemini_enabled else 'Ví dụ, độ mặn trạm Cầu Quan hoặc ca LH-03' }}" autocomplete="off" required disabled></textarea>
-          <button type="submit" class="app-button app-button--primary" id="assistant-send" disabled>Gửi {{ icon("arrow_forward") }}</button>
+                    placeholder="Ví dụ: lúa đang làm đòng, lá hơi vàng…" aria-describedby="assistant-composer-hint assistant-image-hint" autocomplete="off" disabled></textarea>
+          <p class="assistant-upload-status" id="assistant-upload-status" role="status"></p>
+          <div class="assistant-composer-tools">
+            <input id="assistant-image" name="image" type="file" accept="image/jpeg,image/png,image/webp" hidden>
+            <button type="button" class="app-button action-label assistant-attach" id="assistant-image-choose" hidden title="Đính kèm ảnh cây trồng" aria-label="Đính kèm ảnh cây trồng" aria-describedby="assistant-image-hint">{{ icon("upload_photo") }}<span>Thêm ảnh</span></button>
+            <span class="assistant-composer-count" id="assistant-character-count" aria-label="Số ký tự đã nhập">0 / {{ max_message_length }}</span>
+            <button type="submit" class="app-button app-button--primary action-label assistant-send" id="assistant-send" title="Gửi câu hỏi" aria-label="Gửi câu hỏi" disabled><span class="assistant-send-spinner" aria-hidden="true"></span><span id="assistant-send-label">Gửi</span>{{ icon("arrow_forward") }}</button>
+          </div>
         </form>
+        <div class="assistant-composer-footnote">
+          <p id="assistant-composer-hint"><kbd>Enter</kbd> gửi · <kbd>Shift + Enter</kbd> xuống dòng</p>
+          <p class="assistant-image-hint" id="assistant-image-hint">Mô tả dấu hiệu trên cây bằng chữ; Cò Mạ đối chiếu tài liệu có nguồn.</p>
+        </div>
+        {% if not gemini_enabled %}<p class="assistant-vision-note">Phân tích ảnh sẽ khả dụng khi kết nối Gemini được bật.</p>{% endif %}
         <div class="assistant-feedback" id="assistant-feedback" hidden>
           <div>
             <p class="assistant-error" id="assistant-error" role="alert"></p>
@@ -104,11 +135,21 @@
       </div>
     </section>
 
-    <aside class="assistant-mascot app-glass" aria-label="Linh vật Cò Mạ">
+    {% if not compact %}<aside class="assistant-mascot" aria-label="Linh vật Cò Mạ">
       <div class="assistant-stage">
-        {{ co_ma("Cò nông dân đội nón lá, quàng khăn rằn và cầm cuốc") }}
+        <img id="assistant-mascot-still" src="{{ url_for('static', filename='assets/co-ma/welcome.webp') }}"
+             width="360" height="420" alt="Cò Mạ đội nón lá vẫy cánh">
+        <video id="assistant-mascot-video" width="360" height="420" muted playsinline preload="none" hidden
+               data-source="{{ url_for('static', filename='assets/co-ma/welcome.webm') }}" aria-hidden="true"></video>
       </div>
-    </aside>
+      <div class="assistant-mascot-footer">
+        <h2>Cò Mạ</h2>
+        <button class="app-button" id="assistant-mascot-replay" type="button" hidden>{{ icon("play") }} Phát lại</button>
+      </div>
+      <a class="assistant-simulation-link" href="{{ url_for('simulation.simulation') }}">
+        {{ icon("grass") }}<span>Thử điều kiện ruộng trong mô phỏng</span>{{ icon("arrow_forward") }}
+      </a>
+    </aside>{% endif %}
   </div>
 
   <dialog id="assistant-reset-dialog" class="assistant-dialog app-glass" aria-labelledby="assistant-reset-title">

@@ -1,5 +1,6 @@
 """Published CSV catalog. Each download resolves through the cloud reference service."""
 
+import json
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -9,6 +10,7 @@ from src.services.quality_service import preview_csv
 
 STATION_CSV = REFERENCE_DIR / "dbscl-man-muc-nuoc-2026.csv"
 FLOOD_DEMO_CSV = REFERENCE_DIR / "long-huu-man-ngap-demo.csv"
+PUBLISHED_CSV_DIR = REFERENCE_DIR / "published-csv"
 VILO_URL = (
     "https://snnmt.vinhlong.gov.vn/Portals/1041/2026/5/19/"
     "VILO_XMAN_20260514_1700%20%281%29.pdf?ver=ULoxeqRZg5BrKdp7JslwyA%3D%3D"
@@ -47,6 +49,19 @@ class CsvDataset:
             return f"{size} B"
         return f"{size / 1024:.1f}".replace(".", ",") + " KB"
 
+
+def published_datasets() -> tuple[CsvDataset, ...]:
+    catalog = json.loads(referenceBytes(PUBLISHED_CSV_DIR / "catalog.json"))
+    return tuple(
+        CsvDataset(
+            item["slug"], PUBLISHED_CSV_DIR / item["file"], item["title"], item["details"],
+            tuple(item["categories"]), item["location"], item["period"],
+            tuple((label, url) for label, url in item["sources"]),
+        )
+        for item in catalog
+    )
+
+
 DATASETS = (
     CsvDataset(
         "dbscl-stations", STATION_CSV, "Mặn và mực nước tại trạm ĐBSCL",
@@ -80,4 +95,9 @@ DATASETS = (
     ),
 )
 
-DATASET_BY_SLUG = {dataset.slug: dataset for dataset in DATASETS}
+def listDatasets() -> tuple[CsvDataset, ...]:
+    return (*DATASETS, *published_datasets())
+
+
+def findDataset(name: str) -> CsvDataset | None:
+    return next((item for item in listDatasets() if item.slug == name), None)

@@ -1,4 +1,4 @@
-import {readFileSync,writeFileSync,mkdirSync,copyFileSync} from "node:fs";
+import {readFileSync,writeFileSync,mkdirSync,copyFileSync,readdirSync} from "node:fs";
 import {resolve,dirname} from "node:path";
 import {fileURLToPath} from "node:url";
 
@@ -9,6 +9,8 @@ const history = JSON.parse(read("data/weather-history.json"));
 const forumSeed = JSON.parse(read("data/forum-seed.json"));
 const referenceNames = ["co-ma-knowledge.json","lua-man-ngap-sources.json","forum-source-posts.json","dbscl-man-muc-nuoc-2026.csv","long-huu-man-ngap-demo.csv","long-huu-man-ruong.csv","ba-tri-muc-nuoc.csv","go-cong-nhiet-do.csv","cu-lao-dung-do-ph.csv"];
 const referenceFiles = Object.fromEntries(referenceNames.map(name => [name,read(`data/reference/${name}`)]));
+for (const name of readdirSync(resolve(root,"data/reference/published-csv"))) referenceFiles[name] = read(`data/reference/published-csv/${name}`);
+for (const name of ["forum-photo-assets.json","rice-field-diaries.json"]) referenceFiles[name] = read(`data/reference/${name}`);
 if (history.rowCount !== history.locations.reduce((sum,location) => sum+location.rows.length,0)) throw new Error("History count mismatch");
 const manifest = JSON.parse(read(".openai/hosting.json"));
 if (!manifest.project_id) throw new Error("Missing Site ID");

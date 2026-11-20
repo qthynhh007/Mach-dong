@@ -21,6 +21,8 @@ def assistant() -> str:
     return render_template(
         "assistant/index.html",
         current_page="assistant",
+        compact=request.args.get("view") == "dialog",
+        quick_context=request.args.get("context"),
         gemini_enabled=cloudEnabled or bool(current_app.config["GEMINI_API_KEY"]),
         gemini_model_label="Groq · AI trên máy chủ" if cloudEnabled else GEMINI_MODEL_LABEL,
         wait_seconds=ASSISTANT_WAIT_SECONDS,
@@ -39,6 +41,8 @@ def chat() -> tuple[Response, int]:
     if not isinstance(payload, dict):
         return jsonify(data=None, error="Gửi câu hỏi dưới dạng JSON nha."), 400
 
+    if payload.get("image"):
+        return jsonify(data=None, error="Trợ lý cloud hiện nhận câu hỏi bằng văn bản. Hãy mô tả dấu hiệu quan sát được trên cây."), 400
     message = payload.get("message")
     if not isinstance(message, str) or not 0 < len(message.strip()) <= MAX_MESSAGE_LENGTH:
         error = f"Nhập câu hỏi từ 1 đến {MAX_MESSAGE_LENGTH} ký tự nha."

@@ -1,6 +1,7 @@
 # Dependencies
 .venv/
 node_modules/
+.playwright-cli/
 
 # Python caches
 __pycache__/

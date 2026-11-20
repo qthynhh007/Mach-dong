@@ -1,8 +1,10 @@
+{% from "shared/icon.html" import icon as render_icon %}
 <aside class="auth-hero" aria-label="Giới thiệu Mạch Đồng">
-  <svg viewBox="0 0 720 760" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
+  <div class="auth-hero-ambient" aria-hidden="true"></div>
+  <svg viewBox="0 0 720 760" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false" class="auth-hero-art">
     <defs>
       <linearGradient id="auth-sky" x2="0" y2="1">
-        <stop stop-color="#83b9bc"/><stop offset="1" stop-color="#f5e2ae"/>
+        <stop stop-color="#72b5a8"/><stop offset="1" stop-color="#f5e2ae"/>
       </linearGradient>
       <radialGradient id="auth-sun-glow">
         <stop stop-color="#fff1b5"/><stop offset="1" stop-color="#fff1b5" stop-opacity="0"/>
@@ -69,8 +71,22 @@
       <use href="#auth-palm" x="617" y="165" width="45" height="54"/>
     </g>
   </svg>
-  <div class="auth-hero-copy">
-    <strong>Chăm ruộng lúa cùng Mạch Đồng</strong>
-    <p>Tra cứu số đo và theo dõi kịch bản mặn, ngập cho ruộng lúa Đồng bằng sông Cửu Long.</p>
+  <div class="auth-hero-content">
+    <span class="auth-hero-badge">Mạch Đồng · Nông nghiệp số</span>
+    <div class="auth-hero-copy">
+      <strong>Đồng hành cùng ruộng lúa ĐBSCL</strong>
+      <p>Theo dõi kịch bản mặn ngập, phân tích sinh lý cây trồng và kết nối dữ liệu thực địa.</p>
+    </div>
+    <div class="auth-hero-features">
+      <div class="auth-feature-pill">
+        <span>Dự báo mặn &amp; ngập sớm</span>
+      </div>
+      <div class="auth-feature-pill">
+        <span>Trợ lý Cò Mạ 24/7</span>
+      </div>
+      <div class="auth-feature-pill">
+        <span>Tích lũy điểm LÚA Web3</span>
+      </div>
+    </div>
   </div>
 </aside>

@@ -18,7 +18,9 @@ class cloudReferenceService:
         "co-ma-knowledge.json", "lua-man-ngap-sources.json", "forum-source-posts.json",
         "dbscl-man-muc-nuoc-2026.csv", "long-huu-man-ngap-demo.csv",
         "long-huu-man-ruong.csv", "ba-tri-muc-nuoc.csv", "go-cong-nhiet-do.csv",
-        "cu-lao-dung-do-ph.csv",
+        "cu-lao-dung-do-ph.csv", "catalog.json", "forum-photo-assets.json", "rice-field-diaries.json",
+        "faostat-viet-nam-rice-production.csv", "faostat-viet-nam-rice-yields.csv",
+        *(f"nasa-power-{place}-2025.csv" for place in ("ba-tri", "ca-mau", "can-tho", "chau-doc", "go-cong", "long-my", "soc-trang", "tra-vinh")),
     ))
 
     def __init__(self, apiUrl: str, transport=None, ttlSeconds: int = 300) -> None:

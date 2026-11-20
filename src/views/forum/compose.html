@@ -1,137 +1,116 @@
 {% extends "forum/base.html" %}
 {% from "shared/icon.html" import icon %}
-{% block title %}Đăng bài chia sẻ{% endblock %}
-{% block styles %}<link rel="stylesheet" href="/static/forum-compose.css">{% endblock %}
+{% set editing = forumData.post is defined %}
+{% block title %}{{ 'Chỉnh sửa bài chia sẻ' if editing else 'Viết bài chia sẻ' }}{% endblock %}
 {% block content %}
-<div class="forum-return"><a class="app-control inline-flex items-center gap-space-xs text-secondary hover:text-primary py-1 px-space-xs rounded font-label-md text-label-md font-semibold" href="{{ url_for('forum.index') }}">
-<span class="app-icon-wrap text-lg">{{ icon("chevron_left") }}</span>
-<span>Quay lại Thảo luận bà con</span>
-</a></div>
-<!-- Main Grid Workspace -->
-<div class="w-full">
-<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter-desktop items-start">
-<!-- MAIN FORM COLUMN (Approx 68%) -->
-<section class="flex flex-col gap-space-lg lg:col-span-12">
-<!-- Page Title & Header Info -->
-<div class="app-glass rounded-xl p-space-lg">
-<div class="flex flex-wrap items-start justify-between gap-space-md mb-space-xs">
-<div>
-<h1 class="app-page-title">
-                Đăng Bài Chia Sẻ Kinh Nghiệm Canh Tác
-              </h1>
-<p class="font-body-md text-body-md text-on-surface-variant mt-1">
-                Chia sẻ câu hỏi, kinh nghiệm và ảnh ngoài ruộng. Bài viết và bản nháp được lưu trên máy chủ.
-              </p>
-</div>
-<div class="hidden sm:flex flex-col items-end text-right flex-shrink-0 bg-surface-container-low p-space-sm rounded-lg">
-<span class="font-label-sm text-[11px] text-outline uppercase tracking-wider font-semibold">Tài khoản ghi nhận</span>
-<span class="font-data-mono-md text-data-mono-md text-on-surface font-bold">{{ forumData.member.displayName if forumData.member else 'Chưa đăng nhập' }}</span>
-<span class="font-label-sm text-[11px] text-primary">{{ forumData.member.location if forumData.member else '' }}</span>
-</div>
-</div>
-</div>
-<!-- Compose Form Container -->
-<form id="forum-compose" method="post" class="app-glass rounded-xl p-space-lg flex flex-col gap-space-lg">
-<!-- Category Chips -->
-<div>
-<label class="block font-label-md text-label-md font-semibold text-on-surface mb-2">
-              1. Chủ đề kinh nghiệm bà con muốn chia sẻ:
-            </label>
+<header class="compose-heading">
+  <div>
+    <a class="compose-back" href="{{ url_for('forum.detail', postId=forumData.post.id) if editing else url_for('forum.index') }}">
+      {{ icon("chevron_left") }} {{ 'Về bài viết' if editing else 'Về diễn đàn' }}
+    </a>
+    <h1 class="app-page-title">{{ 'Chỉnh sửa bài chia sẻ' if editing else 'Viết bài chia sẻ' }}</h1>
+  </div>
+  <button class="app-button" type="button" id="preview-post" aria-haspopup="dialog">
+    {{ icon("description") }} Xem trước
+  </button>
+</header>
 
-<div class="grid grid-cols-2 sm:grid-cols-4 gap-space-xs" id="categoryChips" role="group" aria-label="Chủ đề kinh nghiệm">
-{% for id, label in topics.items() %}
-<label class="app-choice">
-<input type="radio" name="topic" value="{{ id }}" {% if loop.first %}checked{% endif %}>
-<span class="font-label-md text-label-md">{{ label }}</span>
-</label>
-{% endfor %}
-</div>
-</div>
-<!-- Variety & Growth Phase Selectors -->
-<div class="grid grid-cols-1 sm:grid-cols-2 gap-space-md p-space-md bg-surface-container-low rounded-lg">
-<div class="flex flex-col gap-1.5">
-<label class="font-label-sm text-label-sm font-semibold text-on-surface flex items-center gap-1" for="compose-cultivar">Giống lúa đang canh tác</label>
-<select class="app-select w-full font-body-md text-body-md" name="cultivar" id="compose-cultivar">{% for value in cultivars %}<option>{{ value }}</option>{% endfor %}</select>
-</div>
-<div class="flex flex-col gap-1.5">
-<label class="font-label-sm text-label-sm font-semibold text-on-surface flex items-center gap-1" for="compose-stage">Giai đoạn sinh trưởng của ruộng</label>
-<select class="app-select w-full font-body-md text-body-md" name="stage" id="compose-stage">{% for value in stages %}<option>{{ value }}</option>{% endfor %}</select>
-</div>
-</div>
-<!-- Post Title -->
-<div class="flex flex-col gap-1.5">
-<div class="flex items-center justify-between">
-<label class="font-label-md text-label-md font-semibold text-on-surface" for="post-title">
-                2. Tiêu đề bài chia sẻ
-              </label>
-<span class="font-label-sm text-label-sm text-outline" id="titleCount">0 / 120 ký tự</span>
-</div>
-<input class="w-full bg-surface-container-lowest text-on-surface rounded-lg px-space-md py-3 font-headline-sm text-headline-sm font-semibold shadow-xs focus:outline-none focus:ring-2 focus:ring-primary placeholder:text-outline-variant" id="post-title" maxlength="120" placeholder="Ví dụ: Mẹo ém nước rãnh +10cm khi cống đóng mặn rằm tháng 10..." type="text" name="title" required>
-</div>
-<!-- Sensor Measurement Attachment (Unique Telemetry Feature) -->
+<form id="forum-compose" method="post">
+  <div class="compose-layout">
+    <section class="compose-card compose-editor" aria-labelledby="compose-editor-title">
+      <h2 id="compose-editor-title">Bài viết</h2>
+      <div class="compose-field">
+        <div class="compose-field-heading">
+          <label for="post-title">Tiêu đề</label>
+          <span id="titleCount">0 / 120 ký tự</span>
+        </div>
+        <input id="post-title" name="title" type="text" maxlength="120" required
+               placeholder="Ví dụ, Giữ nước ruộng khi cống đóng mặn…" autocomplete="off">
+      </div>
+      <div class="compose-field">
+        <div class="compose-field-heading">
+          <label for="post-content">Nội dung</label>
+          <span id="bodyCount">0 / 5000 ký tự</span>
+        </div>
+        <div class="compose-writing">
+          <div class="compose-tools" role="group" aria-label="Chèn mẫu nội dung">
+            <button class="app-button" type="button" data-prefix="• ">Danh sách</button>
+            <button class="app-button" type="button" data-prefix="1. ">Các bước</button>
+            <button class="app-button" type="button" data-prefix="Số đo: ">{{ icon("description") }} Số đo</button>
+          </div>
+          <textarea id="post-content" name="body" rows="12" maxlength="5000" required
+                    placeholder="Bà con thấy gì ngoài ruộng? Ghi thời gian, nơi đo, đơn vị và việc đã làm…"></textarea>
+        </div>
+      </div>
+    </section>
 
-<!-- Rich Text Content Area -->
-<div class="flex flex-col gap-1.5">
-<div class="flex items-center justify-between">
-<label class="font-label-md text-label-md font-semibold text-on-surface" for="post-content">
-                3. Chi tiết kinh nghiệm &amp; thao tác đồng ruộng
-              </label>
-<span class="font-label-sm text-label-sm text-on-surface-variant">Văn bản và ảnh minh họa</span>
-</div>
+    <div class="compose-side">
+      <section class="compose-card" aria-labelledby="compose-details-title">
+        <h2 id="compose-details-title">Thông tin mùa vụ</h2>
+        <fieldset class="compose-topics">
+          <legend>Chủ đề</legend>
+          {% for id, label in topics.items() %}
+          <label class="app-choice">
+            <input type="radio" name="topic" value="{{ id }}"{% if loop.first %} checked{% endif %}>
+            <span>{{ label }}</span>
+          </label>
+          {% endfor %}
+        </fieldset>
+        <div class="compose-field">
+          <label for="compose-cultivar">Giống lúa</label>
+          <select class="app-select" name="cultivar" id="compose-cultivar">
+            {% for value in cultivars %}<option>{{ value }}</option>{% endfor %}
+          </select>
+        </div>
+        <div class="compose-field">
+          <label for="compose-stage">Giai đoạn sinh trưởng</label>
+          <select class="app-select" name="stage" id="compose-stage">
+            {% for value in stages %}<option>{{ value }}</option>{% endfor %}
+          </select>
+        </div>
+      </section>
 
-<!-- Formatting Toolbar -->
-<div class="bg-surface-container-high rounded-t-lg px-space-sm py-1.5 flex flex-wrap items-center gap-space-xs">
-  <button class="stitch-editor-button" type="button" data-prefix="• ">• Danh sách</button>
-  <button class="stitch-editor-button" type="button" data-prefix="1. ">1. Các bước</button>
-  <button class="stitch-editor-button" type="button" data-prefix="Số đo: ">Số đo</button>
-</div>
-<!-- Text Area -->
-<textarea class="w-full bg-surface-container-lowest text-on-surface rounded-b-lg p-space-md font-body-md text-body-md shadow-xs focus:outline-none focus:ring-2 focus:ring-primary leading-relaxed placeholder:text-outline-variant" id="post-content" name="body" rows="7" maxlength="5000" placeholder="Ghi địa điểm, thời gian, số đo và điều bà con quan sát được…" required></textarea>
-</div>
-<!-- Evidence Photo Upload Section -->
-<div class="flex flex-col gap-space-xs">
-<div class="font-label-md text-label-md font-semibold text-on-surface flex items-center justify-between">
-<span>4. Ảnh chụp thực tế đồng ruộng &amp; bút đo (Bằng chứng thực địa)</span>
-<span class="font-label-sm text-label-sm text-primary font-medium" id="photo-count">0 / 4 ảnh</span>
-</div>
-<div class="stitch-upload-grid">
-<div class="stitch-photos" id="photo-preview" hidden></div>
-<!-- Upload Dropzone Target -->
-<label for="post-photos" id="forum-dropzone" class="min-h-36 rounded-lg bg-surface-container-low hover:bg-surface-container flex flex-col items-center justify-center p-space-md text-center cursor-pointer transition-colors shadow-xs">
-<div class="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center text-primary mb-2">
-<span class="app-icon-wrap text-2xl">{{ icon("upload_file") }}</span>
-</div>
-<p class="font-label-md text-label-md font-semibold text-on-surface">
-                  Chọn hoặc kéo thả ảnh ruộng, que đo
-                </p>
-<p class="font-body-sm text-body-sm text-outline mt-0.5">
-                  JPG, PNG hoặc WebP. Tối đa 4 ảnh, 5 MB mỗi ảnh.
-                </p>
-<input id="post-photos" class="stitch-file-input" aria-label="Chọn ảnh minh họa" type="file" accept="image/jpeg,image/png,image/webp" multiple>
-</label>
-</div>
-</div>
-<!-- Bottom Action Bar & Wallet Incentive Banner -->
-<div class="pt-space-md flex flex-col gap-space-md bg-surface-container-low p-space-md rounded-xl">
-<p id="compose-status" role="status" class="font-body-sm text-body-sm text-primary"></p>
-<div class="flex flex-col-reverse sm:flex-row items-center justify-between gap-space-sm pt-2">
-<button class="app-button w-full sm:w-auto px-space-lg py-2.5 font-label-md text-label-md font-semibold" type="button" id="save-draft">
-                Lưu bản nháp bờ ruộng
-              </button>
-<button class="app-button community-button app-button--danger" type="button" id="discard-draft">Xóa bản nháp</button>
-<div class="w-full sm:w-auto flex items-center gap-space-xs">
-<button class="app-button app-button--primary w-full sm:w-auto inline-flex items-center justify-center gap-space-xs px-space-xl py-3 font-label-md text-label-md font-bold cursor-pointer" type="submit" id="publish-post">
-<span>Đăng bài chia sẻ ngay</span>
-<span class="app-icon-wrap text-lg">{{ icon("arrow_forward") }}</span>
-</button>
-</div>
-</div>
-</div>
+      <section class="compose-card" aria-labelledby="compose-photo-title">
+        <div class="compose-field-heading">
+          <h2 id="compose-photo-title">Ảnh minh họa</h2>
+          <span id="photo-count">0 / 4 ảnh</span>
+        </div>
+        <div class="stitch-photos" id="photo-preview" hidden></div>
+        <label id="forum-dropzone" class="compose-dropzone" for="post-photos">
+          {{ icon("upload_file") }}
+          <strong>Chọn hoặc kéo ảnh vào đây</strong>
+          <span>JPG, PNG, WebP · 5 MB mỗi ảnh</span>
+          <input id="post-photos" class="stitch-file-input" aria-label="Chọn ảnh minh họa"
+                 type="file" accept="image/jpeg,image/png,image/webp" multiple>
+        </label>
+      </section>
+    </div>
+  </div>
+
+  <footer class="compose-actions">
+    <p id="compose-status" role="status"></p>
+    <div class="compose-action-buttons">
+      {% if not editing %}
+      <button class="app-button" type="button" id="save-draft">{{ icon("save") }} Lưu bản nháp</button>
+      <button class="app-button app-button--danger" type="button" id="discard-draft">Xóa nháp</button>
+      {% endif %}
+      <button class="app-button app-button--primary" type="submit" id="publish-post">
+        <span>{{ 'Lưu thay đổi' if editing else 'Đăng bài' }}</span> {{ icon("arrow_forward") }}
+      </button>
+    </div>
+  </footer>
 </form>
-</section>
-<!-- SIDEBAR COLUMN (Approx 32%) -->
 
-</div>
-</div>
-
+<dialog class="compose-preview" id="compose-preview" aria-labelledby="compose-preview-label">
+  <header>
+    <h2 id="compose-preview-label">Xem trước bài viết</h2>
+    <form method="dialog"><button class="app-button" autofocus>{{ icon("close") }} Đóng</button></form>
+  </header>
+  <article>
+    <p class="compose-preview-meta" id="compose-preview-meta"></p>
+    <h3 id="compose-preview-title"></h3>
+    <p id="compose-preview-body"></p>
+    <div class="stitch-photos" id="compose-preview-photos"></div>
+  </article>
+</dialog>
 {% endblock %}

@@ -22,9 +22,11 @@ class TestApp(TestCase):
         for route, title in (
             ("/community", "Kho CSV cộng đồng"),
             ("/forum", "Thảo Luận Bà Con"),
-            ("/forum/new", "Đăng Bài Chia Sẻ Kinh Nghiệm Canh Tác"),
+            ("/forum/new", "Viết bài chia sẻ"),
             ("/forum/muong-lo", "Khung trao đổi"),
-            ("/simulation", "Mô phỏng có căn cứ"),
+            ("/simulation", "Mô phỏng cánh đồng lúa"),
+            ("/simulation/report", "Báo cáo kịch bản"),
+            ("/wallet/rules", "Thể lệ"),
             ("/login", "Đăng Nhập Nông Hộ"),
             ("/register", "Đăng ký nông hộ"),
             ("/profile", "Bảo Mật &amp; Đổi Mật Khẩu"),

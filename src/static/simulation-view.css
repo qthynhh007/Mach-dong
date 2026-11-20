@@ -21,8 +21,8 @@
   font-weight: 650;
 }
 .sim-control-panel {
-  margin-bottom: 1rem;
-  padding: .8rem 1.1rem .9rem;
+  margin: .85rem 0 1rem;
+  padding: 1rem 1.1rem;
   border-radius: 1rem;
 }
 .sim-control-heading { margin-bottom: .55rem; }
@@ -31,8 +31,7 @@
 .sim-controls {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  column-gap: 1.1rem;
-  row-gap: .85rem;
+  gap: .75rem;
 }
 .sim-control {
   --sim-accent: #25654b;
@@ -41,8 +40,17 @@
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   column-gap: .45rem;
+  min-inline-size: 0;
+  padding: .55rem .75rem .7rem;
+  border: 1px solid var(--md-surface-line);
+  border-radius: .75rem;
+  background: #fff;
 }
-.sim-control + .sim-control { border-inline-start: 1px solid var(--md-surface-line); padding-inline-start: 1.05rem; }
+.sim-control:focus-within { border-color: var(--sim-accent); }
+.sim-control { transition: transform 200ms cubic-bezier(.2,.7,.25,1), border-color 160ms ease, box-shadow 200ms ease; transform-origin: center; }
+@media (hover: hover) {
+  .sim-control:hover { border-color: var(--sim-accent); }
+}
 .sim-control label {
   display: flex;
   align-items: center;
@@ -72,32 +80,92 @@
   ), var(--sim-track);
   appearance: none;
   inline-size: 100%;
-  block-size: 36px;
+  block-size: 44px;
   margin: 0;
   background: transparent;
   cursor: pointer;
+  touch-action: pan-y;
 }
 .sim-control input::-webkit-slider-runnable-track { block-size: 8px; border-radius: 999px; background: var(--sim-rail); }
 .sim-control input::-moz-range-track { block-size: 8px; border-radius: 999px; background: var(--sim-rail); }
 .sim-control input::-webkit-slider-thumb {
   appearance: none;
-  inline-size: 23px;
-  block-size: 23px;
-  margin-block-start: -7.5px;
+  inline-size: 26px;
+  block-size: 26px;
+  margin-block-start: -9px;
   border: 3px solid var(--sim-accent);
   border-radius: 50%;
   background: #fffdf6;
   box-shadow: 0 2px 6px #173b3240;
+  transition: transform 180ms ease, box-shadow 180ms ease;
 }
 .sim-control input::-moz-range-thumb {
-  inline-size: 17px;
-  block-size: 17px;
+  inline-size: 20px;
+  block-size: 20px;
   border: 3px solid var(--sim-accent);
   border-radius: 50%;
   background: #fffdf6;
   box-shadow: 0 2px 6px #173b3240;
+  transition: transform 180ms ease, box-shadow 180ms ease;
 }
 .sim-control input:focus-visible { border-radius: .4rem; }
+.sim-control input:active { cursor: grabbing; }
+.sim-control input:active::-webkit-slider-thumb { background-color: #e1eee2; }
+.sim-control input:active::-moz-range-thumb { background-color: #e1eee2; }
+.sim-control .sim-slider-shell { position: relative; grid-column: 1 / -1; min-width: 0; height: 44px; }
+.sim-slider-shell input { display: block; position: relative; z-index: 1; }
+.sim-slider-aura {
+  position: absolute;
+  z-index: 0;
+  width: 26px;
+  height: 26px;
+  top: 50%;
+  left: calc(13px + (100% - 26px) * var(--range-fraction, .5));
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  color: var(--sim-accent);
+  box-shadow: 0 0 20px color-mix(in srgb, currentColor 35%, transparent);
+  opacity: 0;
+  transition: opacity 160ms ease;
+  pointer-events: none;
+}
+.sim-slider-aura::before, .sim-slider-aura::after {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border: 1px solid currentColor;
+  border-radius: inherit;
+  background: color-mix(in srgb, currentColor 10%, transparent);
+  animation: sim-slider-ripple 1400ms ease-out infinite paused;
+  pointer-events: none;
+}
+.sim-slider-aura::after { animation-delay: 650ms; }
+.sim-slider-shell:is(:hover, :focus-within) .sim-slider-aura { opacity: 1; }
+.sim-slider-shell:is(:hover, :focus-within) .sim-slider-aura::before,
+.sim-slider-shell:is(:hover, :focus-within) .sim-slider-aura::after { animation-play-state: running; }
+.sim-slider-shell:focus-within input::-webkit-slider-thumb { box-shadow: 0 0 0 5px color-mix(in srgb, var(--sim-accent) 13%, transparent), 0 2px 8px #173b3230; }
+.sim-slider-shell:focus-within input::-moz-range-thumb { box-shadow: 0 0 0 5px color-mix(in srgb, var(--sim-accent) 13%, transparent), 0 2px 8px #173b3230; }
+@keyframes sim-slider-ripple {
+  from { opacity: .32; transform: scale(.85); }
+  to { opacity: 0; transform: scale(2.5); }
+}
+@media (hover: hover) and (pointer: fine) {
+  .sim-control:hover { transform: scale(1.012); box-shadow: 0 6px 18px #183f2d0d; }
+  .sim-slider-shell:hover input::-webkit-slider-thumb { transform: scale(1.12); box-shadow: 0 0 0 5px color-mix(in srgb, var(--sim-accent) 12%, transparent), 0 2px 10px #173b3240; }
+  .sim-slider-shell:hover input::-moz-range-thumb { transform: scale(1.12); box-shadow: 0 0 0 5px color-mix(in srgb, var(--sim-accent) 12%, transparent), 0 2px 10px #173b3240; }
+}
+.sim-control input:active::-webkit-slider-thumb { transform: scale(1.22); }
+.sim-control input:active::-moz-range-thumb { transform: scale(1.22); }
+@media (prefers-reduced-motion: reduce) {
+  .sim-control { transform: none !important; }
+  .sim-control input::-webkit-slider-thumb { transform: none !important; }
+  .sim-control input::-moz-range-thumb { transform: none !important; }
+  .sim-slider-aura::before, .sim-slider-aura::after { animation: none; opacity: 0; }
+}
+@media (forced-colors: active) {
+  .sim-control input { appearance: auto; }
+  .sim-slider-aura { display: none; }
+}
 .sim-range-scale {
   position: relative;
   display: flex;
@@ -121,13 +189,28 @@
   border-left: 1px solid #839b8d;
 }
 .sim-control-hint { margin-top: .48rem; color: #486154; font-size: .71rem; line-height: 1.35; }
-
-.sim-grid { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(19.5rem, 1fr); align-items: start; gap: 1rem; }
+.sim-report-inputs {
+  margin: 1rem 0 0;
+  padding: 0;
+  border: 0;
+  min-inline-size: 0;
+}
+.sim-report-inputs legend { color: var(--md-heading-color); font-size: .82rem; font-weight: 700; }
+.sim-report-inputs .sim-input-grid { margin: .65rem 0 0; gap: .75rem 1rem; }
+.sim-control-panel .sim-actions { margin-top: .9rem; padding-top: .75rem; border-color: var(--md-surface-line); }
+.sim-control-panel .sim-status { margin: .5rem 0 0; min-height: 0; }
+.sim-grid { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(20rem, 1fr); align-items: start; gap: 1rem; }
 .sim-field { min-width: 0; border-radius: 1.05rem; overflow: hidden; border: 1px solid #fbfcf1; box-shadow: var(--md-glass-shadow); }
 .sim-scene { display: block; width: 100%; height: auto; background: #9ab686; }
 .sim-caption { padding: .8rem .9rem; border: 0; box-shadow: none; }
 .sim-caption strong { color: var(--md-heading-color); }
 .sim-caption p { margin-top: .17rem; color: #4b6254; font-size: .76rem; }
+.sim-field .sim-summary-grid { background: #fbfdf8; padding: .85rem .9rem; gap: .6rem; }
+.sim-field .sim-summary-grid strong { font-size: 1rem; line-height: 1.3; margin: .35rem 0; }
+.sim-field .sim-summary-grid article + article { padding-inline-start: .75rem; }
+@media (max-width: 600px) {
+  .sim-field .sim-summary-grid article + article { border-top: 1px solid var(--sim-border); padding: .55rem 0 0; }
+}
 .sim-legend { display: flex; flex: none; flex-wrap: wrap; gap: .35rem .75rem; font-size: .72rem; color: #395749; }
 .sim-legend > span { display: inline-flex; align-items: center; gap: .33rem; }
 .sim-swatch { width: .65rem; height: .65rem; border-radius: .18rem; border: 1px solid #306155; }
@@ -218,8 +301,8 @@
 .sim-advice-overview {
   flex: 1;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) clamp(7.5rem, 11vw, 9.25rem);
-  grid-template-rows: auto minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) clamp(9rem, 13vw, 13.75rem);
+  grid-template-rows: auto 1fr;
   min-height: 0;
   gap: .65rem;
   padding: .65rem 0;
@@ -232,25 +315,12 @@
 .sim-chi dd { font-variant-numeric: tabular-nums; font-size: 1.55rem; line-height: 1.1; }
 .sim-results .sim-risk[data-level="Vừa"] { color: #835724; }
 .sim-results .sim-risk[data-level="Cao"], .sim-results .sim-risk[data-level="Nguy hiểm"] { color: #963f33; }
-.sim-advice-steps { display: grid; gap: .7rem; margin: .85rem 0; padding: 0; list-style: none; counter-reset: sim-step; }
-.sim-advice-steps li { position: relative; padding-inline-start: 1.95rem; counter-increment: sim-step; }
-.sim-advice-steps li::before {
-  content: counter(sim-step);
-  position: absolute;
-  inset: .02rem auto auto 0;
-  display: grid;
-  place-items: center;
-  width: 1.35rem;
-  height: 1.35rem;
-  border-radius: .35rem;
-  background: #dfeddf;
-  color: #1b6149;
-  font-size: .73rem;
-  font-weight: 750;
-}
+.sim-advice-steps { display: grid; gap: .55rem; margin: .65rem 0; padding: 0; list-style: none; }
+.sim-advice-steps li { padding-block: .2rem; }
+.sim-advice-steps li + li { border-top: 1px solid var(--md-surface-line); }
 .sim-advice-steps h3 { margin: 0; font-size: .82rem; font-weight: 750; }
 .sim-advice-steps p { margin: .16rem 0 0; color: #2f4b3f; font-size: .8rem; line-height: 1.55; }
-.sim-advice-summary { min-height: 0; overflow-y: auto; border-top: 1px solid var(--md-surface-line); }
+.sim-advice-summary { min-width: 0; align-self: start; border-top: 1px solid var(--md-surface-line); }
 .sim-advice-summary .sim-advice-steps { gap: .4rem; margin: .6rem 0 .3rem; }
 .sim-advice-summary li { min-height: 1.35rem; color: var(--md-heading-color); font-size: .81rem; font-weight: 700; }
 .sim-model-note, .sim-result-status { color: #53695e; font-size: .71rem; line-height: 1.5; }
@@ -301,24 +371,11 @@
 .sim-advice-dialog .sim-advice-steps p { font-size: .9rem; }
 .sim-advice-dialog .sim-model-note { padding-top: .65rem; border-top: 1px solid var(--md-surface-line); }
 
-@media (prefers-reduced-motion: no-preference) {
-  .sim-field-water, .sim-field-submergence, .sim-field-dry, .sim-field-salt, .sim-field-light { transition: opacity 360ms ease; }
-  .sim-field-leaves, .sim-field-tips, .sim-field-grain { transition: fill 360ms ease, stroke 360ms ease; }
-  .sim-field-ripples { stroke-dasharray: 16 25; animation: field-ripples 5s linear infinite; }
-  .sim-field-leaves, .sim-field-tips, .sim-field-grain, .sim-field-burn { animation: field-breeze 3.5s ease-in-out infinite alternate; }
-  .sim-field-light { animation: field-light 7s ease-in-out infinite alternate; }
-}
-@keyframes field-ripples { to { stroke-dashoffset: -82; } }
-@keyframes field-breeze { from { transform: translate(-.7px, 0); } to { transform: translate(1.15px, .35px); } }
-@keyframes field-light { from { transform: translate(-6px, -3px); } to { transform: translate(10px, 5px); } }
-
-@media (min-width: 881px) {
-  .sim-advice-panel { align-self: stretch; contain: size; }
-}
+.sim-field-ripples { stroke-dasharray: 16 25; }
 @media (min-width: 881px) and (max-width: 1120px) {
   .sim-advice-panel { padding-block: .75rem; }
   .sim-advice-overview {
-    grid-template-columns: minmax(0, 1fr) 6.25rem;
+    grid-template-columns: minmax(0, 1fr) 9rem;
     gap: .45rem .65rem;
     padding-block: .4rem;
   }
@@ -328,11 +385,10 @@
 
 @media (max-width: 1080px) {
   .sim-controls { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .sim-control:nth-child(odd) { border: 0; padding-inline-start: 0; }
 }
 @media (max-width: 880px) {
   .sim-grid { grid-template-columns: 1fr; }
-  .sim-advice-overview { grid-template-columns: minmax(0, 1fr) clamp(6.6rem, 24vw, 8.25rem); }
+  .sim-advice-overview { grid-template-columns: minmax(0, 1fr) clamp(8rem, 27vw, 12rem); }
 }
 @media (max-width: 720px) {
   .sim-science { grid-template-columns: minmax(0, 1fr); }
@@ -342,9 +398,6 @@
   .sim-page-head { gap: .55rem; }
   .sim-controls { gap: .7rem; }
   .sim-control { grid-template-columns: 1fr; gap: .15rem; }
-  .sim-control + .sim-control { padding-inline-start: .7rem; }
-  .sim-control:nth-child(odd) { padding-inline-start: 0; }
-  .sim-control input { block-size: 42px; }
   .sim-advice-panel { padding-inline: .9rem; }
   .sim-advice-detail { grid-template-columns: 1fr; gap: .15rem; }
   .sim-advice-illustration { grid-row: 1; justify-self: end; width: 4.1rem; margin-top: .3rem; }

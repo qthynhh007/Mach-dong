@@ -71,11 +71,11 @@ function checkWallet(value) {
   if (address && !/^0x[0-9a-fA-F]{40}$/.test(address)) throw new accountError("Địa chỉ ví Fuji không hợp lệ.");
   return address;
 }
-async function bodyJson(request) {
+async function bodyJson(request, maxBytes = 8192) {
   if (!request.headers.get("content-type")?.startsWith("application/json")) throw new accountError("Yêu cầu JSON.", 415);
-  if (Number(request.headers.get("content-length") || 0) > 8192) throw new accountError("Dữ liệu quá lớn.", 413);
+  if (Number(request.headers.get("content-length") || 0) > maxBytes) throw new accountError("Dữ liệu quá lớn.", 413);
   const text = await request.text();
-  if (encoder.encode(text).length > 8192) throw new accountError("Dữ liệu quá lớn.", 413);
+  if (encoder.encode(text).length > maxBytes) throw new accountError("Dữ liệu quá lớn.", 413);
   try { const body = JSON.parse(text); if (body && typeof body === "object" && !Array.isArray(body)) return body; }
   catch { /* handled below */ }
   throw new accountError("JSON không hợp lệ.");
@@ -198,6 +198,25 @@ export class accountController {
       const {row} = await this.session(request);
       const profile = await this.db.prepare("SELECT address,cultivar,area,hydrology_station FROM account_field_profiles WHERE user_id=?").bind(row.user_id).first();
       return reply(profile || {address:"",cultivar:"",area:"",hydrology_station:""});
+    }
+    if (path === "/api/account/avatar" && (post || request.method === "GET")) {
+      const {row} = await this.session(request, post);
+      if (!this.env.BUCKET) throw new accountError("Kho ảnh chưa sẵn sàng.", 503);
+      const key = `account-avatars/${row.user_id}.jpg`;
+      if (post) {
+        const body = await bodyJson(request, 240_000);
+        if (typeof body.image !== "string" || !/^[A-Za-z0-9+/]+={0,2}$/.test(body.image)) throw new accountError("Ảnh không hợp lệ.");
+        const image = Uint8Array.from(atob(body.image), c => c.charCodeAt(0));
+        if (image.length < 100 || image.length > 180_000 || image[0] !== 255 || image[1] !== 216 || image.at(-2) !== 255 || image.at(-1) !== 217) throw new accountError("Ảnh JPEG không hợp lệ.");
+        await this.env.BUCKET.put(key, image, {httpMetadata:{contentType:"image/jpeg"}});
+        return reply({version:crypto.randomUUID()});
+      }
+      const object = await this.env.BUCKET.get(key);
+      if (!object) return reply({image:null});
+      const data = new Uint8Array(await object.arrayBuffer());
+      let binary = "";
+      for (const value of data) binary += String.fromCharCode(value);
+      return reply({image:btoa(binary)});
     }
     if (post && path === "/api/account/field-profile") {
       const {row} = await this.session(request,true), b = await bodyJson(request);

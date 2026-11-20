@@ -13,7 +13,7 @@ from flask import (
     request,
 )
 
-from src.config import CREDITS_PER_AVAX, SESSION_COOKIE_NAME, SESSION_TTL_SECONDS
+from src.config import AVALANCHE_CHAIN_ID, CREDITS_PER_AVAX, SESSION_COOKIE_NAME, SESSION_TTL_SECONDS
 from src.controllers.session_guard import (
     RequestContext,
     extract_tokens_from_context,
@@ -21,6 +21,8 @@ from src.controllers.session_guard import (
     get_current_auth,
     require_session,
 )
+from src.models.farm_profile import DEMO_FARM_PROFILE, FARM_CULTIVARS, FARM_STATIONS, FarmProfile
+from src.services.avatar_service import normalizeAvatar
 from src.services.auth_service import AuthService
 from src.services.credit_service import default_credit_service
 
@@ -86,6 +88,23 @@ def register() -> str:
 def profile() -> str:
     auth = get_current_auth()
     user_dict = auth[0].to_public_dict() if auth else None
+    farm = FarmProfile() if auth else DEMO_FARM_PROFILE
+    post_count, reply_count = 0, 0
+    if auth:
+        service = get_auth_service()
+        if hasattr(service, "get_field_profile"):
+            result = service.get_field_profile()
+            if result.ok and result.data:
+                data = result.data
+                farm = FarmProfile(address=data.get("address", ""), cultivar=data.get("cultivar", ""), area_ha=data.get("area") or None, station=data.get("hydrology_station", ""))
+        elif hasattr(service.repo, "get_farm_profile"):
+            farm = service.repo.get_farm_profile(auth[0].user_id) or FarmProfile()
+        from src.services.community_service import communityError
+        try:
+            member = current_app.extensions["communityService"].member_profile("user:" + auth[0].user_id)
+            post_count, reply_count = member["postCount"], member["replyCount"]
+        except communityError:
+            pass
     tx_list = (
         get_auth_service().list_credit_transactions(auth[0].user_id, limit=8)
         if auth
@@ -100,6 +119,9 @@ def profile() -> str:
     return render_template(
         "auth/profile.html",
         current_page="profile",
+        farm_profile=farm, has_farm_profile=bool(farm.address or farm.cultivar),
+        farm_cultivars=FARM_CULTIVARS, farm_stations=FARM_STATIONS,
+        contribution_posts=post_count, contribution_replies=reply_count,
         current_user=user_dict,
         onchain_credits=onchain_credits,
         credit_transactions=tx_list,
@@ -110,6 +132,44 @@ def profile() -> str:
         email_otp_available=get_auth_service().email_otp_available(),
         cloud_auth=bool(current_app.config["AUTH_API_URL"]),
     )
+
+
+@blueprint.get("/wallet/rules")
+def wallet_rules() -> str:
+    return render_template("auth/wallet-rules.html", current_page="wallet-rules", credits_per_avax=CREDITS_PER_AVAX, chain_id=AVALANCHE_CHAIN_ID)
+
+
+@blueprint.get("/api/auth/avatar/<version>")
+@require_session(require_csrf=False)
+def avatar_image(version: str):
+    import base64
+    from flask import redirect
+    service = get_auth_service()
+    if hasattr(service, "get_avatar"):
+        result = service.get_avatar()
+        if result.ok and result.data and result.data.get("image"):
+            return Response(base64.b64decode(result.data["image"]), mimetype="image/jpeg")
+    else:
+        saved = service.repo.get_avatar_version(g.current_user.user_id)
+        if saved:
+            return Response(service.repo.get_avatar(g.current_user.user_id, saved), mimetype="image/jpeg")
+    return redirect("/static/assets/co-ma/avatar-co-ma.webp")
+
+
+@blueprint.post("/api/auth/avatar")
+@require_session()
+def api_update_avatar():
+    from flask import url_for
+    upload = request.files.get("avatar")
+    try:
+        image = normalizeAvatar(upload.read(1_000_001) if upload else b"")
+    except ValueError as error:
+        return jsonify(data=None, error=str(error)), 400
+    service = get_auth_service()
+    result = service.save_avatar(image) if hasattr(service, "save_avatar") else service.update_avatar(g.current_user, image)
+    if not result.ok:
+        return jsonify(data=None, error=result.error), result.status_code
+    return jsonify(data={"avatar_url": url_for("auth.avatar_image", version=result.data["version"])}, error=None), 200
 
 
 @blueprint.get("/api/auth/session")

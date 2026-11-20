@@ -55,18 +55,18 @@
 </article>
 <!-- Right Column: Live Community Discussion Chat (~34% / 4 cols) -->
 <aside class="lg:col-span-4 lg:sticky lg:top-20 flex flex-col gap-space-md">
-<div class="app-glass rounded-xl overflow-hidden flex flex-col min-h-[380px] lg:h-[calc(100vh-110px)] lg:min-h-[500px]">
+<div class="discussion-panel" aria-labelledby="forum-chat-title" role="region">
 <!-- Chat Panel Header -->
-<div class="p-space-md bg-surface-container-low flex flex-wrap items-center justify-between gap-space-sm">
-<h3 class="text-headline-sm font-bold" id="forum-chat-title">Khung trao đổi</h3>
-<button id="refresh-replies" class="app-button community-button" type="button">Tải trao đổi mới</button>
+<div class="discussion-heading">
+<h2 id="forum-chat-title">Khung trao đổi <span id="discussion-count"></span></h2>
+<button id="refresh-replies" class="app-button community-button icon-action" type="button" title="Làm mới trao đổi" aria-label="Làm mới trao đổi">{{ icon("refresh") }}</button>
 </div>
 <label class="community-reply-sort">Thứ tự trả lời <select class="app-select" id="reply-sort"><option value="helpful">Hữu ích nhất</option><option value="oldest">Cũ nhất</option><option value="newest">Mới nhất</option></select></label>
 <div id="forum-replies" class="stitch-replies overflow-y-auto p-space-md flex flex-col gap-space-sm" role="log" aria-label="Nội dung trao đổi"></div>
-<div class="p-space-sm bg-surface-container-low flex flex-col gap-space-xs"><!-- Composer Form -->
+<div class="discussion-compose"><!-- Composer Form -->
 <div id="reply-context" class="community-actions" hidden><span id="reply-target"></span><button id="cancel-reply" class="app-button community-button" type="button">Hủy</button></div>
 <form id="forum-reply-form" method="post" class="relative flex items-center gap-1.5 bg-surface-container-low rounded-xl p-1.5">
-<textarea class="w-full bg-transparent px-2 py-1 text-on-surface font-body-sm text-body-sm focus:outline-none placeholder:text-outline" id="forum-reply" aria-label="Câu trả lời" maxlength="5000" rows="3" required placeholder="Viết câu trả lời cho bà con..."></textarea>
+<textarea id="forum-reply" aria-label="Câu trả lời" maxlength="5000" rows="2" required placeholder="Góp chuyện cùng bà con…"></textarea>
 <button class="app-button app-button--primary px-3 py-2 font-bold flex items-center justify-center flex-shrink-0" type="submit" aria-label="Gửi">
 <span class="app-icon-wrap text-[18px]">{{ icon("arrow_forward") }}</span>
 </button>

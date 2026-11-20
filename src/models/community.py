@@ -248,6 +248,13 @@ class communityStore:
     def deletePost(self, postId: str) -> None:
         self.connection.execute("DELETE FROM communityPosts WHERE id=?", (postId,))
 
+    def refreshSampleBody(self, postId: str, authorId: str, body: str, updatedAt: str) -> None:
+        self.connection.execute(
+            """UPDATE communityPosts SET body=?, updatedAt=?, version=version+1
+               WHERE id=? AND authorId=? AND isSample=1 AND body<>?""",
+            (body, updatedAt, postId, authorId, body),
+        )
+
     def insertReply(self, reply: dict) -> None:
         self.connection.execute(
             """

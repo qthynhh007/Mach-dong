@@ -25,11 +25,20 @@
   const historyLimit = Number(form.dataset.historyLimit);
   const waitSeconds = Number(form.dataset.waitSeconds);
   const history = [];
+  const imageInput = byId("assistant-image");
+  const imageChoose = byId("assistant-image-choose");
+  const imageRemove = byId("assistant-image-remove");
+  const attachment = byId("assistant-attachment");
+  const imagePreview = byId("assistant-image-preview");
+  const uploadStatus = byId("assistant-upload-status");
 
   let activeRequest = null;
   let retryMessage = "";
+  let retryImage = null;
+  let selectedImage = null;
+  let readingImage = false;
 
-  function appendMessage(speaker, text, sources = []) {
+  function appendMessage(speaker, text, sources = [], image = null) {
     const entry = document.createElement("li");
     entry.className = "assistant-message " + (speaker === "Bạn" ? "assistant-message--you" : "assistant-message--co-ma");
     const author = document.createElement("span");
@@ -37,6 +46,15 @@
     author.textContent = speaker;
     const bubble = document.createElement("div");
     bubble.className = "assistant-bubble";
+    if (image) {
+      const photo = document.createElement("img");
+      photo.className = "assistant-message-photo";
+      photo.src = `data:${image.mime_type};base64,${image.data}`;
+      photo.alt = "Ảnh cây trồng bạn gửi: " + image.name;
+      photo.width = 320;
+      photo.height = 240;
+      bubble.append(photo);
+    }
     const body = document.createElement("p");
     body.textContent = text;
     bubble.append(body);
@@ -67,8 +85,47 @@
   }
 
   function updateSend() {
-    sendButton.disabled = Boolean(activeRequest) || !input.value.trim();
+    sendButton.disabled = Boolean(activeRequest) || readingImage || (!input.value.trim() && !selectedImage);
+    byId("assistant-character-count").textContent = `${input.value.length} / ${input.maxLength}`;
   }
+
+  function setImage(image) {
+    selectedImage = image;
+    attachment.hidden = !image;
+    if (image) {
+      imagePreview.src = `data:${image.mime_type};base64,${image.data}`;
+      byId("assistant-image-name").textContent = image.name;
+    } else imagePreview.removeAttribute("src");
+    imageInput.value = "";
+    updateSend();
+  }
+
+  imageChoose.addEventListener("click", () => imageInput.click());
+  imageRemove.addEventListener("click", () => { setImage(null); uploadStatus.textContent = ""; input.focus(); });
+  imageInput.addEventListener("change", async () => {
+    const file = imageInput.files[0];
+    if (!file) return;
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type) || file.size > 5 * 1024 * 1024) {
+      uploadStatus.textContent = "Chọn ảnh JPG, PNG hoặc WebP có dung lượng tối đa 5 MB nha.";
+      imageInput.value = "";
+      return;
+    }
+    readingImage = true;
+    imageChoose.disabled = true;
+    uploadStatus.textContent = "Đang chuẩn bị ảnh…";
+    updateSend();
+    try {
+      const url = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = () => reject(new Error("Không đọc được ảnh."));
+        reader.readAsDataURL(file);
+      });
+      setImage({mime_type: file.type, data: url.split(",")[1], name: file.name});
+      uploadStatus.textContent = "";
+    } catch { uploadStatus.textContent = "Không đọc được ảnh. Bà con chọn lại nha."; }
+    finally { readingImage = false; imageChoose.disabled = false; updateSend(); }
+  });
 
   function renderWaiting() {
     const waiting = Boolean(activeRequest);
@@ -76,6 +133,9 @@
     starters.hidden = waiting;
     status.textContent = waiting ? "Đang chờ câu trả lời" : mode;
     resetButton.setAttribute("aria-disabled", String(waiting));
+    imageChoose.disabled = waiting || readingImage;
+    sendButton.setAttribute("aria-busy", String(waiting));
+    byId("assistant-send-label").textContent = waiting ? "Đang gửi…" : "Gửi";
     updateSend();
   }
 
@@ -85,7 +145,7 @@
     elapsed.textContent = minutes + ":" + remainder;
     elapsed.dateTime = "PT" + seconds + "S";
     waitFill.style.width = (seconds / waitSeconds * 100) + "%";
-    const hint = seconds >= 30 ? "Câu trả lời đang mất nhiều thời gian hơn thường lệ." : waitingHint;
+    const hint = seconds >= 8 ? "Cò Mạ đang kiểm tra thêm tài liệu…" : waitingHint;
     if (pendingDetail.textContent !== hint) pendingDetail.textContent = hint;
   }
 
@@ -94,12 +154,13 @@
     errorMessage.textContent = "";
     notice.textContent = "";
     retryMessage = "";
+    retryImage = null;
   }
 
-  async function sendMessage(message) {
+  async function sendMessage(message, image = null) {
     if (activeRequest || !message) return;
     clearFeedback();
-    const entry = appendMessage("Bạn", message);
+    const entry = appendMessage("Bạn", message, [], image);
     resetButton.hidden = false;
     const controller = new AbortController();
     activeRequest = controller;
@@ -120,8 +181,8 @@
     try {
       const response = await fetch(chatUrl, {
         method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({message, history}),
+        headers: {"Content-Type": "application/json", "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]')?.content || ""},
+        body: JSON.stringify({message, history, ...(image ? {image: {mime_type: image.mime_type, data: image.data}} : {})}),
         signal: controller.signal,
       });
       const result = await response.json();
@@ -149,6 +210,8 @@
       if (!feedback.hidden) {
         entry.remove();
         retryMessage = message;
+        retryImage = image;
+        if (image) setImage(image);
         if (!input.value.trim()) input.value = message;
         resetButton.hidden = messages.children.length === 1;
       }
@@ -163,27 +226,79 @@
   input.disabled = false;
   updateSend();
 
-  for (const button of questions) button.addEventListener("click", () => sendMessage(button.dataset.question));
+  const mascotVideo = byId("assistant-mascot-video");
+  if (mascotVideo) {
+    const still = byId("assistant-mascot-still");
+    const replay = byId("assistant-mascot-replay");
+    const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
+    const showStill = () => { mascotVideo.hidden = true; still.hidden = false; };
+    const play = async () => {
+      try {
+        mascotVideo.src ||= mascotVideo.dataset.source;
+        mascotVideo.currentTime = 0;
+        await mascotVideo.play();
+      } catch { showStill(); }
+    };
+    mascotVideo.addEventListener("loadeddata", () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = canvas.height = 1;
+      const context = canvas.getContext("2d");
+      if (!context) return;
+      context.drawImage(mascotVideo, 0, 0);
+      if (context.getImageData(0, 0, 1, 1).data[3] === 0) return;
+      mascotVideo.pause();
+      replay.hidden = true;
+      showStill();
+    }, {once: true});
+    mascotVideo.addEventListener("playing", () => {
+      if (!mascotVideo.paused) { still.hidden = true; mascotVideo.hidden = false; }
+    });
+    mascotVideo.addEventListener("ended", showStill);
+    mascotVideo.addEventListener("error", () => { replay.hidden = true; showStill(); });
+    replay.addEventListener("click", play);
+    if (mascotVideo.canPlayType('video/webm; codecs="vp9"')) {
+      replay.hidden = false;
+      if (!reducedMotion.matches) play();
+    }
+    reducedMotion.addEventListener("change", event => {
+      if (event.matches) { mascotVideo.pause(); showStill(); }
+    });
+  }
+
+  for (const button of questions) {
+    button.addEventListener("click", () => {
+      input.value = button.dataset.question;
+      input.focus();
+      input.setSelectionRange(input.value.length, input.value.length);
+      updateSend();
+    });
+  }
   stopButton.addEventListener("click", () => activeRequest?.abort());
   retryButton.addEventListener("click", () => {
     if (activeRequest || !retryMessage) return;
+    const message = retryMessage;
+    const image = retryImage;
     if (input.value.trim() === retryMessage) input.value = "";
+    setImage(null);
     input.focus({preventScroll: true});
-    sendMessage(retryMessage);
+    sendMessage(message, image);
   });
 
   input.addEventListener("input", updateSend);
   input.addEventListener("keydown", (event) => {
     if (event.key !== "Enter" || event.shiftKey || event.isComposing) return;
     event.preventDefault();
-    if (!activeRequest && input.value.trim()) form.requestSubmit();
+    if (!activeRequest && !readingImage && (input.value.trim() || selectedImage)) form.requestSubmit();
   });
   form.addEventListener("submit", (event) => {
     event.preventDefault();
-    const message = input.value.trim();
-    if (activeRequest || !message) return;
+    const message = input.value.trim() || (selectedImage ? "Nhờ Cò Mạ xem ảnh cây trồng này và chỉ giúp dấu hiệu cần kiểm tra." : "");
+    if (activeRequest || readingImage || !message) return;
+    const image = selectedImage;
+    setImage(null);
+    uploadStatus.textContent = "";
     input.value = "";
-    sendMessage(message);
+    sendMessage(message, image);
   });
 
   resetButton.addEventListener("click", () => {
@@ -198,6 +313,8 @@
     clearFeedback();
     resetButton.hidden = true;
     input.value = "";
+    setImage(null);
+    uploadStatus.textContent = "";
     updateSend();
     input.focus({preventScroll: true});
   });

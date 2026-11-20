@@ -30,6 +30,28 @@
   ];
   const field = (id) => document.getElementById(id);
 
+  const avatarInput = field("profile-avatar-file");
+  const avatarChoose = field("profile-avatar-choose");
+  avatarChoose?.addEventListener("click", () => avatarInput.click());
+  avatarInput?.addEventListener("change", async () => {
+    const file = avatarInput.files[0];
+    if (!file) return;
+    const status = field("profile-avatar-status");
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type) || file.size > 1_000_000) {
+      status.textContent = "Chọn JPG, PNG hoặc WebP tối đa 1 MB."; return;
+    }
+    const payload = new FormData(); payload.append("avatar", file);
+    avatarChoose.disabled = true; status.textContent = "Đang lưu ảnh lên máy chủ…";
+    try {
+      const response = await fetch("/api/auth/avatar", {method:"POST", headers:{"X-CSRF-Token":getCsrfToken()}, body:payload});
+      const body = await response.json();
+      if (!response.ok || body.error) throw new Error(body.error || "Chưa lưu được ảnh.");
+      for (const image of document.querySelectorAll("[data-user-avatar]")) image.src = body.data.avatar_url;
+      status.textContent = "Đã lưu ảnh đại diện trên máy chủ.";
+    } catch (error) { status.textContent = error.message; }
+    finally { avatarChoose.disabled = false; avatarInput.value = ""; }
+  });
+
   if (moreLinks) {
     document.addEventListener("pointerdown", (event) => {
       if (moreLinks.open && !moreLinks.contains(event.target)) moreLinks.open = false;

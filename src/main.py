@@ -103,10 +103,11 @@ def createApp(testConfig: dict | None = None) -> Flask:
     def inject_auth_context() -> dict:
         auth = get_current_auth()
         if auth is None:
-            return {"auth_user": None, "auth_csrf_token": ""}
+            return {"auth_user": None, "auth_csrf_token": "", "auth_avatar_url": "/static/assets/co-ma/avatar-co-ma.webp"}
         user, auth_session = auth
         return {
             "auth_user": user.to_public_dict(),
+            "auth_avatar_url": "/api/auth/avatar/current",
             "auth_csrf_token": auth_session.csrf_token,
         }
 

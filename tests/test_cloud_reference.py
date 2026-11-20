@@ -16,7 +16,7 @@ from src.services.cloud_reference_service import (
 class cloudReferenceTests(TestCase):
     def testDownloadsAndAssistantReadCloudCopies(self) -> None:
         referenceDir = Path(__file__).resolve().parents[1] / "server" / "data" / "reference"
-        content = {path.name: path.read_bytes() for path in referenceDir.iterdir() if path.is_file()}
+        content = {path.name: path.read_bytes() for path in referenceDir.rglob("*") if path.is_file()}
         seen = []
 
         def transport(req, timeout):

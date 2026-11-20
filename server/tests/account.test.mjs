@@ -69,3 +69,23 @@ test("central accounts persist only password hashes and enforce session ownershi
   assert.equal((await call(api,"/api/account/logout",{},token,csrf)).status,200);
   assert.equal((await call(api,"/api/account/session",undefined,token)).status,401);
 });
+
+test("avatars live in cloud object storage and require the account session and CSRF", async()=>{
+  const objects = new Map();
+  const bucket = {
+    async put(key, value) { objects.set(key, value); },
+    async get(key) { const value=objects.get(key); return value ? {arrayBuffer:async()=>value.buffer} : null; },
+  };
+  const api = new accountController({DB:database(),BUCKET:bucket});
+  const first = await call(api,"/api/account/register",{name:"Avatar A",username:"avatar_a",email:"avatar-a@example.test",phone:"+84912345678",password:"test-avatar-password"});
+  const second = await call(api,"/api/account/register",{name:"Avatar B",username:"avatar_b",email:"avatar-b@example.test",phone:"+84912345679",password:"test-avatar-password"});
+  const token=first.data.session_token, csrf=first.data.csrf_token;
+  const image=readFileSync(new URL("fixtures/forum-photo.jpg",import.meta.url)).toString("base64");
+  assert.equal((await call(api,"/api/account/avatar",{image},token,"bad")).status,403);
+  assert.equal(objects.size,0);
+  assert.equal((await call(api,"/api/account/avatar",{image},token,csrf)).status,200);
+  assert.equal((await call(api,"/api/account/avatar",undefined,token)).data.image,image);
+  assert.equal((await call(api,"/api/account/avatar",undefined,second.data.session_token)).data.image,null);
+  assert.equal((await call(api,"/api/account/avatar",{image:"invalid"},token,csrf)).status,400);
+  assert.equal((await call(api,"/api/account/avatar")).status,401);
+});

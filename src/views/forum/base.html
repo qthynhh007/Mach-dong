@@ -16,7 +16,7 @@
   {% if forumData is defined %}
   <div class="community-session">
     {% if forumData.member %}
-      {{ forumData.member.displayName }}{% if forumData.member.isGuest %} · Phiên khách dùng thử. Giữ cookie trình duyệt để tiếp tục quản lý bài của bạn.{% endif %}
+      {{ forumData.member.displayName }}{% if forumData.member.isGuest %} · Bài viết và bản nháp gắn với trình duyệt này.{% endif %}
     {% else %}<a href="/login">Đăng nhập để đăng bài và trả lời.</a>{% endif %}
   </div>
   {% endif %}

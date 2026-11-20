@@ -218,6 +218,14 @@ class CloudAuthService:
         token, _ = self._current_credentials()
         return self._call("field-profile", token=token)
 
+    def get_avatar(self) -> AuthResult:
+        token, _ = self._current_credentials()
+        return self._call("avatar", token=token)
+
+    def save_avatar(self, image: bytes) -> AuthResult:
+        token, csrf = self._current_credentials()
+        return self._call("avatar", {"image": base64.b64encode(image).decode("ascii")}, token, csrf)
+
     def save_field_profile(self, profile: dict) -> AuthResult:
         token, csrf = self._current_credentials()
         return self._call("field-profile", profile, token, csrf)

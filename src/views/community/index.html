@@ -19,17 +19,17 @@
     <header class="csv-hero">
       <div>
         <h1 class="app-page-title">Kho CSV cộng đồng</h1>
-        <p>Tra cứu số đo độ mặn, mực nước và các chỉ tiêu tại ruộng theo địa bàn và kỳ dữ liệu.</p>
+        <p>Tra cứu độ mặn, mực nước, khí tượng và sản lượng lúa theo địa bàn, thời kỳ và nguồn công bố.</p>
       </div>
-      <div class="csv-tools">
+    </header>
+    <div class="csv-tools">
         <label class="csv-search">{{ icon("search") }}<input type="search" id="csv-search" aria-label="Tìm bộ dữ liệu CSV" placeholder="Tìm theo tên tệp, địa bàn, trạm…"></label>
         <button class="csv-button app-button app-button--primary" type="button" data-csv-open aria-haspopup="dialog">{{ icon("upload_file") }} Tải lên CSV</button>
       </div>
-    </header>
 
     <div class="csv-filter-bar app-glass">
       <div class="csv-filters" role="group" aria-label="Lọc bộ dữ liệu">
-        {% for key, label in (('all', 'Tất cả'), ('long-huu', 'Long Hữu'), ('om5451', 'OM5451'), ('salinity', 'Độ mặn'), ('water', 'Mực nước'), ('weather', 'Vi khí hậu'), ('ph', 'Độ pH')) %}
+        {% for key, label in (('all', 'Tất cả'), ('salinity', 'Độ mặn'), ('water', 'Mực nước'), ('weather', 'Khí tượng'), ('production', 'Sản xuất')) %}
         <button type="button" class="app-button app-button--toggle" data-filter="{{ key }}" aria-pressed="{{ 'true' if key == 'all' else 'false' }}">
           {{ label }}{% if key == 'all' %} ({{ datasets | length }}){% endif %}
         </button>

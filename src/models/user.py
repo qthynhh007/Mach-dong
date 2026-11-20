@@ -16,6 +16,7 @@ from src.config import (
     DB_PATH,
     DEFAULT_INITIAL_AVAX,
 )
+from src.models.farm_profile import FarmProfile
 
 PBKDF2_ITERATIONS = 200_000
 WALLET_REGEX = re.compile(r"^0x[a-fA-F0-9]{40}$")
@@ -272,6 +273,28 @@ class SQLiteUserRepository:
                 )
                 conn.execute(
                     """
+                    CREATE TABLE IF NOT EXISTS farm_profiles (
+                        user_id TEXT PRIMARY KEY REFERENCES users(user_id) ON DELETE CASCADE,
+                        address TEXT NOT NULL,
+                        cultivar TEXT NOT NULL,
+                        area_ha REAL,
+                        station TEXT NOT NULL,
+                        seasons INTEGER,
+                        farming_system TEXT NOT NULL
+                    )
+                    """
+                )
+                conn.execute(
+                    """
+                    CREATE TABLE IF NOT EXISTS user_avatars (
+                        user_id TEXT PRIMARY KEY REFERENCES users(user_id) ON DELETE CASCADE,
+                        version TEXT NOT NULL,
+                        image BLOB NOT NULL
+                    )
+                    """
+                )
+                conn.execute(
+                    """
                     CREATE TABLE IF NOT EXISTS user_sessions (
                         session_id TEXT PRIMARY KEY,
                         user_id TEXT NOT NULL,
@@ -472,6 +495,87 @@ class SQLiteUserRepository:
                 "SELECT * FROM users WHERE user_id = ?", (user_id,)
             ).fetchone()
             return self._row_to_user(row) if row else None
+        finally:
+            self._close(conn)
+
+    def get_avatar_version(self, user_id: str) -> str | None:
+        conn = self._connect()
+        try:
+            row = conn.execute(
+                "SELECT version FROM user_avatars WHERE user_id = ?", (user_id,)
+            ).fetchone()
+            return row["version"] if row else None
+        finally:
+            self._close(conn)
+
+    def get_avatar(self, user_id: str, version: str) -> bytes | None:
+        conn = self._connect()
+        try:
+            row = conn.execute(
+                "SELECT image FROM user_avatars WHERE user_id = ? AND version = ?",
+                (user_id, version),
+            ).fetchone()
+            return row["image"] if row else None
+        finally:
+            self._close(conn)
+
+    def save_avatar(self, user_id: str, version: str, image: bytes) -> None:
+        conn = self._connect()
+        try:
+            with conn:
+                conn.execute(
+                    """
+                    INSERT INTO user_avatars (user_id, version, image) VALUES (?, ?, ?)
+                    ON CONFLICT(user_id) DO UPDATE SET
+                        version = excluded.version, image = excluded.image
+                    """,
+                    (user_id, version, image),
+                )
+        finally:
+            self._close(conn)
+
+    def get_farm_profile(self, user_id: str) -> FarmProfile | None:
+        conn = self._connect()
+        try:
+            row = conn.execute(
+                """SELECT address, cultivar, area_ha, station, seasons, farming_system
+                   FROM farm_profiles WHERE user_id = ?""",
+                (user_id,),
+            ).fetchone()
+            return FarmProfile(**dict(row)) if row else None
+        finally:
+            self._close(conn)
+
+    def save_farm_profile(
+        self, user_id: str, name: str, phone: str, profile: FarmProfile,
+        provided_fields: frozenset[str],
+    ) -> tuple[User, FarmProfile] | None:
+        conn = self._connect()
+        try:
+            with conn:
+                updated = conn.execute(
+                    "UPDATE users SET name = ?, phone = ? WHERE user_id = ?",
+                    (name, phone, user_id),
+                )
+                if not updated.rowcount:
+                    return None
+                farm = conn.execute(
+                    """INSERT INTO farm_profiles (
+                           user_id, address, cultivar, area_ha, station, seasons, farming_system
+                       ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                       ON CONFLICT(user_id) DO UPDATE SET address=excluded.address,
+                       cultivar=excluded.cultivar, area_ha=excluded.area_ha,
+                       station=CASE WHEN ? THEN excluded.station ELSE farm_profiles.station END,
+                       seasons=CASE WHEN ? THEN excluded.seasons ELSE farm_profiles.seasons END,
+                       farming_system=CASE WHEN ? THEN excluded.farming_system ELSE farm_profiles.farming_system END
+                       RETURNING address, cultivar, area_ha, station, seasons, farming_system""",
+                    (user_id, profile.address, profile.cultivar, profile.area_ha,
+                     profile.station, profile.seasons, profile.farming_system,
+                     "station" in provided_fields, "seasons" in provided_fields,
+                     "farming_system" in provided_fields),
+                ).fetchone()
+                row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
+                return self._row_to_user(row), FarmProfile(**dict(farm))
         finally:
             self._close(conn)
 

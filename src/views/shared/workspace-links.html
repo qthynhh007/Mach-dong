@@ -1,0 +1,23 @@
+{% from "shared/icon.html" import icon %}
+{% for group, links in [
+  ('Không gian làm việc', [
+    ('community', '/community', 'Kho CSV cộng đồng', 'table_view'),
+    ('forum', url_for('forum.index'), 'Thảo luận bà con', 'chat'),
+    ('simulation', '/simulation', 'Mô phỏng sinh lý lúa', 'grass'),
+    ('assistant', '/assistant', 'Trợ lý Cò Mạ', 'sparkles'),
+    ('admin', '/admin', 'Duyệt dữ liệu', 'fact_check')
+  ]),
+  ('Tài khoản', [
+    ('profile', url_for('auth.profile'), 'Thông tin cá nhân', 'account_circle'),
+    ('wallet-rules', url_for('auth.wallet_rules'), 'Thể lệ quy đổi LÚA', 'wallet')
+  ])
+] %}
+  <div class="app-nav-group">
+    <p class="app-side-label">{{ group }}</p>
+    {% for page, href, label, glyph in links %}
+      <a href="{{ href }}"{% if page == current_page %} aria-current="page"{% endif %}>
+        {{ icon(glyph) }}<span>{{ label }}</span>
+      </a>
+    {% endfor %}
+  </div>
+{% endfor %}

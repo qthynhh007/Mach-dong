@@ -22,43 +22,40 @@
   <!-- Header of Form -->
   <div>
     <h1 class="app-page-title" id="auth-page-title">Đăng Nhập Nông Hộ</h1>
-    <p class="auth-intro">Dùng email, tên đăng nhập hoặc số điện thoại để vào tài khoản Mạch Đồng.</p>
+    <p class="auth-intro">Truy cập hồ sơ cánh đồng, trợ lý Cò Mạ và dữ liệu thời gian thực.</p>
   </div>
 
-  <!-- Active Session Banner (shown if already logged in — without wallet code) -->
-  <div id="activeSessionBanner" class="p-space-sm rounded-lg bg-primary-fixed/40 border border-primary/30 {% if not current_user %}hidden{% endif %}">
+  <!-- Active Session Banner (shown if already logged in) -->
+  <div id="activeSessionBanner" class="p-3 rounded-xl bg-primary-fixed/40 border border-primary/30 {% if not current_user %}hidden{% endif %}">
     <div class="flex items-center justify-between gap-2">
       <div class="min-w-0">
         <p class="font-label-md font-bold text-primary">Đang đăng nhập: <span data-session-name>{{ current_user.name if current_user else '' }}</span> (<span data-session-role>{{ current_user.role if current_user else '' }}</span>)</p>
-        <p class="text-xs text-on-surface-variant mt-1">Điểm hiện có: <strong data-session-credits>{{ current_user.simulation_credits if current_user else 0 }}</strong> LÚA · <a href="/profile" class="text-primary font-bold underline">Mở Hồ sơ &amp; Ví</a></p>
+        <p class="text-xs text-on-surface-variant mt-1">Số dư điểm: <strong data-session-credits>{{ current_user.simulation_credits if current_user else 0 }}</strong> LÚA · <a href="/profile" class="text-primary font-bold underline">Hồ sơ &amp; Ví</a></p>
       </div>
       <button type="button" data-logout-btn class="px-3 py-1.5 rounded-lg bg-secondary text-on-primary font-label-sm font-bold shrink-0">Đăng xuất</button>
     </div>
   </div>
 
   <!-- Mode Toggle: Sign-In vs Forgot Password -->
-  {% if email_otp_available %}<div class="auth-mode-tabs">
+  <div class="auth-mode-tabs" role="tablist"{% if not email_otp_available %} hidden{% endif %}>
     <button type="button" data-login-tab="signin" aria-pressed="true" class="app-button app-button--toggle font-label-sm">
       Đăng nhập
     </button>
     <button type="button" data-login-tab="forgot" aria-pressed="false" class="app-button app-button--toggle font-label-sm">
       Quên mật khẩu
     </button>
-  </div>{% endif %}
+  </div>
 
-  <!-- 1. Sign-In Form (No wallet address displayed on login page) -->
+  <!-- 1. Sign-In Form -->
   <form class="space-y-space-md" id="loginForm" data-auth-form="login">
     <div class="auth-field-group">
-      <label class="font-label-md text-on-surface font-medium" for="identifierInput">
-        Email, tên đăng nhập hoặc số điện thoại (+84)
+      <label class="font-label-sm text-on-surface font-semibold" for="identifierInput">
+        Email, tên đăng nhập hoặc số điện thoại
       </label>
       <div class="auth-otp-row">
-        <div class="relative flex items-center flex-1">
-          <span class="absolute left-3 text-outline app-icon-wrap text-[18px]">{{ render_icon("account_circle") }}</span>
-          <input class="w-full pl-10 pr-3 py-2.5 bg-surface-container-low rounded-lg font-body-md text-on-surface placeholder:text-outline focus:outline-none focus:bg-surface focus:ring-2 focus:ring-primary-container transition-colors" required autocomplete="username" id="identifierInput" name="identifier" placeholder="Email, tên đăng nhập hoặc số điện thoại" type="text">
-        </div>
+        <input required autocomplete="username" id="identifierInput" name="identifier" placeholder="nongdan@gmail.com hoặc username" type="text" class="flex-1 min-w-0">
         {% if email_otp_available %}<button type="button" id="btnSendOtpLogin" class="app-button px-3 py-2 font-label-sm font-bold shrink-0">
-          Gửi mã Email
+          Gửi mã OTP
         </button>{% endif %}
       </div>
     </div>
@@ -73,46 +70,45 @@
             Quên mật khẩu?
           </button>{% endif %}
         </div>
-        <div class="relative flex items-center">
-          <span class="absolute left-3 text-outline app-icon-wrap text-[18px]">{{ render_icon("lock") }}</span>
-          <input class="w-full pl-10 pr-10 py-2.5 bg-surface-container-low rounded-lg font-body-md text-on-surface placeholder:text-outline focus:outline-none focus:bg-surface focus:ring-2 focus:ring-primary-container transition-colors" autocomplete="current-password" id="secretInput" name="password" placeholder="Nhập mật khẩu" type="password">
-          <button class="absolute right-3 text-outline hover:text-on-surface app-icon-wrap text-[18px]" data-show-password="secretInput" aria-label="Hiện mật khẩu" aria-pressed="false" type="button">{{ render_icon("visibility") }}</button>
+        <div class="auth-password-wrap">
+          <input autocomplete="current-password" id="secretInput" name="password" placeholder="Nhập mật khẩu" type="password">
+          <button data-show-password="secretInput" aria-label="Hiện mật khẩu" aria-pressed="false" type="button" class="auth-eye-btn">{{ render_icon("visibility") }}</button>
         </div>
       </div>
 
       {% if email_otp_available %}<div class="auth-field-group">
         <label class="font-label-sm text-on-surface font-semibold" for="otpCodeInput">
-          Mã xác nhận Email (6 số)
+          Mã xác nhận Email
         </label>
-        <input class="w-full px-3 py-2.5 bg-surface-container-low rounded-lg font-label-md text-on-surface placeholder:text-outline focus:outline-none focus:bg-surface focus:ring-2 focus:ring-primary-container tracking-widest" id="otpCodeInput" name="otp_code" maxlength="6" inputmode="numeric" placeholder="Nhập 6 số (nếu dùng OTP)" type="text">
+        <input id="otpCodeInput" name="otp_code" maxlength="6" inputmode="numeric" placeholder="6 chữ số (nếu có)" type="text">
       </div>{% endif %}
     </div>
 
     <div class="flex flex-wrap items-center justify-between gap-2 text-xs pt-1">
       <label class="app-choice">
         <input type="checkbox" id="rememberMeInput" name="remember_me" checked>
-        <span>Duy trì phiên đăng nhập (7 ngày)</span>
+        <span>Duy trì đăng nhập (7 ngày)</span>
       </label>
     </div>
 
-    <button class="app-button app-button--primary w-full py-3 px-space-md font-headline-sm font-semibold flex items-center justify-center gap-2 group" type="submit">
+    <button class="app-button app-button--primary w-full py-3" type="submit">
       <span>Đăng nhập</span>
-      <span class="app-icon-wrap text-[20px]">{{ render_icon("arrow_forward") }}</span>
+      {{ render_icon("arrow_forward") }}
     </button>
   </form>
 
-  <!-- 2. Forgot Password Form (Receive 6-digit confirmation code via Email & Set New Password) -->
-  {% if email_otp_available %}<form class="space-y-space-md hidden" id="forgotPasswordForm">
-    <div class="p-3 rounded-lg bg-surface-container-low text-xs text-on-surface-variant leading-relaxed">
-      Nhập <strong>Email</strong> hoặc <strong>Tên đăng nhập (Username)</strong> đã đăng ký và bấm <strong>"Gửi mã xác nhận"</strong>. Hệ thống sẽ kiểm tra tài khoản tồn tại rồi gửi mã 6 chữ số tới Email của bạn.
+  <!-- 2. Forgot Password Form -->
+  <form class="space-y-space-md hidden" id="forgotPasswordForm">
+    <div class="p-3 rounded-xl bg-surface-container-low text-xs text-on-surface-variant leading-relaxed">
+      Nhập <strong>Email</strong> hoặc <strong>Username</strong>. Hệ thống sẽ gửi mã xác nhận 6 số để bạn thiết lập mật khẩu mới ngay lập tức.
     </div>
 
     <div class="auth-field-group">
       <label class="font-label-sm text-on-surface font-semibold" for="forgotEmailInput">
-        Email hoặc Tên đăng nhập (Username) *
+        Email hoặc Tên đăng nhập *
       </label>
       <div class="auth-otp-row">
-        <input id="forgotEmailInput" type="text" required placeholder="email@gmail.com hoặc tên đăng nhập (VD: admin)" class="flex-1 min-w-0 px-3 py-2.5 bg-surface-container-low rounded-lg text-on-surface focus:ring-2 focus:ring-primary-container">
+        <input id="forgotEmailInput" type="text" required placeholder="email@gmail.com hoặc username" class="flex-1 min-w-0">
         <button type="button" id="btnSendOtpForgot" class="app-button px-3 py-2 font-label-sm font-bold shrink-0">
           Gửi mã xác nhận
         </button>
@@ -121,9 +117,9 @@
 
     <div class="auth-field-group">
       <label class="font-label-sm text-on-surface font-semibold" for="forgotOtpInput">
-        Mã xác nhận Email (6 chữ số) *
+        Mã xác nhận Email (6 số) *
       </label>
-      <input id="forgotOtpInput" type="text" required maxlength="6" inputmode="numeric" placeholder="Nhập 6 chữ số nhận qua Email" class="w-full px-3 py-2.5 bg-surface-container-low rounded-lg font-label-md text-on-surface tracking-widest focus:ring-2 focus:ring-primary-container">
+      <input id="forgotOtpInput" type="text" required maxlength="6" inputmode="numeric" placeholder="Nhập 6 chữ số từ email">
     </div>
 
     <div class="auth-two-col">
@@ -131,31 +127,31 @@
         <label class="font-label-sm text-on-surface font-semibold" for="forgotNewPassword">
           Mật khẩu mới *
         </label>
-        <div class="relative flex items-center">
-          <input id="forgotNewPassword" type="password" required minlength="4" placeholder="Tối thiểu 4 ký tự" class="w-full pl-3 pr-10 py-2.5 bg-surface-container-low rounded-lg text-on-surface focus:ring-2 focus:ring-primary-container">
-          <button class="absolute right-3 text-outline hover:text-on-surface app-icon-wrap text-[18px]" data-show-password="forgotNewPassword" aria-label="Hiện mật khẩu" aria-pressed="false" type="button">{{ render_icon("visibility") }}</button>
+        <div class="auth-password-wrap">
+          <input id="forgotNewPassword" type="password" required minlength="{{ 12 if cloud_auth else 4 }}" placeholder="Tối thiểu {{ 12 if cloud_auth else 4 }} ký tự">
+          <button data-show-password="forgotNewPassword" aria-label="Hiện mật khẩu" aria-pressed="false" type="button" class="auth-eye-btn">{{ render_icon("visibility") }}</button>
         </div>
       </div>
       <div class="auth-field-group">
         <label class="font-label-sm text-on-surface font-semibold" for="forgotConfirmPassword">
-          Xác nhận mật khẩu mới *
+          Xác nhận mật khẩu *
         </label>
-        <input id="forgotConfirmPassword" type="password" required minlength="4" placeholder="Nhập lại mật khẩu mới" class="w-full px-3 py-2.5 bg-surface-container-low rounded-lg text-on-surface focus:ring-2 focus:ring-primary-container">
+        <input id="forgotConfirmPassword" type="password" required minlength="{{ 12 if cloud_auth else 4 }}" placeholder="Nhập lại mật khẩu">
       </div>
     </div>
 
-    <button class="app-button app-button--primary w-full py-3 px-space-md font-headline-sm font-semibold flex items-center justify-center gap-2 group" type="submit">
+    <button class="app-button app-button--primary w-full py-3" type="submit">
       <span>Đặt lại mật khẩu</span>
-      <span class="app-icon-wrap text-[20px] group-hover:translate-x-1 transition-transform">{{ render_icon("arrow_forward") }}</span>
+      {{ render_icon("arrow_forward") }}
     </button>
-  </form>{% endif %}
+  </form>
 
   <p role="status" class="auth-status text-sm font-medium" data-auth-message></p>
 </div>
 
 <div class="auth-footnote">
   <span>Chưa có tài khoản?</span>
-  <a href="/register">Đăng ký</a>
+  <a href="/register">Đăng ký ngay</a>
 </div>
     </section>
   </div>

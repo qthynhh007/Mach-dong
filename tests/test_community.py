@@ -520,8 +520,21 @@ class communityTests(TestCase):
         config = {**self.config, "COMMUNITY_SEED_SAMPLES": True}
         app = createApp(config)
         posts = app.test_client().get("/api/community/posts").json["data"]
-        self.assertEqual(posts["total"], 3)
+        self.assertEqual(posts["total"], 13)
         self.assertTrue(all(post["isSample"] for post in posts["items"]))
+        client = app.test_client()
+        diaries = [p for p in client.get("/api/community/posts?pageSize=30").json["data"]["items"]
+                   if p["id"].startswith("nhat-ky-")]
+        self.assertEqual(len(diaries), 10)
+        for diary in diaries:
+            photo, = diary["photos"]
+            with client.get(photo) as response:
+                self.assertEqual(response.status_code, 200)
+            replies = client.get("/api/community/posts/" + diary["id"]).json["data"]["replies"]
+            self.assertEqual(len({reply["authorId"] for reply in replies}), 3)
+            root, = [reply for reply in replies if not reply["parentId"]]
+            self.assertEqual(sum(reply["parentId"] == root["id"] for reply in replies), 2)
+            self.assertIn(diary["authorId"], {reply["authorId"] for reply in replies})
         with app.extensions["communityService"].model.transaction() as store:
             store.deletePost("muong-lo")
         self.assertEqual(
@@ -529,7 +542,7 @@ class communityTests(TestCase):
             .test_client()
             .get("/api/community/posts")
             .json["data"]["total"],
-            2,
+            12,
         )
 
     def testUnknownResourcesDoNotCreateLocalPlaceholderPages(self) -> None:
@@ -573,6 +586,15 @@ class communityTests(TestCase):
             self.assertEqual(len({item["sourceUrl"] for item in items}), 20)
             self.assertTrue(all(item["author"] == "Admin" for item in items))
             self.assertTrue(all(not item["isSample"] and not item["canEdit"] for item in items))
+            for item in items[:10]:
+                self.assertEqual(len(item["photos"]), 1)
+                src = item["photos"][0]
+                credit = item["photoCredits"][src]
+                self.assertTrue(credit["author"] and credit["license"] and credit["alt"])
+                self.assertTrue(credit["sourceUrl"].startswith("https://commons.wikimedia.org/"))
+                with client.get(src) as photo:
+                    self.assertEqual(photo.status_code, 200)
+                    self.assertEqual(photo.mimetype, "image/jpeg")
             first = client.get("/api/community/posts/bai-tham-khao-01").json["data"]["post"]
             self.assertIn("Trần Khắc Thi", first["body"])
             self.assertIn("19/12/2012", first["body"])

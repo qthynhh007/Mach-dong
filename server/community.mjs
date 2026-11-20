@@ -1,5 +1,8 @@
 import forumSeed from "./data/forum-seed.json" with {type:"json"};
 import {accountController,accountError} from "./auth.mjs";
+import {referenceFiles} from "./reference.mjs";
+
+const forumPhotos = Object.fromEntries(JSON.parse(referenceFiles["forum-photo-assets.json"]).flatMap(asset => asset.posts.map(id => [id,asset])));
 
 class communityApiError extends Error {
   constructor(message, status = 400) { super(message); this.status = status; }
@@ -135,6 +138,10 @@ export class communityController {
   }
   presentPost(row,memberId,summary = false) {
     const post = {...row,photos:JSON.parse(row.photos),isSample:!!row.isSample,voted:!!row.voted,canEdit:row.authorId === memberId,canVote:!!memberId && row.authorId !== memberId};
+    const photo = forumPhotos[post.id];
+    if (photo && (post.isSample || post.authorId === forumSeed.editorialAuthor)) {
+      post.photos = [photo.src]; post.photoCredits = {[photo.src]:photo};
+    }
     if (post.authorId === forumSeed.editorialAuthor && forumSeed.editorial[post.id]) post.sourceUrl = forumSeed.editorial[post.id].url;
     if (summary) { post.body = post.body.slice(0,300)+(post.body.length > 300 ? "…" : ""); post.photos = post.photos.slice(0,1); }
     return post;

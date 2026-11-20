@@ -1,14 +1,18 @@
 .csv-hero {
-  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 1.25rem; align-items: end; margin: 0 0 1.5rem;
+  display: flex; align-items: center; min-height: clamp(10rem, 17vw, 14rem);
+  margin-bottom: 1.25rem; padding: clamp(1.25rem, 3vw, 3rem);
+  background: linear-gradient(95deg, #123d2e 5%, #183e30eb 38%, #123d2e45 80%),
+    url("/static/assets/stitch-forum-field.jpg") center 56% / cover;
+  border-radius: 1.25rem; color: white;
 }
-.csv-hero p { max-width: 46ch; margin-top: .55rem; line-height: 1.55; color: #3b5044; }
-.csv-tools { display: flex; justify-content: flex-end; align-items: stretch; gap: .65rem; min-width: 0; }
+.csv-hero .app-page-title { color: white; }
+.csv-hero p { max-width: 43ch; margin-top: .55rem; line-height: 1.65; color: #f0f6e9; }
+.csv-tools { display: flex; gap: .75rem; margin-bottom: .75rem; align-items: stretch; min-width: 0; }
 .csv-search {
   display: flex; align-items: center; flex: 1; gap: .6rem; min-width: 0; padding: .5rem .82rem;
   border: 1px solid var(--md-surface-line); border-radius: .75rem; background: var(--md-surface-solid); color: #406b59;
 }
-.csv-search:focus-within { border-color: #72a28b; }
+.csv-search:focus-within { outline: 2px solid #397c5c; outline-offset: 2px; }
 .csv-search input { width: 100%; min-width: 0; background: transparent; color: #213b30; font-size: .9rem; }
 .csv-search input::placeholder { color: #55695e; }
 .csv-search input:focus { outline: none; }
@@ -29,20 +33,22 @@
   display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.32fr) auto;
   align-items: center; column-gap: clamp(.7rem, 1.4vw, 1.3rem); row-gap: .65rem;
   padding: .95rem clamp(.9rem, 1.6vw, 1.25rem); border-radius: 1rem;
+  transition: transform 180ms cubic-bezier(.16, 1, .3, 1), box-shadow 180ms ease, border-color 180ms ease;
 }
-.csv-row:hover { border-color: #d9e9df; }
-.csv-row:focus-within { border-color: #99bba7; }
-.csv-row-main { min-width: 0; overflow-wrap: anywhere; }
-.csv-row h2 { font-size: .96rem; font-weight: 750; line-height: 1.35; }
+.csv-row:is(:hover, :focus-within) {
+  border-color: #1b6a51;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 18px rgba(27, 106, 81, 0.12);
+}
 .csv-badge {
   display: inline-flex; align-items: center; gap: .35rem; border: 1px solid #badbce; border-radius: 999px;
-  margin-top: .48rem; padding: .14rem .48rem; color: #215744; background: #deefe7; font-size: .69rem; font-weight: 650;
+  margin-top: .48rem; padding: .14rem .55rem; color: #107050; background: #e0f4ea; font-size: .69rem; font-weight: 700;
 }
-.csv-badge-demo { border-color: #dfe3d8; background: #eceee7; color: #4b5d51; }
+.csv-badge-demo { border-color: #cde2d6; background: #edf7f1; color: #235845; }
 .csv-row-main p { margin-top: .3rem; color: #42584c; font-size: .78rem; line-height: 1.45; }
 .csv-row-main .csv-sources { color: #1d5f48; font-size: .72rem; }
 .csv-data-points {
-  display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1.08fr) minmax(0, .9fr);
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
   align-items: start; gap: .55rem; margin: 0; font-size: .75rem; font-variant-numeric: tabular-nums;
 }
 .csv-data-points dt { color: #536a5d; font-size: .68rem; }
@@ -102,3 +108,5 @@
 @media (prefers-reduced-motion: no-preference) {
   .csv-row, .csv-search { transition: border-color var(--md-motion-fast) ease; }
 }
+
+@media (max-width: 540px) { .csv-hero { background-position: 68% center; background-image: linear-gradient(90deg,#153d2ef7,#173c30c9),url("/static/assets/stitch-forum-field.jpg"); } .csv-tools { flex-wrap: wrap; } .csv-search { flex-basis: 13rem; } }

@@ -24,7 +24,7 @@ from src.controllers.session_guard import get_current_auth
 from src.models.community import communityMember
 from src.services.cloud_reference_service import referenceUnavailable
 from src.services.community_service import communityError, communityService
-from src.services.csv_library import DATASET_BY_SLUG, DATASETS
+from src.services.csv_library import findDataset, listDatasets
 from src.services.forum_service import (
     CULTIVARS,
     DISCUSSION_TOPICS,
@@ -201,17 +201,17 @@ class communityController:
     def library(self) -> str:
         return render_template(
             "community/index.html", current_page="community",
-            datasets=[(dataset, dataset.preview()["row_count"]) for dataset in DATASETS],
+            datasets=[(dataset, dataset.preview()["row_count"]) for dataset in listDatasets()],
         )
 
     def downloadSample(self, name: str) -> Response:
-        dataset = DATASET_BY_SLUG.get(name)
+        dataset = findDataset(name)
         if dataset is None:
             abort(404)
         return send_file(BytesIO(dataset.readBytes()), as_attachment=True, mimetype="text/csv", download_name=dataset.path.name)
 
     def dataset_preview(self, name: str) -> tuple[Response, int]:
-        dataset = DATASET_BY_SLUG.get(name)
+        dataset = findDataset(name)
         if dataset is None:
             raise communityError("Không tìm thấy bộ dữ liệu.", 404)
         return self.respond(dataset.preview())

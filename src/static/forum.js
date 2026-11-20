@@ -60,13 +60,48 @@
       return button;
     }
 
-    picture(src) {
-      if (!/^(?:\/static\/assets\/stitch-forum-(?:field|roots)\.jpg|data:image\/jpeg;base64,[A-Za-z0-9+/]+=*|https:\/\/mach-dong-rice-data\.artfulmica6\.chatgpt\.site\/api\/community\/photos\/[0-9a-f-]{36})$/.test(src)) return null;
+    picture(src, credit) {
+      if (!/^(?:\/static\/assets\/(?:stitch-forum-(?:field|roots)\.jpg|forum-photos\/[a-z0-9-]+\.jpg)|https:\/\/mach-dong-rice-data\.artfulmica6\.chatgpt\.site\/api\/community\/photos\/[0-9a-f-]{36}|https:\/\/mach-dong-rice-data\.artfulmica6\.chatgpt\.site\/api\/community\/photos\/[0-9a-f-]{36}|data:image\/jpeg;base64,[A-Za-z0-9+/]+=*)$/.test(src)) return null;
       const image = new Image();
-      image.src = src;
-      image.alt = "Ảnh đính kèm bài chia sẻ";
+      image.alt = credit?.alt || "Ảnh đính kèm bài chia sẻ";
       image.loading = "lazy";
+      image.decoding = "async";
+      if (credit) {
+        image.width = credit.width;
+        image.height = credit.height;
+      }
+      image.src = src.startsWith("https:") ? new URL(src).pathname : src;
       return image;
+    }
+
+    postPhoto(src, credit) {
+      const image = this.picture(src, credit);
+      if (!image || !credit) return image;
+
+      const figure = this.element("figure", "", "forum-sourced-photo");
+      const caption = this.element("figcaption");
+      if (!credit.sourceUrl) {
+        caption.textContent = credit.alt + " · Tranh minh họa bằng AI";
+        figure.append(image, caption);
+        return figure;
+      }
+      const source = this.element("a", credit.author);
+      source.href = credit.sourceUrl;
+      source.target = "_blank";
+      source.rel = "noopener noreferrer";
+      caption.append(`${credit.alt} · Ảnh minh họa · `, source, " · ");
+
+      if (credit.licenseUrl) {
+        const license = this.element("a", credit.license);
+        license.href = credit.licenseUrl;
+        license.target = "_blank";
+        license.rel = "noopener noreferrer";
+        caption.append(license);
+      } else {
+        caption.append(credit.license);
+      }
+      figure.append(image, caption);
+      return figure;
     }
 
     bindVote(root, post) {
@@ -103,7 +138,7 @@
         `${post.answerCount} câu trả lời`, post.acceptedReplyId ? "✓ Đã giải đáp" : "",
       ].filter(Boolean).join(" · ");
       const gallery = root.querySelector("[data-photos]");
-      gallery.replaceChildren(...post.photos.map((src) => this.picture(src)).filter(Boolean));
+      gallery.replaceChildren(...post.photos.map((src) => this.postPhoto(src, post.photoCredits?.[src])).filter(Boolean));
       gallery.hidden = !gallery.childElementCount;
       this.bindVote(root, post);
     }
@@ -282,11 +317,7 @@
       for (const field of this.fields) {
         if (typeof saved[field] === "string") this.form.elements[field].value = saved[field];
       }
-      if (this.editPost) {
-        document.querySelector("h1").textContent = "Chỉnh sửa bài chia sẻ";
-        find("publish-post").querySelector("span").textContent = "Lưu thay đổi";
-        find("save-draft").hidden = find("discard-draft").hidden = true;
-      } else if (data.draft?.payload) this.status("Đã khôi phục bản nháp của bạn.", "compose-status");
+      if (data.draft?.payload) this.status("Đã khôi phục bản nháp của bạn.", "compose-status");
       this.refreshTitle();
       this.refreshPhotos();
       this.form.addEventListener("input", () => { this.dirty = true; this.refreshTitle(); });
@@ -308,11 +339,13 @@
           if (body.value.length + snippet.length > body.maxLength) return;
           body.setRangeText(snippet, start, start, "end");
           this.dirty = true;
+          this.refreshTitle();
           body.focus();
         });
       }
-      find("save-draft").onclick = () => this.saveDraft();
-      find("discard-draft").onclick = () => this.discardDraft();
+      find("save-draft")?.addEventListener("click", () => this.saveDraft());
+      find("discard-draft")?.addEventListener("click", () => this.discardDraft());
+      find("preview-post").addEventListener("click", () => this.showPreview());
       this.form.addEventListener("submit", (event) => { event.preventDefault(); this.publish(); });
       this.setBusy(false);
     }
@@ -326,7 +359,22 @@
       for (const control of this.form.elements) control.disabled = busy || !data.member;
     }
 
-    refreshTitle() { find("titleCount").textContent = find("post-title").value.length + " / 120 ký tự"; }
+    refreshTitle() {
+      for (const [counter, id] of [["titleCount", "post-title"], ["bodyCount", "post-content"]]) {
+        const field = find(id);
+        find(counter).textContent = field.value.length + " / " + field.maxLength + " ký tự";
+      }
+    }
+
+    showPreview() {
+      const values = this.values();
+      const topic = this.form.querySelector("[name=topic]:checked")?.closest("label")?.textContent.trim();
+      find("compose-preview-meta").textContent = [topic, values.cultivar, values.stage].filter(Boolean).join(" · ");
+      find("compose-preview-title").textContent = values.title || "Chưa có tiêu đề";
+      find("compose-preview-body").textContent = values.body || "Bà con chưa nhập nội dung.";
+      find("compose-preview-photos").replaceChildren(...values.photos.map(src => this.picture(src)).filter(Boolean));
+      find("compose-preview").showModal();
+    }
 
     refreshPhotos() {
       const preview = find("photo-preview");
@@ -410,6 +458,7 @@
       if (this.busy) return;
       const payload = {...this.values(), requestId: this.requestId, draftVersion: this.draftVersion};
       this.setBusy(true);
+      this.status(this.editPost ? "Đang lưu thay đổi…" : "Đang đăng bài…", "compose-status");
       try {
         const post = this.editPost
           ? await this.api.request("posts/" + this.editPost.id, "PATCH", {...payload, version: this.editPost.version})
@@ -485,6 +534,7 @@
 
     renderReplies() {
       const feed = find("forum-replies");
+      find("discussion-count").textContent = this.replies.filter(reply => !reply.isDeleted).length;
       const groups = new Map();
       for (const reply of this.replies) {
         const key = reply.parentId || "root";
@@ -497,7 +547,9 @@
         || (sort === "helpful" ? right.score - left.score : 0)
         || (sort === "newest" ? right.createdAt.localeCompare(left.createdAt) : left.createdAt.localeCompare(right.createdAt)));
       feed.replaceChildren(...roots.map((reply) => this.renderReply(reply, groups, 0)));
-      if (!roots.length) feed.textContent = "Chưa có câu trả lời. Hãy bắt đầu trao đổi.";
+      if (!roots.length) {
+        feed.append(this.element("p", "Chưa có ai trao đổi. Bà con có kinh nghiệm ở ruộng mình thì chia sẻ tại đây nhé.", "discussion-empty"));
+      }
     }
 
     renderReply(reply, groups, depth) {
@@ -512,7 +564,11 @@
         author.dataset.memberId = reply.authorId;
         author.setAttribute("aria-haspopup", "dialog");
       }
-      header.append(author, this.element("time", this.date(reply.createdAt), "community-meta"));
+      const initials = reply.author.trim().split(/\s+/).slice(-2).map(part => part[0]).join("");
+      const avatar = this.element("span", initials, "discussion-avatar");
+      avatar.setAttribute("aria-hidden", "true");
+      header.append(avatar, author, this.element("time", this.date(reply.createdAt), "community-meta"));
+      if (!reply.isDeleted && reply.authorId === this.post.authorId) header.append(this.element("span", "Chủ bài", "discussion-owner"));
       if (reply.isAccepted) header.append(this.element("span", "✓ Được tác giả chọn", "community-accepted"));
       if (reply.version > 1 && !reply.isDeleted) header.append(this.element("span", "Đã chỉnh sửa", "community-meta"));
       item.append(header, this.element("p", reply.isDeleted ? "Câu trả lời đã được tác giả xóa." : reply.body));
