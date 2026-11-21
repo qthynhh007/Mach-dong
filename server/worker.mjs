@@ -103,6 +103,13 @@ export class simulationController {
       // Fail closed if the explicitly requested weather source is unavailable.
       const weather = inputs.useWeather ? await getWeather(inputs.locationId,this.fetcher) : null;
       const result = new simulationEngine(catalog).evaluate(inputs,weather);
+      try {
+        const remainingCredits = await new accountController(this.env,this.fetcher).spendSimulationCredit(caller.user_id,`Mô phỏng ${inputs.varietyId} (${inputs.locationId})`);
+        if (remainingCredits !== null) result.remainingCredits = remainingCredits;
+      } catch (error) {
+        if (error instanceof accountError) return jsonResponse(null,error.status,error.message);
+        throw error;
+      }
       result.ai = {status:"notRequested",message:"Có thể nhờ AI chọn các bằng chứng cần chú ý."};
       if (inputs.requestAi) {
         const ip = caller.user_id;

@@ -8,6 +8,7 @@ from flask import request as flask_request
 from src.config import SESSION_COOKIE_NAME
 from src.controllers.session_guard import get_current_auth
 from src.services.community_service import communityError, communityService
+from src.services.http_transport import default_urlopen
 
 
 class cloudCommunityService(communityService):
@@ -15,7 +16,7 @@ class cloudCommunityService(communityService):
         self.api_url = api_url.rstrip("/")
         if not self.api_url.startswith("https://"):
             raise ValueError("Cloud forum API must use HTTPS")
-        self.transport = transport or request.urlopen
+        self.transport = transport or default_urlopen
 
     def registerMember(self, member) -> None:
         # The cloud validates the account session and owns the member record.

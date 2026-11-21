@@ -33,6 +33,10 @@ class testSimulation(TestCase):
                               "SIMULATION_TRANSPORT": transport})
         self.client = self.app.test_client()
         sign_in(self.client)
+        auth_svc = self.app.extensions["auth_service"]
+        farmer = auth_svc.repo.get_by_username("test_farmer")
+        farmer.simulation_credits = 10
+        auth_svc.repo.save_user(farmer)
 
     def testRemoteForwardingPreservesUserData(self):
         self.payload["requestAi"] = True
@@ -97,6 +101,21 @@ class testSimulation(TestCase):
         for url in ("http://127.0.0.1:11434", "https://key@example.test", "https://example.test?key=x"):
             with self.assertRaises(ValueError):
                 cloudClient(url)
+
+    def testLocalSimulationDeductsCreditAndRejectsZeroBalance(self):
+        auth_svc = self.app.extensions["auth_service"]
+        farmer = auth_svc.repo.get_by_username("test_farmer")
+        farmer.simulation_credits = 1
+        auth_svc.repo.save_user(farmer)
+
+        first = self.client.post("/api/simulation", json=self.payload)
+        self.assertEqual(first.status_code, 200)
+        self.assertEqual(first.json["data"]["remainingCredits"], 0)
+        self.assertEqual(auth_svc.repo.get_by_username("test_farmer").simulation_credits, 0)
+
+        second = self.client.post("/api/simulation", json=self.payload)
+        self.assertEqual(second.status_code, 402)
+        self.assertIsNone(second.json["data"])
 
     def testCatalogAndWeatherUseSharedCloud(self):
         self.assertEqual(self.client.get("/api/simulation/catalog").status_code, 200)

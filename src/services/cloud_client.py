@@ -6,6 +6,7 @@ from urllib.request import Request, urlopen
 
 from src.models.simulation import simulationError
 from src.services.cloud_session import cloud_session_headers
+from src.services.http_transport import default_urlopen
 
 
 class cloudClient:
@@ -14,7 +15,7 @@ class cloudClient:
         if parsed.scheme != "https" or not parsed.hostname or parsed.username or parsed.query or parsed.fragment:
             raise ValueError("SIMULATION_API_URL must be an HTTPS origin")
         self.baseUrl = baseUrl.rstrip("/")
-        self.transport = transport or urlopen
+        self.transport = transport or default_urlopen
 
     def request(self, path: str, payload: dict | None = None) -> dict:
         body = json.dumps(payload, allow_nan=False).encode("utf-8") if payload is not None else None

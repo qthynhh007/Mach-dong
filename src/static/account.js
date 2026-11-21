@@ -355,193 +355,188 @@
     }
   });
 
-  // Credit Changer (AVAX <-> LÚA Simulation Credits)
+  // Credit Changer (One-way AVAX -> LÚA Simulation Credits on Avalanche Fuji)
   if (creditChangerBox && creditExchangeForm) {
     const rate = Number(creditChangerBox.dataset.creditsPerAvax || 100);
-
-    function getDirection() {
-      return (
-        creditExchangeForm.querySelector('input[name="exchange_direction"]:checked')?.value ||
-        "AVAX_TO_CREDIT"
-      );
-    }
+    const contractAddress = (creditChangerBox.dataset.contractAddress || "").trim();
+    const chainIdNum = Number(creditChangerBox.dataset.chainId || 43113);
+    const beneficiaryWallet = (creditChangerBox.dataset.walletAddress || "").trim();
 
     function updateExchangePreview() {
-      const dir = getDirection();
       const rawVal = Number(exchangeAmountInput?.value || 0);
-      if (dir === "AVAX_TO_CREDIT") {
-        if (exchangeUnitLabel) exchangeUnitLabel.textContent = "AVAX";
-        if (exchangeAmountInput) {
-          exchangeAmountInput.step = "0.01";
-          exchangeAmountInput.min = "0.01";
-        }
-        const credits = Math.max(0, Math.round(rawVal * rate));
-        if (exchangePreviewOutput) {
-          exchangePreviewOutput.textContent = `+${credits} LÚA`;
-        }
-      } else {
-        if (exchangeUnitLabel) exchangeUnitLabel.textContent = "LÚA";
-        if (exchangeAmountInput) {
-          exchangeAmountInput.step = "1";
-          exchangeAmountInput.min = "1";
-        }
-        const avax = Math.max(0, rawVal / rate);
-        if (exchangePreviewOutput) {
-          exchangePreviewOutput.textContent = `+${avax.toFixed(4)} AVAX`;
-        }
+      if (exchangeUnitLabel) exchangeUnitLabel.textContent = "AVAX";
+      if (exchangeAmountInput) {
+        exchangeAmountInput.step = "0.01";
+        exchangeAmountInput.min = "0.01";
+      }
+      const credits = Math.max(0, Math.round(rawVal * rate));
+      if (exchangePreviewOutput) {
+        exchangePreviewOutput.textContent = `+${credits} LÚA`;
       }
     }
-
-    creditExchangeForm
-      .querySelectorAll('input[name="exchange_direction"]')
-      .forEach((radio) => {
-        radio.addEventListener("change", () => {
-          if (getDirection() === "AVAX_TO_CREDIT") {
-            exchangeAmountInput.value = "0.50";
-          } else {
-            exchangeAmountInput.value = "10";
-          }
-          updateExchangePreview();
-        });
-      });
 
     exchangeAmountInput?.addEventListener("input", updateExchangePreview);
     updateExchangePreview();
 
     function applyBalanceAndTxUpdate(data) {
       const user = data?.user;
-      if (user) {
+      const resolvedCredits = data?.onchain_credits ?? user?.simulation_credits;
+      const resolvedAvax = data?.onchain_avax ?? user?.avax_balance;
+      if (resolvedCredits !== undefined && resolvedCredits !== null) {
         document.querySelectorAll("[data-profile-credits]").forEach((el) => {
-          el.textContent = String(user.simulation_credits);
+          el.textContent = String(resolvedCredits);
         });
         document.querySelectorAll("[data-header-credits]").forEach((el) => {
-          el.textContent = `${user.simulation_credits} LÚA`;
+          el.textContent = `${resolvedCredits} LÚA`;
         });
+      }
+      if (resolvedAvax !== undefined && resolvedAvax !== null) {
         document.querySelectorAll("[data-profile-avax]").forEach((el) => {
-          el.textContent = Number(user.avax_balance).toFixed(4);
+          el.textContent = Number(resolvedAvax).toFixed(4);
         });
       }
       const tx = data?.transaction;
       if (tx && creditTxList) {
         field("credit-tx-empty")?.remove();
-        const row = document.createElement("div");
-        row.className =
-          "p-2.5 rounded-lg bg-surface-container-low flex items-center justify-between gap-2";
-        const isPositive = tx.credit_delta >= 0;
-        const badgeText =
-          tx.direction === "FAUCET_TOPUP"
-            ? `+${Number(tx.avax_amount).toFixed(2)} AVAX`
-            : tx.credit_delta >= 0
-            ? `+${tx.credit_delta} LÚA`
-            : `${tx.credit_delta} LÚA`;
+        const row = document.createElement("article");
+        row.className = "wallet-transaction";
+        const badgeText = `${tx.credit_delta >= 0 ? "+" : ""}${tx.credit_delta} LÚA`;
         const isRealOnchain =
-          tx.note?.endsWith("(On-chain Fuji)") && /^0x[0-9a-fA-F]{64}$/.test(tx.tx_hash || "");
+          tx.note?.includes("(On-chain Fuji)") && /^0x[0-9a-fA-F]{64}$/.test(tx.tx_hash || "");
         const hashHtml = isRealOnchain
-          ? `On-chain Fuji: <a href="https://testnet.snowtrace.io/tx/${tx.tx_hash}" target="_blank" rel="noopener" class="underline font-bold text-primary hover:text-primary/80"><code>${tx.tx_hash.slice(
-              0,
-              10
-            )}...${tx.tx_hash.slice(-6)} ↗</code></a>`
-          : `Mã mô phỏng: <code>${tx.tx_hash.slice(0, 14)}...${tx.tx_hash.slice(-6)}</code>`;
-        row.innerHTML = `
-          <div class="flex items-center gap-2 min-w-0">
-            <span class="w-7 h-7 rounded-full bg-primary-fixed text-primary flex items-center justify-center font-bold text-sm shrink-0">${
-              isPositive ? "↓" : "↑"
-            }</span>
-            <div class="flex flex-col min-w-0">
-              <span class="font-body-sm text-body-sm font-semibold text-on-surface truncate">${tx.note}</span>
-              <span class="font-label-sm text-label-sm text-on-surface-variant truncate">${hashHtml}</span>
-            </div>
-          </div>
-          <span class="font-label-md text-label-md font-bold ${
-            isPositive ? "text-primary" : "text-secondary"
-          } shrink-0">${badgeText}</span>
-        `;
+          ? `<a class="wallet-text-link" href="https://testnet.snowtrace.io/tx/${tx.tx_hash}" target="_blank" rel="noopener">Đã gửi Fuji · ${tx.tx_hash.slice(0, 8)}…${tx.tx_hash.slice(-6)}</a>`
+          : `<small>Mã mô phỏng: ${String(tx.tx_hash || "").slice(0, 10)}…${String(tx.tx_hash || "").slice(-6)}</small>`;
+        row.innerHTML = `<div><strong>${tx.note}</strong>${hashHtml}</div><b>${badgeText}</b>`;
         creditTxList.prepend(row);
       }
     }
 
+    async function sendBrowserBuyCreditsTx(avaxAmount) {
+      const provider = window.avalanche || window.ethereum;
+      if (!provider || !contractAddress || !/^0x[a-fA-F0-9]{40}$/.test(beneficiaryWallet)) {
+        return null;
+      }
+      const accounts = await provider.request({ method: "eth_requestAccounts" });
+      const from = accounts?.[0];
+      if (!from) return null;
+      const targetHexChain = "0x" + chainIdNum.toString(16);
+      try {
+        await provider.request({
+          method: "wallet_switchEthereumChain",
+          params: [{ chainId: targetHexChain }],
+        });
+      } catch (switchErr) {
+        if (switchErr?.code === 4902) {
+          await provider.request({
+            method: "wallet_addEthereumChain",
+            params: [
+              {
+                chainId: targetHexChain,
+                chainName: "Avalanche Fuji C-Chain",
+                nativeCurrency: { name: "AVAX", symbol: "AVAX", decimals: 18 },
+                rpcUrls: ["https://api.avax-test.network/ext/bc/C/rpc"],
+                blockExplorerUrls: ["https://testnet.snowtrace.io/"],
+              },
+            ],
+          });
+        } else {
+          throw switchErr;
+        }
+      }
+      const weiBigInt = BigInt(Math.round(avaxAmount * 1e6)) * 1000000000000n;
+      const paddedAddr = beneficiaryWallet.slice(2).toLowerCase().padStart(64, "0");
+      const data = "0xf1716b4c" + paddedAddr;
+      return await provider.request({
+        method: "eth_sendTransaction",
+        params: [
+          {
+            from,
+            to: contractAddress,
+            value: "0x" + weiBigInt.toString(16),
+            data,
+          },
+        ],
+      });
+    }
+
+    const btnSubmitExchange = field("btn-submit-exchange");
+    let isSubmittingExchange = false;
+
     creditExchangeForm.addEventListener("submit", async (event) => {
       event.preventDefault();
+      if (isSubmittingExchange) return;
       const csrf = getCsrfToken();
       if (!csrf) {
         if (exchangeStatusMsg) {
-          exchangeStatusMsg.textContent = "Vui lòng đăng nhập để giao dịch điểm với AVAX.";
+          exchangeStatusMsg.textContent = "Vui lòng đăng nhập để giao dịch AVAX → LÚA.";
           exchangeStatusMsg.style.color = "#b84245";
         }
         return;
       }
-      const direction = getDirection();
+      isSubmittingExchange = true;
+      if (btnSubmitExchange) btnSubmitExchange.disabled = true;
       const amount = Number(exchangeAmountInput?.value || 0);
       if (exchangeStatusMsg) {
-        exchangeStatusMsg.textContent = "Đang quy đổi giả lập…";
+        exchangeStatusMsg.textContent = "Đang gửi giao dịch lên Avalanche Fuji…";
         exchangeStatusMsg.style.color = "#1a654d";
       }
       try {
-        const res = await fetch("/api/auth/exchange-credits", {
+        let res = await fetch("/api/auth/exchange-credits", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             "X-CSRF-Token": csrf,
           },
-          body: JSON.stringify({ direction, amount }),
+          body: JSON.stringify({ direction: "AVAX_TO_CREDIT", amount }),
         });
-        const payload = await res.json();
-        if (!res.ok || payload.error) {
-          if (exchangeStatusMsg) {
-            exchangeStatusMsg.textContent = payload.error || "Giao dịch thất bại.";
-            exchangeStatusMsg.style.color = "#b84245";
-          }
-          return;
-        }
-        applyBalanceAndTxUpdate(payload.data);
-        if (exchangeStatusMsg) {
-          exchangeStatusMsg.textContent = "Đã quy đổi số dư giả lập.";
-          exchangeStatusMsg.style.color = "#1a654d";
-        }
-      } catch {
-        if (exchangeStatusMsg) {
-          exchangeStatusMsg.textContent = "Lỗi kết nối máy chủ.";
-          exchangeStatusMsg.style.color = "#b84245";
-        }
-      }
-    });
+        let payload = await res.json();
 
-    btnFaucetAvax?.addEventListener("click", async () => {
-      const csrf = getCsrfToken();
-      if (!csrf) {
-        if (exchangeStatusMsg) {
-          exchangeStatusMsg.textContent = "Vui lòng đăng nhập để nhận AVAX thử nghiệm.";
-          exchangeStatusMsg.style.color = "#b84245";
+        if (res.status === 503 && (window.avalanche || window.ethereum) && contractAddress) {
+          if (exchangeStatusMsg) {
+            exchangeStatusMsg.textContent = "Đang mở ví Core / MetaMask để ký giao dịch Fuji…";
+            exchangeStatusMsg.style.color = "#1a654d";
+          }
+          const browserTxHash = await sendBrowserBuyCreditsTx(amount);
+          if (browserTxHash) {
+            if (exchangeStatusMsg) {
+              exchangeStatusMsg.textContent = "Đang xác minh giao dịch trên Avalanche Fuji…";
+            }
+            res = await fetch("/api/auth/exchange-credits", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-Token": csrf,
+              },
+              body: JSON.stringify({
+                direction: "AVAX_TO_CREDIT",
+                amount,
+                tx_hash: browserTxHash,
+              }),
+            });
+            payload = await res.json();
+          }
         }
-        return;
-      }
-      try {
-        const res = await fetch("/api/auth/exchange-credits", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-CSRF-Token": csrf,
-          },
-          body: JSON.stringify({ direction: "FAUCET_TOPUP", amount: 1.0 }),
-        });
-        const payload = await res.json();
+
         if (!res.ok || payload.error) {
           if (exchangeStatusMsg) {
-            exchangeStatusMsg.textContent = payload.error || "Không thể nhận AVAX.";
+            exchangeStatusMsg.textContent = payload.error || "Giao dịch Fuji thất bại.";
             exchangeStatusMsg.style.color = "#b84245";
           }
           return;
         }
         applyBalanceAndTxUpdate(payload.data);
         if (exchangeStatusMsg) {
-          exchangeStatusMsg.textContent = "Đã cộng 1 AVAX giả lập.";
+          exchangeStatusMsg.textContent = "Đã hoàn tất giao dịch AVAX → LÚA trên Avalanche Fuji.";
           exchangeStatusMsg.style.color = "#1a654d";
         }
       } catch {
         if (exchangeStatusMsg) {
-          exchangeStatusMsg.textContent = "Lỗi kết nối máy chủ.";
+          exchangeStatusMsg.textContent = "Lỗi kết nối máy chủ hoặc ví trình duyệt.";
           exchangeStatusMsg.style.color = "#b84245";
         }
+      } finally {
+        isSubmittingExchange = false;
+        if (btnSubmitExchange) btnSubmitExchange.disabled = false;
       }
     });
   }
@@ -610,6 +605,29 @@
       status.textContent = "Trình duyệt đang chặn lưu hồ sơ.";
     }
   });
+
+  if (document.querySelector("[data-header-credits]")) {
+    fetch("/api/auth/session")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((payload) => {
+        const info = payload?.data?.wallet_info;
+        if (!info) return;
+        if (info.onchain_write_enabled && info.onchain_credits !== undefined && info.onchain_credits !== null) {
+          document.querySelectorAll("[data-header-credits]").forEach((el) => {
+            el.textContent = `${info.onchain_credits} LÚA`;
+          });
+          document.querySelectorAll("[data-profile-credits]").forEach((el) => {
+            el.textContent = String(info.onchain_credits);
+          });
+        }
+        if (info.onchain_avax !== undefined && info.onchain_avax !== null) {
+          document.querySelectorAll("[data-profile-avax]").forEach((el) => {
+            el.textContent = Number(info.onchain_avax).toFixed(4);
+          });
+        }
+      })
+      .catch(() => {});
+  }
 
   if (!passwordForm) return;
   const current = field("current-password");

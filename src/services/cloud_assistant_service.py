@@ -5,6 +5,7 @@ from urllib import error, request
 
 from src.services.ai_client import GeminiError
 from src.services.cloud_session import cloud_session_headers
+from src.services.http_transport import default_urlopen
 
 
 class cloudAssistantService:
@@ -12,7 +13,7 @@ class cloudAssistantService:
         self.apiUrl = apiUrl.rstrip("/")
         if not self.apiUrl.startswith("https://"):
             raise ValueError("Assistant API must use HTTPS")
-        self.transport = transport or request.urlopen
+        self.transport = transport or default_urlopen
 
     def generateReply(self, messages: list[dict], sourceIds: list[str]) -> tuple[str, list[str]]:
         payload = json.dumps({"messages": messages, "sourceIds": sourceIds}, ensure_ascii=False).encode("utf-8")

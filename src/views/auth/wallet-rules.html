@@ -29,9 +29,9 @@
       <section class="app-pane wallet-rules-card" aria-labelledby="wallet-use-heading">
         <h2 id="wallet-use-heading">Cách dùng ví điểm</h2>
         <dl class="wallet-rules-list">
-          <div><dt>AVAX → LÚA</dt><dd>Chọn Nạp điểm trong ví, nhập số AVAX thử nghiệm và kiểm tra số điểm dự kiến trước khi xác nhận. Ví trừ AVAX và cộng điểm LÚA theo tỷ lệ quy đổi.</dd></div>
-          <div><dt>LÚA → AVAX</dt><dd>Chọn chiều quy đổi ngược và nhập số LÚA muốn đổi. Ví trừ điểm và cộng AVAX giả lập vào số dư trong ứng dụng.</dd></div>
-          <div><dt>Cộng AVAX để dùng thử</dt><dd>Nút Cộng 1 AVAX giả lập bổ sung 1 AVAX vào ví trong ứng dụng. Lịch sử ví ghi từng lần quy đổi hoặc cộng số dư.</dd></div>
+          <div><dt>Tài khoản mới</dt><dd>Khi đăng ký tài khoản mới, bà con được cấp 0,05 AVAX (tương đương 5 LÚA) để bắt đầu đổi điểm mô phỏng.</dd></div>
+          <div><dt>AVAX → LÚA (một chiều)</dt><dd>Nhập số AVAX muốn đổi (tối thiểu 0,01 AVAX = 1 LÚA) và xác nhận giao dịch. Hệ thống gửi giao dịch lên hợp đồng thông minh trên Avalanche Fuji và cộng điểm LÚA vào ví. Không hỗ trợ đổi ngược từ LÚA sang AVAX.</dd></div>
+          <div><dt>Nhận thêm AVAX thử nghiệm</dt><dd>Khi cần thêm AVAX thử nghiệm trên mạng Fuji, bà con có thể dùng Avalanche Fuji Faucet chính thức rồi thực hiện giao dịch AVAX → LÚA.</dd></div>
         </dl>
       </section>
       <div class="wallet-rules-stack">
@@ -42,7 +42,7 @@
         </section>
         <section class="app-pane wallet-rules-card" aria-labelledby="wallet-network-heading">
           <h2 id="wallet-network-heading">Mạng thử nghiệm</h2>
-          <p>Avalanche Fuji · mã mạng {{ chain_id }}. Lịch sử ví gọi các lượt dùng thử là [Giả lập]. Với giao dịch đã gửi lên Fuji, mở liên kết giao dịch để xem trạng thái xác nhận.</p>
+          <p>Avalanche Fuji · mã mạng {{ chain_id }}. Giao dịch đổi AVAX → LÚA được ghi nhận trực tiếp trên mạng thử nghiệm và kèm liên kết Snowtrace để kiểm tra trạng thái.</p>
         </section>
       </div>
     </div>

@@ -193,6 +193,10 @@ class simulationView {
     try {
       const result = await this.api.request("/api/simulation",this.inputs(requestAi),controller.signal);
       if (controller.signal.aborted || revision !== this.revision) return;
+      const updatedCredits = typeof result.onchainCredits === "number" ? result.onchainCredits : result.remainingCredits;
+      if (typeof updatedCredits === "number") {
+        document.querySelectorAll("[data-header-credits]").forEach(el => { el.textContent = `${updatedCredits} LÚA`; });
+      }
       this.result = result; this.renderResult(); this.status("Đã tạo báo cáo cho điều kiện bạn vừa nhập.");
       this.showPanel("reportPanel");
       this.byId("reportTitle").focus({preventScroll:true});

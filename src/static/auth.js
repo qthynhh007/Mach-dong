@@ -23,13 +23,14 @@
     messageEl.style.color = isError ? "#b84245" : "#1a654d";
   }
 
-  function revealWalletOnRegisterSuccess(user) {
+  function revealWalletOnRegisterSuccess(user, walletFunding = null) {
     if (!user || !registeredWalletRevealBox) return;
     registeredWalletRevealBox.classList.remove("hidden");
     if (revealedWalletAddress) revealedWalletAddress.textContent = user.wallet_address || "";
     if (revealedCredits) revealedCredits.textContent = String(user.simulation_credits ?? 0);
     if (revealedAvax) {
-      revealedAvax.textContent = Number(user.avax_balance ?? 0).toFixed(4);
+      const avax = walletFunding?.onchain ? 0.05 : Number(user.avax_balance ?? 0);
+      revealedAvax.textContent = avax.toFixed(4);
     }
   }
 
@@ -318,7 +319,7 @@
         return;
       }
       const u = result.data.user;
-      revealWalletOnRegisterSuccess(u);
+      revealWalletOnRegisterSuccess(u, result.data.wallet_funding);
       setStatus(
         `Đăng ký thành công! Địa chỉ ví Avalanche Fuji của bạn: ${u.wallet_address}`
       );

@@ -3,6 +3,7 @@ from __future__ import annotations
 import tempfile
 from pathlib import Path
 from unittest import TestCase
+from unittest.mock import patch
 
 from flask.testing import FlaskClient
 
@@ -162,34 +163,48 @@ class TestAuthAndSession(TestCase):
         user = self.repo.get_by_username("chunam_fuji")
         assert user is not None
         self.assertEqual(user.simulation_credits, 3)
-        self.assertAlmostEqual(user.avax_balance, 2.5)
+        self.assertAlmostEqual(user.avax_balance, 0.05)
 
-        # 1. Exchange 0.5 AVAX -> +50 LÚA
-        ex1 = self.auth_service.exchange_credits_with_avax(
-            user=user, direction="AVAX_TO_CREDIT", amount=0.5
+        # 1. Reverse direction (LÚA -> AVAX) and fake faucet must be rejected
+        rev = self.auth_service.exchange_credits_with_avax(
+            user=user, direction="CREDIT_TO_AVAX", amount=1
         )
-        self.assertTrue(ex1.ok)
-        assert ex1.data is not None
-        self.assertEqual(ex1.data["user"]["simulation_credits"], 53)
-        self.assertAlmostEqual(float(ex1.data["user"]["avax_balance"]), 2.0)
-        self.assertTrue(str(ex1.data["transaction"]["tx_hash"]).startswith("0x"))
+        self.assertFalse(rev.ok)
+        self.assertEqual(rev.status_code, 400)
 
-        # 2. Exchange 20 LÚA -> +0.20 AVAX
-        ex2 = self.auth_service.exchange_credits_with_avax(
-            user=user, direction="CREDIT_TO_AVAX", amount=20
-        )
-        self.assertTrue(ex2.ok)
-        assert ex2.data is not None
-        self.assertEqual(ex2.data["user"]["simulation_credits"], 33)
-        self.assertAlmostEqual(float(ex2.data["user"]["avax_balance"]), 2.2)
-
-        # 3. Faucet top-up (+1.0 AVAX)
-        ex3 = self.auth_service.exchange_credits_with_avax(
+        faucet = self.auth_service.exchange_credits_with_avax(
             user=user, direction="FAUCET_TOPUP", amount=1.0
         )
-        self.assertTrue(ex3.ok)
-        assert ex3.data is not None
-        self.assertAlmostEqual(float(ex3.data["user"]["avax_balance"]), 3.2)
+        self.assertFalse(faucet.ok)
+        self.assertEqual(faucet.status_code, 400)
+
+        # 2. Failed/unconfigured on-chain tx must not mutate balances
+        with patch(
+            "src.services.auth_service.default_credit_service.buy_credits_onchain",
+            return_value={"onchain": False, "tx_hash": None, "reason": "No signer"},
+        ):
+            failed = self.auth_service.exchange_credits_with_avax(
+                user=user, direction="AVAX_TO_CREDIT", amount=0.05
+            )
+            self.assertFalse(failed.ok)
+            self.assertAlmostEqual(user.avax_balance, 0.05)
+            self.assertEqual(user.simulation_credits, 3)
+
+        # 3. Real on-chain AVAX -> LÚA exchange (0.05 AVAX -> +5 LÚA)
+        fake_real_hash = "0x" + ("ab" * 32)
+        with patch(
+            "src.services.auth_service.default_credit_service.buy_credits_onchain",
+            return_value={"onchain": True, "tx_hash": fake_real_hash},
+        ):
+            ex1 = self.auth_service.exchange_credits_with_avax(
+                user=user, direction="AVAX_TO_CREDIT", amount=0.05
+            )
+        self.assertTrue(ex1.ok)
+        assert ex1.data is not None
+        self.assertEqual(ex1.data["user"]["simulation_credits"], 8)
+        self.assertAlmostEqual(float(ex1.data["user"]["avax_balance"]), 0.0)
+        self.assertEqual(ex1.data["transaction"]["tx_hash"], fake_real_hash)
+        self.assertIn("(On-chain Fuji)", ex1.data["transaction"]["note"])
 
     def test_forgot_password_reset_via_email_otp(self) -> None:
         # Non-existent email or username must be rejected before sending OTP
@@ -378,12 +393,23 @@ class TestAuthAndSession(TestCase):
         self.assertEqual(member["id"], "user:" + login.json["data"]["user"]["user_id"])
         self.assertFalse(member["isGuest"])
 
-        # Test Credit Changer API endpoint with CSRF token
-        ex_resp = client.post(
+        # Test Credit Changer API endpoint with CSRF token (one-way AVAX -> LÚA only)
+        rev_resp = client.post(
             "/api/auth/exchange-credits",
             headers={"X-CSRF-Token": csrf_token},
-            json={"direction": "AVAX_TO_CREDIT", "amount": 0.1},
+            json={"direction": "CREDIT_TO_AVAX", "amount": 5},
         )
+        self.assertEqual(rev_resp.status_code, 400)
+
+        with patch(
+            "src.services.auth_service.default_credit_service.buy_credits_onchain",
+            return_value={"onchain": True, "tx_hash": "0x" + ("cd" * 32)},
+        ):
+            ex_resp = client.post(
+                "/api/auth/exchange-credits",
+                headers={"X-CSRF-Token": csrf_token},
+                json={"direction": "AVAX_TO_CREDIT", "amount": 0.1},
+            )
         self.assertEqual(ex_resp.status_code, 200)
         self.assertIn("transaction", ex_resp.json["data"])
 

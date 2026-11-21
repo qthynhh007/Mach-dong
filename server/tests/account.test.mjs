@@ -110,10 +110,12 @@ test("central accounts persist only password hashes and enforce session ownershi
   assert.equal((await call(api,"/api/account/field-profile",{address:"Khác",cultivar:"",area:"",hydrology_station:""},token,"bad")).status,403);
   assert.equal((await call(api,"/api/account/profile",{name:"Updated"},token,"bad")).status,403);
   assert.equal((await call(api,"/api/account/profile",{name:"Updated"},token,csrf)).data.user.name,"Updated");
-  const exchange=await call(api,"/api/account/exchange-credits",{direction:"AVAX_TO_CREDIT",amount:1},token,csrf);
+  const reverseDenied=await call(api,"/api/account/exchange-credits",{direction:"CREDIT_TO_AVAX",amount:1},token,csrf);
+  assert.equal(reverseDenied.status,400);
+  const exchange=await call(api,"/api/account/exchange-credits",{direction:"AVAX_TO_CREDIT",amount:0.05,tx_hash:"0x"+"ab".repeat(32)},token,csrf);
   assert.equal(exchange.status,200);
-  assert.equal(exchange.data.user.simulation_credits,103);
-  assert.equal(exchange.data.user.avax_balance,1.5);
+  assert.equal(exchange.data.user.simulation_credits,8);
+  assert.equal(exchange.data.user.avax_balance,0);
   const denied=await call(api,"/api/account/exchange-credits",{direction:"AVAX_TO_CREDIT",amount:10},token,csrf);
   assert.equal(denied.status,400);
   assert.equal(db.raw.prepare("SELECT COUNT(*) AS count FROM account_transactions").get().count,1);

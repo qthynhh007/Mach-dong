@@ -4,41 +4,43 @@
     <a class="wallet-text-link" href="{{ url_for('auth.wallet_rules') }}">Thể lệ</a>
   </header>
   <div class="wallet-leather">
-    <div class="wallet-leather-top"><span>MẠCH ĐỒNG</span><span class="wallet-demo-badge">Số dư giả lập</span></div>
-    <div class="wallet-balance"><p>Điểm trong ví</p><div><strong data-profile-credits>{{ current_user.simulation_credits if current_user else 0 }}</strong><span>LÚA</span></div></div>
+    <div class="wallet-leather-top"><span>MẠCH ĐỒNG</span><span class="wallet-demo-badge">Avalanche Fuji · {{ chain_id or 43113 }}</span></div>
+    <div class="wallet-balance"><p>Điểm LÚA on-chain</p><div><strong data-profile-credits>{{ onchain_credits if onchain_credits is not none else (current_user.simulation_credits if current_user else 0) }}</strong><span>LÚA</span></div></div>
     <div class="wallet-card-bottom"><div><span>Chủ ví</span><strong data-profile-value="farmer-fullname">{{ current_user.name if current_user else '' }}</strong></div><span class="wallet-chip" aria-hidden="true"></span></div>
   </div>
   <div class="wallet-quick-info">
-    <div><span>AVAX giả lập</span><strong><span data-profile-avax>{{ '%.4f'|format(current_user.avax_balance) if current_user else '0.0000' }}</span> <small>AVAX</small></strong></div>
+    <div><span>{{ 'Số dư AVAX (Fuji)' if onchain_avax is not none else 'Số dư AVAX' }}</span><strong><span data-profile-avax>{{ '%.4f'|format(onchain_avax if onchain_avax is not none else (current_user.avax_balance if current_user else 0)) }}</span> <small>AVAX</small></strong></div>
     <span class="wallet-network">Fuji Testnet</span>
   </div>
   <details class="wallet-fold">
     <summary><span>{{ render_icon('wallet') }} Thông tin ví</span>{{ render_icon('expand_more') }}</summary>
     <div class="wallet-fold-body">
-      <dl class="wallet-info-list"><div><dt>Mạng</dt><dd>Avalanche Fuji · 43113</dd></div><div><dt>Loại ví</dt><dd data-profile-wallet-type>{{ current_user.wallet_type if current_user else '' }}</dd></div></dl>
+      <dl class="wallet-info-list"><div><dt>Mạng</dt><dd>Avalanche Fuji · {{ chain_id or 43113 }}</dd></div><div><dt>Loại ví</dt><dd data-profile-wallet-type>{{ current_user.wallet_type if current_user else '' }}</dd></div>{% if fuji_contract_address %}<div><dt>Hợp đồng LÚA</dt><dd><a class="wallet-text-link" href="https://testnet.snowtrace.io/address/{{ fuji_contract_address }}" target="_blank" rel="noopener">{{ fuji_contract_address[:8] }}…{{ fuji_contract_address[-6:] }}</a></dd></div>{% endif %}</dl>
       <p class="wallet-label">Địa chỉ nhận trên Fuji</p>
       <code class="wallet-address" data-profile-wallet>{{ current_user.wallet_address if current_user else '' }}</code>
       {% if current_user and current_user.wallet_address %}
       <div class="wallet-link-row"><button type="button" class="app-button" data-copy-wallet>{{ render_icon('description') }} Sao chép</button><a class="wallet-text-link" href="https://testnet.snowtrace.io/address/{{ current_user.wallet_address }}" target="_blank" rel="noopener">Xem trên Snowtrace</a></div>
       <p id="wallet-copy-status" role="status"></p>
       {% endif %}
-      {% if onchain_credits is not none %}<p>Số dư đã đọc trên Fuji: <strong>{{ onchain_credits }} LÚA</strong></p>{% endif %}
-      <p class="wallet-note">Số dư và quy đổi trong ứng dụng là giả lập. Giao dịch được ghi rõ “Đã gửi Fuji” mới có biên nhận trên mạng thử nghiệm.</p>
+      {% if onchain_credits is not none %}<p>Số dư LÚA trên Fuji: <strong>{{ onchain_credits }} LÚA</strong></p>{% endif %}
+      {% if onchain_avax is not none %}<p>Số dư AVAX trên Fuji: <strong>{{ '%.4f'|format(onchain_avax) }} AVAX</strong></p>{% endif %}
+      <p class="wallet-note">Giao dịch quy đổi AVAX → LÚA được gửi trực tiếp lên hợp đồng thông minh trên Avalanche Fuji Testnet (Chain ID {{ chain_id or 43113 }}). Mỗi tài khoản mới được cấp 0.05 AVAX (tương đương 5 LÚA).</p>
     </div>
   </details>
-  <details class="wallet-fold" id="credit-changer-box" data-credits-per-avax="{{ credits_per_avax or 100 }}">
-    <summary><span>{{ render_icon('adjust') }} Quy đổi điểm</span>{{ render_icon('expand_more') }}</summary>
+  <details class="wallet-fold" id="credit-changer-box" data-credits-per-avax="{{ credits_per_avax or 100 }}" data-contract-address="{{ fuji_contract_address or '' }}" data-chain-id="{{ chain_id or 43113 }}" data-wallet-address="{{ current_user.wallet_address if current_user else '' }}">
+    <summary><span>{{ render_icon('adjust') }} Đổi AVAX sang LÚA</span>{{ render_icon('expand_more') }}</summary>
     <div class="wallet-fold-body">
-      <p class="wallet-note">Quy đổi giả lập · 1 AVAX = {{ credits_per_avax or 100 }} LÚA</p>
+      <p class="wallet-note">Giao dịch thật trên Fuji · 1 AVAX = {{ credits_per_avax or 100 }} LÚA · Chỉ hỗ trợ một chiều AVAX → LÚA</p>
       <form id="credit-exchange-form" class="wallet-exchange-form">
-        <fieldset class="wallet-direction"><legend class="wallet-label">Chọn chiều quy đổi</legend><label><input type="radio" name="exchange_direction" value="AVAX_TO_CREDIT" checked><span>Nạp điểm LÚA</span></label><label><input type="radio" name="exchange_direction" value="CREDIT_TO_AVAX"><span>Đổi sang AVAX</span></label></fieldset>
-        <label class="wallet-label" for="exchange-amount-input">Số lượng muốn đổi</label>
-        <div class="wallet-amount"><input id="exchange-amount-input" type="number" step="0.01" min="0.01" value="0.50" required><span id="exchange-unit-label">AVAX</span></div>
-        <p class="wallet-estimate">Ước tính nhận <strong id="exchange-preview-output">+50 LÚA</strong></p>
-        <button type="submit" id="btn-submit-exchange" class="app-button app-button--primary">Quy đổi giả lập</button>
+        <input type="hidden" name="exchange_direction" value="AVAX_TO_CREDIT">
+        <div class="wallet-direction"><label><input type="radio" name="exchange_direction_display" value="AVAX_TO_CREDIT" checked disabled><span>AVAX → LÚA (Nạp điểm LÚA)</span></label></div>
+        <label class="wallet-label" for="exchange-amount-input">Số lượng AVAX muốn đổi (tối thiểu 0.01 AVAX)</label>
+        <div class="wallet-amount"><input id="exchange-amount-input" type="number" step="0.01" min="0.01" value="0.05" required><span id="exchange-unit-label">AVAX</span></div>
+        <p class="wallet-estimate">Ước tính nhận <strong id="exchange-preview-output">+5 LÚA</strong></p>
+        <button type="submit" id="btn-submit-exchange" class="app-button app-button--primary">Gửi giao dịch đổi LÚA (Fuji)</button>
         <p id="exchange-status-msg" role="status"></p>
       </form>
-      <button type="button" id="btn-faucet-avax" class="wallet-text-link wallet-faucet">Nhận 1 AVAX giả lập để thử</button>
+      <a class="wallet-text-link wallet-faucet" href="https://core.app/tools/testnet-faucet/?subnet=c&token=c" target="_blank" rel="noopener">Nhận thêm AVAX thử nghiệm từ Fuji Faucet ↗</a>
     </div>
   </details>
   <details class="wallet-fold">
@@ -46,11 +48,11 @@
     <div class="wallet-fold-body wallet-transactions" id="credit-tx-list">
       {% for tx in credit_transactions %}
       <article class="wallet-transaction"><div><strong>{{ tx.note }}</strong>
-      {% if tx.direction == 'AVAX_TO_CREDIT' and tx.note.endswith('(On-chain Fuji)') and tx.tx_hash.startswith('0x') and tx.tx_hash|length == 66 %}
+      {% if tx.tx_hash and tx.tx_hash.startswith('0x') and tx.tx_hash|length == 66 and '(On-chain Fuji)' in tx.note %}
       <a class="wallet-text-link" href="https://testnet.snowtrace.io/tx/{{ tx.tx_hash }}" target="_blank" rel="noopener">Đã gửi Fuji · {{ tx.tx_hash[:8] }}…{{ tx.tx_hash[-6:] }}</a>
-      {% else %}<small>Mã mô phỏng: {{ tx.tx_hash[:10] }}…{{ tx.tx_hash[-6:] }}</small>{% endif %}</div>
-      <b>{% if tx.direction == 'FAUCET_TOPUP' %}+{{ '%.2f'|format(tx.avax_amount) }} AVAX{% else %}{{ '+' if tx.credit_delta >= 0 else '' }}{{ tx.credit_delta }} LÚA{% endif %}</b></article>
-      {% else %}<p id="credit-tx-empty" class="wallet-note">Chưa có giao dịch. Các lượt quy đổi sẽ hiện ở đây.</p>{% endfor %}
+      {% elif tx.tx_hash %}<small>Mã mô phỏng: {{ tx.tx_hash[:10] }}…{{ tx.tx_hash[-6:] }}</small>{% endif %}</div>
+      <b>{{ '+' if tx.credit_delta >= 0 else '' }}{{ tx.credit_delta }} LÚA</b></article>
+      {% else %}<p id="credit-tx-empty" class="wallet-note">Chưa có giao dịch. Các lượt quy đổi AVAX → LÚA trên Fuji sẽ hiện ở đây.</p>{% endfor %}
     </div>
   </details>
 </section>
