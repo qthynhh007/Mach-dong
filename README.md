@@ -1,5 +1,7 @@
 # AgriData · Mạch Đồng
 
+> EXE mới dựng ngày 21/11/2026: [dist/MachDong.exe](dist/MachDong.exe), 48.819.099 byte (~46,6 MiB). [SHA256SUMS](dist/SHA256SUMS.txt). Đã kiểm tra chạy trực tiếp file EXE, trang đăng nhập/đăng ký và tài nguyên đóng gói. Backend Sites và link tải công khai chưa được cập nhật vì chưa có quyền ghi nguồn Sites; bản này tiếp tục dùng backend cloud hiện có. Xem [biên bản EXE](docs/phat-hanh-exe-2026-11-21.md).
+
 > Bản sửa cục bộ 21/11/2026: chạy `scripts/run-local.py`, bắt buộc đăng nhập, có tư vấn Gemini, ví mới và ẩn tab duyệt trong MVP. Xem [kế hoạch và kiểm thử](docs/ke-hoach-sua-chuc-nang-2026-11-20.md). Thay đổi chưa phát hành cloud; thông tin bản EXE công khai bên dưới là bản trước.
 
 
@@ -62,4 +64,4 @@ Repository đã có cấu hình Git; không cần `git init` hoặc thêm lại 
 
 Để dùng bản có giao diện codex và các chức năng Simulation đã hợp nhất, mở [dist/MachDong.exe](dist/MachDong.exe) trong nhánh `feature/Simulation` trên GitHub, chọn **Download raw file** rồi lưu file về máy Windows 64-bit. Nếu kho GitHub yêu cầu quyền truy cập, hãy đăng nhập tài khoản được cấp quyền trước khi tải. Link tải cloud ở phần trên là bản phát hành trước.
 
-Nhấp đúp `MachDong.exe` để chạy. Ứng dụng mở giao diện trong trình duyệt; giữ cửa sổ Mạch Đồng đang chạy và đóng cửa sổ đó khi muốn thoát. Không cần cài Python hay mô hình AI; cần Internet để đăng nhập, dùng diễn đàn, lấy dữ liệu và mô phỏng. File trong Git có dung lượng 46.932.688 byte; SHA-256: `2d64c023d4a22328a21750689634addc016c803702595a6ef45d9a6e0e6add53`.
+Nhấp đúp `MachDong.exe` để chạy. Ứng dụng mở giao diện trong trình duyệt; giữ cửa sổ Mạch Đồng đang chạy và đóng cửa sổ đó khi muốn thoát. Không cần cài Python hay mô hình AI; cần Internet để đăng nhập, dùng diễn đàn, lấy dữ liệu và mô phỏng. File vừa dựng trong `dist` có dung lượng 48.819.099 byte; SHA-256: `ce4656796b665f432a63d77b0aa4dc2239db0d0b50c62ed5d89aec759d68e854`. Bản dựng này chưa được đẩy GitHub hoặc thay file tải công khai; các hash trong phần mô tả bản phát hành cũ bên trên thuộc bản cũ.

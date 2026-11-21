@@ -28,8 +28,20 @@ state.mkdir(parents=True, exist_ok=True)
 env = dict(os.environ)
 env["MACH_DONG_LOCAL_STATE"] = str(state)
 env["MACH_DONG_LOCAL_INSTANCE"] = secrets.token_hex(16)
+try:
+    with urlopen(f"http://127.0.0.1:{api_port}/__local/health", timeout=1) as response:
+        existing = json.load(response)
+    with urlopen(f"http://127.0.0.1:{web_port}/login", timeout=2) as response:
+        login_html = response.read().decode("utf-8")
+    if existing.get("instance") and f'name="mach-dong-local-instance" content="{existing["instance"]}"' in login_html:
+        print(f"Mạch Đồng đang chạy đúng bản cục bộ tại http://127.0.0.1:{web_port}")
+        raise SystemExit(0)
+except (OSError, ValueError):
+    pass
 for local_port in (api_port, web_port):
     with socket.socket() as probe:
+        if hasattr(socket, "SO_EXCLUSIVEADDRUSE"):
+            probe.setsockopt(socket.SOL_SOCKET, socket.SO_EXCLUSIVEADDRUSE, 1)
         try:
             probe.bind(("127.0.0.1", local_port))
         except OSError as error:
@@ -75,6 +87,9 @@ try:
         config[prefix + "_API_URL"] = "https://local.machdong.test"
         config[prefix + "_API_TRANSPORT" if prefix != "SIMULATION" else "SIMULATION_TRANSPORT"] = transport
     app = createApp(config)
+    @app.context_processor
+    def local_instance_context() -> dict:
+        return {"local_instance": env["MACH_DONG_LOCAL_INSTANCE"]}
     app.run(host="127.0.0.1", port=web_port, debug=False, use_reloader=False)
 finally:
     if node.poll() is None:

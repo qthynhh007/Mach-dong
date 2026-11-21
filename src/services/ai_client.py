@@ -14,8 +14,8 @@ GEMINI_MODEL = "gemini-3.5-flash"
 GEMINI_MODEL_LABEL = "Gemini 3.5 Flash"
 GEMINI_FALLBACK_MODEL = "gemini-3.1-flash-lite"
 GEMINI_MODELS_URL = "https://generativelanguage.googleapis.com/v1beta/models"
-GEMINI_PRIMARY_TIMEOUT_SECONDS = 12
-GEMINI_FALLBACK_TIMEOUT_SECONDS = 15
+GEMINI_PRIMARY_TIMEOUT_SECONDS = 45
+GEMINI_FALLBACK_TIMEOUT_SECONDS = 45
 logger = logging.getLogger(__name__)
 
 
@@ -48,6 +48,7 @@ def _parse_reply(raw: bytes) -> tuple[str, list[str]]:
     if (
         not isinstance(reply, str)
         or not reply.strip()
+        or len(reply) > 4096
         or not isinstance(source_ids, list)
         or not all(isinstance(source_id, str) for source_id in source_ids)
     ):

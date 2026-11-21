@@ -64,6 +64,23 @@ test("normal simulation opens the report without requiring an AI key",async()=> 
   assert.equal(view.scrolled,"reportPanel"); assert.equal(view.busy,false);
 });
 
+test("all four field labels update without loading the field drawing module",()=> {
+  const {simulationView}=classes();const view=Object.create(simulationView.prototype);
+  const fields={salinitySite:{value:"fieldWater"},canalSalinityGl:{},stage:{selectedOptions:[{textContent:"Làm đòng"}]}};
+  const elements={"sim-canal-salinity":{},lowerSalt:{}};
+  for(const [id,name,value,min,max,output] of [["inputSalinity","salinityGl","3.2","0","6","valSalinity"],["inputWater","waterDepthCm","76.5","0","150","valWater"],["inputStage","dayAfterSowing","63","0","95","valStage"],["inputTemp","tempMaxC","37.5","20","42","valTemp"]]) {
+    fields[name]={value,min,max,style:{setProperty(){}},setAttribute(){}};
+    elements[id]=fields[name];elements[output]={};
+  }
+  Object.assign(view,{fieldPreview:true,field:name=>fields[name],byId:id=>elements[id]});
+  view.updateLabels();
+  assert.equal(elements.valSalinity.textContent,"3,2 g/L");
+  assert.equal(elements.valWater.textContent,"+76,5 cm");
+  assert.equal(elements.valStage.textContent,"63 ngày");
+  assert.equal(elements.valTemp.textContent,"37,5 °C");
+  fields.waterDepthCm.value="0";view.updateLabels();assert.equal(elements.valWater.textContent,"0 cm");
+});
+
 test("a response for changed conditions cannot open a stale report",async()=> {
   let finish;
   const view = viewHarness(()=>new Promise(resolve=>{finish=resolve;}));
@@ -193,6 +210,20 @@ test("sample advice is unavailable before 4 minutes 30 seconds",()=> {
   callback();assert.equal(expired,1);
 });
 
+test("browser timer functions are not called with the wait controller as their receiver",()=> {
+  const receivers=[];
+  function nativeTimer() {
+    receivers.push(this);
+    if(this?.constructor?.name === "adviceWaitController") throw new TypeError("Illegal invocation");
+    return 42;
+  }
+  const {adviceWaitController}=classes({setTimeout:nativeTimer,clearTimeout:nativeTimer});
+  const timer=new adviceWaitController(()=>{},()=>{});
+  assert.doesNotThrow(()=>timer.start());
+  assert.doesNotThrow(()=>timer.stop());
+  assert.equal(receivers.length,2);
+});
+
 test("successful advice or a cancelled scenario prevents later sample advice",()=> {
   const {adviceWaitController}=classes(); let now=0,callback,expired=0;
   const timer=new adviceWaitController(()=>{},()=>expired++,{now:()=>now,schedule:fn=>{callback=fn;return 1;},cancel(){}});
@@ -206,12 +237,29 @@ test("retrying before the deadline does not restart the 4 minute 30 second wait"
   now=270000;callback();assert.equal(expired,1);
 });
 
-test("an early API failure shows the error without returning canned advice",async()=> {
-  const {simulationView}=classes({document:{dispatchEvent(){}},CustomEvent:class {constructor(type,options){this.type=type;this.detail=options.detail;}}});
+test("an early API failure shows the error without returning canned advice or a fake pending state",async()=> {
+  const events=[];
+  const {simulationView}=classes({document:{dispatchEvent(event){events.push(event);}},CustomEvent:class {constructor(type,options){this.type=type;this.detail=options.detail;}}});
   const view=Object.create(simulationView.prototype);const text={};let started=false,answered=false;
   Object.assign(view,{result:{inputs:{}},revision:0,startAdviceWait(){started=true;},setAdviceAnswer(){answered=true;},
     byId:()=>({setAttribute(){},classList:{remove(){},add(){}}}),setText:(id,value)=>{text[id]=value;},api:{request:async()=>{throw new Error("AI tạm thời quá tải.");}}});
   await view.explainReport();assert.equal(started,true);assert.equal(answered,false);assert.match(text.reportExplanationStatus,/thử lại/);
+  assert.equal(events.at(-1).detail.waiting,false);assert.equal(events.at(-1).detail.pending,false);
+});
+
+test("requesting advice again reuses the actual reply for unchanged conditions",async()=> {
+  const {simulationView}=classes({document:{dispatchEvent(){}},CustomEvent:class{constructor(type,options){this.detail=options.detail;}}});
+  const view=Object.create(simulationView.prototype);view.result={inputs:{}};
+  view.adviceAnswer={reply:"Lời khuyên thực từ API",isFallback:false};
+  view.api={request:()=>assert.fail("An unchanged scenario must not spend another API call")};
+  await view.explainReport();
+});
+
+test("opening a failed advice dialog does not silently spend another request",async()=> {
+  let detail;const {simulationView}=classes({document:{dispatchEvent:event=>{detail=event.detail;}},CustomEvent:class{constructor(type,options){this.detail=options.detail;}}});
+  const view=Object.create(simulationView.prototype);view.result={inputs:{}};view.adviceError="Tạm hết lượt xử lý.";
+  view.api={request:()=>assert.fail("Opening an error must require an explicit retry")};
+  await view.explainReport(true);assert.equal(detail.error,view.adviceError);assert.equal(detail.pending,false);
 });
 
 test("opening the advice dialog reuses the actual API answer",async()=> {

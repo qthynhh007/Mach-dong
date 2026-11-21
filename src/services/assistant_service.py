@@ -35,6 +35,9 @@ hoặc tác nhân gây bệnh theo căn cứ. Với hướng dẫn trồng, tác
 giai đoạn nếu hành động cần thay đổi. Khi người dùng yêu cầu nói kỹ hơn,
 bổ sung giải thích và ví dụ áp dụng cho chủ đề ngay trước đó.
 Với câu chỉ hỏi một thông tin, trả lời trực tiếp.
+Với tình huống cần hành động, dùng các mục Nhận định:, Việc nên làm:,
+Cần kiểm tra thêm: và Khi cần hỗ trợ: nếu phù hợp. Đánh số từng việc cụ thể,
+giải thích điều kiện áp dụng; không ép đủ các mục với câu hỏi đơn giản.
 
 Ưu tiên căn cứ phù hợp trong phần CĂN CỨ ĐÃ DUYỆT. Khi tài liệu không có hoặc
 không đủ, được trả lời bằng nguyên lý tham khảo chung, ghi rõ phần đó chưa đối chiếu
@@ -49,12 +52,15 @@ tích, giai đoạn, loại phân. Nêu các khả năng và dấu hiệu phân 
 luận bệnh hay chỉ định thuốc từ mô tả đơn lẻ.
 
 Phân biệt độ mặn g/L, ‰, EC nước và EC đất. Giữ riêng số đo trạm, kênh, cống và
-ruộng. Gọi CHI là điểm sức khỏe mô phỏng trên thang 100. Cần số đếm trên cùng
-ô mẫu để tính tỷ lệ cây sống. Mỗi số đo, khoảng giá trị hoặc tần suất trong
+ruộng. Gọi CHI là điểm sức khỏe mô phỏng trên thang 100.
+Không coi một số đo mặn đơn lẻ là an toàn; không lấy số đo người dùng đưa ra làm
+ngưỡng khuyến cáo lấy nước hoặc giữ nguyên mức ngập. Đối chiếu giai đoạn lúa,
+chiều cao cây, nguồn cấp và khả năng thoát nước trước khi đề xuất điều chỉnh.
+Cần số đếm trên cùng ô mẫu để tính tỷ lệ cây sống. Mỗi số đo, khoảng giá trị hoặc tần suất trong
 khuyến nghị phải có ngay trong căn cứ áp dụng cho tình huống. Nếu căn cứ chỉ
 nêu nguyên tắc, hướng dẫn theo dấu hiệu quan sát thay vì tự đặt con số.
 
-Trả JSON với reply là văn bản thuần và source_ids là mã căn cứ thực sự dùng.
+Trả JSON với reply là văn bản thuần tối đa 4000 ký tự và source_ids là mã căn cứ thực sự dùng.
 Không viết URL, link Markdown hoặc mã nguồn trong reply vì máy chủ gắn trích dẫn."""
 
 
@@ -65,7 +71,10 @@ def answer_question(api_key: str, messages: Sequence[ChatMessage]) -> dict:
         return direct
     if matches(question, ("ruộng", "thửa")) and matches(
         question, ("độ sâu", "mực nước", "độ mặn")
-    ) and matches(question, ("bao nhiêu", "số đo", "hiện tại", "hôm nay", "long hữu")):
+    ) and matches(question, ("bao nhiêu", "số đo", "hiện tại", "hôm nay", "long hữu")) and not re.search(
+        r"\d+(?:[.,]\d+)?\s*(?:g\s*/\s*l|‰|cm|ds\s*/\s*m)",
+        " ".join(turn["text"] for turn in messages if turn["role"] == "user"), re.IGNORECASE
+    ):
         return {"reply": FIELD_CLARIFICATION, "sources": []}
 
     if re.fullmatch(r"(?:(?:xin )?chao|hi|hello)(?: co(?: ma)?)?[.!?]*", question):

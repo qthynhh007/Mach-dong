@@ -6,12 +6,12 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Đăng ký · Mạch Đồng</title>
-  <link rel="icon" href="/static/assets/stitch-simulation/co-ma-logo.png">
+  <link rel="icon" href="/static/assets/co-ma/avatar-co-ma.webp">
   <link rel="stylesheet" href="/static/auth.css">
-  <link rel="stylesheet" href="/static/shell.css">
-  <link rel="stylesheet" href="/static/auth-layout.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='shell.css', v='20261121-header-pill-3') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='auth-layout.css', v='20261121-compact-register-1') }}">
 </head>
-<body class="auth-workspace font-body-md text-body-md text-on-surface antialiased">
+<body class="auth-workspace auth-register-page font-body-md text-body-md text-on-surface antialiased">
 {% include "shared/header.html" %}
 <main id="main-content" class="app-content auth-page" tabindex="-1">
   <div class="app-glass auth-split">
@@ -21,7 +21,7 @@
 
   <div>
     <h1 class="app-page-title" id="auth-page-title">Đăng ký nông hộ</h1>
-    <p class="auth-intro">Tạo tài khoản thành viên để nhận tư vấn Cò Mạ và kích hoạt ví Avalanche Fuji.</p>
+    <p class="auth-intro">Tạo hồ sơ để quản lý ruộng và nhận tư vấn Cò Mạ.</p>
   </div>
 
   <!-- Registration Form -->
@@ -52,10 +52,10 @@
         <input required autocomplete="tel" id="identifierInput" name="phone" value="+84" placeholder="+84912345678" type="tel">
       </div>
       <div class="auth-field-group auth-register-code">
-        <label class="font-label-sm text-on-surface font-semibold" for="registerOtpInput">Mã xác nhận (6 số) *</label>
+        <label class="font-label-sm text-on-surface font-semibold" for="registerOtpInput">Mã xác nhận *</label>
         <input id="registerOtpInput" name="otp_code" type="text" required pattern="[0-9]{6}" maxlength="6" inputmode="numeric" autocomplete="one-time-code">
       </div>
-      <p class="auth-otp-help">Mã có hiệu lực 5 phút. Kiểm tra cả thư rác nếu chưa nhận được email.</p>
+      <p class="auth-otp-help">Mã gồm 6 số, có hiệu lực 5 phút. Kiểm tra thư rác nếu chưa thấy email.</p>
     </div>
 
     <div class="auth-two-col">
@@ -73,6 +73,8 @@
     </div>
 
     <!-- Avalanche Wallet Box -->
+    <details class="auth-wallet-options" id="walletOptions">
+      <summary><span>{{ render_icon("wallet") }}<span><strong>Ví điểm nông nghiệp</strong><small>Tự động tạo khi đăng ký</small></span></span><span>Tùy chọn {{ render_icon("expand_more") }}</span></summary>
     <div class="auth-wallet-box">
       <div class="flex items-center justify-between">
         <span class="auth-wallet-badge">🔴 Ví Avalanche Fuji (Chain 43113)</span>
@@ -105,6 +107,7 @@
         </div>
       </div>
     </div>
+    </details>
 
     <!-- Primary Action CTA -->
     <button class="app-button app-button--primary w-full py-3" type="submit">

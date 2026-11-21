@@ -9,6 +9,26 @@ from workspace_helpers import sign_in
 
 
 class cloudAssistantTests(TestCase):
+    def testProvidedFieldMeasurementsReachConversation(self) -> None:
+        seen = []
+        def transport(req, timeout):
+            seen.append(json.loads(req.data))
+            return BytesIO(json.dumps({"data": {"reply": "Việc nên làm: Kiểm tra nguồn cấp trước khi lấy nước vào ruộng.", "source_ids": []}, "error": None}).encode())
+        app = createApp({"TESTING": True, "SECRET_KEY": "test-only", "ASSISTANT_API_URL": "https://example.test", "ASSISTANT_API_TRANSPORT": transport})
+        client = app.test_client()
+        sign_in(client)
+        answer = client.post("/api/assistant/chat", json={"message": "Lúa đang trổ bông. Độ mặn tại ruộng hiện tại 4,2 g/L, mực nước 36 cm; nên làm gì?"})
+        self.assertEqual(answer.status_code, 200)
+        self.assertEqual(len(seen), 1)
+        self.assertIn("4,2 g/L", seen[0]["messages"][-1]["text"])
+        followup=client.post("/api/assistant/chat",json={"message":"Vậy độ mặn hiện tại cần xử lý gì?","history":[
+            {"role":"user","text":"Lúa đang trổ bông, mặn ruộng 4,2 g/L, nước 36 cm."},
+            {"role":"model","text":"Bà con kiểm tra nguồn nước cấp."},
+        ]})
+        self.assertEqual(followup.status_code,200)
+        self.assertEqual(len(seen),2)
+        self.assertEqual(len(seen[-1]["messages"]),3)
+
     def testQuestionOutsideFilesStillCallsCloud(self) -> None:
         seen = []
         def transport(req, timeout):
@@ -30,7 +50,7 @@ class cloudAssistantTests(TestCase):
         seen = []
 
         def transport(req, timeout):
-            self.assertEqual(timeout, 35)
+            self.assertEqual(timeout, 105)
             seen.append(req)
             return BytesIO(json.dumps({"data": {"reply": "Bà con kiểm tra đất thoát nước.", "source_ids": ["KN-TOMATO-PLANT"]}, "error": None}).encode())
 

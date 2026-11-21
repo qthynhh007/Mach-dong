@@ -1,0 +1,34 @@
+Bạn là kỹ sư phụ trách sửa và phát hành ứng dụng Mạch Đồng. Hãy thực hiện sửa lỗi, không chỉ viết kế hoạch.
+
+BỐI CẢNH
+- Repository: K:\Unihack\Mach-dong. Đọc K:\Unihack\CONVENTIONS.md, AGENTS.md, README.md, docs/architecture.md, docs/deployment.md và docs/phat-hanh-exe-2026-11-21.md trước khi sửa.
+- Ứng dụng là Flask/Python + JavaScript, đóng gói bằng PyInstaller thành Windows EXE. Backend là Cloudflare Worker/D1/R2 trên Sites. Không chuyển kiến trúc sang Next.js hoặc tự tạo Site mới.
+- EXE mới: dist/MachDong.exe, dựng ngày 21/11/2026. Backend thực: https://mach-dong-rice-data.artfulmica6.chatgpt.site.
+- Site ID giữ nguyên: appgprj_6afcfbe9375c8191af0a348ebb094ff8.
+- Người dùng đã đăng nhập EXE nhưng không xem được tài nguyên và không dùng được trợ lý. Tài khoản test nongho đã tạo trên cloud, role FARMER, đăng nhập API đã trả HTTP 200. Không dùng SQLite local để chứng minh đăng nhập EXE cloud đã đúng.
+- Không ghi mật khẩu hoặc API key vào source, log, prompt, EXE. Nhận credentials qua đầu vào bảo mật hoặc biến môi trường. Không đổi quyền tài khoản, không xóa dữ liệu.
+
+BẰNG CHỨNG ĐÃ KIỂM TRA NGÀY 21/11
+1. Với đúng User-Agent MachDongDesktop/2.0, GET /api/health trả 200: aiProvider=groq, aiConfigured=true, dataVersion=rice-evidence-2026-11-18.1. Đây vẫn là cấu hình backend cũ, chưa triển khai các sửa Gemini/fallback trong server/ hiện tại.
+2. Đăng nhập cloud nongho thành công. Có Bearer + CSRF, các GET sau trả 200: /api/reference/co-ma-knowledge.json, /api/reference/lua-man-ngap-sources.json, /api/reference/nasa-power-can-tho-2025.csv.
+3. GET /api/reference/catalog.json và /api/reference/faostat-viet-nam-rice-production.csv cũng trả 200. Vì vậy CHƯA xác định được nguyên nhân tài nguyên hỏng trong EXE. Phải tái hiện trong EXE, không kết luận thiếu file trên cloud khi chưa kiểm tra.
+4. POST /api/assistant/generate với messages=[{role:user,text:Truoc khi lay nuoc vao ruong lua can kiem tra gi?}], sourceIds=[] trả HTTP 400, error=Câu hỏi hoặc nguồn tham khảo chưa hợp lệ. Điều này trái với tính năng chat ngoài thư viện trong source mới. Chưa được suy rộng rằng mọi câu có nguồn đều lỗi; cần kiểm tra riêng.
+5. urllib mặc định bị Cloudflare chặn 403/1010; với User-Agent thật của EXE thì API có thể trả 200. Khi tái hiện phải dùng đúng client headers, tránh chẩn đoán nhầm.
+6. Sites đọc được metadata nhưng create_source_repository_write_credential trả Sites project not found. Nếu vẫn thiếu quyền, báo chính xác bước bị chặn; không nói đã deploy hoặc tự tạo hosting khác để thay thế.
+
+CẦN SỬA
+A. Tái hiện trên EXE thật: URL loopback có cổng ngẫu nhiên, tiến trình launcher, đăng nhập, mở kho tài nguyên, xem trước và tải CSV, mở trợ lý và gửi nhiều lượt. Thu HTTP status, response shape, exception Python và console/network. Không chỉ thử bản ở cổng 5000.
+B. Kiểm tra resource path trong PyInstaller/_MEIPASS; cloudReferenceService, referenceBytes, csv_library.py và community_controller.py. Kiểm tra toàn bộ catalog, từng CSV, giới hạn kích thước, UTF-8, schema parser, lỗi template và asset. Kiểm tra một tài nguyên lỗi có làm sập toàn bộ trang hay không. Sửa lỗi cụ thể; tài nguyên hỏng cần có thông báo và cách thử lại phù hợp.
+C. Kiểm tra chuyển tiếp Bearer/CSRF/cookie từ EXE Flask sang backend. Đối chiếu API contract client và Worker đã deploy, sourceIds hợp lệ và [] cho câu ngoài thư viện. Chat ngoài nguồn vẫn gọi API; không gắn nguồn giả. Chat nhiều lượt phải giữ ngữ cảnh, sửa số đo và đổi cây đúng.
+D. Đọc server/assistant.mjs, server/generative.mjs, server/advice.mjs và source client tương ứng. Triển khai backend mới lên đúng Site khi có quyền, cấu hình Gemini server-side và fallback đã kiểm chứng. Không dùng lại model đã bị API từ chối. Model dự phòng phải có cùng kiểm tra nguồn/đơn vị/định lượng; tối đa hai lần gọi mỗi yêu cầu. Không mở billing hay mua dịch vụ.
+E. Giữ phân biệt mặn kênh/ruộng và g/L/EC; không tự suy ra năng suất hoặc liều thuốc. Không dùng mẫu tĩnh giả làm phản hồi API. Giữ logic gợi ý tạm thời sau 270 giây nếu vẫn thuộc phạm vi hiện tại.
+F. Giữ các UI đã sửa: đăng ký vừa màn laptop, email dài, OTP 6 số khi đăng ký/khôi phục, đăng nhập không yêu cầu OTP, ẩn tab duyệt, ví gọn, bốn thanh kéo đổi số, đồng hồ tải đúng. Lỗi phải kết thúc trạng thái bận; có nút thử lại trong cửa sổ; mở lại kết quả không tự gọi trùng API.
+G. Dựng lại EXE bằng scripts/build-desktop.ps1 sau khi đồng bộ client/backend, kiểm tra chính EXE đó. Không lấy việc build thành công hoặc smoke route làm bằng chứng chat/tài nguyên đã chạy end-to-end.
+
+NGHIỆM THU
+- Kho tài nguyên trong EXE mở được; preview và download ít nhất CSV NASA POWER và FAOSTAT, nội dung và tên file đúng.
+- Trợ lý trả lời được 5 lượt thực, gồm câu ngoài thư viện, sửa vị trí đo và đổi chủ đề; không lặp một đoạn mẫu.
+- Kiểm tra 401/403, API 400, 429/503, mất mạng, response không phải JSON, dừng và thử lại. Không in dữ liệu nhạy cảm vào log.
+- Chạy python -m unittest discover -s tests; node --test server/tests/*.test.mjs tests/*.test.mjs; node scripts/check-client-js.mjs; node server/build.mjs; kiểm tra cú pháp Worker. Baseline gần nhất: 81 test Python, 86 JavaScript.
+- Chạy EXE --smoke-output: login/register 200, trang bảo vệ 302 khi chưa đăng nhập, static 200. Sau đó kiểm tra đăng nhập và hai chức năng trên EXE thực với cloud.
+- Bàn giao EXE, SHA256SUMS.txt, README cập nhật, báo cáo nguyên nhân/thay đổi và bằng chứng. Ghi rõ backend đã deploy hay còn bị chặn. Không tuyên bố hoàn tất khi chỉ bản local hoạt động.

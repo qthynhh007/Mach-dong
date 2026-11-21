@@ -2,11 +2,11 @@
 <a class="app-skip-link" href="{{ '#simContentWrapper' if current_page == 'simulation' else '#main-content' }}">Đến nội dung chính</a>
 {% set section_names = {'community':'Kho CSV cộng đồng', 'forum':'Thảo luận bà con', 'simulation':'Mô phỏng sinh lý lúa', 'assistant':'Trợ lý Cò Mạ', 'profile':'Thông tin cá nhân', 'wallet-rules':'Thể lệ quy đổi LÚA'} %}
 <header class="app-header"{% if auth_user %} data-csrf-token="{{ auth_csrf_token }}" data-user-id="{{ auth_user.user_id }}"{% endif %}>
-  <a href="/community" class="app-brand">
-    <span class="app-brand-mark">
-      <img src="{{ url_for('static', filename='assets/stitch-simulation/co-ma-logo.png') }}" alt="" width="30" height="30">
+  <a href="/community" class="app-brand" aria-label="Mạch Đồng · Trang chính">
+    <span class="app-brand-mark" aria-hidden="true">
+      <img src="{{ url_for('static', filename='assets/co-ma/avatar-co-ma.webp') }}" alt="" width="40" height="40">
     </span>
-    <span translate="no">Mạch Đồng</span>
+    <span class="app-brand-copy"><strong translate="no">Mạch Đồng</strong><small>Cùng nhà nông</small></span>
   </a>
   {% if current_page in section_names %}
   <div class="app-top-nav">

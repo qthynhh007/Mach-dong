@@ -1,3 +1,6 @@
+import {AssistantSession} from "./assistant-session.js";
+import {renderCoMaReply,safeAssistantSources} from "./co-ma-reply.js";
+
 (() => {
   const byId = (id) => document.getElementById(id);
   const form = byId("assistant-form");
@@ -15,7 +18,6 @@
   const pending = byId("assistant-pending");
   const pendingDetail = byId("assistant-pending-detail");
   const elapsed = byId("assistant-elapsed");
-  const waitFill = byId("assistant-wait-fill");
   const stopButton = byId("assistant-stop");
   const starters = byId("assistant-starters");
   const questions = document.querySelectorAll("[data-question]");
@@ -24,7 +26,8 @@
   const chatUrl = form.dataset.chatUrl;
   const historyLimit = Number(form.dataset.historyLimit);
   const waitSeconds = Number(form.dataset.waitSeconds);
-  const history = [];
+  const session=new AssistantSession(historyLimit);
+  const history=session.history;
   const imageInput = byId("assistant-image");
   const imageChoose = byId("assistant-image-choose");
   const imageRemove = byId("assistant-image-remove");
@@ -32,13 +35,15 @@
   const imagePreview = byId("assistant-image-preview");
   const uploadStatus = byId("assistant-upload-status");
 
-  let activeRequest = null;
+  let pendingTurn = null;
   let retryMessage = "";
   let retryImage = null;
   let selectedImage = null;
   let readingImage = false;
   window.addEventListener("workspace-session-ended", () => {
-    activeRequest?.abort(); history.length = 0; messages.replaceChildren(); input.value = "";
+    session.end();
+    if(pendingTurn) {window.clearTimeout(pendingTurn.deadline);window.clearInterval(pendingTurn.timer);pendingTurn=null;}
+    messages.replaceChildren(); input.value = "";setImage(null);clearFeedback();renderWaiting();input.disabled=true;
   });
 
   function appendMessage(speaker, text, sources = [], image = null, basis = "") {
@@ -58,34 +63,36 @@
       photo.height = 240;
       bubble.append(photo);
     }
-    const body = document.createElement("p");
-    body.textContent = text;
+    const body = document.createElement("div");
+    body.className="assistant-reply";
+    if(speaker === "Bạn") {const paragraph=document.createElement("p");paragraph.textContent=text;body.append(paragraph);}
+    else renderCoMaReply(document,body,text);
     bubble.append(body);
+    const citations=safeAssistantSources(sources,window.location.origin);
     if (basis === "general_knowledge" || basis === "reference_assisted") {
       const label = document.createElement("p");
       label.className = "assistant-answer-basis";
       label.textContent = basis === "general_knowledge"
         ? "Thông tin tham khảo bổ sung · Chưa đối chiếu tài liệu trong thư viện"
-        : "Có tài liệu tham khảo · Xem nguồn bên dưới";
+        : citations.length ? "Có tài liệu tham khảo · Xem nguồn bên dưới" : "Thông tin tham khảo · Cần đối chiếu với tình trạng cây thực tế";
       bubble.append(label);
     }
+    const sourceFold=document.createElement("details");sourceFold.className="assistant-source-fold";
+    const summary=document.createElement("summary");summary.textContent=`Nguồn tham khảo (${citations.length})`;
     const list = document.createElement("ul");
     list.className = "assistant-sources";
     list.setAttribute("aria-label", "Nguồn tham khảo");
-    for (const source of sources) {
-      const url = new URL(source.url, window.location.origin);
-      const localData = url.origin === window.location.origin && url.pathname.startsWith("/community/samples/");
-      if (!localData && url.protocol !== "https:") continue;
+    for (const source of citations) {
       const item = document.createElement("li");
       const link = document.createElement("a");
-      link.href = url.href;
+      link.href = source.url;
       link.rel = "noopener noreferrer";
       link.target = "_blank";
       link.textContent = source.title;
       item.append(link);
       list.append(item);
     }
-    if (list.childElementCount) bubble.append(list);
+    if (list.childElementCount) {sourceFold.append(summary,list);bubble.append(sourceFold);}
     entry.append(author, bubble);
     messages.append(entry);
     return entry;
@@ -96,7 +103,7 @@
   }
 
   function updateSend() {
-    sendButton.disabled = Boolean(activeRequest) || readingImage || (!input.value.trim() && !selectedImage);
+    sendButton.disabled = session.closed || Boolean(session.request) || readingImage || (!input.value.trim() && !selectedImage);
     byId("assistant-character-count").textContent = `${input.value.length} / ${input.maxLength}`;
   }
 
@@ -132,19 +139,21 @@
         reader.onerror = () => reject(new Error("Không đọc được ảnh."));
         reader.readAsDataURL(file);
       });
+      if(session.closed) return;
       setImage({mime_type: file.type, data: url.split(",")[1], name: file.name});
       uploadStatus.textContent = "";
     } catch { uploadStatus.textContent = "Không đọc được ảnh. Bà con chọn lại nha."; }
-    finally { readingImage = false; imageChoose.disabled = false; updateSend(); }
+    finally { readingImage = false; imageChoose.disabled = session.closed || Boolean(session.request); updateSend(); }
   });
 
   function renderWaiting() {
-    const waiting = Boolean(activeRequest);
+    const waiting = Boolean(session.request);
     pending.hidden = !waiting;
     starters.hidden = waiting;
     status.textContent = waiting ? "Đang chờ câu trả lời" : mode;
     resetButton.setAttribute("aria-disabled", String(waiting));
-    imageChoose.disabled = waiting || readingImage;
+    resetButton.disabled=waiting || session.closed;
+    imageChoose.disabled = waiting || readingImage || session.closed;
     sendButton.setAttribute("aria-busy", String(waiting));
     byId("assistant-send-label").textContent = waiting ? "Đang gửi…" : "Gửi";
     updateSend();
@@ -155,7 +164,6 @@
     const remainder = String(seconds % 60).padStart(2, "0");
     elapsed.textContent = minutes + ":" + remainder;
     elapsed.dateTime = "PT" + seconds + "S";
-    waitFill.style.width = (seconds / waitSeconds * 100) + "%";
     const hint = seconds >= 8 ? "Cò Mạ đang tổng hợp câu trả lời…" : waitingHint;
     if (pendingDetail.textContent !== hint) pendingDetail.textContent = hint;
   }
@@ -168,26 +176,41 @@
     retryImage = null;
   }
 
+  function restoreQuestion(turn) {
+    turn.entry.remove();retryMessage=turn.message;retryImage=turn.image;
+    if(turn.image) setImage(turn.image);
+    if(!input.value.trim()) input.value=turn.message;
+    resetButton.hidden=messages.children.length<=1;
+  }
+  function stopCurrent(timedOut=false) {
+    const turn=pendingTurn;if(!turn) return;
+    window.clearTimeout(turn.deadline);window.clearInterval(turn.timer);
+    session.cancel();pendingTurn=null;restoreQuestion(turn);feedback.hidden=false;
+    errorMessage.textContent=timedOut ? "Cò Mạ chưa trả lời kịp. Bà con có thể gửi lại câu hỏi." : "";
+    notice.textContent=timedOut ? "" : "Đã dừng chờ. Câu hỏi được giữ lại để bà con gửi tiếp.";
+    renderWaiting();input.focus({preventScroll:true});
+  }
+
   async function sendMessage(message, image = null) {
-    if (activeRequest || !message) return;
+    if (session.request || session.closed || !message) return;
+    const controller=session.begin();if(!controller) return;
     clearFeedback();
     const entry = appendMessage("Bạn", message, [], image);
     resetButton.hidden = false;
-    const controller = new AbortController();
-    activeRequest = controller;
+    const turn={controller,entry,message,image,timer:null,deadline:null};pendingTurn=turn;
     renderElapsed(0);
     renderWaiting();
     showLatest();
     const startedAt = performance.now();
     const timer = window.setInterval(() => {
+      if(!session.isCurrent(controller)) return;
       const seconds = Math.floor((performance.now() - startedAt) / 1000);
       renderElapsed(Math.min(seconds, waitSeconds));
     }, 1000);
-    let timedOut = false;
     const deadline = window.setTimeout(() => {
-      timedOut = true;
-      controller.abort();
+      if(session.isCurrent(controller)) stopCurrent(true);
     }, waitSeconds * 1000);
+    turn.timer=timer;turn.deadline=deadline;
 
     try {
       const response = await fetch(chatUrl, {
@@ -196,38 +219,24 @@
         body: JSON.stringify({message, history, ...(image ? {image: {mime_type: image.mime_type, data: image.data}} : {})}),
         signal: controller.signal,
       });
+      if(!session.isCurrent(controller)) return;
       const result = await response.json();
+      if(!session.isCurrent(controller)) return;
       const reply = result.data?.reply;
-      if (!response.ok || !reply) {
-        feedback.hidden = false;
-        errorMessage.textContent = result.error || "Cò Mạ chưa có câu trả lời. Bà con thử lại nha.";
-      } else {
-        history.push({role: "user", text: message}, {role: "model", text: reply});
-        while (history.length > historyLimit) history.splice(0, 2);
-        appendMessage("Cò Mạ", reply, result.data.sources ?? [], null, result.data.answer_basis);
-      }
-    } catch {
+      if (!response.ok || typeof reply!=="string" || !reply.trim() || reply.length>4096) throw Object.assign(new Error(result.error || "Chưa nhận được lời đáp đầy đủ. Bà con thử lại nha."),{userFacing:true});
+      appendMessage("Cò Mạ",reply,result.data.sources ?? [],null,result.data.answer_basis);
+      session.commit(controller,message,reply);
+    } catch(error) {
+      if(!session.isCurrent(controller)) return;
       feedback.hidden = false;
-      if (timedOut) {
-        errorMessage.textContent = "Đã hết thời gian chờ. Bà con có thể gửi lại câu hỏi.";
-      } else if (controller.signal.aborted) {
-        notice.textContent = "Đã dừng chờ. Bà con có thể gửi lại câu hỏi.";
-      } else {
-        errorMessage.textContent = "Chưa kết nối được với Cò Mạ. Bà con thử gửi lại nha.";
-      }
+      errorMessage.textContent=error.userFacing ? error.message : "Chưa kết nối được với Cò Mạ. Câu hỏi đã được giữ lại để gửi tiếp.";
     } finally {
       window.clearTimeout(deadline);
       window.clearInterval(timer);
-      if (!feedback.hidden) {
-        entry.remove();
-        retryMessage = message;
-        retryImage = image;
-        if (image) setImage(image);
-        if (!input.value.trim()) input.value = message;
-        resetButton.hidden = messages.children.length === 1;
-      }
+      if(!session.isCurrent(controller)) return;
+      if (!feedback.hidden) restoreQuestion(turn);
       const returnFocus = document.activeElement === stopButton;
-      activeRequest = null;
+      session.finish(controller);pendingTurn=null;
       renderWaiting();
       if (returnFocus) input.focus({preventScroll: true});
       showLatest();
@@ -298,9 +307,9 @@
       updateSend();
     });
   }
-  stopButton.addEventListener("click", () => activeRequest?.abort());
+  stopButton.addEventListener("click", () => stopCurrent());
   retryButton.addEventListener("click", () => {
-    if (activeRequest || !retryMessage) return;
+    if (session.request || session.closed || !retryMessage) return;
     const message = retryMessage;
     const image = retryImage;
     if (input.value.trim() === retryMessage) input.value = "";
@@ -313,12 +322,12 @@
   input.addEventListener("keydown", (event) => {
     if (event.key !== "Enter" || event.shiftKey || event.isComposing) return;
     event.preventDefault();
-    if (!activeRequest && !readingImage && (input.value.trim() || selectedImage)) form.requestSubmit();
+    if (!session.request && !session.closed && !readingImage && (input.value.trim() || selectedImage)) form.requestSubmit();
   });
   form.addEventListener("submit", (event) => {
     event.preventDefault();
     const message = input.value.trim() || (selectedImage ? "Nhờ Cò Mạ xem ảnh cây trồng này và chỉ giúp dấu hiệu cần kiểm tra." : "");
-    if (activeRequest || readingImage || !message) return;
+    if (session.request || session.closed || readingImage || !message) return;
     const image = selectedImage;
     setImage(null);
     uploadStatus.textContent = "";
@@ -327,14 +336,14 @@
   });
 
   resetButton.addEventListener("click", () => {
-    if (activeRequest) return;
+    if (session.request || session.closed) return;
     resetDialog.returnValue = "";
     resetDialog.showModal();
   });
   resetDialog.addEventListener("close", () => {
     if (resetDialog.returnValue !== "reset") return;
     while (messages.children.length > 1) messages.lastElementChild.remove();
-    history.length = 0;
+    session.reset();
     clearFeedback();
     resetButton.hidden = true;
     input.value = "";

@@ -16,6 +16,7 @@ class desktopApplication:
             client = app.test_client()
             result = {"pages": {route: client.get(route).status_code for route in
                                 ("/simulation", "/forum", "/community", "/assistant")},
+                      "publicPages": {route: client.get(route).status_code for route in ("/login", "/register")},
                       "static": client.get("/static/simulation.js").status_code,
                       "cloudApi": app.config["SIMULATION_API_URL"],
                       "cloudAuthApi": app.config["AUTH_API_URL"]}
