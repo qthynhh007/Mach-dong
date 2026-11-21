@@ -47,12 +47,16 @@ Các đường dẫn dưới đây tính từ `Mach-dong/`. Ứng dụng đang d
 - Giữ cửa sổ lịch sử bốn cặp hỏi đáp, gửi được nhiều lượt liên tiếp; dữ kiện mới của người dùng được ưu tiên.
 - Kiểm tra trạng thái gửi, dừng chờ, gửi lại và bắt đầu lại. Lỗi một lượt không khóa câu tiếp theo.
 - Trả lời bằng tiếng Việt, đi thẳng vào tình huống: nhận định, lý do, việc cần làm và điều cần hỏi thêm.
-- Kiểm tra schema, mã nguồn, văn bản rỗng/quá dài và những định lượng không có trong dữ kiện/căn cứ. Khi không có nguồn thì chỉ hỏi làm rõ, không đưa khẳng định kỹ thuật.
+- Kiểm tra schema, mã nguồn, văn bản rỗng/quá dài và những định lượng không có trong dữ kiện/căn cứ. Theo yêu cầu bổ sung ngày 21/11, chat được trả lời bằng kiến thức chung khi tài liệu không có hoặc không đủ; không chặn API chỉ vì không chọn được tài liệu.
+- Chat gọi Gemini với lịch sử và tài liệu phù hợp nếu có. Không ép trích nguồn không liên quan. Câu trả lời có nhãn `general_knowledge` (kiến thức chung AI, chưa đối chiếu tài liệu) hoặc `reference_assisted` (AI có tham khảo tài liệu); phần bổ sung ngoài tài liệu được yêu cầu ghi rõ trong lời đáp.
+- Không tự nhận đã tìm Internet hay có dữ liệu thời gian thực. Báo cáo mô phỏng vẫn dùng chế độ có căn cứ riêng; việc mở rộng chat không thay đổi engine hoặc bỏ giới hạn của tư vấn kịch bản.
 - Không tự đổi mặn kênh thành mặn ruộng hoặc g/L thành EC đất/nước. Không bịa liều phân/thuốc, tỷ lệ sống, năng suất hay chẩn đoán chắc chắn.
 
 **Tệp chính:** `server/generative.mjs`, `server/assistant.mjs`, `src/services/assistant_service.py`, `src/services/cloud_assistant_service.py`, `src/static/assistant.js`.
 
 **Nghiệm thu:** năm lượt liên tiếp, câu hỏi nối tiếp, đổi thông số/chủ đề, nguồn giả, định lượng không có căn cứ và lỗi API được kiểm tra. Kiểm tra nội dung thực tế bên cạnh test cấu trúc; citation hợp lệ không tự chứng minh mọi câu AI viết đều đúng.
+
+**Bổ sung nghiệm thu chat ngoài tài liệu (21/11):** kiểm tra không có nguồn, tài liệu không liên quan, thử lại bằng model dự phòng và giữ chế độ mô phỏng có căn cứ. Đã gọi Gemini thật trên bản cục bộ với câu hỏi về cây cà phê ngoài kho tài liệu, rồi hỏi tóm tắt tiếp: có lời đáp, nhớ chủ đề và hiện nhãn kiến thức chung, không gắn nguồn giả. Ảnh: `K:\Unihack\output\co-ma-tra-loi-ngoai-file.jpg`. Bộ Python đạt 78 test; JavaScript đạt 53 test. Khóa vẫn nằm ở server; chưa phát hành cloud.
 
 ## 4. Gemini tư vấn theo thông số ruộng
 
@@ -129,7 +133,7 @@ Launcher chỉ nghe loopback và xác nhận đúng instance API, tránh dùng n
 
 ```powershell
 .\.venv\Scripts\python.exe -m unittest discover -s tests -v
-node --test server/tests/*.test.mjs tests/simulation-view.test.mjs
+node --test server/tests/*.test.mjs tests/*.test.mjs
 node scripts/check-client-js.mjs
 node server/build.mjs
 node --check server/dist/server/index.js
@@ -137,7 +141,7 @@ cd ui-preview
 node node_modules/typescript/bin/tsc --noEmit
 ```
 
-Đã đạt: 77 test Python, 48 test JavaScript và kiểm tra kiểu của bản xem trước React. Build Worker và kiểm tra cú pháp Worker đã đạt. Đã thử đăng nhập `nongho` bằng mật khẩu, khôi phục mật khẩu mở đúng form, gửi OTP qua hộp thư cục bộ, Cò Mạ nhiều lượt và dự báo Open-Meteo thật. Gemini có thể quá tải tạm thời; đã kiểm tra thử lại sau lỗi. Bug kiểm soát truy cập đã có test tái hiện trước khi sửa; test cũ cho phép khách dùng app được đổi sang phiên đăng nhập thật trong fixture.
+Đã đạt: 79 test Python, 65 test JavaScript và kiểm tra kiểu của bản xem trước React. Build Worker và kiểm tra cú pháp Worker đã đạt. Đã thử đăng nhập `nongho` bằng mật khẩu, khôi phục mật khẩu mở đúng form, gửi OTP qua hộp thư cục bộ, Cò Mạ nhiều lượt và dự báo Open-Meteo thật. Gemini có thể quá tải tạm thời; đã kiểm tra thử lại sau lỗi. Bug kiểm soát truy cập đã có test tái hiện trước khi sửa; test cũ cho phép khách dùng app được đổi sang phiên đăng nhập thật trong fixture.
 
 ### Kiểm tra giao diện và dịch vụ thật
 
@@ -153,5 +157,28 @@ node node_modules/typescript/bin/tsc --noEmit
 - Đặt lời khuyên AI bên dưới các mục đối chiếu điều kiện tại ruộng trong cửa sổ chi tiết; dùng chung thẻ tư vấn với tab báo cáo.
 - Tách lời chào và bốn mục: Điều kiện đáng chú ý, Việc nên làm, Cần đo thêm, Khi nào cần nhờ cán bộ nông nghiệp. Tách từng việc thành danh sách; giữ nguyên số đo thập phân.
 - Thẻ có thông số kịch bản, nguồn tham khảo thu gọn, trạng thái đang tải/lỗi và ghi chú phạm vi áp dụng. Tạo nội dung bằng textContent để không thực thi HTML từ lời đáp.
-- Hai kiểm thử tách đoạn mới đã đạt. Cần kiểm tra hình ảnh thực tế của thẻ mới trong cửa sổ chi tiết và tab báo cáo, sau đó lưu ảnh nghiệm thu; phiên kiểm tra trình duyệt gần nhất bị hết thời gian chờ.
+- Hai kiểm thử tách đoạn mới đã đạt. Đã kiểm tra lại trên trình duyệt ngày 21/11 ở 1440 và 1280 px, dùng lời đáp Gemini thật cho kịch bản làm đòng: thẻ nằm dưới các mục đối chiếu, nguồn mở/đóng được và dùng HTTPS; cửa sổ cuộn, đóng được, không tràn ngang ở 1280 px.
+- Phát hiện CSS reset làm mất số thứ tự dù DOM đã có danh sách: computed list-style là `none`. Đã đặt lại `decimal outside`; xác nhận bốn số thứ tự hiển thị trong báo cáo và cửa sổ lời khuyên. Kiểm tra lại 15 test simulation-view, cú pháp 12 tệp client và 77 test Python đều đạt.
+- Kiểm tra hồ sơ `nongho`: còn nút đổi ảnh đại diện, thông tin ví và lịch sử mở được; ví chưa liên kết hiển thị `UNLINKED`, không phát sinh giao dịch. Không thay đổi tài khoản hoặc phát hành cloud.
+- Ảnh nghiệm thu bổ sung tại `K:\Unihack\output\`: `co-ma-bao-cao-1440-sau-sua.jpg`, `co-ma-bao-cao-1280-sau-sua.jpg`, `co-ma-cua-so-1280-sau-sua.jpg`, `vi-nongho-1280-sau-sua.jpg`. Báo cáo kiểm thử riêng của Antigravity được giữ nguyên.
 - Tệp chính: `src/views/simulation/co-ma-advice.html`, `src/static/co-ma-advice.css`, `src/static/simulation.js`, `src/static/simulation-demo.js`.
+
+### Khắc phục bốn mục sau kiểm thử Gemini (21/11)
+
+- P2 đăng xuất mobile: thêm nút 44 × 44 px vào header dùng chung khi viewport dưới 1024 px. Desktop giữ nút ở sidebar. Dùng luồng POST/CSRF hiện có, không chuyển đăng xuất sang GET. Đã kiểm tra `/assistant`, `/community` tại 390 px, ngưỡng 1023/1024 px và thao tác một chạm về `/login`.
+- P2 hạn mức dev: launcher loopback đặt hệ số 10 cho bộ đếm theo IP/hành động, tương ứng OTP/đăng ký/khôi phục là 50 lần mỗi 15 phút. Production không có binding nội bộ này nên giữ mức cũ 5 lần cho các hành động đó. Có thể đặt `MACH_DONG_LOCAL_AUTH_RATE_MULTIPLIER` từ 1–20 khi chạy cục bộ. Header từ client không đổi được hệ số; không bỏ cooldown 60 giây, giới hạn nhập sai OTP hay khóa tài khoản. Test dùng SQLite trong bộ nhớ, không reset bộ đếm dữ liệu người dùng.
+- P3 số điện thoại: bọc riêng thành inline-block, `white-space: nowrap` và `word-break: normal`; đã kiểm tra dấu `+` đi liền dãy số ở 390 px.
+- P3 Gemini 503: server đã có một lần thử model dự phòng. Bổ sung chờ 350 ms cho 503/504/timeout và vẫn retry được khi model dự phòng trùng model chính. Giữ tối đa hai API call (một retry), thời gian chờ Node khoảng 28,35 giây; không retry 429. Client Python cũng chờ ngắn trước lần dự phòng. Không hứa loại bỏ hoàn toàn lỗi quá tải của nhà cung cấp.
+- Kết quả: 78 test Python, 57 test JavaScript, cú pháp 12 tệp client và build Worker đạt. Gemini thật trả lời thành công câu hỏi về trụ thanh long; 503 → thành công, 503 kéo dài và 429 được kiểm tra bằng upstream giả lập. Ảnh tại `K:\Unihack\output\`: `dang-xuat-mobile-390.jpg`, `profile-sdt-mobile-390.jpg`, `gemini-mobile-sau-kiem-thu.jpg`, `dang-xuat-mobile-thanh-cong.jpg`.
+- Bản chạy cục bộ đã khởi động lại; không phát hành cloud. Báo cáo Antigravity ban đầu được giữ nguyên để đối chiếu.
+
+### Lời khuyên thực hành, mốc dự phòng và hiệu ứng tải (21/11)
+
+- Khu vực lời khuyên chỉ dùng phản hồi thực tế của Gemini. Các đoạn bằng chứng xác định được chuyển vào mục đối chiếu thu gọn, không trình bày thành lời khuyên mới. Tóm tắt ở cạnh cánh đồng lấy từ các việc nên làm trong chính lời đáp; mở lại cửa sổ dùng lại lời đáp đó, không gọi lại chỉ để xem.
+- Prompt yêu cầu ưu tiên việc làm cụ thể: làm gì, kiểm tra ở đâu, vì sao, điều kiện áp dụng và dấu hiệu theo dõi. Được bổ sung nguyên lý chung nhưng không tự quy đổi mặn kênh thành mặn ruộng hoặc bịa ngưỡng/liều lượng. Không khuyên phun/bón chế phẩm chỉ từ mặn, nước và nhiệt độ; đã thêm kiểm tra phản hồi cho trường hợp đó.
+- Chỉ hiện gợi ý tham khảo tạm thời khi chưa có câu trả lời sau 270 giây (hiểu yêu cầu 4,5 phút là 4 phút 30 giây). Lỗi sớm hiển thị lỗi/thử lại, không lập tức đổi sang mẫu. Dừng chờ, đổi kịch bản hoặc nhận được lời đáp sẽ hủy đồng hồ dự phòng; thử lại sau lỗi không kéo dài mốc ban đầu.
+- Riêng tư vấn mô phỏng cho phép mỗi lượt gọi model chờ tối đa 120 giây và một lần dự phòng; proxy cục bộ dành tối đa 275 giây, giao diện dùng deadline 270 giây. Các request khác giữ timeout cũ. Chưa kiểm chứng giới hạn request dài trên hosting cloud vì đợt này chỉ chạy cục bộ.
+- Thêm hiệu ứng mở/chuyển trang, thanh tải và thông báo chờ chung cho fetch, spinner cho nút đang xử lý, skeleton và thời gian đã chờ trong khung tư vấn. Các request song song được đếm riêng; lỗi cũng kết thúc trạng thái bận, request nhanh không nhấp nháy; có giới hạn an toàn cho hiệu ứng chuyển trang và hỗ trợ giảm chuyển động.
+- Câu chữ sản phẩm: không hiển thị tên Gemini, AI, API, model hay chính sách dùng đoạn mẫu trong giao diện. Dùng tên Cò Mạ, “Đang chuẩn bị lời khuyên”, thời gian đã chờ và “Gợi ý tham khảo tạm thời”. Vẫn giữ nguồn tham khảo, nhãn dữ liệu giả lập và giới hạn áp dụng; không tự nhận đã có chuyên gia trực tiếp kiểm tra ruộng. Prompt cũng yêu cầu không tự giới thiệu công nghệ trong lời khuyên, nhưng giải thích trung thực khi được hỏi về hệ thống.
+- Kiểm chứng: 79 test Python, 65 test JavaScript, cú pháp 13 tệp client và build Worker đạt. Đã gọi Gemini thật với kịch bản trổ bông, mặn ruộng 4,2 g/L, nước 36 cm, nhiệt độ 35°C và chiều cao 90 cm; phản hồi có `isFallback: false`, bảo toàn snapshot. Kết quả ở `K:\Unihack\output\co-ma-api-practical.json`. Script `scripts/check-live-advice.py` nhận mật khẩu qua đầu vào bảo mật, không ghi credentials vào source/kết quả và tự đăng xuất phiên kiểm thử.
+- Kiểm tra trình duyệt đã thấy khung chờ, đồng hồ và nút dừng; phiên điều khiển bị ngắt khi chụp ảnh nên chưa lưu được ảnh nghiệm thu mới cho bản chữ cuối. Không dùng ảnh cũ để khẳng định đã kiểm tra thị giác toàn bộ thay đổi mới. Chưa phát hành cloud.

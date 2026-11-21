@@ -8,7 +8,7 @@ const source = readFileSync(new URL("../src/static/simulation.js",import.meta.ur
 function classes(overrides = {}) {
   const context = createContext({AbortController,Response,TypeError,setTimeout,clearTimeout,...overrides});
   runInContext(source.replace('if (typeof document !== "undefined") new simulationView();',''),context);
-  return runInContext("({simulationApi,simulationView})",context);
+  return runInContext("({simulationApi,simulationView,adviceWaitController})",context);
 }
 function viewHarness(request) {
   const {simulationView} = classes();
@@ -160,7 +160,7 @@ test("late weather results cannot overwrite a newly selected location",async()=>
 test("advice for an edited scenario never appears as current advice",async()=> {
   const events=[]; const {simulationView}=classes({document:{dispatchEvent:event=>events.push(event)},CustomEvent:class {constructor(type,options){this.type=type;this.detail=options.detail;}}});
   const view=Object.create(simulationView.prototype); const text={}; let finish;
-  Object.assign(view,{result:{inputs:{salinityGl:2.8}},revision:0,byId:()=>({setAttribute(){},classList:{remove(){},add(){}}}),setText:(id,value)=>{text[id]=value;},
+  Object.assign(view,{result:{inputs:{salinityGl:2.8}},revision:0,startAdviceWait(){},byId:()=>({setAttribute(){},classList:{remove(){},add(){},toggle(){}}}),setText:(id,value)=>{text[id]=value;},
     api:{request:()=>new Promise(resolve=>{finish=resolve;})}});
   const waiting=view.explainReport(); view.revision++; view.adviceRequest.abort();
   finish({reply:"Old advice",sources:[]}); await waiting;
@@ -182,4 +182,41 @@ test("advice without standard headings preserves each paragraph",()=> {
   const parts=view.adviceParts("Quan sát tại ruộng.\n\nChưa đủ dữ liệu để kết luận.");
   assert.equal(parts.length,1);
   assert.equal(parts[0].body,"Quan sát tại ruộng.\n\nChưa đủ dữ liệu để kết luận.");
+});
+
+test("sample advice is unavailable before 4 minutes 30 seconds",()=> {
+  const {adviceWaitController}=classes(); let now=0,callback,expired=0;
+  const timer=new adviceWaitController(()=>{},()=>expired++,{now:()=>now,schedule:fn=>{callback=fn;return 1;},cancel(){}});
+  timer.start(); assert.equal(expired,0);
+  now=269999;callback();assert.equal(expired,0);
+  now=270000;callback();assert.equal(expired,1);
+  callback();assert.equal(expired,1);
+});
+
+test("successful advice or a cancelled scenario prevents later sample advice",()=> {
+  const {adviceWaitController}=classes(); let now=0,callback,expired=0;
+  const timer=new adviceWaitController(()=>{},()=>expired++,{now:()=>now,schedule:fn=>{callback=fn;return 1;},cancel(){}});
+  timer.start();timer.stop();now=300000;callback();assert.equal(expired,0);
+});
+
+test("retrying before the deadline does not restart the 4 minute 30 second wait",()=> {
+  const {adviceWaitController}=classes(); let now=0,callback,expired=0;
+  const timer=new adviceWaitController(()=>{},()=>expired++,{now:()=>now,schedule:fn=>{callback=fn;return 1;},cancel(){}});
+  timer.start();now=200000;timer.start();assert.equal(timer.startedAt,0);
+  now=270000;callback();assert.equal(expired,1);
+});
+
+test("an early API failure shows the error without returning canned advice",async()=> {
+  const {simulationView}=classes({document:{dispatchEvent(){}},CustomEvent:class {constructor(type,options){this.type=type;this.detail=options.detail;}}});
+  const view=Object.create(simulationView.prototype);const text={};let started=false,answered=false;
+  Object.assign(view,{result:{inputs:{}},revision:0,startAdviceWait(){started=true;},setAdviceAnswer(){answered=true;},
+    byId:()=>({setAttribute(){},classList:{remove(){},add(){}}}),setText:(id,value)=>{text[id]=value;},api:{request:async()=>{throw new Error("AI tạm thời quá tải.");}}});
+  await view.explainReport();assert.equal(started,true);assert.equal(answered,false);assert.match(text.reportExplanationStatus,/thử lại/);
+});
+
+test("opening the advice dialog reuses the actual API answer",async()=> {
+  let detail;const {simulationView}=classes({document:{dispatchEvent:event=>{detail=event.detail;}},CustomEvent:class{constructor(type,options){this.detail=options.detail;}}});
+  const view=Object.create(simulationView.prototype);view.adviceAnswer={reply:"Phân tích riêng từ API",isFallback:false};
+  view.api={request:()=>assert.fail("Opening a dialog must not request AI again")};
+  await view.explainReport(true);assert.equal(detail,view.adviceAnswer);
 });

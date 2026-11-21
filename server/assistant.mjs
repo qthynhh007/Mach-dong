@@ -18,7 +18,7 @@ function validPayload(payload) {
   return Array.isArray(messages) && messages.length > 0 && messages.length <= 9 &&
     messages.every((item,index) => item && typeof item === "object" && Object.keys(item).sort().join(",") === "role,text" &&
       item.role === (index % 2 ? "model" : "user") && typeof item.text === "string" && item.text.trim().length > 0 && item.text.length <= (index % 2 ? 4096 : 400)) &&
-    messages.at(-1).role === "user" && Array.isArray(sourceIds) && sourceIds.length > 0 && sourceIds.length <= 4 &&
+    messages.at(-1).role === "user" && Array.isArray(sourceIds) && sourceIds.length <= 4 &&
     new Set(sourceIds).size === sourceIds.length && sourceIds.every(id => typeof id === "string" && reviewedSources.has(id));
 }
 
@@ -53,7 +53,7 @@ export class assistantController {
     rate.count++; assistantRates.set(ip,rate); assistantInFlight++;
     try {
       const sources = payload.sourceIds.map(id => reviewedSources.get(id));
-      return assistantResponse(await generateGroundedReply(this.env,this.fetcher,payload.messages,sources));
+      return assistantResponse(await generateGroundedReply(this.env,this.fetcher,payload.messages,sources,"",true,0,true));
     } catch (failure) {
       return assistantResponse(null,failure instanceof generationError ? failure.status : 502,
         failure instanceof generationError ? failure.message : "Cò Mạ chưa nhận được câu trả lời hợp lệ. Bà con thử lại nha.");

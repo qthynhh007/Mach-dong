@@ -1,9 +1,24 @@
+class adviceWaitController {
+  constructor(onTick,onFallback,{now=()=>Date.now(),schedule=setTimeout,cancel=clearTimeout}={}) {
+    Object.assign(this,{onTick,onFallback,now,schedule,cancel,startedAt:null,timer:null});
+  }
+  start() { if(this.startedAt !== null) return; this.startedAt=this.now(); this.tick(); }
+  tick() {
+    if(this.startedAt === null) return;
+    const elapsed=this.now()-this.startedAt;
+    if(elapsed >= 270000) { this.stop(); this.onFallback(); return; }
+    this.onTick(Math.floor(elapsed/1000));
+    this.timer=this.schedule(()=>this.tick(),Math.min(1000,270000-elapsed));
+  }
+  stop() { if(this.timer !== null) this.cancel(this.timer); this.timer=null; this.startedAt=null; }
+}
+
 class simulationApi {
   async request(path, payload, signal) {
     const controller = new AbortController();
     const cancel = () => controller.abort();
     let timedOut = false;
-    const timer = setTimeout(() => { timedOut = true; controller.abort(); },45000);
+    const timer = setTimeout(() => { timedOut = true; controller.abort(); },path === "/api/simulation/advice" ? 270000 : 45000);
     signal?.addEventListener("abort",cancel,{once:true});
     if (signal?.aborted) cancel();
     try {
@@ -27,6 +42,9 @@ class simulationView {
     this.api = new simulationApi(); this.form = document.getElementById("scenarioForm"); this.result = null; this.catalog = null; this.activeRequest = null;
     this.fieldPreview = this.form.hasAttribute("data-field-preview");
     this.weatherRequest = null; this.revision = 0;
+    this.adviceAnswer=null; this.adviceError=null;
+    document.addEventListener("simulationAdviceOpen",()=>this.explainReport(true));
+    document.querySelectorAll("[data-cancel-advice]").forEach(button=>button.addEventListener("click",()=>this.cancelAdvice()));
     this.byId("scenarioForm").addEventListener("submit", event => { event.preventDefault(); this.run(false); });
     this.byId("askAi").addEventListener("click", async () => {
       if (!this.result) await this.run(false);
@@ -116,12 +134,16 @@ class simulationView {
   invalidate() {
     this.weatherLoaded = false;
     this.revision++; this.activeRequest?.abort(); this.weatherRequest?.abort(); this.result = null;
-    this.adviceRequest?.abort();
+    this.adviceRequest?.abort(); this.adviceRequest=null;
+    this.adviceWait?.stop(); this.adviceAnswer=null; this.adviceError=null;
+    this.byId("reportAdviceCard").setAttribute("aria-busy","false");
+    this.byId("reportAdviceCard").classList.remove("is-error","is-fallback");
+    this.byId("reportAdviceWait").hidden=true; this.byId("reportAdviceCancel").hidden=true;
     this.setBusy(false); this.updateLabels(); this.byId("downloadReport").disabled = true;
     this.setText("relativeYield","Chưa có kết quả"); this.setText("riskSummary","Kịch bản đã thay đổi");
     if (!this.fieldPreview) {
       this.setText("sceneLabel","Chưa chạy kịch bản mới"); this.setText("assistantAdvice","Chạy lại mô phỏng để lấy kết quả ứng với điều kiện mới.");
-      this.setText("aiStatus","Chưa yêu cầu AI cho kịch bản mới.");
+      this.setText("aiStatus","Chưa có tư vấn cho điều kiện mới.");
     }
     this.setText("reportMeta","Điều kiện đã thay đổi. Chạy lại để xem báo cáo mới.");
     this.setText("reportSummary","Chưa có báo cáo cho điều kiện mới."); this.setText("reportAiStatus","");
@@ -156,7 +178,7 @@ class simulationView {
       this.setText("varietyInfo",`${this.catalog.varieties[0].name} · ${this.catalog.varieties[0].pedigree}. ${this.catalog.varieties[0].note}`);
       this.renderSources();
       const history = this.catalog.history;
-      this.setText("historyMeta",`${this.number(history.rowCount)} dòng tại ${this.catalog.locations.length} địa điểm, năm ${history.year}. Phiên bản ${history.version}; thu thập ${history.retrievedAt}. Đây là dữ liệu khí tượng, chưa có nhãn năng suất/thất thoát để huấn luyện AI dự báo OM5451.`);
+      this.setText("historyMeta",`${this.number(history.rowCount)} dòng tại ${this.catalog.locations.length} địa điểm, năm ${history.year}. Đây là dữ liệu khí tượng tham khảo, không phải kết quả đo năng suất tại ruộng.`);
       const link = this.byId("downloadHistory"); link.href = "/api/simulation/history"; link.hidden = false;
       this.status("Đã tải dữ liệu có nguồn. Chọn điều kiện và chạy kịch bản.");
       if (loadInitialWeather && this.tabs.find(tab=>tab.getAttribute("aria-selected") === "true")?.dataset.panel === "weatherPanel") await this.loadWeather();
@@ -189,12 +211,12 @@ class simulationView {
     this.setText("riskSummary",warnings.length ? `${warnings.length} điều kiện cần chú ý` : "Chưa thấy cảnh báo đã định nghĩa");
     if (!this.fieldPreview) {
       this.setText("sceneLabel",`${result.stage} · Kịch bản ${result.inputs.exposureDays} ngày`);
-      this.setText("assistantAdvice",result.fieldAdvice?.[0]?.body || "Xem bằng chứng và các điều kiện cần kiểm tra trong báo cáo.");
-      this.setText("aiStatus",result.ai.message);
+      this.setText("assistantAdvice","Nhờ Cò Mạ tư vấn để nhận đề xuất chăm sóc theo thông số vừa nhập.");
+      this.setText("aiStatus","Báo cáo đã sẵn sàng.");
     }
-    this.setText("reportAiStatus",result.ai.message);
+    this.setText("reportAiStatus","Báo cáo đã sẵn sàng. Bà con có thể nhờ Cò Mạ đề xuất cách chăm ruộng.");
     const advice = result.evidence.map(item => ({title:item.title, body:item.description}));
-    this.byId("reportAdvice").hidden = advice.length === 0;
+    this.byId("reportAdvice").hidden = false;
     this.byId("reportAdviceSteps").replaceChildren(...advice.map(step => {
       const detail = document.createElement("details");
       detail.className = "field-check";
@@ -211,7 +233,7 @@ class simulationView {
     this.setText("evidenceCount",String(result.evidence.length));
     for (const item of result.evidence) {
       const article = document.createElement("details"); article.className = "sim-evidence field-check "+item.level;
-      const heading = document.createElement("summary"); heading.textContent = item.title+(result.ai.priorityEvidenceIds?.includes(item.id) ? " · AI chọn lưu ý" : ""); article.append(heading);
+      const heading = document.createElement("summary"); heading.textContent = item.title+(result.ai.priorityEvidenceIds?.includes(item.id) ? " · Cần chú ý" : ""); article.append(heading);
       const body = document.createElement("p"); body.textContent = item.description; article.append(body);
       for (const id of item.sourceIds) { const source = result.sources.find(source => source.id === id); if (source) article.append(this.sourceLink(source)); }
       list.append(article);
@@ -225,33 +247,84 @@ class simulationView {
     this.byId("explainReport").disabled = false;
     this.byId("downloadReport").disabled = false;
   }
-  async explainReport() {
+  startAdviceWait(revision) {
+    if(!this.adviceWait || this.adviceWait.startedAt === null) {
+      this.adviceWait=new adviceWaitController(seconds=>{
+        if(revision !== this.revision) return;
+        const detail={pending:Boolean(this.adviceRequest),waiting:true,error:this.adviceError,elapsedSeconds:seconds};
+        this.updateAdviceWait(detail);
+        document.dispatchEvent(new CustomEvent("simulationAdvice",{detail}));
+      },()=>{
+        if(revision !== this.revision || !this.result || this.adviceAnswer) return;
+        this.adviceRequest?.abort(); this.adviceRequest=null;
+        this.setAdviceAnswer(this.fallbackAdvice());
+      });
+      this.adviceWait.start();
+    }
+  }
+  updateAdviceWait(detail) {
+    const waiting=this.byId("reportAdviceWait");
+    waiting.hidden=false; waiting.classList.toggle("is-paused",Boolean(detail.error));
+    waiting.querySelector("strong").textContent=detail.error ? "Chưa hoàn tất tư vấn" : "Đang chuẩn bị lời khuyên";
+    this.byId("reportAdviceCancel").hidden=false;
+    const seconds=detail.elapsedSeconds || 0;
+    this.setText("reportAdviceElapsed",`Đã chờ ${Math.floor(seconds/60)}:${String(seconds%60).padStart(2,"0")}`);
+  }
+  cancelAdvice() {
+    this.adviceRequest?.abort(); this.adviceRequest=null; this.adviceWait?.stop();
+    this.adviceError=null;
+    this.byId("reportAdviceCard").setAttribute("aria-busy","false");
+    this.byId("reportAdviceWait").hidden=true; this.byId("reportAdviceCancel").hidden=true;
+    this.byId("explainReport").disabled=!this.result;
+    this.setText("reportExplanationStatus","Đã dừng chờ. Bà con có thể yêu cầu tư vấn lại.");
+    document.dispatchEvent(new CustomEvent("simulationAdvice",{detail:{cancelled:true}}));
+  }
+  fallbackAdvice() {
+    const result=this.result;
+    return {reply:"Phân tích chi tiết đang mất nhiều thời gian hơn dự kiến. Bà con có thể tham khảo tạm thời các bước kiểm tra dưới đây.\n\nĐiều kiện đáng chú ý: "+result.evidence.map(item=>item.title).join("; ")+".\n\nViệc nên làm: 1. Đo lại độ mặn ngay tại ruộng và nguồn nước cấp trước khi quyết định lấy hoặc thay nước. 2. Ghi lại tình trạng lá, bông và chiều cao cây để đối chiếu với độ sâu nước. 3. Trao đổi với cán bộ nông nghiệp khi có dấu hiệu bất thường; chưa tự dùng thuốc hoặc tăng phân từ các thông số mô phỏng.\n\nCần đo thêm: "+(result.missingInputs || []).map(item=>item.title).join("; ")+".\n\nKhi nào cần nhờ cán bộ nông nghiệp: Khi cây héo, cháy lá, bông bất thường hoặc nước cấp đang mặn mà chưa có phương án xử lý phù hợp.",sources:[],inputSnapshot:result.inputs,provider:"Gợi ý tạm thời",isFallback:true,limitation:"Gợi ý tham khảo tạm thời theo thông tin đối chiếu; chưa phải phân tích riêng cho ruộng này."};
+  }
+  setAdviceAnswer(answer) {
+    this.adviceAnswer=answer; this.adviceWait?.stop(); this.adviceError=null;
+    this.renderAdvice(answer);
+    this.setText("reportAiStatus",answer.isFallback ? "Đang hiển thị gợi ý tham khảo tạm thời." : "Cò Mạ đã chuẩn bị đề xuất cho ruộng của bà con.");
+    this.setText("reportExplanationStatus",answer.isFallback ? "Gợi ý tham khảo tạm thời" : "Đề xuất dành cho ruộng của bà con");
+    this.setText("reportAdviceLimitation",answer.limitation);
+    const target=this.byId("reportAdviceSources"); target.replaceChildren();
+    for(const source of answer.sources || []) target.append(this.sourceLink(source));
+    this.byId("reportAdviceSourcesFold").hidden=!answer.sources?.length;
+    this.setText("reportAdviceSourceCount",String(answer.sources?.length || 0));
+    this.byId("reportAdviceCard").classList.toggle("is-fallback",Boolean(answer.isFallback));
+    this.byId("reportAdviceCard").classList.remove("is-error");
+    this.byId("reportAdviceCard").setAttribute("aria-busy","false");
+    this.byId("reportAdviceWait").hidden=true; this.byId("reportAdviceCancel").hidden=true;
+    this.byId("explainReport").disabled=false;
+    document.dispatchEvent(new CustomEvent("simulationAdvice",{detail:answer}));
+  }
+  async explainReport(reuse=false) {
+    if(reuse && this.adviceAnswer) { document.dispatchEvent(new CustomEvent("simulationAdvice",{detail:this.adviceAnswer})); return; }
     if (!this.result || this.adviceRequest) return;
     const snapshot = {...this.result.inputs};
     const revision = this.revision;
     const controller = new AbortController(); this.adviceRequest = controller;
+    this.adviceAnswer=null; this.adviceError=null;
+    this.setText("reportExplanation",""); this.byId("reportAdviceSourcesFold").hidden=true;
     this.byId("explainReport").disabled = true;
     this.byId("reportAdviceCard").setAttribute("aria-busy","true");
     this.byId("reportAdviceCard").classList.remove("is-error");
+    this.byId("reportAdviceCard").classList.remove("is-fallback");
     this.setText("reportExplanationStatus","Cò Mạ đang phân tích điều kiện và kiểm tra căn cứ…");
-    document.dispatchEvent(new CustomEvent("simulationAdvice",{detail:{pending:true}}));
+    document.dispatchEvent(new CustomEvent("simulationAdvice",{detail:{pending:true,waiting:true,elapsedSeconds:this.adviceWait?.startedAt === null || !this.adviceWait ? 0 : Math.floor((Date.now()-this.adviceWait.startedAt)/1000)}}));
+    this.startAdviceWait(revision);
     try {
       const answer = await this.api.request("/api/simulation/advice",snapshot,controller.signal);
       if (controller.signal.aborted || revision !== this.revision) return;
-      this.renderAdvice(answer);
-      this.setText("reportAiStatus",`${answer.provider} đã tư vấn theo thông số của lần chạy này.`);
-      this.setText("reportExplanationStatus",`${answer.provider} · Phân tích theo thông số của lần chạy này`);
-      this.setText("reportAdviceLimitation",answer.limitation);
-      const target = this.byId("reportAdviceSources"); target?.replaceChildren();
-      for (const source of answer.sources || []) target?.append(this.sourceLink({title:source.title,url:source.url}));
-      this.byId("reportAdviceSourcesFold").hidden = !answer.sources?.length;
-      this.setText("reportAdviceSourceCount",String(answer.sources?.length || 0));
-      document.dispatchEvent(new CustomEvent("simulationAdvice",{detail:answer}));
+      this.setAdviceAnswer(answer);
     } catch (error) {
-      if (error.name !== "AbortError") {
-        this.setText("reportExplanationStatus",error.message);
+      if (error.name !== "AbortError" && !controller.signal.aborted && revision === this.revision) {
+        this.adviceError=error.message+" Bà con có thể thử lại hoặc tiếp tục chờ đề xuất.";
+        this.setText("reportExplanationStatus",this.adviceError);
         this.byId("reportAdviceCard").classList.add("is-error");
-        document.dispatchEvent(new CustomEvent("simulationAdvice",{detail:{error:error.message}}));
+        document.dispatchEvent(new CustomEvent("simulationAdvice",{detail:{waiting:true,error:this.adviceError}}));
       }
     } finally {
       if (this.adviceRequest === controller) {

@@ -1,4 +1,6 @@
 {% if auth_user %}<meta name="csrf-token" content="{{ auth_csrf_token }}">{% endif %}
+<link rel="stylesheet" href="{{ url_for('static', filename='app-loading.css') }}">
+<script src="{{ url_for('static', filename='app-loading.js') }}"></script>
 {% if auth_user %}<script src="{{ url_for('static', filename='workspace-session.js') }}" defer></script>{% endif %}
 <link rel="stylesheet" href="{{ url_for('static', filename='assets/stitch-simulation/fonts.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='typography.css') }}">

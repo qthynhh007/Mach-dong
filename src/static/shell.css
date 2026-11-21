@@ -602,7 +602,13 @@ button.icon-action { min-width: 44px; min-height: 44px; padding: .5rem; }
 }
 .auth-workspace .app-header{grid-template-columns:auto minmax(0,1fr)}
 .auth-workspace .app-header-account{justify-self:end}
+.app-mobile-sign-out { display: none; }
+.profile-contact-phone { display: inline-block; white-space: nowrap; word-break: normal; overflow-wrap: normal; }
 @media(max-width:1023px){
+  .app-mobile-sign-out { display: inline-flex; align-items: center; justify-content: center; gap: .4rem; min-width: 44px; min-height: 44px; padding: .5rem .65rem; border: 1px solid #ead6ce; border-radius: 10px; background: #fff; color: #8a4037; font: inherit; font-size: .78rem; white-space: nowrap; cursor: pointer; }
+  .app-mobile-sign-out:hover { background: #fef2f2; border-color: #d9aaa0; }
+  .app-mobile-sign-out:focus-visible { outline: 2px solid #8a4037; outline-offset: 2px; }
+  .app-mobile-sign-out .app-icon { position: static; flex: none; width: 18px; height: 18px; }
   .app-side{display:block;position:sticky;top:var(--md-shell-header);bottom:auto;width:100%;height:auto;padding:.35rem .6rem;z-index:30;background:#f2f7f2;border-bottom:1px solid #d5e2d8;overflow:hidden}
   .app-side nav{display:flex;gap:.3rem;overflow-x:auto;scrollbar-width:thin}
   .app-side .app-nav-group{display:contents}

@@ -7,6 +7,25 @@ const mailCodes=new Map();
 const mailFetcher=async(url,options)=>{const mail=JSON.parse(options.body);mailCodes.set(mail.to[0],mail.text.match(/\b\d{6}\b/)[0]);return Response.json({id:"test-mail"});};
 const mailEnv=db=>({DB:db,AUTH_EMAIL_API_KEY:"test-only",AUTH_FROM_EMAIL:"test@example.test"});
 
+test("development auth quota is higher but remains bounded and cannot be set by a client",async()=> {
+  const request=new Request("https://example.test/api/account/send-otp",{headers:{"X-Local-Auth-Rate-Limit-Multiplier":"20"}});
+  const production=new accountController({DB:database()});
+  for(let i=0;i<5;i++) await production.rateLimit(request,"otp",5);
+  await assert.rejects(()=>production.rateLimit(request,"otp",5),error=>error.status===429);
+  const development=new accountController({DB:database(),LOCAL_AUTH_RATE_LIMIT_MULTIPLIER:10});
+  for(let i=0;i<50;i++) await development.rateLimit(request,"otp",5);
+  await assert.rejects(()=>development.rateLimit(request,"otp",5),error=>error.status===429);
+});
+
+test("development quota preserves per-email cooldown and OTP attempt limits",async()=> {
+  const api=new accountController({...mailEnv(database()),LOCAL_AUTH_RATE_LIMIT_MULTIPLIER:10},mailFetcher);
+  assert.equal((await call(api,"/api/account/send-otp",{email:"dev-otp@example.test"})).status,200);
+  assert.equal((await call(api,"/api/account/send-otp",{email:"dev-otp@example.test"})).status,429);
+  const wrongCode=mailCodes.get("dev-otp@example.test")==="000000" ? "111111" : "000000";
+  for(let i=0;i<5;i++) await assert.rejects(()=>api.verifyOtp("dev-otp@example.test",wrongCode));
+  await assert.rejects(()=>api.verifyOtp("dev-otp@example.test",mailCodes.get("dev-otp@example.test")));
+});
+
 test("email confirmation cannot be skipped when email delivery is unconfigured",async()=> {
   const db=database(),api=new accountController({DB:db});
   const response=await api.handle(new Request("https://example.test/api/account/register",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name:"Nông hộ",username:"farmer",email:"farmer@example.test",phone:"0900000000",password:"test-password-only"})}));

@@ -15,7 +15,7 @@
   <a class="app-button" href="{{ url_for('simulation.simulation') }}">Về mô phỏng cánh đồng</a>
   <div class="sim-heading"><div><p class="sim-eyebrow">ĐỒNG BẰNG SÔNG CỬU LONG / OM5451</p><h1>Một thửa ruộng. Nhiều kịch bản.</h1><p>Thay đổi điều kiện, đối chiếu bằng chứng và xem giới hạn của từng kết quả.</p></div><span id="cloudStatus" class="sim-badge">Đang kết nối dữ liệu…</span></div>
   {% include "simulation/tabs.html" %}
-  <p id="pageStatus" role="status" class="sim-status">Đang tải danh mục từ máy chủ…</p>
+  <p id="pageStatus" role="status" class="sim-status">Đang tải dữ liệu…</p>
   <button id="retryCatalog" type="button" hidden>Kết nối lại dữ liệu</button>
   <section id="scenarioPanel" role="tabpanel" aria-labelledby="tab-scenarioPanel"{% if active_tab != 'mo-phong' %} hidden{% endif %}>
     <form id="scenarioForm" class="sim-card">
@@ -38,8 +38,8 @@
         <label class="sim-check"><input name="ecIsSeasonAverage" type="checkbox">EC là trung bình vụ, đo nước đất vùng rễ khi ruộng ngập</label>
         <label class="sim-check"><input name="useWeather" type="checkbox">Dùng nhiệt độ cực đại dự báo tại địa điểm này (tối đa 7 ngày)</label>
       </div>
-      <div class="sim-actions"><button type="submit" id="runSimulation" class="sim-primary" disabled>Mô phỏng và xem báo cáo</button><button type="button" id="askAi" disabled>Nhờ Cò Mạ tư vấn</button><span>Mô phỏng không cần khóa AI. AI hỗ trợ đọc báo cáo là tùy chọn.</span></div>
-      <p id="formStatus" class="sim-status">Đang tải danh mục từ máy chủ…</p>
+      <div class="sim-actions"><button type="submit" id="runSimulation" class="sim-primary" disabled>Mô phỏng và xem báo cáo</button><button type="button" id="askAi" disabled>Nhờ Cò Mạ tư vấn</button><span>Xem báo cáo và nhờ Cò Mạ đề xuất cách chăm sóc ruộng.</span></div>
+      <p id="formStatus" class="sim-status">Đang tải dữ liệu…</p>
     </form>
     <section class="sim-field-card" aria-labelledby="fieldTitle"><div class="sim-field-top"><h2 id="fieldTitle">Thửa ruộng của kịch bản</h2><span id="sceneLabel">Chưa chạy mô phỏng</span></div>
       <svg id="fieldScene" viewBox="0 0 1000 330" role="img" aria-label="Minh họa thửa ruộng; không thể hiện tỷ lệ cây sống">
@@ -55,7 +55,7 @@
       </svg>
       <div class="sim-summary-grid"><article><span>Ảnh hưởng mặn theo FAO</span><strong id="relativeYield">Chưa có kết quả</strong><small>Năng suất tương đối tham chiếu; chưa hiệu chuẩn OM5451.</small></article><article><span>Nguy cơ cần chú ý</span><strong id="riskSummary">Chờ mô phỏng</strong><small id="sceneNote">Hình thay đổi theo cảnh báo có căn cứ.</small></article><article><span>Năng suất / tỷ lệ sống thực địa</span><strong>Chưa đủ dữ liệu</strong><small>Không dùng điểm minh họa thay cho xác suất sống.</small></article></div>
     </section>
-    <section class="sim-card sim-assistant"><img src="/static/assets/stitch-simulation/co-ma-logo.png" alt="" width="56" height="56"><div><h2>Cò Mạ · Đọc kết quả có căn cứ</h2><p id="assistantAdvice">Chọn điều kiện rồi chạy mô phỏng. Các cảnh báo và nguồn sẽ xuất hiện ở báo cáo.</p><p id="aiStatus" class="sim-muted">Chưa yêu cầu AI.</p></div></section>
+    <section class="sim-card sim-assistant"><img src="/static/assets/stitch-simulation/co-ma-logo.png" alt="" width="56" height="56"><div><h2>Cò Mạ · Đọc kết quả có căn cứ</h2><p id="assistantAdvice">Chọn điều kiện rồi chạy mô phỏng. Các cảnh báo và nguồn sẽ xuất hiện ở báo cáo.</p><p id="aiStatus" class="sim-muted">Chưa có đề xuất chăm sóc.</p></div></section>
   </section>
   {% include "simulation/report-panels.html" %}
   <footer class="sim-footer">Dữ liệu có nguồn · Mô phỏng tham chiếu · Cần kiểm định thực địa trước khi dùng để quyết định canh tác</footer>

@@ -1,4 +1,4 @@
-import {generateGroundedReply} from "./generative.mjs";
+import {generateGroundedReply,generationError} from "./generative.mjs";
 
 export async function adviseScenario(env,fetcher,result) {
   const sources = result.sources.map(source=>({source_id:source.id,title:source.title,url:source.url,
@@ -11,7 +11,19 @@ export async function adviseScenario(env,fetcher,result) {
     units:{salinityGl:"g/L",waterDepthCm:"cm",tempMaxC:"°C",rootZoneEcDsM:"dS/m"},
     metrics:result.metrics,evidence:result.evidence,missingInputs:result.missingInputs,limitations:result.limitations,weather:result.weather,dailyScenario:result.dailyScenario});
   const answer = await generateGroundedReply(env,fetcher,[{role:"user",text:"Phân tích điều kiện ruộng trong dữ liệu dưới đây và tư vấn cải thiện việc chăm lúa dựa trên các căn cứ.\n"+context}],sources,
-    "Phân tích riêng cho thông số đã nhập. Nếu useWeather=true, dùng nhiệt độ dự báo trong dailyScenario, không dùng nhiệt độ thủ công. Viết theo các mục: Điều kiện đáng chú ý; Việc nên làm (tối đa 4 việc, kèm lý do và điều kiện áp dụng); Cần đo thêm; Khi nào cần nhờ cán bộ nông nghiệp. Không tự thêm ngưỡng/liều lượng và không kết luận từ mặn kênh ra mặn ruộng. Nếu thiếu căn cứ cho can thiệp, hướng dẫn kiểm tra phù hợp thay vì bịa cách xử lý.",true);
+    `Tư vấn thực hành riêng cho ruộng này, không chép hay diễn đạt lại nguyên các đoạn evidence thành câu trả lời mẫu.
+Mở đầu bằng nhận định ngắn gắn với giai đoạn lúa và những thông số thực sự đáng chú ý. Không mở đầu bằng lời chào dài.
+Nếu useWeather=true, dùng nhiệt độ dự báo trong dailyScenario, không dùng nhiệt độ thủ công.
+Viết đúng bốn mục có dấu hai chấm: Điều kiện đáng chú ý; Việc nên làm; Cần đo thêm; Khi nào cần nhờ cán bộ nông nghiệp.
+Việc nên làm: đánh số tối đa 4 việc theo thứ tự ưu tiên. Mỗi việc nói rõ bà con làm gì, kiểm tra ở đâu, vì sao, điều kiện nào mới nên làm và dấu hiệu nào để đánh giá lại. Phân biệt việc có thể làm ngay với việc phải chờ số đo. Không chỉ viết chung chung “theo dõi sát” hoặc lặp lại các thông số.
+Nếu nước có mặn, cân nhắc kiểm tra nguồn cấp trước khi lấy nước/thay nước, tránh khuyên bơm thêm nguồn mặn. Nếu chưa có chiều cao cây thì không kết luận ngập toàn cây. Khi trổ bông và có cảnh báo nhiệt, giải thích cần quan sát bông và thời điểm thay vì bảo đảm tỷ lệ đậu.
+Đầu vào này không có phân tích dinh dưỡng hoặc chẩn đoán sâu bệnh. Không đề xuất phun, bón hay rải phân/thuốc/chế phẩm, kể cả canxi hoặc silic, chỉ từ mặn/ngập/nhiệt độ. Không tự đặt giờ trong ngày cho thao tác nếu căn cứ không nêu.
+Được bổ sung nguyên lý canh tác từ kiến thức chung khi tài liệu chưa đủ, ghi rõ phần bổ sung đó. Chỉ gắn nguồn thực sự phù hợp. Không tự thêm liều phân/thuốc, ngưỡng, số đo hay tỷ lệ thiệt hại, không đổi mặn kênh thành mặn ruộng.
+Nếu chưa đủ căn cứ cho một can thiệp, đề xuất cách kiểm tra để ra quyết định, không bịa giải pháp.`,true,0,true,120000);
+  const prescriptions=[...answer.reply.matchAll(/(?:phun|bón|rải)\s+(?:(?:bổ sung|thêm|tăng)\s+)?(?:phân|thuốc|canxi|silic|chế phẩm)/giu)];
+  if(prescriptions.some(item=>!/(?:không|tránh|hạn chế|chưa nên)\s+(?:(?:tự|nên|được)\s+)?(?:ý\s+)?$/iu.test(answer.reply.slice(Math.max(0,item.index-35),item.index)))) {
+    throw new generationError("Cò Mạ chưa chuẩn bị được đề xuất phù hợp. Bà con thử lại nha.");
+  }
   return {...answer,sources:sources.filter(item=>answer.source_ids.includes(item.source_id)),inputSnapshot:result.inputs,
-    engineVersion:result.engineVersion,isSimulated:true,limitation:"Lời khuyên AI tham khảo dựa trên kịch bản giả lập, cần đối chiếu ngoài ruộng; chưa thay thế đánh giá của cán bộ nông nghiệp."};
+    engineVersion:result.engineVersion,isSimulated:true,isFallback:false,limitation:"Đề xuất theo kịch bản giả lập và thông tin tham khảo. Cần đối chiếu thực địa; chưa thay thế đánh giá của cán bộ nông nghiệp."};
 }

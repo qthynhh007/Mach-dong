@@ -12,6 +12,9 @@ from pathlib import Path
 from urllib.parse import urlsplit
 from urllib.request import Request, urlopen
 
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
+
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from dotenv import load_dotenv

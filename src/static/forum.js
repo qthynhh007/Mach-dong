@@ -81,7 +81,7 @@
       const figure = this.element("figure", "", "forum-sourced-photo");
       const caption = this.element("figcaption");
       if (!credit.sourceUrl) {
-        caption.textContent = credit.alt + " · Tranh minh họa bằng AI";
+        caption.textContent = credit.alt + " · Hình minh họa";
         figure.append(image, caption);
         return figure;
       }

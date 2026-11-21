@@ -492,3 +492,4 @@ button.assistant-reset {
 
 .assistant-chat .assistant-chat-header { background: linear-gradient(100deg, #edf6ec, #fffef9); border-radius: 1.15rem 1.15rem 0 0; }
 .assistant-layout .assistant-welcome { max-width: 42rem; margin-inline: auto; }
+.assistant-bubble .assistant-answer-basis { margin-top: .75rem; padding-top: .65rem; border-top: 1px solid #d8e5d9; color: #5b7464; font-size: .72rem; line-height: 1.6; }

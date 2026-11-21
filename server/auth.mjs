@@ -96,12 +96,15 @@ export class accountController {
     }
   }
   async rateLimit(request, action, max = 10) {
+    // Only the loopback development server sets this binding; never read it from HTTP.
+    const configured = this.env.LOCAL_AUTH_RATE_LIMIT_MULTIPLIER;
+    const multiplier = Number.isInteger(configured) && configured >= 1 && configured <= 20 ? configured : 1;
     const ip = request.headers.get("cf-connecting-ip") || "unknown";
     const key = await sha256(`${action}:${ip}`);
     const until = Math.floor(Date.now() / 1000) + 900;
     await this.db.prepare("INSERT INTO account_rate_limits (key,attempts,window_until) VALUES (?,1,?) ON CONFLICT(key) DO UPDATE SET attempts=CASE WHEN window_until < ? THEN 1 ELSE attempts+1 END,window_until=CASE WHEN window_until < ? THEN excluded.window_until ELSE window_until END").bind(key,until,until-900,until-900).run();
     const row = await this.db.prepare("SELECT attempts FROM account_rate_limits WHERE key=?").bind(key).first();
-    if (row?.attempts > max) throw new accountError("Quá nhiều lần thử. Vui lòng đợi 15 phút.", 429);
+    if (row?.attempts > max * multiplier) throw new accountError("Quá nhiều lần thử. Vui lòng đợi 15 phút.", 429);
   }
   async session(request, csrfRequired = false) {
     const token = request.headers.get("authorization")?.replace(/^Bearer\s+/i, "").trim();

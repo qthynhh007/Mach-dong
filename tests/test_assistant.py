@@ -26,7 +26,7 @@ class TestAssistant(TestCase):
         sign_in(self.client)
 
     def test_local_mode_and_missing_api_key(self) -> None:
-        self.assertIn("Chưa kết nối Gemini", self.client.get("/assistant").text)
+        self.assertIn("Tra cứu tài liệu", self.client.get("/assistant").text)
         greeting = self.client.post("/api/assistant/chat", json={"message": "Chào Cò"})
         self.assertEqual(greeting.status_code, 200)
         self.assertEqual(greeting.json["data"]["sources"], [])
@@ -41,7 +41,7 @@ class TestAssistant(TestCase):
     ) -> None:
         self.client.application.config["GEMINI_API_KEY"] = "test-key"
         page = self.client.get("/assistant").text
-        self.assertIn("Gemini 3.5 Flash", page)
+        self.assertIn("Sẵn sàng hỗ trợ bà con", page)
         self.assertIn('data-wait-seconds="45"', page)
         self.assertNotIn("test-key", page)
         source_id = "KN-RICE-SALINITY-SOC-TRANG"
@@ -157,15 +157,17 @@ class TestAssistant(TestCase):
                 self.assertLessEqual(fallback_call.kwargs["timeout"], 15)
 
     @patch("src.services.ai_client.urlopen")
-    def test_asks_for_crop_before_calling_gemini(self, urlopen: MagicMock) -> None:
+    def test_missing_crop_can_be_clarified_by_gemini_without_files(self, urlopen: MagicMock) -> None:
         self.client.application.config["GEMINI_API_KEY"] = "test-key"
+        urlopen.return_value = BytesIO(json.dumps({"candidates": [{"content": {"parts": [{"text": json.dumps({"reply": "Bà con trồng cây gì và vàng lá ở vị trí nào?", "source_ids": []})}]}}]}).encode())
         result = self.client.post(
             "/api/assistant/chat", json={"message": "Cây bị vàng lá, dùng thuốc gì?"}
         )
         self.assertEqual(result.status_code, 200)
         self.assertIn("cây gì", result.json["data"]["reply"])
         self.assertEqual(result.json["data"]["sources"], [])
-        urlopen.assert_not_called()
+        self.assertEqual(result.json["data"]["answer_basis"], "general_knowledge")
+        urlopen.assert_called_once()
 
     @patch("src.services.ai_client.urlopen")
     def test_reports_blocked_response_without_calling_fallback(self, urlopen: MagicMock) -> None:
@@ -190,7 +192,7 @@ class TestAssistant(TestCase):
 
         self.assertEqual(response.status_code, 503)
         self.assertIsNone(response.json["data"])
-        self.assertIn("Gemini đang bận", response.json["error"])
+        self.assertIn("Cò Mạ đang bận", response.json["error"])
         self.assertEqual(urlopen.call_count, 2)
 
     def test_retrieval_for_planting_nutrition_disease_and_crop_switch(self) -> None:

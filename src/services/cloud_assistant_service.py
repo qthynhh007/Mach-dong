@@ -1,4 +1,4 @@
-"""Grounded Cò Mạ generation through the shared cloud AI, without desktop secrets."""
+"""Cò Mạ chat with reference-assisted or general AI answers; keys stay server-side."""
 
 import json
 from urllib import error, request
@@ -32,7 +32,7 @@ class cloudAssistantService:
                 message = "Cò Mạ tạm thời không khả dụng."
             raise GeminiError(message, exc.code if exc.code in (400, 401, 403, 429, 503, 504) else 502) from exc
         except (error.URLError, TimeoutError, OSError, ValueError) as exc:
-            raise GeminiError("Không kết nối được AI trên máy chủ. Bà con thử lại khi có Internet nha.", 503) from exc
+            raise GeminiError("Chưa kết nối được với Cò Mạ. Bà con thử lại khi có Internet nha.", 503) from exc
         result = body.get("data") if isinstance(body, dict) else None
         if (
             not isinstance(result, dict)

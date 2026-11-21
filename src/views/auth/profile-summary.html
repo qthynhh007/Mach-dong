@@ -11,7 +11,7 @@
 </div>
 {% if current_user %}
 <p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5 break-all">
-  {{ current_user.email }} · <span data-profile-value="farmer-phone">{{ current_user.phone }}</span>
+  {{ current_user.email }} · <span class="profile-contact-phone" data-profile-value="farmer-phone">{{ current_user.phone }}</span>
 </p>
 {% endif %}
 <p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5" data-profile-value="farmer-address" data-profile-empty="Chưa cập nhật địa bàn">{{ farm_profile.address or 'Chưa cập nhật địa bàn' }}</p>

@@ -3,7 +3,7 @@ from time import perf_counter
 from flask import Blueprint, Response, current_app, jsonify, render_template, request
 from werkzeug.exceptions import RequestEntityTooLarge
 
-from src.services.ai_client import GEMINI_MODEL_LABEL, ChatMessage, GeminiError
+from src.services.ai_client import ChatMessage, GeminiError
 from src.services.assistant_service import answer_question
 from src.services.cloud_reference_service import referenceUnavailable
 
@@ -24,7 +24,7 @@ def assistant() -> str:
         compact=request.args.get("view") == "dialog",
         quick_context=request.args.get("context"),
         gemini_enabled=cloudEnabled or bool(current_app.config["GEMINI_API_KEY"]),
-        gemini_model_label="AI trên máy chủ · Trả lời theo căn cứ" if cloudEnabled else GEMINI_MODEL_LABEL,
+        gemini_model_label="Sẵn sàng hỗ trợ bà con",
         wait_seconds=ASSISTANT_WAIT_SECONDS,
         max_message_length=MAX_MESSAGE_LENGTH,
         max_history_turns=MAX_HISTORY_TURNS,

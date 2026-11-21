@@ -22,7 +22,7 @@ class cloudClient:
                           headers={"Content-Type": "application/json", "Accept": "application/json",
                                    "User-Agent": "MachDongDesktop/2.0", **cloud_session_headers()})
         try:
-            with self.transport(request, timeout=35) as response:
+            with self.transport(request, timeout=275 if path == "/api/simulation/advice" else 35) as response:
                 raw = response.read(2_000_001)
             if len(raw) > 2_000_000:
                 raise simulationError("Dữ liệu máy chủ vượt giới hạn.", 502)

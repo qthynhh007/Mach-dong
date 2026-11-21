@@ -3,7 +3,7 @@
 import json
 import logging
 from collections.abc import Sequence
-from time import monotonic
+from time import monotonic, sleep
 from typing import Literal, TypedDict
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
@@ -57,12 +57,14 @@ def _parse_reply(raw: bytes) -> tuple[str, list[str]]:
 
 def _fetch_reply(api_key: str, payload: dict) -> tuple[str, list[str]]:
     deadline = monotonic() + GEMINI_PRIMARY_TIMEOUT_SECONDS + GEMINI_FALLBACK_TIMEOUT_SECONDS
-    busy = GeminiError("Gemini đang bận. Bà con thử lại sau nha.", 503)
+    busy = GeminiError("Cò Mạ đang bận. Bà con thử lại sau nha.", 503)
     failure = busy
     for model, limit, thinking in (
         (GEMINI_MODEL, GEMINI_PRIMARY_TIMEOUT_SECONDS, "LOW"),
         (GEMINI_FALLBACK_MODEL, GEMINI_FALLBACK_TIMEOUT_SECONDS, "MINIMAL"),
     ):
+        if model == GEMINI_FALLBACK_MODEL:
+            sleep(0.35)
         started = monotonic()
         remaining = deadline - started
         if remaining <= 0:
@@ -90,7 +92,7 @@ def _fetch_reply(api_key: str, payload: dict) -> tuple[str, list[str]]:
             if not isinstance(reason, TimeoutError):
                 raise
             outcome = "timeout"
-            failure = GeminiError("Gemini phản hồi quá lâu. Bà con có thể gửi lại câu hỏi.", 504)
+            failure = GeminiError("Tư vấn đang mất nhiều thời gian hơn dự kiến. Bà con có thể gửi lại câu hỏi.", 504)
         except (ValueError, KeyError, IndexError, TypeError, AttributeError):
             outcome = "invalid_response"
             failure = GeminiError(
@@ -131,7 +133,8 @@ def generate_reply(
                     "reply": {"type": "STRING"},
                     "source_ids": {
                         "type": "ARRAY",
-                        "items": {"type": "STRING", "enum": list(allowed_source_ids)},
+                        "items": {"type": "STRING", **({"enum": list(allowed_source_ids)} if allowed_source_ids else {})},
+                        "maxItems": len(allowed_source_ids),
                     },
                 },
                 "required": ["reply", "source_ids"],
@@ -145,16 +148,16 @@ def generate_reply(
         error.close()
         if code in (401, 403, 404):
             raise GeminiError(
-                "Cò Mạ chưa kết nối được. Kiểm tra khóa và quyền dùng Gemini API."
+                "Cò Mạ đang tạm gián đoạn. Bà con thử lại sau nha."
             ) from None
         if code == 429:
             raise GeminiError(
-                "Gemini đang chạm hạn mức. Bà con thử lại sau nha.", 429
+                "Cò Mạ đang nhận nhiều câu hỏi. Bà con thử lại sau nha.", 429
             ) from None
-        raise GeminiError("Gemini đang gặp trục trặc. Bà con thử lại nha.") from None
+        raise GeminiError("Cò Mạ đang gặp trục trặc. Bà con thử lại nha.") from None
     except OSError:
         raise GeminiError(
-            "Kết nối với Gemini bị gián đoạn. Bà con thử lại nha."
+            "Kết nối với Cò Mạ bị gián đoạn. Bà con thử lại nha."
         ) from None
 
 

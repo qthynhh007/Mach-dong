@@ -51,7 +51,7 @@
           <div>
             <h2 id="assistant-chat-title"{% if compact %} class="assistant-visually-hidden"{% endif %}>Trò chuyện với Cò Mạ</h2>
             <span class="assistant-mode" id="assistant-status" role="status">
-              {{ gemini_model_label if gemini_enabled else "Tra cứu tài liệu · Chưa kết nối Gemini" }}
+              {{ gemini_model_label if gemini_enabled else "Tra cứu tài liệu" }}
             </span>
           </div>
         </div>
@@ -121,9 +121,9 @@
         </form>
         <div class="assistant-composer-footnote">
           <p id="assistant-composer-hint"><kbd>Enter</kbd> gửi · <kbd>Shift + Enter</kbd> xuống dòng</p>
-          <p class="assistant-image-hint" id="assistant-image-hint">Mô tả dấu hiệu trên cây bằng chữ; Cò Mạ đối chiếu tài liệu có nguồn.</p>
+          <p class="assistant-image-hint" id="assistant-image-hint">Mô tả dấu hiệu trên cây bằng chữ; Cò Mạ tham khảo tài liệu và bổ sung kiến thức chung khi cần.</p>
         </div>
-        {% if not gemini_enabled %}<p class="assistant-vision-note">Phân tích ảnh sẽ khả dụng khi kết nối Gemini được bật.</p>{% endif %}
+        {% if not gemini_enabled %}<p class="assistant-vision-note">Bà con mô tả dấu hiệu trên cây để Cò Mạ hỗ trợ nha.</p>{% endif %}
         <div class="assistant-feedback" id="assistant-feedback" hidden>
           <div>
             <p class="assistant-error" id="assistant-error" role="alert"></p>

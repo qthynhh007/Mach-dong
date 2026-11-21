@@ -25,6 +25,9 @@
       </span>
       {{ icon("chevron_right") }}
     </a>
+    <button type="button" class="app-header-sign-out app-mobile-sign-out" data-logout-btn aria-label="Đăng xuất" title="Đăng xuất">
+      {{ icon("log_out") }}<span>Đăng xuất</span>
+    </button>
     {% else %}
     <a class="app-header-sign-in" href="{{ url_for('auth.login') }}" {% if current_page == "login" %}aria-current="page"{% endif %}>Đăng nhập</a>
     <a class="app-button app-button--primary" href="{{ url_for('auth.register') }}" {% if current_page == "register" %}aria-current="page"{% endif %}>Đăng ký</a>

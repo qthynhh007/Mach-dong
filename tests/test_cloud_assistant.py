@@ -9,6 +9,23 @@ from workspace_helpers import sign_in
 
 
 class cloudAssistantTests(TestCase):
+    def testQuestionOutsideFilesStillCallsCloud(self) -> None:
+        seen = []
+        def transport(req, timeout):
+            seen.append(json.loads(req.data))
+            return BytesIO(json.dumps({"data": {"reply": "Thanh long cần trụ đỡ để nâng đỡ thân leo.", "source_ids": []}, "error": None}).encode())
+        app = createApp({"TESTING": True, "SECRET_KEY": "test-only", "ASSISTANT_API_URL": "https://example.test", "ASSISTANT_API_TRANSPORT": transport})
+        client = app.test_client()
+        sign_in(client)
+        from unittest.mock import patch
+        with patch("src.services.assistant_service.select_knowledge", return_value=[]):
+            answer = client.post("/api/assistant/chat", json={"message": "Vì sao thanh long cần trụ?"})
+        self.assertEqual(answer.status_code, 200)
+        self.assertEqual(len(seen), 1)
+        self.assertEqual(seen[0]["sourceIds"], [])
+        self.assertEqual(answer.json["data"]["answer_basis"], "general_knowledge")
+        self.assertEqual(answer.json["data"]["sources"], [])
+
     def testGeneratesGroundedAnswerWithoutGeminiKey(self) -> None:
         seen = []
 
@@ -20,7 +37,7 @@ class cloudAssistantTests(TestCase):
         app = createApp({"TESTING": True, "SECRET_KEY": "test-only", "GEMINI_API_KEY": "", "ASSISTANT_API_URL": "https://example.test", "ASSISTANT_API_TRANSPORT": transport})
         client = app.test_client()
         sign_in(client)
-        self.assertIn("AI trên máy chủ", client.get("/assistant").text)
+        self.assertIn("Sẵn sàng hỗ trợ bà con", client.get("/assistant").text)
         answer = client.post("/api/assistant/chat", json={"message": "Cách trồng cà chua ngoài đất?"})
         self.assertEqual(answer.status_code, 200, answer.json)
         self.assertEqual(answer.json["data"]["sources"][0]["source_id"], "KN-TOMATO-PLANT")

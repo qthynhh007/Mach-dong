@@ -8,6 +8,9 @@ const host = "127.0.0.1";
 const port = Number(process.env.MACH_DONG_LOCAL_API_PORT || 8787);
 const origin = `http://${host}:${port}`;
 const env={...process.env,...localStorageBindings(resolve(process.env.MACH_DONG_LOCAL_STATE || "data/local-preview"))};
+const authRateMultiplier=Number(process.env.MACH_DONG_LOCAL_AUTH_RATE_MULTIPLIER || 10);
+if(!Number.isInteger(authRateMultiplier) || authRateMultiplier < 1 || authRateMultiplier > 20) throw new Error("Local auth rate multiplier must be an integer from 1 to 20");
+env.LOCAL_AUTH_RATE_LIMIT_MULTIPLIER=authRateMultiplier;
 const localMail=!env.AUTH_EMAIL_API_KEY;
 const mailCodes=new Map();
 if(localMail){env.AUTH_EMAIL_API_KEY="local-only-mock";env.AUTH_FROM_EMAIL="Mạch Đồng <admin@machdong.example>";}

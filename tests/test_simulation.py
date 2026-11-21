@@ -43,6 +43,16 @@ class testSimulation(TestCase):
         self.assertNotIn("key", self.requests[0].headers)
         self.assertEqual(response.json["data"]["engineVersion"], "test-cloud")
 
+    def testAdviceHasItsOwnLongerTimeoutWithoutChangingOtherRequests(self):
+        seen = []
+        def transport(request, timeout):
+            seen.append(timeout)
+            return BytesIO(b'{"data":{"reply":"API answer"},"error":null}')
+        client = cloudClient("https://example.test", transport)
+        client.request("/api/simulation/advice", self.payload)
+        client.request("/api/catalog")
+        self.assertEqual(seen, [275, 35])
+
     def testInvalidInputsNeverCallCloud(self):
         for overrides in ({"tempMaxC": float("nan")}, {"tempMaxC": float("inf")},
                           {"salinityGl": True}, {"stage": "made-up"}, {"useWeather": "true"},

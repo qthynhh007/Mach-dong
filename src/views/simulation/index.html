@@ -221,14 +221,13 @@
       </form>
     </header>
     <div class="sim-advice-dialog-body">
-      <p class="sim-advice-context" id="sim-advice-context"></p>
       <p class="sim-advice-stale" id="sim-advice-stale" hidden>Lời khuyên thuộc lần tính thành công gần nhất.</p>
-      <div class="sim-advice-detail">
+      <details class="sim-advice-evidence"><summary>Thông tin đối chiếu</summary><p class="sim-advice-context" id="sim-advice-context"></p><div class="sim-advice-detail">
         <ul class="sim-advice-steps" id="sim-advice-steps" role="list"></ul>
         <div class="sim-advice-illustration" aria-hidden="true">{{ co_ma() }}</div>
-      </div>
+      </div></details>
       {{ advice_card("preview") }}
-      <p class="sim-model-note">Cảnh ruộng chỉ minh họa cảnh báo có nguồn. Chưa có mô hình kiểm định để tính CHI hoặc tỷ lệ sống OM5451.</p>
+      <p class="sim-model-note">Minh họa kịch bản. Kết quả cần được đối chiếu với số đo ngoài ruộng.</p>
     </div>
   </dialog>
 </body>

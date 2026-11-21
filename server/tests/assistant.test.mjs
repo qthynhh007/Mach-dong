@@ -13,6 +13,32 @@ const answer = {reply:"Bà con kiểm tra khả năng thoát nước của đấ
 const gemini = value=>Response.json({candidates:[{finishReason:"STOP",content:{parts:[{text:JSON.stringify(value)}]}}]});
 const ask = (body,fetcher,headers=sessionHeaders) => new simulationController({...sessionEnv,GEMINI_API_KEY:"test-only"},fetcher).handle(new Request("https://example.test/api/assistant/generate",{method:"POST",headers:{...headers,"Content-Type":"application/json"},body:JSON.stringify(body)}));
 
+test("questions outside the files call Gemini without inventing citations",async()=> {
+  let sent;
+  const response=await ask({messages:[{role:"user",text:"Vì sao cây thanh long cần trụ đỡ?"}],sourceIds:[]},async(url,options)=>{
+    sent=JSON.parse(options.body); assert.match(url,/generativelanguage.googleapis.com/);
+    return gemini({reply:"Thanh long có thân leo nên cần trụ để nâng đỡ tán, giúp cây nhận ánh sáng và thuận tiện chăm sóc.",source_ids:[]});
+  });
+  assert.equal(response.status,200);
+  const data=(await response.json()).data;
+  assert.equal(data.answer_basis,"general_knowledge"); assert.deepEqual(data.source_ids,[]);
+  assert.match(sent.systemInstruction.parts[0].text,/kiến thức chung/);
+});
+
+test("scenario generation still rejects an unsupported answer without citations",async()=> {
+  await assert.rejects(()=>generateGroundedReply({GEMINI_API_KEY:"test-only"},async()=>gemini({reply:"Cây cần có trụ đỡ.",source_ids:[]}),payload.messages,[]),error=>error.status===502);
+});
+
+test("general knowledge remains available with irrelevant documents and a model retry",async()=> {
+  let calls=0;
+  const result=await generateGroundedReply({GEMINI_API_KEY:"test-only"},async()=>{
+    calls++;
+    return calls===1 ? new Response("",{status:503}) : gemini({reply:"Thanh long có thân leo và cần trụ nâng đỡ. Đây là kiến thức chung từ AI.",source_ids:[]});
+  },[{role:"user",text:"Thanh long cần trụ vì sao?"}],[{source_id:"tomato",finding_vi:"Cà chua cần thoát nước."}],"",true,0,true);
+  assert.equal(calls,2); assert.equal(result.answer_basis,"general_knowledge");
+  assert.deepEqual(result.source_ids,[]); assert.equal(result.fallbackUsed,true);
+});
+
 test("Cò Mạ generates relevant replies with five consecutive turns",async()=> {
   let sent; const history=[];
   for (let turn=0;turn<5;turn++) {
@@ -70,6 +96,23 @@ test("temporary Gemini overload retries once on another Gemini model with the sa
   assert.equal(result.fallbackUsed,true);
 });
 
+test("Gemini retries one transient failure even when fallback is the same model",async()=> {
+  let calls=0;
+  const result=await generateGroundedReply({GEMINI_API_KEY:"test-only",GEMINI_MODEL:"gemini-2.5-flash",GEMINI_FALLBACK_MODEL:"gemini-2.5-flash"},async()=>{
+    calls++;
+    return calls===1 ? new Response("",{status:503}) : gemini(answer);
+  },payload.messages,[{source_id:payload.sourceIds[0],finding_vi:"Kiểm tra đất."}]);
+  assert.equal(calls,2);assert.equal(result.fallbackUsed,true);
+});
+
+test("repeated Gemini overload stops after one retry and quota errors are not retried",async()=> {
+  for(const status of [503,429]) {
+    let calls=0;
+    await assert.rejects(()=>generateGroundedReply({GEMINI_API_KEY:"test-only"},async()=>{calls++;return new Response("",{status});},payload.messages,[]),error=>error.status===status);
+    assert.equal(calls,status===503 ? 2 : 1);
+  }
+});
+
 test("scenario advice sends exact conditions to Gemini and preserves engine output",async()=> {
   const inputs=simulationInput.parse({varietyId:"OM5451",locationId:"can-tho",stage:"flowering",dayAfterSowing:65,salinityGl:2.8,
     salinitySite:"canalWater",waterDepthCm:4.5,plantHeightCm:null,tempMaxC:36,rootZoneEcDsM:null,ecIsSeasonAverage:false,exposureDays:7,useWeather:false,requestAi:false},catalog);
@@ -81,5 +124,16 @@ test("scenario advice sends exact conditions to Gemini and preserves engine outp
     return gemini({reply:"Kịch bản có mực nước 4,5 cm và nhiệt độ 36°C. Lúa đang trổ bông và cần theo dõi nóng. Mặn ở kênh chưa phản ánh nước ruộng. Bà con đo tại ruộng rồi đối chiếu thêm nha.",source_ids:["irri-heat","ctu-om5451"]});
   },result);
   assert.equal(advice.provider,"Gemini"); assert.equal(advice.isSimulated,true);
+  assert.equal(advice.isFallback,false);
   assert.equal(JSON.stringify(result),before); assert.deepEqual(advice.inputSnapshot,inputs);
+  const general=await adviseScenario({GEMINI_API_KEY:"test-only"},async(url,options)=>{
+    const instruction=JSON.parse(options.body).systemInstruction.parts[0].text;
+    assert.match(instruction,/Mỗi việc nói rõ bà con làm gì/);
+    return gemini({reply:"Việc nên làm: 1. Kiểm tra nguồn cấp trước khi lấy nước vào ruộng, không bơm thêm khi chưa biết nguồn đó có mặn. Đây là nguyên lý chăm sóc từ kiến thức chung.",source_ids:[]});
+  },result);
+  assert.equal(general.answer_basis,"general_knowledge");assert.equal(general.isFallback,false);
+  await assert.rejects(()=>adviseScenario({GEMINI_API_KEY:"test-only"},async()=>new Response("",{status:503}),result),error=>error.status===503);
+  await assert.rejects(()=>adviseScenario({GEMINI_API_KEY:"test-only"},async()=>gemini({reply:"Việc nên làm: Có thể phun bổ sung phân bón lá chứa canxi để cây chịu mặn tốt hơn.",source_ids:["ctu-om5451"]}),result),error=>error.status===502);
+  const cautious=await adviseScenario({GEMINI_API_KEY:"test-only"},async()=>gemini({reply:"Việc nên làm: Không tự ý phun phân hoặc thuốc chỉ từ các số đo mô phỏng. Bà con kiểm tra nguồn cấp và bông lúa trước nha.",source_ids:["ctu-om5451"]}),result);
+  assert.match(cautious.reply,/Không tự ý/);
 });

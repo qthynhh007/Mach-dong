@@ -41,7 +41,7 @@
     activeRequest?.abort(); history.length = 0; messages.replaceChildren(); input.value = "";
   });
 
-  function appendMessage(speaker, text, sources = [], image = null) {
+  function appendMessage(speaker, text, sources = [], image = null, basis = "") {
     const entry = document.createElement("li");
     entry.className = "assistant-message " + (speaker === "Bạn" ? "assistant-message--you" : "assistant-message--co-ma");
     const author = document.createElement("span");
@@ -61,6 +61,14 @@
     const body = document.createElement("p");
     body.textContent = text;
     bubble.append(body);
+    if (basis === "general_knowledge" || basis === "reference_assisted") {
+      const label = document.createElement("p");
+      label.className = "assistant-answer-basis";
+      label.textContent = basis === "general_knowledge"
+        ? "Thông tin tham khảo bổ sung · Chưa đối chiếu tài liệu trong thư viện"
+        : "Có tài liệu tham khảo · Xem nguồn bên dưới";
+      bubble.append(label);
+    }
     const list = document.createElement("ul");
     list.className = "assistant-sources";
     list.setAttribute("aria-label", "Nguồn tham khảo");
@@ -148,7 +156,7 @@
     elapsed.textContent = minutes + ":" + remainder;
     elapsed.dateTime = "PT" + seconds + "S";
     waitFill.style.width = (seconds / waitSeconds * 100) + "%";
-    const hint = seconds >= 8 ? "Cò Mạ đang kiểm tra thêm tài liệu…" : waitingHint;
+    const hint = seconds >= 8 ? "Cò Mạ đang tổng hợp câu trả lời…" : waitingHint;
     if (pendingDetail.textContent !== hint) pendingDetail.textContent = hint;
   }
 
@@ -196,7 +204,7 @@
       } else {
         history.push({role: "user", text: message}, {role: "model", text: reply});
         while (history.length > historyLimit) history.splice(0, 2);
-        appendMessage("Cò Mạ", reply, result.data.sources ?? []);
+        appendMessage("Cò Mạ", reply, result.data.sources ?? [], null, result.data.answer_basis);
       }
     } catch {
       feedback.hidden = false;

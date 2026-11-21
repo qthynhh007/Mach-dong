@@ -1,0 +1,11 @@
+html:is(.app-booting,.app-navigating)::before { content: "Đang tải Mạch Đồng…"; position: fixed; inset: 0; z-index: 2000; display: grid; place-items: center; background: #f3f8f2eb; backdrop-filter: blur(3px); color: #1c5e43; font: 600 15px/1.6 "Be Vietnam Pro",system-ui,sans-serif; pointer-events: none; }
+html:is(.app-booting,.app-navigating,.app-task-pending)::after { content: ""; position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 2010; background: linear-gradient(90deg,transparent,#23754c,#c7b65d,transparent); background-size: 50% 100%; background-repeat: no-repeat; animation: app-loading-line 1.5s ease-in-out infinite; pointer-events: none; }
+.app-ready main { animation: app-content-in .25s ease-out; }
+.app-task-loading { position: fixed; inset: auto auto max(18px,env(safe-area-inset-bottom)) 50%; transform: translateX(-50%); z-index: 1200; display: flex; align-items: center; gap: 10px; width: max-content; max-width: calc(100vw - 100px); padding: 11px 16px; border: 1px solid #c9dece; border-radius: 30px; background: #f8fcf7f5; box-shadow: 0 5px 24px #16442c26; color: #2c6247; font: 500 12px/1.6 "Be Vietnam Pro",system-ui,sans-serif; pointer-events: none; }
+.app-task-loading[hidden] { display: none; }
+.app-wait-spinner, button[aria-busy="true"]::after { display: inline-block; flex: 0 0 16px; width: 16px; height: 16px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: app-spinner .8s linear infinite; }
+button[aria-busy="true"]::after { content: ""; margin-inline-start: 8px; vertical-align: middle; }
+@keyframes app-spinner { to { transform: rotate(360deg); } }
+@keyframes app-loading-line { from { background-position: -100% 0; } to { background-position: 200% 0; } }
+@keyframes app-content-in { from { opacity: .5; translate: 0 5px; } to { opacity: 1; translate: 0 0; } }
+@media(prefers-reduced-motion:reduce) { html::after,.app-wait-spinner,button[aria-busy="true"]::after,.app-ready main { animation: none !important; } html:is(.app-booting,.app-navigating,.app-task-pending)::after { background: #23754c; } }
