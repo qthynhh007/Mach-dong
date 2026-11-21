@@ -73,6 +73,19 @@ test("Groq scenario advice preserves source allowlist and the deterministic inpu
   assert.equal(JSON.stringify(result),before);
 });
 
+test("scenario advice bounds output tokens and omits repeated daily rows without a forecast",async()=> {
+  const result=new simulationEngine(catalog).evaluate(inputs);
+  await adviseScenario(env,async(url,options)=>{
+    const body=JSON.parse(options.body);
+    assert.ok(body.max_completion_tokens<=2048,"Bound the reply budget to avoid reserving excessive Groq quota");
+    const context=JSON.parse(body.messages.at(-1).content.split('\n').slice(1).join('\n'));
+    assert.equal(context.dailyScenario,null);
+    assert.equal(context.valuesWithUnits.waterDepth,'4.5 cm');
+    return groq(answer);
+  },result);
+  assert.equal(result.dailyScenario.length,7);
+});
+
 test("health reports the selected provider instead of mistaking a Gemini key for Groq readiness",async()=> {
   for(const configured of [false,true]) {
     const response=await new simulationController({AI_PROVIDER:"groq",GEMINI_API_KEY:"unused",...(configured?{GROQ_API_KEY:"test-only"}:{})}).handle(new Request("https://example.test/api/health"));

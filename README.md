@@ -1,5 +1,18 @@
 # AgriData · Mạch Đồng
 
+## Tài khoản kiểm thử app và local
+
+Đã tạo và kiểm tra đăng nhập thành công (HTTP 200) trên cả backend local và backend Sites ngày 21/11/2026:
+
+| Bản chạy | Tên đăng nhập | Mật khẩu |
+|---|---|---|
+| App Windows EXE dùng backend Sites mặc định | `machdong_test_2111` | `MachDong-Test-2111!` |
+| Mã nguồn chạy local trên máy phát triển hiện tại | `machdong_test_2111` | `MachDong-Test-2111!` |
+
+Local: chạy `powershell -ExecutionPolicy Bypass -File scripts/run-local.ps1`, mở [đăng nhập](http://127.0.0.1:5000/login). Chế độ `MACH_DONG_BACKEND_MODE=local` dùng kho tài khoản riêng tại `data/local-preview/`; tài khoản trên đã tạo trong kho này. Nếu chạy local ở máy khác với kho mới, cần đăng ký tài khoản mới; tài khoản không được tự tạo chỉ bằng việc clone Git. Chế độ `shared` và EXE dùng backend mặc định [Sites của Mạch Đồng](https://mach-dong-rice-data.artfulmica6.chatgpt.site), cùng kho tài khoản cloud.
+
+Đây là tài khoản demo công khai, vai trò nông dân, chưa liên kết ví. Chỉ dùng dữ liệu thử; không lưu thông tin cá nhân hoặc nạp tài sản vào tài khoản này. Hai kho local/cloud độc lập dù dùng cùng thông tin đăng nhập. Xác nhận đăng nhập backend chưa thay thế kiểm thử toàn bộ EXE và các tính năng AI. API key không nằm trong README.
+
 **Chấm bản mã nguồn chạy local, không nhập API key:** xem [hướng dẫn máy mới](docs/chay-local-giam-khao.md) và [triển khai AI dùng chung](docs/trien-khai-ai-dung-chung.md). Cần Python 3.12+ và Internet. Chạy `powershell -ExecutionPolicy Bypass -File scripts/run-local.ps1`; script tự tạo môi trường và cài thư viện. Giao diện/CSS chạy local; tài khoản, dữ liệu, chat và tư vấn dùng backend chung. Backend mặc định dùng **Groq** (`AI_PROVIDER=groq`, `GROQ_API_KEY` là secret trên máy chủ); người dùng không nhập key. `-Check` phát hiện backend cũ hoặc chưa cấu hình AI; trạng thái triển khai được ghi trong tài liệu, không suy ra từ việc UI mở được.
 
 > EXE mới dựng ngày 21/11/2026: [dist/MachDong.exe](dist/MachDong.exe), 48.819.099 byte (~46,6 MiB). [SHA256SUMS](dist/SHA256SUMS.txt). Đã kiểm tra chạy trực tiếp file EXE, trang đăng nhập/đăng ký và tài nguyên đóng gói. Backend Sites và link tải công khai chưa được cập nhật vì chưa có quyền ghi nguồn Sites; bản này tiếp tục dùng backend cloud hiện có. Xem [biên bản EXE](docs/phat-hanh-exe-2026-11-21.md).

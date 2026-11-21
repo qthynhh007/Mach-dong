@@ -48,7 +48,7 @@ export async function generateGroundedReply(env,fetcher,messages,sources,extraIn
     systemInstruction:{parts:[{text:instruction}]},contents:messages.map(item=>({role:item.role,parts:[{text:item.text}]})),
     generationConfig:{temperature:0.2,maxOutputTokens:3072,responseMimeType:"application/json",responseJsonSchema:schema,
       ...(model.startsWith("gemini-3") ? {thinkingConfig:{thinkingLevel:model.includes("3.1-flash-lite") ? "MINIMAL" : "LOW"}} : model.startsWith("gemini-2.5-flash") ? {thinkingConfig:{thinkingBudget:0}} : {})},
-  } : {model,temperature:0.2,max_completion_tokens:4096,reasoning_effort:"low",
+  } : {model,temperature:0.2,max_completion_tokens:2048,reasoning_effort:"low",
     messages:[{role:"system",content:instruction},...messages.map(item=>({role:item.role === "model" ? "assistant" : "user",content:item.text}))],
     response_format:{type:"json_schema",json_schema:{name:"coMaGroundedAnswer",strict:true,schema}}};
   let response;
