@@ -32,10 +32,27 @@ test("Groq-only chat preserves conversation and sends the key only to Groq",asyn
   assert.equal((await response.json()).data.provider,"Groq");
 });
 
+test("the assistant route keeps its 45-second timeout and retries one Groq timeout",async()=> {
+  const original=AbortSignal.timeout;
+  const timeouts=[];
+  let calls=0;
+  AbortSignal.timeout=ms=>{timeouts.push(ms);return original(ms);};
+  try {
+    const response=await new simulationController(env,async()=>{
+      calls++;
+      if(calls===1) throw new DOMException("test timeout","TimeoutError");
+      return groq(answer);
+    }).handle(new Request("https://example.test/api/assistant/generate",{method:"POST",headers:{...sessionHeaders,"Content-Type":"application/json"},body:JSON.stringify({messages:[{role:"user",text:"Cần đo gì trước khi lấy nước?"}],sourceIds:[]})}));
+    assert.equal(response.status,200);
+    assert.equal(calls,2);
+    assert.deepEqual(timeouts,[45000,45000]);
+  } finally {AbortSignal.timeout=original;}
+});
+
 test("Groq is preferred when both keys exist and an explicitly selected missing Groq key fails closed",async()=> {
   const reply=await generateGroundedReply({GROQ_API_KEY:"groq-test-only",GEMINI_API_KEY:"must-not-use"},async url=>{
     assert.equal(url,"https://api.groq.com/openai/v1/chat/completions");return groq(answer);
-  },[{role:"user",text:"Cần đo gì?"}],[],"",0,true);
+  },[{role:"user",text:"Cần đo gì?"}],[],"",false,0,true);
   assert.equal(reply.provider,"Groq");
   await assert.rejects(()=>generateGroundedReply({AI_PROVIDER:"groq",GEMINI_API_KEY:"must-not-use"},()=>assert.fail("No cross-provider fallback"),[{role:"user",text:"Cần đo gì?"}],[]),error=>error.status===503);
 });
@@ -71,7 +88,7 @@ test("Groq retries one invalid answer on Groq and never falls back to Gemini",as
     calls++;assert.equal(url,"https://api.groq.com/openai/v1/chat/completions");
     if(calls===2) assert.match(JSON.parse(options.body).messages[0].content,/LƯU Ý KHI SOẠN LẠI/);
     return groq(calls===1?{...answer,source_ids:["invented"]}:answer);
-  },[{role:"user",text:"Cần đo gì?"}],[],"",0,true);
+  },[{role:"user",text:"Cần đo gì?"}],[],"",false,0,true);
   assert.equal(calls,2);assert.equal(reply.provider,"Groq");assert.equal(reply.fallbackUsed,true);
 });
 
@@ -80,7 +97,7 @@ test("Groq overload is retried once but quota errors stop without switching prov
     let calls=0;
     await assert.rejects(()=>generateGroundedReply({...env,GEMINI_API_KEY:"must-not-use"},async url=>{
       calls++;assert.equal(url,"https://api.groq.com/openai/v1/chat/completions");return new Response("",{status});
-    },[{role:"user",text:"Cần đo gì?"}],[],"",0,true),error=>error.status===status);
+    },[{role:"user",text:"Cần đo gì?"}],[],"",false,0,true),error=>error.status===status);
     assert.equal(calls,status===503?2:1);
   }
 });

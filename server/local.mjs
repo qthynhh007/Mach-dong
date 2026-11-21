@@ -60,6 +60,8 @@ const server = createServer(async (incoming, outgoing) => {
     let response;
     try {response = await new simulationController(env,transport).handle(request);}
     catch {response = Response.json({data:null,error:"Dịch vụ cục bộ tạm thời không khả dụng."},{status:503});}
+    const rejection=response.headers.get("X-Assistant-Rejection");
+    if(rejection) console.error("Local assistant validation",JSON.stringify({reason:rejection}));
     if(localMail && incoming.url === "/api/account/send-otp" && response.ok){
       const body=await response.json();
       response=Response.json({...body,data:{...body.data,smtp_sent:false,dev_otp_code:mailCodes.get(body.data.email),isSimulated:true}});

@@ -97,7 +97,7 @@ export async function generateGroundedReply(env,fetcher,messages,sources,extraIn
     const corrections={
       "Unsupported water recommendation":"không lấy số đo hiện tại làm mức khuyến cáo giữ nước. Hướng dẫn kiểm tra giai đoạn, chiều cao cây, nguồn cấp và khả năng thoát nước trước khi điều chỉnh, không khẳng định cần giữ nguyên mức ngập.",
       "Unsupported prescription":"Không đề xuất phun/bón/rải phân, thuốc hay chế phẩm khi chưa có dữ kiện chẩn đoán. Thay bằng kiểm tra nguồn cấp, tình trạng cây và điều kiện điều tiết nước cụ thể.",
-      "Unsupported quantity":"Chỉ nhắc lại định lượng có đúng đơn vị trong dữ liệu đã cung cấp; không tự thêm số đo, ngưỡng hay liều lượng. Nếu chưa đủ dữ kiện, mô tả cách kiểm tra để ra quyết định.",
+      "Unsupported quantity":"Chỉ nhắc lại định lượng có đúng đơn vị trong dữ liệu đã cung cấp; không tự thêm số đo, ngưỡng hay liều lượng. Lần trả lời lại này phải hoàn toàn định tính: không nêu bất cứ con số kèm đơn vị, ngưỡng tưới, ngưỡng mặn hoặc ngưỡng EC nào. Chỉ hướng dẫn cần đo gì, đo tại đâu và đối chiếu điều kiện thực địa; không chuyển đổi EC sang g/L.",
       "Unsupported safety assurance":"Không gọi số đo mặn đơn lẻ là an toàn hoặc bảo đảm hiệu quả. Hướng dẫn kiểm tra để ra quyết định theo điều kiện ruộng.",
       "Incomplete answer":"Viết ngắn hơn, hoàn tất đầy đủ JSON và bốn mục nếu đang tư vấn mô phỏng.",
       "Invalid answer":"Trả đúng JSON gồm reply và source_ids. Reply tối đa 3600 ký tự, chỉ dùng mã nguồn trong danh sách đã cung cấp.",

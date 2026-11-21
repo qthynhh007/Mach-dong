@@ -17,10 +17,11 @@ export async function adviseScenario(env,fetcher,result) {
   const forecastValuesWithUnits=result.weather ? result.dailyScenario.map(row=>({date:row.date,temperature:row.tempMaxC === null ? null : `${row.tempMaxC} °C`,rain:row.rainMm === null ? null : `${row.rainMm} mm`})) : null;
   const context = JSON.stringify({isSimulated:true,inputs:result.inputs,valuesWithUnits,forecastValuesWithUnits,stage:result.stage,
     units:{salinityGl:"g/L",waterDepthCm:"cm",tempMaxC:"°C",rootZoneEcDsM:"dS/m"},
-    metrics:result.metrics,evidence:result.evidence,missingInputs:result.missingInputs,limitations:result.limitations,weather:result.weather,dailyScenario:result.dailyScenario});
+    metrics:result.metrics,evidence:result.evidence,missingInputs:result.missingInputs,limitations:result.limitations,weather:result.weather,dailyScenario:result.weather ? result.dailyScenario : null});
   const answer = await generateGroundedReply(env,fetcher,[{role:"user",text:"Phân tích điều kiện ruộng trong dữ liệu dưới đây và tư vấn cải thiện việc chăm lúa dựa trên các căn cứ.\n"+context}],sources,
     `Tư vấn thực hành riêng cho ruộng này, không chép hay diễn đạt lại nguyên các đoạn evidence thành câu trả lời mẫu.
-Viết khoảng 1600–2600 ký tự, tối đa 3600 ký tự, chia đoạn rõ. Mở đầu ngắn, không chào dài. Các số đo là thông số giả lập do người dùng thiết lập, không gọi là quan trắc thực địa.
+Viết ngắn khoảng 900–1600 ký tự, tối đa 2200 ký tự, chia đoạn rõ. Mở đầu ngắn, không chào dài. Các số đo là thông số giả lập do người dùng thiết lập, không gọi là quan trắc thực địa.
+Thẻ giao diện đã hiển thị đầy đủ các số đo đầu vào. Phần lời khuyên này chỉ giải thích định tính, không cần chép lại con số hoặc đơn vị. Tuyệt đối không tự chọn một mực nước đích, độ sâu cần rút, ngưỡng mặn, ngưỡng EC hay phần trăm thiệt hại. Khi cần điều chỉnh, hướng dẫn kiểm tra nguồn cấp, khả năng thoát và nhờ cán bộ xác định mức phù hợp, không nêu một mức cm/dS/m/g/L mới.
 Nếu useWeather=true, dùng nhiệt độ dự báo trong dailyScenario, không dùng nhiệt độ thủ công.
 Viết đúng bốn mục có dấu hai chấm: Điều kiện đáng chú ý; Việc nên làm; Cần đo thêm; Khi nào cần nhờ cán bộ nông nghiệp.
 Việc nên làm: đánh số tối đa 4 việc theo thứ tự ưu tiên. Mỗi việc nói rõ bà con làm gì, kiểm tra ở đâu, vì sao, điều kiện nào mới nên làm và dấu hiệu nào để đánh giá lại. Phân biệt việc có thể làm ngay với việc phải chờ số đo. Không chỉ viết chung chung “theo dõi sát” hoặc lặp lại các thông số.
