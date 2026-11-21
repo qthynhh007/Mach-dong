@@ -30,7 +30,9 @@ export async function generateGroundedReply(env,fetcher,messages,sources,extraIn
   const provider = geminiOnly ? "gemini" : env.AI_PROVIDER || (env.GEMINI_API_KEY ? "gemini" : "groq");
   if (!["gemini","groq"].includes(provider)) throw new generationError("Cò Mạ chưa sẵn sàng. Bà con thử lại sau nha.",503);
   const key = provider === "gemini" ? env.GEMINI_API_KEY : env.GROQ_API_KEY;
-  if (!key) throw new generationError(provider === "gemini" ? "Tư vấn đang tạm gián đoạn. Bà con vẫn có thể xem báo cáo mô phỏng." : "Cò Mạ đang tạm nghỉ. Bà con thử lại sau nha.",503);
+  if (!key) throw new generationError(env.MACH_DONG_LOCAL_INSTANCE && provider === "gemini"
+    ? "Máy chạy local chưa có GEMINI_API_KEY. Điền khóa vào .env.local trong thư mục có main.py, rồi khởi động lại Mạch Đồng."
+    : provider === "gemini" ? "Tư vấn đang tạm gián đoạn. Bà con vẫn có thể xem báo cáo mô phỏng." : "Cò Mạ đang tạm nghỉ. Bà con thử lại sau nha.",503);
   const model = provider === "gemini" ? env.GEMINI_MODEL || "gemini-3.5-flash" : env.GROQ_MODEL || "openai/gpt-oss-20b";
   if (!/^[a-z0-9.-]+(?:\/[a-z0-9.-]+)*$/.test(model)) throw new generationError("Cò Mạ chưa sẵn sàng. Bà con thử lại sau nha.",503);
   const ids = sources.map(item=>item.source_id);

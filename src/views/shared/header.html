@@ -35,4 +35,4 @@
   </div>
 </header>
 {% include "shared/co-ma-launcher.html" %}
-<script src="/static/account.js" defer></script>
+<script src="{{ url_for('static', filename='account.js', v=asset_v) }}" defer></script>

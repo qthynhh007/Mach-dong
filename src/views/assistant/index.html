@@ -21,10 +21,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Lời khuyên Cò Mạ về trồng cây, dinh dưỡng, sâu bệnh, mặn và ngập.">
   <title>Trợ lý Cò Mạ · Mạch Đồng</title>
-  <link rel="icon" href="{{ url_for('static', filename='assets/co-ma/avatar-co-ma.webp') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='shell.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='co-ma.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='assistant.css') }}">
+  <link rel="icon" href="{{ url_for('static', filename='assets/co-ma/avatar-co-ma.webp', v=asset_v) }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='shell.css', v=asset_v) }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='co-ma.css', v=asset_v) }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='assistant.css', v=asset_v) }}">
   {% include "shared/navigation-head.html" %}
   <script src="{{ url_for('static', filename='assistant.js') }}" type="module"></script>
 </head>

@@ -13,6 +13,22 @@ const answer = {reply:"Bà con kiểm tra khả năng thoát nước của đấ
 const gemini = value=>Response.json({candidates:[{finishReason:"STOP",content:{parts:[{text:JSON.stringify(value)}]}}]});
 const ask = (body,fetcher,headers=sessionHeaders) => new simulationController({...sessionEnv,GEMINI_API_KEY:"test-only"},fetcher).handle(new Request("https://example.test/api/assistant/generate",{method:"POST",headers:{...headers,"Content-Type":"application/json"},body:JSON.stringify(body)}));
 
+test("public health distinguishes Gemini chat/advice from legacy Groq evidence AI and never returns keys",async()=> {
+  for(const configured of [false,true]) {
+    const env={GROQ_API_KEY:"groq-secret-only",...(configured ? {GEMINI_API_KEY:"gemini-secret-only"} : {})};
+    const response=await new simulationController(env,()=>assert.fail()).handle(new Request("https://example.test/api/health"));
+    const text=await response.text();
+    const data=JSON.parse(text).data;
+    assert.equal(data.apiRevision,"shared-ai-v1");
+    assert.deepEqual(data.aiFeatures,{chat:configured,scenarioAdvice:configured});
+    assert.equal(text.includes("secret-only"),false);
+  }
+});
+
+test("a fresh local checkout explains how to configure both AI features without exposing secrets",async()=> {
+  await assert.rejects(()=>generateGroundedReply({MACH_DONG_LOCAL_INSTANCE:"test-instance"},()=>assert.fail("Missing key must not call the provider"),payload.messages,[],"",true),error=>error.status===503 && /GEMINI_API_KEY/.test(error.message) && /\.env.local/.test(error.message));
+});
+
 test("questions outside the files call Gemini without inventing citations",async()=> {
   let sent;
   const response=await ask({messages:[{role:"user",text:"Vì sao cây thanh long cần trụ đỡ?"}],sourceIds:[]},async(url,options)=>{

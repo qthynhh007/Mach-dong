@@ -64,7 +64,9 @@ export class simulationController {
     if (request.method === "GET" && url.pathname === "/api/health") {
       const aiProvider = this.env.AI_PROVIDER || (this.env.GROQ_API_KEY ? "groq" : "gemini");
       const aiConfigured = Boolean(aiProvider === "groq" ? this.env.GROQ_API_KEY : aiProvider === "gemini" && this.env.GEMINI_API_KEY);
-      return jsonResponse({status:"ok",dataVersion:catalog.version,aiProvider,aiConfigured,inferenceLocation:"cloud",historyRows:history.rowCount});
+      return jsonResponse({status:"ok",apiRevision:"shared-ai-v1",dataVersion:catalog.version,aiProvider,aiConfigured,
+        aiFeatures:{chat:Boolean(this.env.GEMINI_API_KEY),scenarioAdvice:Boolean(this.env.GEMINI_API_KEY)},
+        inferenceLocation:"cloud",historyRows:history.rowCount});
     }
     if (request.method === "GET" && url.pathname === "/api/catalog") return jsonResponse({...catalog,history:{version:history.version,year:history.year,rowCount:history.rowCount,retrievedAt:history.retrievedAt,downloadPath:"/api/datasets/weather-history"}});
     if (request.method === "GET" && url.pathname === "/api/datasets/weather-history") return jsonResponse(history);

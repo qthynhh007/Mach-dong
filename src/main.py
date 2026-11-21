@@ -101,13 +101,15 @@ def createApp(testConfig: dict | None = None) -> Flask:
     @app.context_processor
     def inject_auth_context() -> dict:
         auth = get_current_auth()
+        v = secrets.token_hex(4) if (app.testing or os.environ.get("MACH_DONG_LOCAL_PREVIEW") == "1") else "20261121-v4"
         if auth is None:
-            return {"auth_user": None, "auth_csrf_token": "", "auth_avatar_url": "/static/assets/co-ma/avatar-co-ma.webp"}
+            return {"auth_user": None, "auth_csrf_token": "", "auth_avatar_url": "/static/assets/co-ma/avatar-co-ma.webp", "asset_v": v}
         user, auth_session = auth
         return {
             "auth_user": user.to_public_dict(),
             "auth_avatar_url": "/api/auth/avatar/current",
             "auth_csrf_token": auth_session.csrf_token,
+            "asset_v": v,
         }
 
     if app.config["COMMUNITY_API_URL"]:
@@ -157,7 +159,11 @@ def createApp(testConfig: dict | None = None) -> Flask:
 
     @app.after_request
     def prevent_workspace_caching(response: Response) -> Response:
-        if request.endpoint != "static":
+        if app.testing or app.debug or os.environ.get("MACH_DONG_LOCAL_PREVIEW") == "1":
+            response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+            response.headers["Pragma"] = "no-cache"
+            response.headers["Expires"] = "0"
+        elif request.endpoint != "static":
             response.headers["Cache-Control"] = "no-store, private"
         return response
 

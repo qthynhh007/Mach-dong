@@ -1,7 +1,7 @@
 {% extends "forum/base.html" %}
 {% from "shared/icon.html" import icon %}
 {% block title %}Chi tiết bài chia sẻ{% endblock %}
-{% block styles %}<link rel="stylesheet" href="/static/forum-detail.css">{% endblock %}
+{% block styles %}<link rel="stylesheet" href="{{ url_for('static', filename='forum-detail.css', v=asset_v) }}">{% endblock %}
 {% block content %}
 <div class="forum-return"><a class="app-control inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-body-sm text-body-sm font-semibold" href="{{ url_for('forum.index') }}">
 <span class="app-icon-wrap text-[18px]">{{ icon("chevron_left") }}</span>

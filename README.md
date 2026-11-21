@@ -1,5 +1,7 @@
 # AgriData · Mạch Đồng
 
+**Chấm bản mã nguồn chạy local, không nhập API key:** xem [hướng dẫn máy mới](docs/chay-local-giam-khao.md) và [triển khai AI dùng chung](docs/trien-khai-ai-dung-chung.md). Cần Python 3.12+ và Internet. Chạy `powershell -ExecutionPolicy Bypass -File scripts/run-local.ps1`; script tự tạo môi trường và cài thư viện. Giao diện/CSS chạy local; tài khoản, dữ liệu, chat và tư vấn dùng backend chung. Khóa Gemini chỉ do nhóm cấu hình trên máy chủ. `-Check` phát hiện backend cũ hoặc chưa cấu hình AI; trạng thái triển khai được ghi trong tài liệu, không suy ra từ việc UI mở được.
+
 > EXE mới dựng ngày 21/11/2026: [dist/MachDong.exe](dist/MachDong.exe), 48.819.099 byte (~46,6 MiB). [SHA256SUMS](dist/SHA256SUMS.txt). Đã kiểm tra chạy trực tiếp file EXE, trang đăng nhập/đăng ký và tài nguyên đóng gói. Backend Sites và link tải công khai chưa được cập nhật vì chưa có quyền ghi nguồn Sites; bản này tiếp tục dùng backend cloud hiện có. Xem [biên bản EXE](docs/phat-hanh-exe-2026-11-21.md).
 
 > Bản sửa cục bộ 21/11/2026: chạy `scripts/run-local.py`, bắt buộc đăng nhập, có tư vấn Gemini, ví mới và ẩn tab duyệt trong MVP. Xem [kế hoạch và kiểm thử](docs/ke-hoach-sua-chuc-nang-2026-11-20.md). Thay đổi chưa phát hành cloud; thông tin bản EXE công khai bên dưới là bản trước.

@@ -7,9 +7,9 @@
 <title>Tài khoản và bảo mật · Mạch Đồng</title>
 <link rel="icon" href="/static/assets/co-ma/avatar-co-ma.webp">
 
-<link rel="stylesheet" href="/static/profile.css">
-<link rel="stylesheet" href="{{ url_for('static', filename='shell.css', v='20261121-header-pill-3') }}">
-<link rel="stylesheet" href="/static/wallet.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='profile.css', v=asset_v) }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='shell.css', v=asset_v) }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='wallet.css', v=asset_v) }}">
 </head>
 <body class="app-workspace profile-page text-on-surface antialiased" data-cloud-auth="{{ '1' if cloud_auth else '0' }}">
 {% include "shared/header.html" %}

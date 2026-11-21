@@ -6,8 +6,8 @@
   <title>{% block title %}{% endblock %} · Mạch Đồng</title>
   <link rel="icon" href="/static/assets/co-ma/avatar-co-ma.webp">
   {% block styles %}{% endblock %}
-  <link rel="stylesheet" href="{{ url_for('static', filename='shell.css', v='20261121-header-pill-3') }}">
-  <link rel="stylesheet" href="/static/forum.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='shell.css', v=asset_v) }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='forum.css', v=asset_v) }}">
 </head>
 <body class="app-workspace forum-page text-on-surface antialiased">
 {% include "shared/header.html" %}

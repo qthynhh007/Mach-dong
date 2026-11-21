@@ -6,10 +6,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Đăng ký · Mạch Đồng</title>
-  <link rel="icon" href="/static/assets/co-ma/avatar-co-ma.webp">
-  <link rel="stylesheet" href="/static/auth.css">
-  <link rel="stylesheet" href="{{ url_for('static', filename='shell.css', v='20261121-header-pill-3') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='auth-layout.css', v='20261121-compact-register-1') }}">
+  <link rel="icon" href="{{ url_for('static', filename='assets/co-ma/avatar-co-ma.webp', v=asset_v) }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='auth.css', v=asset_v) }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='shell.css', v=asset_v) }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='auth-layout.css', v=asset_v) }}">
 </head>
 <body class="auth-workspace auth-register-page font-body-md text-body-md text-on-surface antialiased">
 {% include "shared/header.html" %}

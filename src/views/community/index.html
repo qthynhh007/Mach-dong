@@ -7,10 +7,10 @@
   <meta name="shell-type" content="web_dashboard">
   <title>Kho CSV cộng đồng · Mạch Đồng</title>
   {% include "shared/navigation-head.html" %}
-  <link rel="icon" href="/static/assets/co-ma/avatar-co-ma.webp">
-  <link rel="stylesheet" href="/static/community.css">
-  <link rel="stylesheet" href="{{ url_for('static', filename='shell.css', v='20261121-header-pill-3') }}">
-  <link rel="stylesheet" href="/static/csv-library.css">
+  <link rel="icon" href="{{ url_for('static', filename='assets/co-ma/avatar-co-ma.webp', v=asset_v) }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='community.css', v=asset_v) }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='shell.css', v=asset_v) }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='csv-library.css', v=asset_v) }}">
 </head>
 <body class="app-workspace">
   {% include "shared/header.html" %}

@@ -2,11 +2,12 @@
 <html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Mạch Đồng · Mô phỏng có căn cứ</title>
 {% include "shared/navigation-head.html" %}
-<link rel="icon" href="/static/assets/co-ma/avatar-co-ma.webp">
-<link rel="stylesheet" href="/static/assets/stitch-simulation/fonts.css">
-<link rel="stylesheet" href="{{ url_for('static', filename='shell.css', v='20261121-header-pill-3') }}"><link rel="stylesheet" href="/static/simulation-workbench.css?v=20261118-report2">
-  <link rel="stylesheet" href="{{ url_for('static', filename='simulation-reading.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='co-ma-advice.css') }}">
+<link rel="icon" href="{{ url_for('static', filename='assets/co-ma/avatar-co-ma.webp', v=asset_v) }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='assets/stitch-simulation/fonts.css', v=asset_v) }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='shell.css', v=asset_v) }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='simulation-workbench.css', v=asset_v) }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='simulation-reading.css', v=asset_v) }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='co-ma-advice.css', v=asset_v) }}">
 </head>
 <body class="app-workspace simulation-report-page">
 {% include "shared/header.html" %}

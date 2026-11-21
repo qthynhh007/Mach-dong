@@ -1,7 +1,7 @@
 {% extends "forum/base.html" %}
 {% from "shared/icon.html" import icon %}
 {% block title %}Thảo luận bà con{% endblock %}
-{% block styles %}<link rel="stylesheet" href="/static/forum-feed.css">{% endblock %}
+{% block styles %}<link rel="stylesheet" href="{{ url_for('static', filename='forum-feed.css', v=asset_v) }}">{% endblock %}
 {% block content %}
 <div class="w-full">
 <!-- Top Action & Navigation Banner -->
