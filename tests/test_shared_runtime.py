@@ -17,6 +17,7 @@ class SharedRuntimeTests(TestCase):
     def test_shared_mode_does_not_forward_a_local_provider_key(self):
         config = shared_app_config("https://api.example.test", 5000)
         self.assertEqual(config["GEMINI_API_KEY"], "")
+        self.assertEqual(config["GROQ_API_KEY"], "")
         for prefix in ("AUTH", "COMMUNITY", "REFERENCE", "ASSISTANT", "SIMULATION"):
             self.assertEqual(config[prefix + "_API_URL"], "https://api.example.test")
         self.assertFalse(config["TESTING"])

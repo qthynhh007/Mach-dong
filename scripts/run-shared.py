@@ -20,7 +20,7 @@ origin = os.environ.get("MACH_DONG_SHARED_API_URL", SIMULATION_API_URL).strip().
 port = int(os.environ.get("MACH_DONG_LOCAL_WEB_PORT", "5000"))
 config = shared_app_config(origin, port)
 print(f"Mạch Đồng · giao diện local, backend dùng chung: {origin}", flush=True)
-print("Không cần nhập Gemini API key trên máy người dùng.", flush=True)
+print("Không cần nhập API key AI trên máy người dùng.", flush=True)
 ready = False
 try:
     req = Request(origin + "/api/health", headers={"Accept": "application/json", "User-Agent": "MachDongDesktop/2.0"})

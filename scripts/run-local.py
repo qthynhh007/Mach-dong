@@ -53,24 +53,27 @@ try:
     )
 except (OSError, subprocess.CalledProcessError):
     raise SystemExit("Cần cài Node.js 22.13 trở lên (khuyên dùng Node.js 24 LTS), rồi mở lại PowerShell.") from None
-gemini_ready = bool(os.environ.get("GEMINI_API_KEY", "").strip())
+ai_provider = "groq"
+ai_key_name = "GROQ_API_KEY"
+ai_ready = bool(os.environ.get(ai_key_name, "").strip())
 print("[OK] Python và Node.js SQLite sẵn sàng.", flush=True)
 print(
-    "[OK] Đã có GEMINI_API_KEY cho chat và tư vấn mô phỏng."
-    if gemini_ready else
-    "[THIẾU] GEMINI_API_KEY: copy .env.example thành .env.local và điền khóa được cấp. "
+    f"[OK] Đã có {ai_key_name} cho chat và tư vấn mô phỏng ({ai_provider})."
+    if ai_ready else
+    f"[THIẾU] {ai_key_name}: copy .env.example thành .env.local và điền khóa được cấp. "
     "Chat và tư vấn AI chưa dùng được; các chức năng local khác vẫn chạy.",
     flush=True,
 )
 if "--check" in sys.argv:
-    raise SystemExit(0 if gemini_ready else 1)
+    raise SystemExit(0 if ai_ready else 1)
 web_port = int(os.environ.get("MACH_DONG_LOCAL_WEB_PORT", "5000"))
 api_port = int(os.environ.get("MACH_DONG_LOCAL_API_PORT") or (8787 if web_port == 5000 else 8787 + (web_port - 5000)))
 state = Path(os.environ.get("MACH_DONG_LOCAL_STATE", str(ROOT / "data" / "local-preview"))).resolve()
 state.mkdir(parents=True, exist_ok=True)
 env = dict(os.environ)
-env.setdefault("GEMINI_MODEL", "gemini-3.1-flash-lite")
-env.setdefault("GEMINI_FALLBACK_MODEL", env["GEMINI_MODEL"])
+env["AI_PROVIDER"] = "groq"
+for legacy_name in ("GEMINI_API_KEY", "GEMINI_MODEL", "GEMINI_FALLBACK_MODEL", "GEMINI_QUOTA_FALLBACK"):
+    env.pop(legacy_name, None)
 env["MACH_DONG_LOCAL_STATE"] = str(state)
 env["MACH_DONG_LOCAL_INSTANCE"] = secrets.token_hex(16)
 env["MACH_DONG_LOCAL_API_PORT"] = str(api_port)
@@ -133,7 +136,7 @@ try:
         raise RuntimeError("Local API did not start")
     from src.main import createApp
 
-    config = {"TESTING": True, "TEMPLATES_AUTO_RELOAD": True, "SEND_FILE_MAX_AGE_DEFAULT": 0,
+    config = {"TESTING": True, "TEMPLATES_AUTO_RELOAD": True, "SEND_FILE_MAX_AGE_DEFAULT": 0, "GEMINI_API_KEY": "",
               "SECRET_KEY": os.environ.get("MACH_DONG_LOCAL_SESSION_SECRET", "local-preview-only-change-before-sharing"),
               "COMMUNITY_DATABASE": str(state / "flask.sqlite3")}
     for prefix in ("AUTH", "COMMUNITY", "REFERENCE", "ASSISTANT", "SIMULATION"):

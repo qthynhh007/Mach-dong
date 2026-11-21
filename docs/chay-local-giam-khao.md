@@ -6,7 +6,7 @@ Chạy trong thư mục chứa `main.py`, `requirements.txt`, `server/` và `src
 
 1. Cài **Python 3.12 trở lên** (bật Add Python to PATH trên Windows). Mở lại PowerShell sau khi cài.
 2. Clone/tải toàn bộ repository, không chỉ tải file `main.py`. Không copy `.venv` hoặc `node_modules` từ máy khác.
-3. Có kết nối Internet. **Không cần `.env.local`, Gemini API key hoặc Node.js** cho chế độ mặc định. Nếu còn file cấu hình cũ, bỏ `MACH_DONG_BACKEND_MODE=local` để trở về chế độ dùng chung.
+3. Có kết nối Internet. **Không cần `.env.local`, API key AI hoặc Node.js** cho chế độ mặc định. Nếu còn file cấu hình cũ, bỏ `MACH_DONG_BACKEND_MODE=local` để trở về chế độ dùng chung.
 
 ## Windows
 
@@ -22,13 +22,13 @@ Mở **http://127.0.0.1:5000**. Giữ terminal đang chạy. Nếu cổng bị �
 powershell -ExecutionPolicy Bypass -File scripts/run-local.ps1 -Port 5001
 ```
 
-Kiểm tra cấu hình trước khi demo (không gọi Gemini và không in khóa):
+Kiểm tra cấu hình trước khi demo (không gọi nhà cung cấp AI và không in khóa):
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts/run-local.ps1 -Check
 ```
 
-`-Check` gọi health của backend và yêu cầu cả chat/tư vấn đã được cấu hình; không tiêu tốn lượt Gemini. Nếu backend cũ hoặc chưa có secret, nhóm vận hành phải sửa trên server; giám khảo không nhập key. Cần thử hai chức năng AI trên giao diện để kiểm tra hạn mức thực tế.
+`-Check` gọi health của backend và yêu cầu cả chat/tư vấn đã được cấu hình; không tiêu tốn lượt AI. Nếu backend cũ hoặc chưa có secret, nhóm vận hành phải sửa trên server; giám khảo không nhập key. Cần thử hai chức năng AI trên giao diện để kiểm tra hạn mức thực tế.
 
 ## Chạy thủ công / macOS / Linux
 
@@ -53,8 +53,8 @@ Trên Windows dùng `.venv\Scripts\python.exe` thay cho `.venv/bin/python`. `pyt
 
 ## Phạm vi bản local
 
-Chế độ mặc định `shared`: tài khoản/bài viết/tệp nằm trên D1/R2 của nhóm, Gemini key ở runtime secret trên server. Hai máy cùng tài khoản dùng chung dữ liệu. Máy giám khảo không cài D1/R2/Supabase. Ví/điểm minh họa không chứng minh đã gửi giao dịch Fuji thật; phần này cần cấu hình và biên nhận riêng.
+Chế độ mặc định `shared`: tài khoản/bài viết/tệp nằm trên D1/R2 của nhóm, Groq key ở runtime secret trên server. Hai máy cùng tài khoản dùng chung dữ liệu. Máy giám khảo không cài D1/R2/Supabase. Ví/điểm minh họa không chứng minh đã gửi giao dịch Fuji thật; phần này cần cấu hình và biên nhận riêng.
 
-Nhóm phát triển vẫn có thể chọn `MACH_DONG_BACKEND_MODE=local` trong `.env.local`: lúc đó cần Node.js 24 LTS và Gemini key riêng, SQLite/tệp tạo trong `data/local-preview/`. Đây là chế độ phát triển tùy chọn, không phải hướng dẫn cho giám khảo.
+Nhóm phát triển vẫn có thể chọn `MACH_DONG_BACKEND_MODE=local` trong `.env.local`: lúc đó cần Node.js 24 LTS, `AI_PROVIDER=groq` và `GROQ_API_KEY` riêng, SQLite/tệp tạo trong `data/local-preview/`. Đây là chế độ phát triển tùy chọn, không phải hướng dẫn cho giám khảo.
 
 Mất Internet, backend chưa triển khai hoặc hết hạn mức AI vẫn có thể làm chức năng thất bại; không thay phản hồi thật bằng lời mẫu giả. Xem trạng thái và hướng dẫn vận hành tại [triển khai AI dùng chung](trien-khai-ai-dung-chung.md).

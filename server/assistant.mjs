@@ -60,7 +60,7 @@ export class assistantController {
     rate.count++; assistantRates.set(ip,rate); assistantInFlight++;
     try {
       const sources = payload.sourceIds.map(id => reviewedSources.get(id));
-      return assistantResponse(await generateGroundedReply(this.env,this.fetcher,payload.messages,sources,chatInstruction,true,0,true,45000));
+      return assistantResponse(await generateGroundedReply(this.env,this.fetcher,payload.messages,sources,chatInstruction,0,true,45000));
     } catch (failure) {
       return assistantResponse(null,failure instanceof generationError ? failure.status : 502,
         failure instanceof generationError ? failure.message : "Cò Mạ chưa nhận được câu trả lời hợp lệ. Bà con thử lại nha.");

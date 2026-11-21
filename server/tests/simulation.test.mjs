@@ -61,28 +61,28 @@ test("daily scenarios keep salinity and water fixed, do not accumulate invented 
   assert.equal(result.dailyScenario.length,7);
   assert.ok(result.dailyScenario.every(row=>row.salinityGl===2.8 && row.waterDepthCm===4.5));
 });
-test("no Gemini credential is a visible state, not a fake AI success",async()=> {
+test("no Groq credential is a visible state, not a fake AI success",async()=> {
   const ai = await new aiClient({},()=>assert.fail("No network call allowed")).explain(evaluate({}));
   assert.equal(ai.status,"notConfigured");
 });
-test("Gemini may only select existing evidence; fabricated number/citation rejected",async()=> {
-  const fetcher = async()=>Response.json({candidates:[{finishReason:"STOP",content:{parts:[{text:JSON.stringify({priorityEvidenceIds:["fabricated"],missingInputIds:[],yield:8})}]}}]});
-  const ai = await new aiClient({GEMINI_API_KEY:"test-only"},fetcher).explain(evaluate({}));
+test("Groq may only select existing evidence; fabricated number/citation rejected",async()=> {
+  const fetcher = async()=>Response.json({choices:[{finish_reason:"stop",message:{content:JSON.stringify({priorityEvidenceIds:["fabricated"],missingInputIds:[],yield:8})}}]});
+  const ai = await new aiClient({GROQ_API_KEY:"test-only"},fetcher).explain(evaluate({}));
   assert.equal(ai.status,"rejectedOrUnavailable");
   assert.equal(ai.yield,undefined);
 });
-test("Gemini accepted output contains only validated IDs and never changes predictions",async()=> {
+test("Groq accepted output contains only validated IDs and never changes predictions",async()=> {
   const result = evaluate({}); const original = JSON.stringify(result.metrics);
   const fetcher = async function(url,request) {
     assert.equal(this,undefined,"Do not bind the transport to the client instance");
-    assert.match(url,/generativelanguage.googleapis.com/); assert.equal(request.headers["x-goog-api-key"],"test-only");
-    return Response.json({candidates:[{finishReason:"STOP",content:{parts:[{text:JSON.stringify({priorityEvidenceIds:["missing-ec"],missingInputIds:["rootZoneEc"]})}]}}]});
+    assert.equal(url,"https://api.groq.com/openai/v1/chat/completions"); assert.equal(request.headers.Authorization,"Bearer test-only");
+    return Response.json({choices:[{finish_reason:"stop",message:{content:JSON.stringify({priorityEvidenceIds:["missing-ec"],missingInputIds:["rootZoneEc"]})}}]});
   };
-  const ai = await new aiClient({GEMINI_API_KEY:"test-only"},fetcher).explain(result);
+  const ai = await new aiClient({GROQ_API_KEY:"test-only"},fetcher).explain(result);
   assert.equal(ai.status,"ready"); assert.equal(JSON.stringify(result.metrics),original);
 });
 test("quota errors are explicit and preserve deterministic result",async()=> {
-  assert.equal((await new aiClient({GEMINI_API_KEY:"test-only"},async()=>new Response("",{status:429})).explain(evaluate({}))).status,"quotaExceeded");
+  assert.equal((await new aiClient({GROQ_API_KEY:"test-only"},async()=>new Response("",{status:429})).explain(evaluate({}))).status,"quotaExceeded");
 });
 
 test("Groq selects existing evidence through a fixed cloud endpoint",async()=> {

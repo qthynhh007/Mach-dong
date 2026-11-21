@@ -29,7 +29,7 @@ Không lấy mực nước đang có làm mục tiêu khuyến cáo giữ nướ
 Mục Cần đo thêm chỉ ưu tiên thông tin giúp quyết định ngay: mặn nguồn cấp, vị trí đo, chiều cao cây, diễn biến nước và dấu hiệu trên cây. EC trung bình vụ phục vụ đánh giá năng suất tham chiếu, không phải điều kiện bắt buộc để bắt đầu kiểm tra nguồn cấp.
 Đầu vào này không có phân tích dinh dưỡng hoặc chẩn đoán sâu bệnh. Không đề xuất phun, bón hay rải phân/thuốc/chế phẩm, kể cả canxi hoặc silic, chỉ từ mặn/ngập/nhiệt độ. Không tự đặt giờ trong ngày cho thao tác nếu căn cứ không nêu.
 Được bổ sung nguyên lý canh tác từ kiến thức chung khi tài liệu chưa đủ, ghi rõ phần bổ sung đó. Chỉ gắn nguồn thực sự phù hợp. Không tự thêm liều phân/thuốc, ngưỡng, số đo hay tỷ lệ thiệt hại, không đổi mặn kênh thành mặn ruộng.
-Nếu chưa đủ căn cứ cho một can thiệp, đề xuất cách kiểm tra để ra quyết định, không bịa giải pháp.`,true,0,true,120000,validateScenarioAdvice);
+Nếu chưa đủ căn cứ cho một can thiệp, đề xuất cách kiểm tra để ra quyết định, không bịa giải pháp.`,0,true,120000,validateScenarioAdvice);
   return {...answer,sources:sources.filter(item=>answer.source_ids.includes(item.source_id)),inputSnapshot:result.inputs,
     engineVersion:result.engineVersion,isSimulated:true,isFallback:false,limitation:"Đề xuất theo kịch bản giả lập và thông tin tham khảo. Cần đối chiếu thực địa; chưa thay thế đánh giá của cán bộ nông nghiệp."};
 }

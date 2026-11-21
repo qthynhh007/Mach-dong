@@ -13,6 +13,7 @@ def shared_app_config(origin: str, port: int) -> dict:
     config = {
         "TESTING": False,
         "GEMINI_API_KEY": "",
+        "GROQ_API_KEY": "",
         "TEMPLATES_AUTO_RELOAD": True,
         "SEND_FILE_MAX_AGE_DEFAULT": 0,
         "MACH_DONG_BACKEND_MODE": "shared",
@@ -32,4 +33,4 @@ def validate_shared_health(payload: object) -> None:
     if not isinstance(features, dict):
         raise ValueError("Backend đang chạy bản cũ, chưa hỗ trợ chat và tư vấn mới. Nhóm cần triển khai backend.")
     if features.get("chat") is not True or features.get("scenarioAdvice") is not True:
-        raise ValueError("AI trên backend chưa sẵn sàng. Nhóm cần cấu hình GEMINI_API_KEY trên máy chủ.")
+        raise ValueError("AI trên backend chưa sẵn sàng. Nhóm cần cấu hình AI_PROVIDER và khóa của nhà cung cấp trên máy chủ.")
