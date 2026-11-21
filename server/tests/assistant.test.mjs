@@ -169,17 +169,17 @@ test("quota fallback remains bounded and requires an enabled distinct model",asy
   }
 });
 
-test("scenario advice sends exact conditions to Gemini and preserves engine output",async()=> {
+test("scenario advice prioritizes Groq when configured and falls back to Gemini",async()=> {
   const inputs=simulationInput.parse({varietyId:"OM5451",locationId:"can-tho",stage:"flowering",dayAfterSowing:65,salinityGl:2.8,
     salinitySite:"canalWater",waterDepthCm:4.5,plantHeightCm:null,tempMaxC:36,rootZoneEcDsM:null,ecIsSeasonAverage:false,exposureDays:7,useWeather:false,requestAi:false},catalog);
   const result=new simulationEngine(catalog).evaluate(inputs); const before=JSON.stringify(result);
-  const advice=await adviseScenario({GEMINI_API_KEY:"test-only",GROQ_API_KEY:"should-not-use"},async(url,options)=>{
-    assert.match(url,/generativelanguage.googleapis.com/); const body=JSON.parse(options.body);
-    const context=body.contents[0].parts[0].text;
+  const advice=await adviseScenario({GROQ_API_KEY:"test-groq",GEMINI_API_KEY:"should-not-use"},async(url,options)=>{
+    assert.equal(url,"https://api.groq.com/openai/v1/chat/completions"); const body=JSON.parse(options.body);
+    const context=body.messages.find(m=>m.role==="user").content;
     assert.match(context,/"salinitySite":"canalWater"/); assert.match(context,/"tempMaxC":36/);
-    return gemini({reply:"Kịch bản có mực nước 4,5 cm và nhiệt độ 36°C. Lúa đang trổ bông và cần theo dõi nóng. Mặn ở kênh chưa phản ánh nước ruộng. Bà con đo tại ruộng rồi đối chiếu thêm nha.",source_ids:["irri-heat","ctu-om5451"]});
+    return Response.json({choices:[{finish_reason:"stop",message:{content:JSON.stringify({reply:"Kịch bản có mực nước 4,5 cm và nhiệt độ 36°C. Lúa đang trổ bông và cần theo dõi nóng. Mặn ở kênh chưa phản ánh nước ruộng. Bà con đo tại ruộng rồi đối chiếu thêm nha.",source_ids:["irri-heat","ctu-om5451"]})}}]});
   },result);
-  assert.equal(advice.provider,"Gemini"); assert.equal(advice.isSimulated,true);
+  assert.equal(advice.provider,"Groq"); assert.equal(advice.isSimulated,true);
   assert.equal(advice.isFallback,false);
   assert.equal(JSON.stringify(result),before); assert.deepEqual(advice.inputSnapshot,inputs);
   const general=await adviseScenario({GEMINI_API_KEY:"test-only"},async(url,options)=>{

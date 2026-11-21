@@ -269,7 +269,7 @@ def api_register() -> tuple[Response, int]:
         wallet_address=body.get("wallet_address"),
         wallet_mode=str(body.get("wallet_mode") or "AUTO_EMAIL"),
         otp_code=body.get("otp_code"),
-        require_otp=True,
+        require_otp=False,
         device_info=device_info,
     )
     if not result.ok or not result.data:
@@ -306,6 +306,16 @@ def api_login() -> tuple[Response, int]:
         return jsonify(data=None, error=result.error), result.status_code
 
     result.data["redirect_to"] = safe_workspace_path(body.get("next"))
+    user_info = result.data.get("user") if isinstance(result.data, dict) else None
+    if (
+        isinstance(user_info, dict)
+        and user_info.get("wallet_address")
+        and default_credit_service.is_write_configured
+    ):
+        default_credit_service.sync_credits_onchain(
+            str(user_info["wallet_address"]),
+            int(user_info.get("simulation_credits") or 0),
+        )
     resp = make_response(jsonify(data=result.data, error=None))
     _attach_session_cookie(resp, result.data, remember_me=remember_me)
     return resp, result.status_code
@@ -409,14 +419,13 @@ def api_update_profile() -> tuple[Response, int]:
     if not isinstance(body, dict):
         return jsonify(data=None, error="Dữ liệu hồ sơ không hợp lệ."), 400
 
+    if body.get("wallet_address") is not None or body.get("wallet_mode") is not None:
+        return jsonify(data=None, error="Không hỗ trợ thay đổi địa chỉ ví sau khi tạo tài khoản."), 400
+
     result = get_auth_service().update_profile(
         user=g.current_user,
         name=body.get("name"),
         phone=body.get("phone"),
-        wallet_address=body.get("wallet_address"),
-        wallet_mode=body.get("wallet_mode"),
-        otp_code=body.get("otp_code"),
-        password=body.get("password"),
     )
     if not result.ok:
         return jsonify(data=None, error=result.error), result.status_code

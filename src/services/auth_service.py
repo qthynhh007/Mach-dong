@@ -955,41 +955,12 @@ class AuthService:
             except ValueError as exc:
                 return AuthResult(False, 400, error=str(exc))
 
-        wants_wallet_change = bool(
-            (wallet_mode and wallet_mode.upper() == "AUTO_EMAIL")
-            or (
-                wallet_address is not None
-                and wallet_address.strip()
-                and wallet_address.strip() != user.wallet_address
+        if wallet_mode or (wallet_address is not None and wallet_address.strip()):
+            return AuthResult(
+                False,
+                400,
+                error="Không hỗ trợ thay đổi địa chỉ ví sau khi tạo tài khoản.",
             )
-        )
-        if wants_wallet_change and require_wallet_otp:
-            ok_otp, otp_err = self.verify_email_otp(
-                user.email, otp_code or "", consume=True
-            )
-            if not ok_otp:
-                return AuthResult(
-                    False,
-                    400,
-                    error=otp_err
-                    or "Vui lòng xác thực mã 6 số qua Email trước khi đổi địa chỉ ví.",
-                )
-
-        if wallet_mode and wallet_mode.upper() == "AUTO_EMAIL":
-            addr, enc_key = generate_email_bound_wallet(user.email, self.repo.wallet_secret)
-            user.wallet_address = addr
-            user.wallet_type = "AUTO_EMAIL"
-            user.encrypted_wallet_key = enc_key
-        elif wallet_address is not None and wallet_address.strip():
-            clean_wallet = wallet_address.strip()
-            if not is_valid_wallet_address(clean_wallet):
-                return AuthResult(
-                    False,
-                    400,
-                    error="Địa chỉ ví Avalanche Fuji không hợp lệ (cần 0x + 40 ký tự hex).",
-                )
-            user.wallet_address = clean_wallet
-            user.wallet_type = "EXTERNAL"
         self.repo.save_user(user)
         return AuthResult(True, 200, data={"user": user.to_public_dict()})
 

@@ -12,7 +12,7 @@ export class aiClient {
     if (!["groq","gemini"].includes(provider)) return {...base,status:"invalidConfiguration",message:"Nhà cung cấp AI chưa hợp lệ."};
     const key = isGroq ? this.env.GROQ_API_KEY : this.env.GEMINI_API_KEY;
     if (!key) return {...base,status:"notConfigured",message:"Chưa bật AI trên máy chủ. Báo cáo mô phỏng đã tính đầy đủ trong phạm vi dữ liệu hiện có; không cần khóa AI. Quản trị viên có thể cấu hình Groq hoặc Gemini gói miễn phí để bật phần AI đọc bằng chứng."};
-    const model = isGroq ? (this.env.GROQ_MODEL || "openai/gpt-oss-20b") : (this.env.GEMINI_MODEL || "gemini-2.5-flash-lite");
+    const model = isGroq ? (this.env.GROQ_MODEL || "openai/gpt-oss-20b") : (this.env.GEMINI_MODEL || "gemini-3.5-flash");
     if (!/^[a-z0-9./-]+$/.test(model)) return {...base,status:"invalidConfiguration",message:"Cấu hình mô hình AI chưa hợp lệ."};
     const ids = result.evidence.map(item => item.id);
     const missingIds = result.missingInputs.map(item => item.id);

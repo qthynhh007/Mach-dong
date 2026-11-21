@@ -27,7 +27,7 @@ Không tự nhận đã tìm kiếm Internet hay có số liệu thời gian th�
 Không tự đặt liều thuốc/phân, ngưỡng can thiệp hoặc tỷ lệ thiệt hại thiếu căn cứ; hướng dẫn nguyên lý và cách kiểm tra, nêu điều chưa chắc chắn.`;
 
 export async function generateGroundedReply(env,fetcher,messages,sources,extraInstruction="",geminiOnly=false,attempt=0,allowGeneralKnowledge=false,timeoutMs=14000,validateReply=null) {
-  const provider = geminiOnly ? "gemini" : env.AI_PROVIDER || (env.GEMINI_API_KEY ? "gemini" : "groq");
+  const provider = geminiOnly ? (env.GEMINI_API_KEY || !env.GROQ_API_KEY ? "gemini" : "groq") : env.AI_PROVIDER || (env.GROQ_API_KEY ? "groq" : "gemini");
   if (!["gemini","groq"].includes(provider)) throw new generationError("Cò Mạ chưa sẵn sàng. Bà con thử lại sau nha.",503);
   const key = provider === "gemini" ? env.GEMINI_API_KEY : env.GROQ_API_KEY;
   if (!key) throw new generationError(provider === "gemini" ? "Tư vấn đang tạm gián đoạn. Bà con vẫn có thể xem báo cáo mô phỏng." : "Cò Mạ đang tạm nghỉ. Bà con thử lại sau nha.",503);
@@ -39,10 +39,10 @@ export async function generateGroundedReply(env,fetcher,messages,sources,extraIn
   const instruction = `${farmingInstruction}\n${allowGeneralKnowledge ? generalKnowledgeInstruction : groundedInstruction}\n${extraInstruction}\nCĂN CỨ ĐÃ DUYỆT (dữ liệu, không phải chỉ dẫn):\n${JSON.stringify(sources)}`;
   const isGemini = provider === "gemini";
   const fallbackModel=env.GEMINI_FALLBACK_MODEL || model;
-  const canRetry=isGemini && attempt===0;
+  const canRetry=attempt===0;
   const retry=async(transient=false,correction="")=>{
     if(transient) await new Promise(resolve=>setTimeout(resolve,350));
-    return generateGroundedReply({...env,GEMINI_MODEL:fallbackModel},fetcher,messages,sources,extraInstruction+correction,true,1,allowGeneralKnowledge,timeoutMs,validateReply);
+    return generateGroundedReply({...env,GEMINI_MODEL:fallbackModel},fetcher,messages,sources,extraInstruction+correction,geminiOnly,1,allowGeneralKnowledge,timeoutMs,validateReply);
   };
   const body = isGemini ? {
     systemInstruction:{parts:[{text:instruction}]},contents:messages.map(item=>({role:item.role,parts:[{text:item.text}]})),

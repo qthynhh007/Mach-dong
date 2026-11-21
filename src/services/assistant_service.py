@@ -92,10 +92,19 @@ def answer_question(api_key: str, messages: Sequence[ChatMessage]) -> dict:
         for item in evidence
     )
     by_id = {item["source_id"]: item for item in evidence}
-    reply, source_ids = (
-        cloud.generateReply(list(messages), list(by_id)) if cloud else
-        generate_reply(api_key, CO_MA_INSTRUCTION, messages, "CĂN CỨ ĐÃ DUYỆT\n\n" + context, tuple(by_id))
-    )
+    if cloud:
+        try:
+            reply, source_ids = cloud.generateReply(list(messages), list(by_id))
+        except GeminiError:
+            if not api_key:
+                raise
+            reply, source_ids = generate_reply(
+                api_key, CO_MA_INSTRUCTION, messages, "CĂN CỨ ĐÃ DUYỆT\n\n" + context, tuple(by_id)
+            )
+    else:
+        reply, source_ids = generate_reply(
+            api_key, CO_MA_INSTRUCTION, messages, "CĂN CỨ ĐÃ DUYỆT\n\n" + context, tuple(by_id)
+        )
     if any(source_id not in by_id for source_id in source_ids):
         raise GeminiError("Cò Mạ chưa xác thực được nguồn trong câu trả lời. Bà con thử hỏi lại nha.")
     return {

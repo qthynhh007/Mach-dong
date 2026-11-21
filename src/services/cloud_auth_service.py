@@ -265,12 +265,11 @@ class CloudAuthService:
         password: str | None = None,
         require_wallet_otp: bool = True,
     ) -> AuthResult:
-        del user, require_wallet_otp
+        del user, otp_code, password, require_wallet_otp
+        if wallet_mode or (wallet_address is not None and wallet_address.strip()):
+            return AuthResult(False, 400, error="Không hỗ trợ thay đổi địa chỉ ví sau khi tạo tài khoản.")
         token, csrf = self._current_credentials()
-        return self._call("profile", {"name": name, "phone": phone,
-                                      "wallet_address": wallet_address,
-                                      "wallet_mode": wallet_mode, "otp_code": otp_code,
-                                      "password": password}, token, csrf)
+        return self._call("profile", {"name": name, "phone": phone}, token, csrf)
 
     def change_password(self, user: User, current_password: str, new_password: str) -> AuthResult:
         del user

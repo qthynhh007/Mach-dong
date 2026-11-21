@@ -39,23 +39,13 @@
 
     <div class="auth-two-col auth-email-verification">
       <div class="auth-field-group auth-register-email">
-        <label class="font-label-sm text-on-surface font-semibold" for="emailInput">Email nhận mã OTP *</label>
-        <div class="auth-otp-row">
-          <input id="emailInput" name="email" type="email" autocomplete="email" required data-wallet-email-source placeholder="vidu@gmail.com" class="flex-1 min-w-0">
-          <button type="button" id="btnSendOtpRegister" class="app-button px-3 py-2 font-label-sm font-bold shrink-0">
-            Gửi mã xác nhận
-          </button>
-        </div>
+        <label class="font-label-sm text-on-surface font-semibold" for="emailInput">Email *</label>
+        <input id="emailInput" name="email" type="email" autocomplete="email" required data-wallet-email-source placeholder="vidu@gmail.com">
       </div>
       <div class="auth-field-group auth-register-phone">
         <label class="font-label-sm text-on-surface font-semibold" for="identifierInput">Số điện thoại (+84) *</label>
         <input required autocomplete="tel" id="identifierInput" name="phone" value="+84" placeholder="+84912345678" type="tel">
       </div>
-      <div class="auth-field-group auth-register-code">
-        <label class="font-label-sm text-on-surface font-semibold" for="registerOtpInput">Mã xác nhận *</label>
-        <input id="registerOtpInput" name="otp_code" type="text" required pattern="[0-9]{6}" maxlength="6" inputmode="numeric" autocomplete="one-time-code">
-      </div>
-      <p class="auth-otp-help">Mã gồm 6 số, có hiệu lực 5 phút. Kiểm tra thư rác nếu chưa thấy email.</p>
     </div>
 
     <div class="auth-two-col">

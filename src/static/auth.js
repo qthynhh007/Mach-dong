@@ -17,7 +17,6 @@
   const revealedAvax = document.getElementById("revealedAvax");
 
   const btnSendOtpForgot = document.getElementById("btnSendOtpForgot");
-  const btnSendOtpRegister = document.getElementById("btnSendOtpRegister");
   const btnForgotPasswordLink = document.getElementById("btnForgotPasswordLink");
 
   function setStatus(text, isError = false) {
@@ -159,21 +158,6 @@
     );
   });
 
-  btnSendOtpRegister?.addEventListener("click", () => {
-    requestEmailOtp(
-      document.getElementById("emailInput")?.value,
-      document.getElementById("registerOtpInput"),
-      false, btnSendOtpRegister
-    );
-  });
-  document.getElementById("emailInput")?.addEventListener("input", () => {
-    const code = document.getElementById("registerOtpInput");
-    if (code) code.value = "";
-  });
-  document.getElementById("registerOtpInput")?.addEventListener("input", event => {
-    event.target.value = event.target.value.replace(/\D/g, "").slice(0,6);
-  });
-
   // Connect Browser Wallet (Core / MetaMask) on /register
   btnConnectBrowserWallet?.addEventListener("click", async () => {
     const provider = window.avalanche || window.ethereum;
@@ -284,7 +268,6 @@
     const name = document.getElementById("displayName")?.value?.trim() || "";
     const username = document.getElementById("usernameInput")?.value?.trim() || "";
     const email = document.getElementById("emailInput")?.value?.trim() || "";
-    const otpCode = document.getElementById("registerOtpInput")?.value?.trim() || "";
     const phone = document.getElementById("identifierInput")?.value?.trim() || "";
     const password = document.getElementById("secretInput")?.value || "";
     const confirm = document.getElementById("confirmInput")?.value || "";
@@ -298,7 +281,7 @@
       return;
     }
 
-    setStatus("Đang kiểm tra mã xác nhận Email và khởi tạo ví Avalanche Fuji...");
+    setStatus("Đang khởi tạo tài khoản và ví Avalanche Fuji...");
     try {
       const response = await fetch("/api/auth/register", {
         method: "POST",
@@ -307,8 +290,6 @@
           name,
           username,
           email,
-          otp_code: otpCode,
-          require_otp: true,
           phone,
           password,
           wallet_mode: walletMode,

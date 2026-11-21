@@ -35,11 +35,11 @@ class FeatureRepairsTests(TestCase):
                 self.assertEqual(response.status_code, 401)
                 self.assertIsNone(response.json["data"])
 
-    def test_registration_always_contains_email_confirmation_controls(self):
+    def test_registration_does_not_require_email_confirmation_controls(self):
         response = self.client.get("/register")
         self.assertEqual(response.status_code, 200)
-        self.assertIn('id="btnSendOtpRegister"', response.text)
-        self.assertIn('id="registerOtpInput"', response.text)
+        self.assertNotIn('id="btnSendOtpRegister"', response.text)
+        self.assertNotIn('id="registerOtpInput"', response.text)
 
     def test_login_only_uses_password_even_when_email_delivery_is_enabled(self):
         self.app.extensions["auth_service"].email_otp_available=lambda:True

@@ -333,5 +333,45 @@ class FujiCreditService:
             farmer_wallet, int(amount), f"signup:{farmer_wallet.strip().lower()}"
         )
 
+    def sync_credits_onchain(
+        self,
+        farmer_wallet: str,
+        target_credits: int,
+    ) -> dict[str, Any]:
+        """Reconcile on-chain balanceOf with target_credits so one number persists."""
+        if not self.is_write_configured or not farmer_wallet or target_credits < 0:
+            return {
+                "onchain": False,
+                "synced": False,
+                "tx_hash": None,
+                "reason": "Chưa cấu hình hợp đồng Fuji hoặc ví không hợp lệ.",
+            }
+        current = self.get_onchain_balance(farmer_wallet)
+        if current is None:
+            return {
+                "onchain": False,
+                "synced": False,
+                "tx_hash": None,
+                "reason": "Không đọc được số dư LÚA trên Fuji.",
+            }
+        target = int(target_credits)
+        if current == target:
+            return {"onchain": True, "synced": True, "credits": target, "tx_hash": None}
+        if current < target:
+            diff = target - current
+            import time
+
+            res = self.award_contribution_onchain(
+                farmer_wallet,
+                diff,
+                f"sync:{farmer_wallet.strip().lower()}:{current}->{target}:{time.time_ns()}",
+            )
+        else:
+            diff = current - target
+            res = self.spend_credits_onchain(farmer_wallet, diff, "sync")
+        res["synced"] = bool(res.get("onchain"))
+        res["credits"] = target if res.get("onchain") else current
+        return res
+
 
 default_credit_service = FujiCreditService()

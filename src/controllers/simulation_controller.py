@@ -47,14 +47,23 @@ class simulationController:
                 if spend_res.data.get("onchain_spend") is not None:
                     result["onchainSpend"] = spend_res.data["onchain_spend"]
             elif auth and auth[0].wallet_address and default_credit_service.is_write_configured:
-                spend_onchain = default_credit_service.spend_credits_onchain(
-                    auth[0].wallet_address, 1, "simulation"
-                )
-                result["onchainSpend"] = spend_onchain
-                if spend_onchain.get("onchain"):
-                    onchain_bal = default_credit_service.get_onchain_balance(auth[0].wallet_address)
-                    if onchain_bal is not None:
-                        result["onchainCredits"] = onchain_bal
+                wallet_addr = auth[0].wallet_address
+                target = result.get("remainingCredits")
+                onchain_bal = default_credit_service.get_onchain_balance(wallet_addr)
+                if isinstance(target, int) and (onchain_bal is None or onchain_bal != target + 1):
+                    sync_res = default_credit_service.sync_credits_onchain(wallet_addr, target)
+                    result["onchainSpend"] = sync_res
+                    if sync_res.get("onchain"):
+                        result["onchainCredits"] = target
+                else:
+                    spend_onchain = default_credit_service.spend_credits_onchain(
+                        wallet_addr, 1, "simulation"
+                    )
+                    result["onchainSpend"] = spend_onchain
+                    if spend_onchain.get("onchain"):
+                        new_bal = default_credit_service.get_onchain_balance(wallet_addr)
+                        if new_bal is not None:
+                            result["onchainCredits"] = new_bal
             return result
         return self.respond(run_and_spend)
 

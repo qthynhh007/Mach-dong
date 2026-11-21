@@ -26,10 +26,10 @@ test("development quota preserves per-email cooldown and OTP attempt limits",asy
   await assert.rejects(()=>api.verifyOtp("dev-otp@example.test",mailCodes.get("dev-otp@example.test")));
 });
 
-test("email confirmation cannot be skipped when email delivery is unconfigured",async()=> {
+test("registration works without email confirmation even when email delivery is unconfigured",async()=> {
   const db=database(),api=new accountController({DB:db});
   const response=await api.handle(new Request("https://example.test/api/account/register",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name:"Nông hộ",username:"farmer",email:"farmer@example.test",phone:"0900000000",password:"test-password-only"})}));
-  assert.equal(response.status,503); assert.equal(db.raw.prepare("SELECT COUNT(*) AS n FROM accounts").get().n,0);
+  assert.equal(response.status,201); assert.equal(db.raw.prepare("SELECT COUNT(*) AS n FROM accounts").get().n,1);
 });
 
 test("OTP is email-bound, expiring, attempt-limited and consumed only once",async()=> {

@@ -166,14 +166,12 @@ export class accountController {
       const email = cleanEmail(b.email), phone = cleanPhone(b.phone), password = checkPassword(b.password);
       const wallet = checkWallet(b.wallet_address);
       const emailEnabled = Boolean(this.env.AUTH_EMAIL_API_KEY && this.env.AUTH_FROM_EMAIL);
-      if (!emailEnabled) throw new accountError("Máy chủ chưa cấu hình gửi email xác nhận. Chưa thể tạo tài khoản; bà con thử lại sau nha.",503);
       const duplicate = await this.db.prepare("SELECT 1 FROM accounts WHERE username=? OR email=?").bind(username,email).first();
       if (duplicate) throw new accountError("Tên đăng nhập hoặc email đã được sử dụng.",409);
-      await this.verifyOtp(email,b.otp_code);
       const salt = randomHex(16), hash = await passwordHash(password,salt);
       const userId = crypto.randomUUID(), now = Math.floor(Date.now()/1000);
       const walletType = b.wallet_type === "AUTO_EMAIL" ? "AUTO_EMAIL" : wallet ? "EXTERNAL" : "UNLINKED";
-      try { await this.db.prepare("INSERT INTO accounts (user_id,username,name,email,email_verified,phone,password_hash,password_salt,password_iterations,wallet_address,wallet_type,managed_wallet_address,encrypted_wallet_key,simulation_credits,avax_balance,created_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)").bind(userId,username,name,email,emailEnabled ? 1 : 0,phone,hash,salt,passwordRounds,wallet,walletType,walletType === "AUTO_EMAIL" ? wallet : "",b.encrypted_wallet_key || null,3,0.05,now).run(); }
+      try { await this.db.prepare("INSERT INTO accounts (user_id,username,name,email,email_verified,phone,password_hash,password_salt,password_iterations,wallet_address,wallet_type,managed_wallet_address,encrypted_wallet_key,simulation_credits,avax_balance,created_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)").bind(userId,username,name,email,emailEnabled && b.otp_code ? 1 : 0,phone,hash,salt,passwordRounds,wallet,walletType,walletType === "AUTO_EMAIL" ? wallet : "",b.encrypted_wallet_key || null,3,0.05,now).run(); }
       catch { throw new accountError("Tên đăng nhập hoặc email đã được sử dụng.",409); }
       const row = await this.db.prepare("SELECT * FROM accounts WHERE user_id=?").bind(userId).first();
       return reply(await this.issue(row),201);
@@ -253,15 +251,10 @@ export class accountController {
     }
     if (post && path === "/api/account/profile") {
       const {row} = await this.session(request,true), b = await bodyJson(request);
+      if (b.wallet_address || b.wallet_mode) throw new accountError("Không hỗ trợ thay đổi địa chỉ ví sau khi tạo tài khoản.",400);
       const name = String(b.name || row.name).trim(), phone = b.phone ? cleanPhone(b.phone) : row.phone;
       if (name.length < 2 || name.length > 120) throw new accountError("Tên không hợp lệ.");
-      if (b.wallet_address || b.wallet_mode === "AUTO_EMAIL") {
-        if (this.env.AUTH_EMAIL_API_KEY && this.env.AUTH_FROM_EMAIL) await this.verifyOtp(row.email,b.otp_code);
-        else if (!sameHex(row.password_hash,await passwordHash(String(b.password || ""),row.password_salt,row.password_iterations))) throw new accountError("Mật khẩu xác nhận ví không đúng.",401);
-        const wallet = b.wallet_mode === "AUTO_EMAIL" ? row.managed_wallet_address : checkWallet(b.wallet_address);
-        if (!wallet) throw new accountError("Chưa có ví tự động để khôi phục.");
-        await this.db.prepare("UPDATE accounts SET name=?,phone=?,wallet_address=?,wallet_type=? WHERE user_id=?").bind(name,phone,wallet,b.wallet_mode === "AUTO_EMAIL" ? "AUTO_EMAIL" : "EXTERNAL",row.user_id).run();
-      } else await this.db.prepare("UPDATE accounts SET name=?,phone=? WHERE user_id=?").bind(name,phone,row.user_id).run();
+      await this.db.prepare("UPDATE accounts SET name=?,phone=? WHERE user_id=?").bind(name,phone,row.user_id).run();
       return reply({user:publicUser(await this.db.prepare("SELECT * FROM accounts WHERE user_id=?").bind(row.user_id).first())});
     }
     if (post && path === "/api/account/password") {

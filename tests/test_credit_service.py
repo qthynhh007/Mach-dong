@@ -101,3 +101,37 @@ class TestFujiCreditService(TestCase):
             res = svc.award_initial_credits_onchain(wallet, 3)
         self.assertTrue(res["onchain"])
         mock_award.assert_called_once_with(wallet, 3, f"signup:{wallet.lower()}")
+
+    def test_sync_credits_onchain_reconciles_up_down_and_equal(self) -> None:
+        svc = FujiCreditService(
+            contract_address="0x0C035a37A8E41285DB6cbB77f3929e513C3F29A4",
+            signer_private_key="0x" + "11" * 32,
+        )
+        wallet = "0x6cf2AF5cA4E0c12a7981a7571D66451Ee1D102a1"
+
+        # Already equal -> no tx
+        with patch.object(svc, "get_onchain_balance", return_value=10):
+            eq_res = svc.sync_credits_onchain(wallet, 10)
+        self.assertTrue(eq_res["synced"])
+        self.assertEqual(eq_res["credits"], 10)
+        self.assertIsNone(eq_res["tx_hash"])
+
+        # On-chain lower than target -> mints difference
+        with (
+            patch.object(svc, "get_onchain_balance", return_value=0),
+            patch.object(svc, "award_contribution_onchain", return_value={"onchain": True, "tx_hash": "0xup"}) as mock_up,
+        ):
+            up_res = svc.sync_credits_onchain(wallet, 5)
+        self.assertTrue(up_res["synced"])
+        self.assertEqual(up_res["credits"], 5)
+        self.assertEqual(mock_up.call_args[0][1], 5)
+
+        # On-chain higher than target -> spends difference
+        with (
+            patch.object(svc, "get_onchain_balance", return_value=8),
+            patch.object(svc, "spend_credits_onchain", return_value={"onchain": True, "tx_hash": "0xdown"}) as mock_down,
+        ):
+            down_res = svc.sync_credits_onchain(wallet, 5)
+        self.assertTrue(down_res["synced"])
+        self.assertEqual(down_res["credits"], 5)
+        mock_down.assert_called_once_with(wallet, 3, "sync")

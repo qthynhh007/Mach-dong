@@ -355,37 +355,20 @@ class TestAuthAndSession(TestCase):
         self.assertEqual(home_authed.status_code, 302)
         self.assertTrue(home_authed.headers["Location"].endswith("/community"))
 
-        # Profile page renders slide-over privacy panel
+        # Profile page renders slide-over privacy panel without wallet-change inputs
         profile_html = client.get("/profile").get_data(as_text=True)
         self.assertIn("privacy-slide-panel", profile_html)
-        self.assertIn("wallet-otp-input", profile_html)
+        self.assertNotIn("custom-wallet-input", profile_html)
+        self.assertNotIn("wallet-otp-input", profile_html)
 
-        # Updating wallet address without Email OTP must fail (400)
+        # Changing wallet address via /api/auth/profile is disabled (400)
         new_wallet = "0x1234567890123456789012345678901234567890"
-        no_otp_wallet = client.post(
+        blocked_wallet = client.post(
             "/api/auth/profile",
             headers={"X-CSRF-Token": csrf_token},
             json={"wallet_address": new_wallet, "wallet_mode": "EXTERNAL"},
         )
-        self.assertEqual(no_otp_wallet.status_code, 400)
-
-        # Updating wallet address with valid Email OTP succeeds
-        wallet_otp_resp = client.post(
-            "/api/auth/send-otp",
-            json={"email": "tanvuthanh313130911@gmail.com", "require_existing": True},
-        )
-        wallet_otp = wallet_otp_resp.json["data"]["dev_otp_code"]
-        ok_wallet = client.post(
-            "/api/auth/profile",
-            headers={"X-CSRF-Token": csrf_token},
-            json={
-                "wallet_address": new_wallet,
-                "wallet_mode": "EXTERNAL",
-                "otp_code": wallet_otp,
-            },
-        )
-        self.assertEqual(ok_wallet.status_code, 200)
-        self.assertEqual(ok_wallet.json["data"]["user"]["wallet_address"], new_wallet)
+        self.assertEqual(blocked_wallet.status_code, 400)
         assistant_page = client.get("/assistant").get_data(as_text=True)
         self.assertIn("Đăng xuất", assistant_page)
         self.assertIn("Trợ lý Cò Mạ", assistant_page)
