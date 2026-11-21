@@ -19,6 +19,8 @@ from src.config import (
     AVALANCHE_CHAIN_ID,
     AVALANCHE_NETWORK_NAME,
     CREDITS_PER_AVAX,
+    DEFAULT_INITIAL_AVAX,
+    DEFAULT_INITIAL_CREDITS,
     LOCKOUT_DURATION_SECONDS,
     MAX_LOGIN_ATTEMPTS,
     OTP_TTL_SECONDS,
@@ -389,12 +391,47 @@ class AuthService:
                 role=UserRole.FARMER,
                 wallet_address=chosen_wallet,
                 wallet_type=chosen_type,
-                simulation_credits=3,
+                simulation_credits=DEFAULT_INITIAL_CREDITS,
+                avax_balance=0.05 if chosen_type == "AUTO_EMAIL" else 0.0,
             )
         except ValueError as exc:
             return AuthResult(False, 400, error=str(exc))
 
+        funding_result = None
+        if chosen_type == "AUTO_EMAIL" and user.wallet_address:
+            funding_result = default_credit_service.fund_new_wallet_onchain(
+                user.wallet_address, 0.05
+            )
+            if funding_result.get("onchain") and hasattr(self.repo, "record_credit_transaction"):
+                self.repo.record_credit_transaction(
+                    user_id=user.user_id,
+                    direction="CONTRACT_FUND_NEW_WALLET",
+                    avax_amount=0.05,
+                    credit_delta=0,
+                    tx_hash=funding_result.get("tx_hash") or "",
+                    note="Cấp 0.05 AVAX khởi tạo ví mới từ hợp đồng Fuji",
+                )
+
+        mint_result = None
+        if user.wallet_address and DEFAULT_INITIAL_CREDITS > 0:
+            mint_result = default_credit_service.award_initial_credits_onchain(
+                user.wallet_address, DEFAULT_INITIAL_CREDITS
+            )
+            if mint_result.get("onchain") and hasattr(self.repo, "record_credit_transaction"):
+                self.repo.record_credit_transaction(
+                    user_id=user.user_id,
+                    direction="CONTRACT_MINT_SIGNUP",
+                    avax_amount=0.0,
+                    credit_delta=DEFAULT_INITIAL_CREDITS,
+                    tx_hash=mint_result.get("tx_hash") or "",
+                    note=f"Cấp {DEFAULT_INITIAL_CREDITS} LÚA khởi tạo tài khoản (On-chain Fuji)",
+                )
+
         session_data = self._issue_session(user, device_info=device_info)
+        if funding_result is not None:
+            session_data["wallet_funding"] = funding_result
+        if mint_result is not None:
+            session_data["initial_credit_mint"] = mint_result
         return AuthResult(True, 201, data=session_data)
 
     def sign_in_with_email_otp(
@@ -495,7 +532,8 @@ class AuthService:
             role=UserRole.FARMER,
             wallet_address=chosen_wallet,
             wallet_type=chosen_type,
-            simulation_credits=3,
+            simulation_credits=DEFAULT_INITIAL_CREDITS,
+            avax_balance=DEFAULT_INITIAL_AVAX,
         )
         return AuthResult(
             True, 201, data=self._issue_session(user, device_info=device_info)
@@ -655,141 +693,131 @@ class AuthService:
         user: User,
         direction: str,
         amount: float,
+        tx_hash: str | None = None,
     ) -> AuthResult:
         if not math.isfinite(amount):
             return AuthResult(False, 400, error="Số lượng quy đổi không hợp lệ.")
         clean_dir = (direction or "AVAX_TO_CREDIT").strip().upper()
-        if clean_dir == "FAUCET_TOPUP":
-            faucet_avax = 1.0
-            user.avax_balance = round(float(user.avax_balance) + faucet_avax, 4)
-            self.repo.save_user(user)
-            tx_hash = self._generate_fuji_tx_hash(
-                user, "FAUCET_TOPUP", faucet_avax, 0
-            )
-            tx_record = self.repo.record_credit_transaction(
-                user_id=user.user_id,
-                direction="FAUCET_TOPUP",
-                avax_amount=faucet_avax,
-                credit_delta=0,
-                tx_hash=tx_hash,
-                note="[Giả lập] Cộng 1 AVAX",
-            )
+        if clean_dir != "AVAX_TO_CREDIT":
             return AuthResult(
-                True,
-                200,
-                data={
-                    "user": user.to_public_dict(),
-                    "transaction": tx_record,
-                    "transactions": self.repo.list_credit_transactions(user.user_id),
-                },
+                False,
+                400,
+                error="Chỉ hỗ trợ giao dịch một chiều từ AVAX sang LÚA (không hỗ trợ đổi ngược từ LÚA sang AVAX).",
             )
 
-        if clean_dir == "AVAX_TO_CREDIT":
-            try:
-                avax_to_spend = round(float(amount), 4)
-            except (TypeError, ValueError):
-                return AuthResult(False, 400, error="Số lượng AVAX không hợp lệ.")
-            if avax_to_spend <= 0:
-                return AuthResult(
-                    False, 400, error="Số lượng AVAX cần lớn hơn 0 (tối thiểu 0.01 AVAX)."
-                )
-            credits_to_mint = round(avax_to_spend * CREDITS_PER_AVAX)
-            if credits_to_mint < 1:
+        try:
+            avax_to_spend = round(float(amount), 4)
+        except (TypeError, ValueError):
+            return AuthResult(False, 400, error="Số lượng AVAX không hợp lệ.")
+        if avax_to_spend <= 0:
+            return AuthResult(
+                False, 400, error="Số lượng AVAX cần lớn hơn 0 (tối thiểu 0.01 AVAX)."
+            )
+        credits_to_mint = round(avax_to_spend * CREDITS_PER_AVAX)
+        if credits_to_mint < 1:
+            return AuthResult(
+                False,
+                400,
+                error=f"Tối thiểu cần {1 / CREDITS_PER_AVAX:.2f} AVAX để đổi 1 Điểm LÚA.",
+            )
+        exact_avax_cost = round(credits_to_mint / CREDITS_PER_AVAX, 4)
+
+        clean_tx_hash = (tx_hash or "").strip()
+        if clean_tx_hash:
+            onchain_res = default_credit_service.verify_buy_credits_tx(
+                tx_hash=clean_tx_hash,
+                beneficiary_wallet=user.wallet_address,
+                expected_avax=exact_avax_cost,
+            )
+            if not onchain_res.get("onchain") or not onchain_res.get("tx_hash"):
                 return AuthResult(
                     False,
                     400,
-                    error=f"Tối thiểu cần {1 / CREDITS_PER_AVAX:.2f} AVAX để đổi 1 Điểm LÚA.",
+                    error=str(onchain_res.get("reason") or "Không xác minh được giao dịch trên Avalanche Fuji."),
                 )
-            exact_avax_cost = round(credits_to_mint / CREDITS_PER_AVAX, 4)
+        else:
             if float(user.avax_balance) < exact_avax_cost:
                 return AuthResult(
                     False,
                     400,
                     error=(
                         f"Số dư AVAX không đủ (cần {exact_avax_cost} AVAX, hiện có "
-                        f"{user.avax_balance:.4f} AVAX). Bạn có thể bấm 'Cộng 1 AVAX giả lập'."
+                        f"{user.avax_balance:.4f} AVAX)."
                     ),
                 )
-            user.avax_balance = round(float(user.avax_balance) - exact_avax_cost, 4)
-            user.simulation_credits = int(user.simulation_credits) + credits_to_mint
-            self.repo.save_user(user)
             onchain_res = default_credit_service.buy_credits_onchain(
                 beneficiary_wallet=user.wallet_address,
                 avax_amount=exact_avax_cost,
             )
-            if onchain_res.get("onchain") and onchain_res.get("tx_hash"):
-                tx_hash = str(onchain_res["tx_hash"])
-                tx_note = f"Đổi {exact_avax_cost} AVAX → +{credits_to_mint} LÚA (On-chain Fuji)"
-            else:
-                tx_hash = self._generate_fuji_tx_hash(
-                    user, "AVAX_TO_CREDIT", exact_avax_cost, credits_to_mint
-                )
-                tx_note = f"Đổi {exact_avax_cost} AVAX → +{credits_to_mint} LÚA [Giả lập]"
-            tx_record = self.repo.record_credit_transaction(
-                user_id=user.user_id,
-                direction="AVAX_TO_CREDIT",
-                avax_amount=exact_avax_cost,
-                credit_delta=credits_to_mint,
-                tx_hash=tx_hash,
-                note=tx_note,
-            )
-            return AuthResult(
-                True,
-                200,
-                data={
-                    "user": user.to_public_dict(),
-                    "transaction": tx_record,
-                    "transactions": self.repo.list_credit_transactions(user.user_id),
-                },
-            )
-
-        if clean_dir == "CREDIT_TO_AVAX":
-            try:
-                credits_to_spend = round(float(amount))
-            except (TypeError, ValueError):
-                return AuthResult(False, 400, error="Số Điểm LÚA không hợp lệ.")
-            if credits_to_spend < 1:
-                return AuthResult(
-                    False, 400, error="Số Điểm LÚA cần quy đổi phải từ 1 LÚA trở lên."
-                )
-            if int(user.simulation_credits) < credits_to_spend:
+            if not onchain_res.get("onchain") or not onchain_res.get("tx_hash"):
+                status = 502 if default_credit_service.is_write_configured else 503
                 return AuthResult(
                     False,
-                    400,
-                    error=(
-                        f"Số dư Điểm LÚA không đủ (cần {credits_to_spend} LÚA, "
-                        f"hiện có {user.simulation_credits} LÚA)."
-                    ),
+                    status,
+                    error=str(onchain_res.get("reason") or "Không gửi được giao dịch lên Avalanche Fuji."),
                 )
-            avax_gained = round(credits_to_spend / CREDITS_PER_AVAX, 4)
-            user.simulation_credits = int(user.simulation_credits) - credits_to_spend
-            user.avax_balance = round(float(user.avax_balance) + avax_gained, 4)
-            self.repo.save_user(user)
-            tx_hash = self._generate_fuji_tx_hash(
-                user, "CREDIT_TO_AVAX", avax_gained, -credits_to_spend
-            )
-            tx_record = self.repo.record_credit_transaction(
-                user_id=user.user_id,
-                direction="CREDIT_TO_AVAX",
-                avax_amount=avax_gained,
-                credit_delta=-credits_to_spend,
-                tx_hash=tx_hash,
-                note=f"Quy đổi {credits_to_spend} LÚA → +{avax_gained} AVAX [Giả lập]",
-            )
-            return AuthResult(
-                True,
-                200,
-                data={
-                    "user": user.to_public_dict(),
-                    "transaction": tx_record,
-                    "transactions": self.repo.list_credit_transactions(user.user_id),
-                },
-            )
+            user.avax_balance = round(float(user.avax_balance) - exact_avax_cost, 4)
 
+        user.simulation_credits = int(user.simulation_credits) + credits_to_mint
+        self.repo.save_user(user)
+        real_tx_hash = str(onchain_res["tx_hash"])
+        tx_note = f"Đổi {exact_avax_cost} AVAX → +{credits_to_mint} LÚA (On-chain Fuji)"
+        tx_record = self.repo.record_credit_transaction(
+            user_id=user.user_id,
+            direction="AVAX_TO_CREDIT",
+            avax_amount=exact_avax_cost,
+            credit_delta=credits_to_mint,
+            tx_hash=real_tx_hash,
+            note=tx_note,
+        )
         return AuthResult(
-            False,
-            400,
-            error="Loại giao dịch không hợp lệ (chỉ hỗ trợ AVAX_TO_CREDIT, CREDIT_TO_AVAX, FAUCET_TOPUP).",
+            True,
+            200,
+            data={
+                "user": user.to_public_dict(),
+                "transaction": tx_record,
+                "transactions": self.repo.list_credit_transactions(user.user_id),
+            },
+        )
+
+    def spend_simulation_credit(
+        self,
+        user: User,
+        amount: int = 1,
+        note: str = "Chạy mô phỏng ruộng lúa",
+    ) -> AuthResult:
+        """Deduct LÚA credits in local SQLite (and on-chain if configured) for a simulation."""
+        if amount <= 0:
+            return AuthResult(False, 400, error="Số điểm sử dụng không hợp lệ.")
+        if int(user.simulation_credits) < amount:
+            return AuthResult(
+                False,
+                402,
+                error="Số dư điểm LÚA không đủ (cần ít nhất 1 LÚA để chạy mô phỏng).",
+            )
+        onchain_res: dict[str, Any] | None = None
+        if user.wallet_address and default_credit_service.is_write_configured:
+            onchain_res = default_credit_service.spend_credits_onchain(
+                user.wallet_address, amount, "simulation"
+            )
+        user.simulation_credits = int(user.simulation_credits) - amount
+        self.repo.save_user(user)
+        tx_record = self.repo.record_credit_transaction(
+            user_id=user.user_id,
+            direction="SPEND_SIMULATION",
+            avax_amount=0.0,
+            credit_delta=-amount,
+            tx_hash=(onchain_res or {}).get("tx_hash") or "",
+            note=note,
+        )
+        return AuthResult(
+            True,
+            200,
+            data={
+                "remaining_credits": user.simulation_credits,
+                "transaction": tx_record,
+                "onchain_spend": onchain_res,
+            },
         )
 
     def validate_session(
@@ -927,41 +955,12 @@ class AuthService:
             except ValueError as exc:
                 return AuthResult(False, 400, error=str(exc))
 
-        wants_wallet_change = bool(
-            (wallet_mode and wallet_mode.upper() == "AUTO_EMAIL")
-            or (
-                wallet_address is not None
-                and wallet_address.strip()
-                and wallet_address.strip() != user.wallet_address
+        if wallet_mode or (wallet_address is not None and wallet_address.strip()):
+            return AuthResult(
+                False,
+                400,
+                error="Không hỗ trợ thay đổi địa chỉ ví sau khi tạo tài khoản.",
             )
-        )
-        if wants_wallet_change and require_wallet_otp:
-            ok_otp, otp_err = self.verify_email_otp(
-                user.email, otp_code or "", consume=True
-            )
-            if not ok_otp:
-                return AuthResult(
-                    False,
-                    400,
-                    error=otp_err
-                    or "Vui lòng xác thực mã 6 số qua Email trước khi đổi địa chỉ ví.",
-                )
-
-        if wallet_mode and wallet_mode.upper() == "AUTO_EMAIL":
-            addr, enc_key = generate_email_bound_wallet(user.email, self.repo.wallet_secret)
-            user.wallet_address = addr
-            user.wallet_type = "AUTO_EMAIL"
-            user.encrypted_wallet_key = enc_key
-        elif wallet_address is not None and wallet_address.strip():
-            clean_wallet = wallet_address.strip()
-            if not is_valid_wallet_address(clean_wallet):
-                return AuthResult(
-                    False,
-                    400,
-                    error="Địa chỉ ví Avalanche Fuji không hợp lệ (cần 0x + 40 ký tự hex).",
-                )
-            user.wallet_address = clean_wallet
-            user.wallet_type = "EXTERNAL"
         self.repo.save_user(user)
         return AuthResult(True, 200, data={"user": user.to_public_dict()})
 

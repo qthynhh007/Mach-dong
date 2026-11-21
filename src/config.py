@@ -34,10 +34,13 @@ AVALANCHE_NETWORK_NAME = "Avalanche Fuji Testnet"
 FUJI_RPC_URL = os.environ.get(
     "FUJI_RPC_URL", "https://api.avax-test.network/ext/bc/C/rpc"
 )
-FUJI_CONTRACT_ADDRESS = os.environ.get("FUJI_CONTRACT_ADDRESS", "").strip()
+FUJI_CONTRACT_ADDRESS = os.environ.get(
+    "FUJI_CONTRACT_ADDRESS", "0x0C035a37A8E41285DB6cbB77f3929e513C3F29A4"
+).strip()
 FUJI_SIGNER_PRIVATE_KEY = os.environ.get("FUJI_SIGNER_PRIVATE_KEY", "").strip()
 CREDITS_PER_AVAX = 100  # 1 AVAX = 100 LÚA (0.01 AVAX = 1 LÚA)
-DEFAULT_INITIAL_AVAX = 2.5  # Testnet AVAX seeded for Fuji credit changer demo
+DEFAULT_INITIAL_AVAX = 0.05  # 0.05 AVAX (= 5 LÚA) granted on new user registration
+DEFAULT_INITIAL_CREDITS = 3
 
 # Email OTP / SMTP Settings
 OTP_TTL_SECONDS = 300  # 5 minutes

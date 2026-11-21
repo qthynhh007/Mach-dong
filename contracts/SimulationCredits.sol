@@ -30,6 +30,12 @@ contract SimulationCredits {
         address indexed previousOwner,
         address indexed newOwner
     );
+    event WalletFunded(
+        address indexed recipient,
+        uint256 amountWei
+    );
+
+    receive() external payable {}
 
     modifier onlyOwner() {
         require(msg.sender == owner, "Chi quan tri vien moi co quyen goi ham nay");
@@ -80,6 +86,17 @@ contract SimulationCredits {
 
         balanceOf[beneficiary] += credits;
         emit CreditsPurchased(beneficiary, msg.value, credits);
+    }
+
+    /// @notice Fund a newly created farmer wallet with initial AVAX for gas/demo.
+    function fundNewWallet(address payable recipient, uint256 amountWei) external onlyOwner {
+        require(recipient != address(0), "Dia chi vi khong hop le");
+        require(amountWei > 0, "So AVAX phai lon hon 0");
+        require(address(this).balance >= amountWei, "So du AVAX trong hop dong khong du");
+
+        (bool ok, ) = recipient.call{value: amountWei}("");
+        require(ok, "Chuyen AVAX that bai");
+        emit WalletFunded(recipient, amountWei);
     }
 
     /// @notice Withdraw accumulated AVAX to contract owner.

@@ -15,8 +15,11 @@ from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from flask import has_request_context
 from flask import request as flask_request
 
+from src.config import DEFAULT_INITIAL_CREDITS
 from src.models.user import User, UserRole, UserSession
 from src.services.auth_service import AuthResult, AuthService
+from src.services.credit_service import default_credit_service
+from src.services.http_transport import default_urlopen
 
 
 class AuthUnavailable(RuntimeError):
@@ -28,7 +31,7 @@ class CloudAuthService:
         self.api_url = api_url.rstrip("/")
         if not self.api_url.startswith("https://"):
             raise ValueError("Cloud account API must use HTTPS")
-        self.transport = transport or request.urlopen
+        self.transport = transport or default_urlopen
         self._email_enabled: bool | None = None
         self._email_checked_at = 0.0
 
@@ -157,12 +160,27 @@ class CloudAuthService:
             account = Account.create()
             wallet_address = account.address
             encrypted_key = self._encrypt_wallet_key(bytes(account.key), password)
-        return self._call("register", {
+        res = self._call("register", {
             "name": name, "username": username, "email": email, "phone": phone,
             "password": password, "wallet_address": wallet_address,
             "wallet_type": wallet_mode, "encrypted_wallet_key": encrypted_key,
             "otp_code": otp_code, "device_info": device_info,
         })
+        if res.ok and isinstance(res.data, dict):
+            user_data = res.data.get("user")
+            if wallet_mode == "AUTO_EMAIL" and wallet_address:
+                funding = default_credit_service.fund_new_wallet_onchain(wallet_address, 0.05)
+                res.data["wallet_funding"] = funding
+                if isinstance(user_data, dict):
+                    user_data["avax_balance"] = 0.05 if funding.get("onchain") else 0.0
+            elif isinstance(user_data, dict):
+                user_data["avax_balance"] = 0.0
+            if wallet_address and DEFAULT_INITIAL_CREDITS > 0:
+                mint = default_credit_service.award_initial_credits_onchain(
+                    wallet_address, DEFAULT_INITIAL_CREDITS
+                )
+                res.data["initial_credit_mint"] = mint
+        return res
 
     def verify_login(
         self,
@@ -247,12 +265,11 @@ class CloudAuthService:
         password: str | None = None,
         require_wallet_otp: bool = True,
     ) -> AuthResult:
-        del user, require_wallet_otp
+        del user, otp_code, password, require_wallet_otp
+        if wallet_mode or (wallet_address is not None and wallet_address.strip()):
+            return AuthResult(False, 400, error="Không hỗ trợ thay đổi địa chỉ ví sau khi tạo tài khoản.")
         token, csrf = self._current_credentials()
-        return self._call("profile", {"name": name, "phone": phone,
-                                      "wallet_address": wallet_address,
-                                      "wallet_mode": wallet_mode, "otp_code": otp_code,
-                                      "password": password}, token, csrf)
+        return self._call("profile", {"name": name, "phone": phone}, token, csrf)
 
     def change_password(self, user: User, current_password: str, new_password: str) -> AuthResult:
         del user
@@ -295,7 +312,16 @@ class CloudAuthService:
                                            "private_key": "0x" + private_key.hex(),
                                            "chain_id": 43113})
 
-    def exchange_credits_with_avax(self, user: User, direction: str, amount: float) -> AuthResult:
+    def exchange_credits_with_avax(
+        self,
+        user: User,
+        direction: str,
+        amount: float,
+        tx_hash: str | None = None,
+    ) -> AuthResult:
         del user
         token, csrf = self._current_credentials()
-        return self._call("exchange-credits", {"direction": direction, "amount": amount}, token, csrf)
+        payload: dict[str, object] = {"direction": direction, "amount": amount}
+        if tx_hash:
+            payload["tx_hash"] = tx_hash
+        return self._call("exchange-credits", payload, token, csrf)

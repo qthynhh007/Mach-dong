@@ -8,6 +8,7 @@ from flask import current_app, has_app_context
 
 from src.config import MAX_CSV_BYTES
 from src.services.cloud_session import cloud_session_headers
+from src.services.http_transport import default_urlopen
 
 
 class referenceUnavailable(RuntimeError):
@@ -28,7 +29,7 @@ class cloudReferenceService:
         self.apiUrl = apiUrl.rstrip("/")
         if not self.apiUrl.startswith("https://"):
             raise ValueError("Reference API must use HTTPS")
-        self.transport = transport or request.urlopen
+        self.transport = transport or default_urlopen
         self.ttlSeconds = ttlSeconds
         self.cache: dict[str, tuple[float, bytes]] = {}
         self.lock = Lock()

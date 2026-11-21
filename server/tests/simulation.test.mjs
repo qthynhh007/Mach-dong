@@ -135,3 +135,30 @@ test("API evaluates requested input and missing-key AI state end to end",async()
   const result = (await response.json()).data;
   assert.equal(result.ai.status,"notConfigured"); assert.equal(result.inputs.salinityGl,2.8);
 });
+test("simulation deducts 1 credit from D1 and rejects 0 balance with 402",async()=> {
+  let credits = 2;
+  const db = {
+    prepare: sql => ({
+      bind: (...args) => ({
+        first: async () => sql.includes("account_sessions")
+          ? {user_id:"test-user",csrf_token:"test-csrf",expires_at:Math.floor(Date.now()/1000)+3600}
+          : {simulation_credits:credits},
+        _sql: sql,
+      }),
+    }),
+    batch: async stmts => {
+      if (credits >= 1) { credits -= 1; return [{meta:{changes:1}},{meta:{changes:1}}]; }
+      return [{meta:{changes:0}},{meta:{changes:0}}];
+    },
+  };
+  const runSim = () => worker.fetch(new Request("https://example.test/api/simulation",{method:"POST",headers:{...sessionHeaders,"Content-Type":"application/json"},body:JSON.stringify(base)}),{DB:db});
+  const r1 = await runSim();
+  assert.equal(r1.status,200);
+  assert.equal((await r1.json()).data.remainingCredits,1);
+  const r2 = await runSim();
+  assert.equal(r2.status,200);
+  assert.equal((await r2.json()).data.remainingCredits,0);
+  const r3 = await runSim();
+  assert.equal(r3.status,402);
+  assert.equal((await r3.json()).data,null);
+});

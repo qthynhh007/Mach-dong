@@ -6,9 +6,10 @@ from collections.abc import Sequence
 from time import monotonic, sleep
 from typing import Literal, TypedDict
 from urllib.error import HTTPError, URLError
-from urllib.request import Request, urlopen
+from urllib.request import Request
 
 from src.services.cloud_client import cloudClient
+from src.services.http_transport import default_urlopen as urlopen
 
 GEMINI_MODEL = "gemini-3.5-flash"
 GEMINI_MODEL_LABEL = "Gemini 3.5 Flash"

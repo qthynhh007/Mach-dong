@@ -15,6 +15,7 @@ from src.config import (
     AVALANCHE_CHAIN_ID,
     DB_PATH,
     DEFAULT_INITIAL_AVAX,
+    DEFAULT_INITIAL_CREDITS,
 )
 from src.models.farm_profile import FarmProfile
 
@@ -130,7 +131,7 @@ class User:
     wallet_type: str = "AUTO_EMAIL"
     encrypted_wallet_key: str | None = None
     google_sub: str | None = None
-    simulation_credits: int = 3
+    simulation_credits: int = DEFAULT_INITIAL_CREDITS
     avax_balance: float = DEFAULT_INITIAL_AVAX
     failed_login_attempts: int = 0
     locked_until: float = 0.0
@@ -251,8 +252,8 @@ class SQLiteUserRepository:
                         wallet_type TEXT NOT NULL DEFAULT 'AUTO_EMAIL',
                         encrypted_wallet_key TEXT,
                         google_sub TEXT UNIQUE,
-                        simulation_credits INTEGER NOT NULL DEFAULT 3,
-                        avax_balance REAL NOT NULL DEFAULT 2.5,
+                        simulation_credits INTEGER NOT NULL DEFAULT 0,
+                        avax_balance REAL NOT NULL DEFAULT 0.05,
                         failed_login_attempts INTEGER NOT NULL DEFAULT 0,
                         locked_until REAL NOT NULL DEFAULT 0.0,
                         created_at REAL NOT NULL
@@ -266,7 +267,7 @@ class SQLiteUserRepository:
                 }
                 if "avax_balance" not in cols:
                     conn.execute(
-                        "ALTER TABLE users ADD COLUMN avax_balance REAL NOT NULL DEFAULT 2.5"
+                        "ALTER TABLE users ADD COLUMN avax_balance REAL NOT NULL DEFAULT 0.05"
                     )
                 conn.execute(
                     "CREATE INDEX IF NOT EXISTS idx_users_phone ON users(phone)"
@@ -388,7 +389,7 @@ class SQLiteUserRepository:
         wallet_address: str | None = None,
         wallet_type: str = "AUTO_EMAIL",
         google_sub: str | None = None,
-        simulation_credits: int = 3,
+        simulation_credits: int = DEFAULT_INITIAL_CREDITS,
         avax_balance: float = DEFAULT_INITIAL_AVAX,
     ) -> User:
         clean_username = username.strip()

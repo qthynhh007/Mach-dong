@@ -13,7 +13,13 @@ from flask import (
     request,
 )
 
-from src.config import AVALANCHE_CHAIN_ID, CREDITS_PER_AVAX, SESSION_COOKIE_NAME, SESSION_TTL_SECONDS
+from src.config import (
+    AVALANCHE_CHAIN_ID,
+    CREDITS_PER_AVAX,
+    FUJI_CONTRACT_ADDRESS,
+    SESSION_COOKIE_NAME,
+    SESSION_TTL_SECONDS,
+)
 from src.controllers.session_guard import (
     RequestContext,
     extract_tokens_from_context,
@@ -112,10 +118,12 @@ def profile() -> str:
         else []
     )
     onchain_credits = None
+    onchain_avax = None
     if auth and user_dict and user_dict.get("wallet_address"):
-        onchain_credits = default_credit_service.get_onchain_balance(
-            str(user_dict["wallet_address"])
-        )
+        wallet_addr = str(user_dict["wallet_address"])
+        if default_credit_service.is_write_configured:
+            onchain_credits = default_credit_service.get_onchain_balance(wallet_addr)
+        onchain_avax = default_credit_service.get_onchain_avax_balance(wallet_addr)
 
     return render_template(
         "auth/profile.html",
@@ -125,8 +133,11 @@ def profile() -> str:
         contribution_posts=post_count, contribution_replies=reply_count,
         current_user=user_dict,
         onchain_credits=onchain_credits,
+        onchain_avax=onchain_avax,
         credit_transactions=tx_list,
         credits_per_avax=CREDITS_PER_AVAX,
+        fuji_contract_address=FUJI_CONTRACT_ADDRESS,
+        chain_id=AVALANCHE_CHAIN_ID,
         wallet_guide=get_auth_service().get_wallet_guide_info(
             str(user_dict["wallet_address"]) if user_dict else ""
         ),
@@ -180,9 +191,17 @@ def get_session_status() -> tuple[Response, int]:
         return jsonify(data={"authenticated": False, "user": None}, error=None), 200
     user, session = auth
     wallet_info = get_auth_service().get_wallet_guide_info(user.wallet_address)
-    onchain_credits = default_credit_service.get_onchain_balance(user.wallet_address)
+    onchain_credits = (
+        default_credit_service.get_onchain_balance(user.wallet_address)
+        if default_credit_service.is_write_configured
+        else None
+    )
+    onchain_avax = default_credit_service.get_onchain_avax_balance(user.wallet_address)
+    wallet_info["onchain_write_enabled"] = default_credit_service.is_write_configured
     if onchain_credits is not None:
         wallet_info["onchain_credits"] = onchain_credits
+    if onchain_avax is not None:
+        wallet_info["onchain_avax"] = onchain_avax
 
     return (
         jsonify(
@@ -250,7 +269,7 @@ def api_register() -> tuple[Response, int]:
         wallet_address=body.get("wallet_address"),
         wallet_mode=str(body.get("wallet_mode") or "AUTO_EMAIL"),
         otp_code=body.get("otp_code"),
-        require_otp=True,
+        require_otp=False,
         device_info=device_info,
     )
     if not result.ok or not result.data:
@@ -287,6 +306,16 @@ def api_login() -> tuple[Response, int]:
         return jsonify(data=None, error=result.error), result.status_code
 
     result.data["redirect_to"] = safe_workspace_path(body.get("next"))
+    user_info = result.data.get("user") if isinstance(result.data, dict) else None
+    if (
+        isinstance(user_info, dict)
+        and user_info.get("wallet_address")
+        and default_credit_service.is_write_configured
+    ):
+        default_credit_service.sync_credits_onchain(
+            str(user_info["wallet_address"]),
+            int(user_info.get("simulation_credits") or 0),
+        )
     resp = make_response(jsonify(data=result.data, error=None))
     _attach_session_cookie(resp, result.data, remember_me=remember_me)
     return resp, result.status_code
@@ -299,20 +328,68 @@ def api_exchange_credits() -> tuple[Response, int]:
     if not isinstance(body, dict):
         return jsonify(data=None, error="Dữ liệu giao dịch không hợp lệ."), 400
 
-    direction = str(body.get("direction") or "AVAX_TO_CREDIT")
+    direction = str(body.get("direction") or "AVAX_TO_CREDIT").strip().upper()
+    if direction != "AVAX_TO_CREDIT":
+        return (
+            jsonify(
+                data=None,
+                error="Chỉ hỗ trợ giao dịch một chiều từ AVAX sang LÚA (không hỗ trợ đổi ngược từ LÚA sang AVAX).",
+            ),
+            400,
+        )
     try:
         amount = float(body.get("amount") or 0)
     except (TypeError, ValueError):
         return jsonify(data=None, error="Số lượng quy đổi không hợp lệ."), 400
 
-    result = get_auth_service().exchange_credits_with_avax(
+    tx_hash = str(body.get("tx_hash") or "").strip() or None
+    service = get_auth_service()
+    if not hasattr(service, "repo"):
+        # CloudAuthService mode: execute or verify real Fuji transaction before updating cloud ledger.
+        credits_to_mint = round(amount * CREDITS_PER_AVAX)
+        if credits_to_mint < 1:
+            return jsonify(data=None, error=f"Tối thiểu cần {1 / CREDITS_PER_AVAX:.2f} AVAX để đổi 1 Điểm LÚA."), 400
+        exact_avax = round(credits_to_mint / CREDITS_PER_AVAX, 4)
+        if tx_hash:
+            onchain_res = default_credit_service.verify_buy_credits_tx(
+                tx_hash=tx_hash,
+                beneficiary_wallet=g.current_user.wallet_address,
+                expected_avax=exact_avax,
+            )
+            if not onchain_res.get("onchain") or not onchain_res.get("tx_hash"):
+                return jsonify(data=None, error=onchain_res.get("reason") or "Không xác minh được giao dịch Fuji."), 400
+        else:
+            if float(g.current_user.avax_balance) < exact_avax:
+                return jsonify(data=None, error=f"Số dư AVAX không đủ (cần {exact_avax} AVAX, hiện có {g.current_user.avax_balance:.4f} AVAX)."), 400
+            onchain_res = default_credit_service.buy_credits_onchain(
+                beneficiary_wallet=g.current_user.wallet_address,
+                avax_amount=exact_avax,
+            )
+            if not onchain_res.get("onchain") or not onchain_res.get("tx_hash"):
+                status = 502 if default_credit_service.is_write_configured else 503
+                return jsonify(data=None, error=onchain_res.get("reason") or "Không gửi được giao dịch lên Avalanche Fuji."), status
+            tx_hash = str(onchain_res["tx_hash"])
+
+    result = service.exchange_credits_with_avax(
         user=g.current_user,
         direction=direction,
         amount=amount,
+        tx_hash=tx_hash,
     )
     if not result.ok:
         return jsonify(data=None, error=result.error), result.status_code
-    return jsonify(data=result.data, error=None), 200
+    response_data = dict(result.data or {})
+    onchain_credits = default_credit_service.get_onchain_balance(
+        g.current_user.wallet_address
+    )
+    onchain_avax = default_credit_service.get_onchain_avax_balance(
+        g.current_user.wallet_address
+    )
+    if onchain_credits is not None:
+        response_data["onchain_credits"] = onchain_credits
+    if onchain_avax is not None:
+        response_data["onchain_avax"] = onchain_avax
+    return jsonify(data=response_data, error=None), 200
 
 
 @blueprint.post("/api/auth/export-wallet-key")
@@ -342,14 +419,13 @@ def api_update_profile() -> tuple[Response, int]:
     if not isinstance(body, dict):
         return jsonify(data=None, error="Dữ liệu hồ sơ không hợp lệ."), 400
 
+    if body.get("wallet_address") is not None or body.get("wallet_mode") is not None:
+        return jsonify(data=None, error="Không hỗ trợ thay đổi địa chỉ ví sau khi tạo tài khoản."), 400
+
     result = get_auth_service().update_profile(
         user=g.current_user,
         name=body.get("name"),
         phone=body.get("phone"),
-        wallet_address=body.get("wallet_address"),
-        wallet_mode=body.get("wallet_mode"),
-        otp_code=body.get("otp_code"),
-        password=body.get("password"),
     )
     if not result.ok:
         return jsonify(data=None, error=result.error), result.status_code

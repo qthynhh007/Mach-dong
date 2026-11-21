@@ -26,10 +26,10 @@ test("development quota preserves per-email cooldown and OTP attempt limits",asy
   await assert.rejects(()=>api.verifyOtp("dev-otp@example.test",mailCodes.get("dev-otp@example.test")));
 });
 
-test("email confirmation cannot be skipped when email delivery is unconfigured",async()=> {
+test("registration works without email confirmation even when email delivery is unconfigured",async()=> {
   const db=database(),api=new accountController({DB:db});
   const response=await api.handle(new Request("https://example.test/api/account/register",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name:"Nông hộ",username:"farmer",email:"farmer@example.test",phone:"0900000000",password:"test-password-only"})}));
-  assert.equal(response.status,503); assert.equal(db.raw.prepare("SELECT COUNT(*) AS n FROM accounts").get().n,0);
+  assert.equal(response.status,201); assert.equal(db.raw.prepare("SELECT COUNT(*) AS n FROM accounts").get().n,1);
 });
 
 test("OTP is email-bound, expiring, attempt-limited and consumed only once",async()=> {
@@ -110,10 +110,12 @@ test("central accounts persist only password hashes and enforce session ownershi
   assert.equal((await call(api,"/api/account/field-profile",{address:"Khác",cultivar:"",area:"",hydrology_station:""},token,"bad")).status,403);
   assert.equal((await call(api,"/api/account/profile",{name:"Updated"},token,"bad")).status,403);
   assert.equal((await call(api,"/api/account/profile",{name:"Updated"},token,csrf)).data.user.name,"Updated");
-  const exchange=await call(api,"/api/account/exchange-credits",{direction:"AVAX_TO_CREDIT",amount:1},token,csrf);
+  const reverseDenied=await call(api,"/api/account/exchange-credits",{direction:"CREDIT_TO_AVAX",amount:1},token,csrf);
+  assert.equal(reverseDenied.status,400);
+  const exchange=await call(api,"/api/account/exchange-credits",{direction:"AVAX_TO_CREDIT",amount:0.05,tx_hash:"0x"+"ab".repeat(32)},token,csrf);
   assert.equal(exchange.status,200);
-  assert.equal(exchange.data.user.simulation_credits,103);
-  assert.equal(exchange.data.user.avax_balance,1.5);
+  assert.equal(exchange.data.user.simulation_credits,8);
+  assert.equal(exchange.data.user.avax_balance,0);
   const denied=await call(api,"/api/account/exchange-credits",{direction:"AVAX_TO_CREDIT",amount:10},token,csrf);
   assert.equal(denied.status,400);
   assert.equal(db.raw.prepare("SELECT COUNT(*) AS count FROM account_transactions").get().count,1);

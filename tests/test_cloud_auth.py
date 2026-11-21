@@ -44,7 +44,7 @@ class CloudAuthTests(unittest.TestCase):
                              "COMMUNITY_DATABASE": str(Path(temp_dir) / "community.sqlite3")})
             client = app.test_client()
             self.assertEqual(client.get("/register").status_code, 200)
-            self.assertIn('id="registerOtpInput"',client.get("/register").get_data(as_text=True))
+            self.assertNotIn('id="registerOtpInput"', client.get("/register").get_data(as_text=True))
             self.assertEqual(client.get("/login").status_code, 200)
             self.assertFalse(account_db.exists())
 

@@ -166,13 +166,12 @@ export class accountController {
       const email = cleanEmail(b.email), phone = cleanPhone(b.phone), password = checkPassword(b.password);
       const wallet = checkWallet(b.wallet_address);
       const emailEnabled = Boolean(this.env.AUTH_EMAIL_API_KEY && this.env.AUTH_FROM_EMAIL);
-      if (!emailEnabled) throw new accountError("Máy chủ chưa cấu hình gửi email xác nhận. Chưa thể tạo tài khoản; bà con thử lại sau nha.",503);
       const duplicate = await this.db.prepare("SELECT 1 FROM accounts WHERE username=? OR email=?").bind(username,email).first();
       if (duplicate) throw new accountError("Tên đăng nhập hoặc email đã được sử dụng.",409);
-      await this.verifyOtp(email,b.otp_code);
       const salt = randomHex(16), hash = await passwordHash(password,salt);
       const userId = crypto.randomUUID(), now = Math.floor(Date.now()/1000);
-      try { await this.db.prepare("INSERT INTO accounts (user_id,username,name,email,email_verified,phone,password_hash,password_salt,password_iterations,wallet_address,wallet_type,managed_wallet_address,encrypted_wallet_key,created_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)").bind(userId,username,name,email,emailEnabled ? 1 : 0,phone,hash,salt,passwordRounds,wallet,b.wallet_type === "AUTO_EMAIL" ? "AUTO_EMAIL" : wallet ? "EXTERNAL" : "UNLINKED",b.wallet_type === "AUTO_EMAIL" ? wallet : "",b.encrypted_wallet_key || null,now).run(); }
+      const walletType = b.wallet_type === "AUTO_EMAIL" ? "AUTO_EMAIL" : wallet ? "EXTERNAL" : "UNLINKED";
+      try { await this.db.prepare("INSERT INTO accounts (user_id,username,name,email,email_verified,phone,password_hash,password_salt,password_iterations,wallet_address,wallet_type,managed_wallet_address,encrypted_wallet_key,simulation_credits,avax_balance,created_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)").bind(userId,username,name,email,emailEnabled && b.otp_code ? 1 : 0,phone,hash,salt,passwordRounds,wallet,walletType,walletType === "AUTO_EMAIL" ? wallet : "",b.encrypted_wallet_key || null,3,0.05,now).run(); }
       catch { throw new accountError("Tên đăng nhập hoặc email đã được sử dụng.",409); }
       const row = await this.db.prepare("SELECT * FROM accounts WHERE user_id=?").bind(userId).first();
       return reply(await this.issue(row),201);
@@ -252,15 +251,10 @@ export class accountController {
     }
     if (post && path === "/api/account/profile") {
       const {row} = await this.session(request,true), b = await bodyJson(request);
+      if (b.wallet_address || b.wallet_mode) throw new accountError("Không hỗ trợ thay đổi địa chỉ ví sau khi tạo tài khoản.",400);
       const name = String(b.name || row.name).trim(), phone = b.phone ? cleanPhone(b.phone) : row.phone;
       if (name.length < 2 || name.length > 120) throw new accountError("Tên không hợp lệ.");
-      if (b.wallet_address || b.wallet_mode === "AUTO_EMAIL") {
-        if (this.env.AUTH_EMAIL_API_KEY && this.env.AUTH_FROM_EMAIL) await this.verifyOtp(row.email,b.otp_code);
-        else if (!sameHex(row.password_hash,await passwordHash(String(b.password || ""),row.password_salt,row.password_iterations))) throw new accountError("Mật khẩu xác nhận ví không đúng.",401);
-        const wallet = b.wallet_mode === "AUTO_EMAIL" ? row.managed_wallet_address : checkWallet(b.wallet_address);
-        if (!wallet) throw new accountError("Chưa có ví tự động để khôi phục.");
-        await this.db.prepare("UPDATE accounts SET name=?,phone=?,wallet_address=?,wallet_type=? WHERE user_id=?").bind(name,phone,wallet,b.wallet_mode === "AUTO_EMAIL" ? "AUTO_EMAIL" : "EXTERNAL",row.user_id).run();
-      } else await this.db.prepare("UPDATE accounts SET name=?,phone=? WHERE user_id=?").bind(name,phone,row.user_id).run();
+      await this.db.prepare("UPDATE accounts SET name=?,phone=? WHERE user_id=?").bind(name,phone,row.user_id).run();
       return reply({user:publicUser(await this.db.prepare("SELECT * FROM accounts WHERE user_id=?").bind(row.user_id).first())});
     }
     if (post && path === "/api/account/password") {
@@ -298,25 +292,17 @@ export class accountController {
     if (post && path === "/api/account/exchange-credits") {
       const {row} = await this.session(request,true), b = await bodyJson(request);
       const direction = String(b.direction || "AVAX_TO_CREDIT").toUpperCase();
+      if (direction !== "AVAX_TO_CREDIT") throw new accountError("Chỉ hỗ trợ giao dịch một chiều từ AVAX sang LÚA (không hỗ trợ đổi ngược từ LÚA sang AVAX).");
       const amount = Number(b.amount || 0);
-      if (!Number.isFinite(amount) || amount < 0 || amount > 1000) throw new accountError("Số lượng quy đổi không hợp lệ.");
-      let delta = 0, spent = 0, update;
-      if (direction === "FAUCET_TOPUP") {
-        spent = 1;
-        update = this.db.prepare("UPDATE accounts SET avax_balance=ROUND(avax_balance+1,4) WHERE user_id=?").bind(row.user_id);
-      }
-      else if (direction === "AVAX_TO_CREDIT") {
-        delta = Math.round(amount*100); spent = delta/100;
-        if (delta<1) throw new accountError("Lượng đổi quá nhỏ.");
-        update = this.db.prepare("UPDATE accounts SET avax_balance=ROUND(avax_balance-?,4),simulation_credits=simulation_credits+? WHERE user_id=? AND avax_balance>=?").bind(spent,delta,row.user_id,spent);
-      }
-      else if (direction === "CREDIT_TO_AVAX") {
-        delta = -Math.round(amount); spent = -delta/100;
-        if (delta>=0) throw new accountError("Lượng đổi quá nhỏ.");
-        update = this.db.prepare("UPDATE accounts SET avax_balance=ROUND(avax_balance+?,4),simulation_credits=simulation_credits+? WHERE user_id=? AND simulation_credits>=?").bind(spent,delta,row.user_id,-delta);
-      }
-      else throw new accountError("Loại giao dịch không hợp lệ.");
-      const tx = {tx_id:crypto.randomUUID(),user_id:row.user_id,direction,avax_amount:spent,credit_delta:delta,tx_hash:"",note:"[Giả lập] Quy đổi trong ứng dụng",created_at:Math.floor(Date.now()/1000)};
+      if (!Number.isFinite(amount) || amount <= 0 || amount > 1000) throw new accountError("Số lượng quy đổi không hợp lệ.");
+      const delta = Math.round(amount*100);
+      if (delta<1) throw new accountError("Lượng đổi quá nhỏ (tối thiểu 0.01 AVAX).");
+      const spent = delta/100;
+      const rawHash = String(b.tx_hash || "").trim();
+      const validHash = /^0x[0-9a-fA-F]{64}$/.test(rawHash) ? rawHash : "";
+      const update = this.db.prepare("UPDATE accounts SET avax_balance=ROUND(avax_balance-?,4),simulation_credits=simulation_credits+? WHERE user_id=? AND avax_balance>=?").bind(spent,delta,row.user_id,spent);
+      const note = validHash ? `Đổi ${spent} AVAX → +${delta} LÚA (On-chain Fuji)` : `Đổi ${spent} AVAX → +${delta} LÚA`;
+      const tx = {tx_id:crypto.randomUUID(),user_id:row.user_id,direction,avax_amount:spent,credit_delta:delta,tx_hash:validHash,note,created_at:Math.floor(Date.now()/1000)};
       const updatedStatements = await this.db.batch([
         update,
         this.db.prepare("INSERT INTO account_transactions (tx_id,user_id,direction,avax_amount,credit_delta,tx_hash,note,created_at) SELECT ?,?,?,?,?,?,?,? WHERE changes()>0").bind(tx.tx_id,tx.user_id,tx.direction,tx.avax_amount,tx.credit_delta,tx.tx_hash,tx.note,tx.created_at)
@@ -327,5 +313,19 @@ export class accountController {
       return reply({user:publicUser(updated),transaction:tx,transactions:history.results || []});
     }
     return reply(null,404,"Không tìm thấy tài nguyên tài khoản.");
+  }
+  async spendSimulationCredit(userId, note = "Chạy mô phỏng ruộng lúa") {
+    if (!this.db || typeof this.db.batch !== "function") return null;
+    const now = Math.floor(Date.now() / 1000);
+    const txId = crypto.randomUUID();
+    const results = await this.db.batch([
+      this.db.prepare("UPDATE accounts SET simulation_credits=simulation_credits-1 WHERE user_id=? AND simulation_credits>=1").bind(userId),
+      this.db.prepare("INSERT INTO account_transactions (tx_id,user_id,direction,avax_amount,credit_delta,tx_hash,note,created_at) SELECT ?,?,?,?,?,?,?,? WHERE changes()>0").bind(txId,userId,"SPEND_SIMULATION",0,-1,"",note,now),
+    ]);
+    if (!(results[0]?.meta?.changes ?? results[0]?.changes)) {
+      throw new accountError("Số dư điểm LÚA không đủ (cần ít nhất 1 LÚA để chạy mô phỏng).", 402);
+    }
+    const updated = await this.db.prepare("SELECT simulation_credits FROM accounts WHERE user_id=?").bind(userId).first();
+    return Number(updated?.simulation_credits ?? 0);
   }
 }

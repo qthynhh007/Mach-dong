@@ -3,6 +3,7 @@ from __future__ import annotations
 import tempfile
 from pathlib import Path
 from unittest import TestCase
+from unittest.mock import patch
 
 from flask.testing import FlaskClient
 
@@ -162,34 +163,48 @@ class TestAuthAndSession(TestCase):
         user = self.repo.get_by_username("chunam_fuji")
         assert user is not None
         self.assertEqual(user.simulation_credits, 3)
-        self.assertAlmostEqual(user.avax_balance, 2.5)
+        self.assertAlmostEqual(user.avax_balance, 0.05)
 
-        # 1. Exchange 0.5 AVAX -> +50 LÚA
-        ex1 = self.auth_service.exchange_credits_with_avax(
-            user=user, direction="AVAX_TO_CREDIT", amount=0.5
+        # 1. Reverse direction (LÚA -> AVAX) and fake faucet must be rejected
+        rev = self.auth_service.exchange_credits_with_avax(
+            user=user, direction="CREDIT_TO_AVAX", amount=1
         )
-        self.assertTrue(ex1.ok)
-        assert ex1.data is not None
-        self.assertEqual(ex1.data["user"]["simulation_credits"], 53)
-        self.assertAlmostEqual(float(ex1.data["user"]["avax_balance"]), 2.0)
-        self.assertTrue(str(ex1.data["transaction"]["tx_hash"]).startswith("0x"))
+        self.assertFalse(rev.ok)
+        self.assertEqual(rev.status_code, 400)
 
-        # 2. Exchange 20 LÚA -> +0.20 AVAX
-        ex2 = self.auth_service.exchange_credits_with_avax(
-            user=user, direction="CREDIT_TO_AVAX", amount=20
-        )
-        self.assertTrue(ex2.ok)
-        assert ex2.data is not None
-        self.assertEqual(ex2.data["user"]["simulation_credits"], 33)
-        self.assertAlmostEqual(float(ex2.data["user"]["avax_balance"]), 2.2)
-
-        # 3. Faucet top-up (+1.0 AVAX)
-        ex3 = self.auth_service.exchange_credits_with_avax(
+        faucet = self.auth_service.exchange_credits_with_avax(
             user=user, direction="FAUCET_TOPUP", amount=1.0
         )
-        self.assertTrue(ex3.ok)
-        assert ex3.data is not None
-        self.assertAlmostEqual(float(ex3.data["user"]["avax_balance"]), 3.2)
+        self.assertFalse(faucet.ok)
+        self.assertEqual(faucet.status_code, 400)
+
+        # 2. Failed/unconfigured on-chain tx must not mutate balances
+        with patch(
+            "src.services.auth_service.default_credit_service.buy_credits_onchain",
+            return_value={"onchain": False, "tx_hash": None, "reason": "No signer"},
+        ):
+            failed = self.auth_service.exchange_credits_with_avax(
+                user=user, direction="AVAX_TO_CREDIT", amount=0.05
+            )
+            self.assertFalse(failed.ok)
+            self.assertAlmostEqual(user.avax_balance, 0.05)
+            self.assertEqual(user.simulation_credits, 3)
+
+        # 3. Real on-chain AVAX -> LÚA exchange (0.05 AVAX -> +5 LÚA)
+        fake_real_hash = "0x" + ("ab" * 32)
+        with patch(
+            "src.services.auth_service.default_credit_service.buy_credits_onchain",
+            return_value={"onchain": True, "tx_hash": fake_real_hash},
+        ):
+            ex1 = self.auth_service.exchange_credits_with_avax(
+                user=user, direction="AVAX_TO_CREDIT", amount=0.05
+            )
+        self.assertTrue(ex1.ok)
+        assert ex1.data is not None
+        self.assertEqual(ex1.data["user"]["simulation_credits"], 8)
+        self.assertAlmostEqual(float(ex1.data["user"]["avax_balance"]), 0.0)
+        self.assertEqual(ex1.data["transaction"]["tx_hash"], fake_real_hash)
+        self.assertIn("(On-chain Fuji)", ex1.data["transaction"]["note"])
 
     def test_forgot_password_reset_via_email_otp(self) -> None:
         # Non-existent email or username must be rejected before sending OTP
@@ -340,37 +355,20 @@ class TestAuthAndSession(TestCase):
         self.assertEqual(home_authed.status_code, 302)
         self.assertTrue(home_authed.headers["Location"].endswith("/community"))
 
-        # Profile page renders slide-over privacy panel
+        # Profile page renders slide-over privacy panel without wallet-change inputs
         profile_html = client.get("/profile").get_data(as_text=True)
         self.assertIn("privacy-slide-panel", profile_html)
-        self.assertIn("wallet-otp-input", profile_html)
+        self.assertNotIn("custom-wallet-input", profile_html)
+        self.assertNotIn("wallet-otp-input", profile_html)
 
-        # Updating wallet address without Email OTP must fail (400)
+        # Changing wallet address via /api/auth/profile is disabled (400)
         new_wallet = "0x1234567890123456789012345678901234567890"
-        no_otp_wallet = client.post(
+        blocked_wallet = client.post(
             "/api/auth/profile",
             headers={"X-CSRF-Token": csrf_token},
             json={"wallet_address": new_wallet, "wallet_mode": "EXTERNAL"},
         )
-        self.assertEqual(no_otp_wallet.status_code, 400)
-
-        # Updating wallet address with valid Email OTP succeeds
-        wallet_otp_resp = client.post(
-            "/api/auth/send-otp",
-            json={"email": "tanvuthanh313130911@gmail.com", "require_existing": True},
-        )
-        wallet_otp = wallet_otp_resp.json["data"]["dev_otp_code"]
-        ok_wallet = client.post(
-            "/api/auth/profile",
-            headers={"X-CSRF-Token": csrf_token},
-            json={
-                "wallet_address": new_wallet,
-                "wallet_mode": "EXTERNAL",
-                "otp_code": wallet_otp,
-            },
-        )
-        self.assertEqual(ok_wallet.status_code, 200)
-        self.assertEqual(ok_wallet.json["data"]["user"]["wallet_address"], new_wallet)
+        self.assertEqual(blocked_wallet.status_code, 400)
         assistant_page = client.get("/assistant").get_data(as_text=True)
         self.assertIn("Đăng xuất", assistant_page)
         self.assertIn("Trợ lý Cò Mạ", assistant_page)
@@ -378,12 +376,23 @@ class TestAuthAndSession(TestCase):
         self.assertEqual(member["id"], "user:" + login.json["data"]["user"]["user_id"])
         self.assertFalse(member["isGuest"])
 
-        # Test Credit Changer API endpoint with CSRF token
-        ex_resp = client.post(
+        # Test Credit Changer API endpoint with CSRF token (one-way AVAX -> LÚA only)
+        rev_resp = client.post(
             "/api/auth/exchange-credits",
             headers={"X-CSRF-Token": csrf_token},
-            json={"direction": "AVAX_TO_CREDIT", "amount": 0.1},
+            json={"direction": "CREDIT_TO_AVAX", "amount": 5},
         )
+        self.assertEqual(rev_resp.status_code, 400)
+
+        with patch(
+            "src.services.auth_service.default_credit_service.buy_credits_onchain",
+            return_value={"onchain": True, "tx_hash": "0x" + ("cd" * 32)},
+        ):
+            ex_resp = client.post(
+                "/api/auth/exchange-credits",
+                headers={"X-CSRF-Token": csrf_token},
+                json={"direction": "AVAX_TO_CREDIT", "amount": 0.1},
+            )
         self.assertEqual(ex_resp.status_code, 200)
         self.assertIn("transaction", ex_resp.json["data"])
 

@@ -16,7 +16,7 @@
   <div class="app-header-account">
     {% if auth_user %}
     {% set role_labels = {"ADMIN": "Quản trị viên", "REVIEWER": "Người duyệt", "FARMER": "Nông hộ"} %}
-    <a class="app-coin-balance" href="{{ url_for('auth.wallet_rules') }}" title="Thể lệ dùng điểm LÚA"{% if current_page == 'wallet-rules' %} aria-current="page"{% endif %}>{{ icon("wallet") }}<strong data-header-credits>{{ auth_user.simulation_credits }} LÚA</strong></a>
+    <a class="app-coin-balance" href="{{ url_for('auth.wallet_rules') }}" title="Thể lệ dùng điểm LÚA"{% if current_page == 'wallet-rules' %} aria-current="page"{% endif %}>{{ icon("wallet") }}<strong data-header-credits>{{ (onchain_credits if onchain_credits is defined and onchain_credits is not none else auth_user.simulation_credits) }} LÚA</strong></a>
     <a class="app-account-trigger" href="{{ url_for('auth.profile') }}" aria-label="Chỉnh sửa hồ sơ và mật khẩu" {% if current_page == "profile" %}aria-current="page"{% endif %}>
       <img class="app-avatar" data-user-avatar src="{{ auth_avatar_url }}" width="32" height="32" alt="">
       <span class="app-account-name">
