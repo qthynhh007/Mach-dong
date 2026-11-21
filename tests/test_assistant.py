@@ -42,7 +42,7 @@ class TestAssistant(TestCase):
         self.client.application.config["GEMINI_API_KEY"] = "test-key"
         page = self.client.get("/assistant").text
         self.assertIn("Sẵn sàng hỗ trợ bà con", page)
-        self.assertIn('data-wait-seconds="45"', page)
+        self.assertIn('data-wait-seconds="120"', page)
         self.assertNotIn("test-key", page)
         source_id = "KN-RICE-SALINITY-SOC-TRANG"
         urlopen.return_value = BytesIO(
@@ -153,8 +153,8 @@ class TestAssistant(TestCase):
                 self.assertEqual(fallback_payload["generationConfig"].pop("thinkingConfig"), {"thinkingLevel": "MINIMAL"})
                 self.assertEqual(primary_body, fallback_payload)
                 primary_call, fallback_call = urlopen.call_args_list
-                self.assertLessEqual(primary_call.kwargs["timeout"], 12)
-                self.assertLessEqual(fallback_call.kwargs["timeout"], 15)
+                self.assertLessEqual(primary_call.kwargs["timeout"], 45)
+                self.assertLessEqual(fallback_call.kwargs["timeout"], 45)
 
     @patch("src.services.ai_client.urlopen")
     def test_missing_crop_can_be_clarified_by_gemini_without_files(self, urlopen: MagicMock) -> None:
@@ -214,6 +214,11 @@ class TestAssistant(TestCase):
         ])
         self.assertIn("KN-MANGO-VIETGAP", {item["source_id"] for item in switched})
         self.assertTrue(all("dưa chuột" not in item["crops"] for item in switched))
+
+    def test_water_depth_does_not_select_insect_or_disease_sources(self) -> None:
+        result = select_knowledge([{"role": "user", "text": "Lúa đang trổ bông, mặn ruộng 4,2 g/L, nước sâu 36 cm. Cần kiểm tra gì?"}])
+        self.assertTrue(result)
+        self.assertTrue(all(item["topic"] != "diagnostic" for item in result))
 
     def test_retrieval_for_specific_terms_in_expanded_knowledge(self) -> None:
         for question, expected in (

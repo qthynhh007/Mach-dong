@@ -23,7 +23,7 @@ class cloudAssistantService:
             method="POST",
         )
         try:
-            with self.transport(req, timeout=35) as response:
+            with self.transport(req, timeout=105) as response:
                 body = json.load(response)
         except error.HTTPError as exc:
             try:
@@ -38,8 +38,11 @@ class cloudAssistantService:
         if (
             not isinstance(result, dict)
             or not isinstance(result.get("reply"), str)
+            or not result["reply"].strip()
+            or len(result["reply"]) > 4096
             or not isinstance(result.get("source_ids"), list)
+            or any(not isinstance(sourceId, str) for sourceId in result["source_ids"])
             or any(sourceId not in sourceIds for sourceId in result["source_ids"])
         ):
             raise GeminiError("Cò Mạ chưa nhận được phản hồi có nguồn hợp lệ.", 502)
-        return result["reply"], result["source_ids"]
+        return result["reply"].strip(), result["source_ids"]

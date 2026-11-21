@@ -3,6 +3,9 @@
   const loginForm = document.getElementById("loginForm");
   const forgotPasswordForm = document.getElementById("forgotPasswordForm");
   const registerForm = document.getElementById("registerForm");
+  registerForm?.addEventListener("invalid",event=>{
+    const options=event.target.closest("details");if(options) options.open=true;
+  },true);
   const autoWalletPreviewBox = document.getElementById("autoWalletPreviewBox");
   const externalWalletInputBox = document.getElementById("externalWalletInputBox");
   const walletAddressInput = document.getElementById("walletAddressInput");

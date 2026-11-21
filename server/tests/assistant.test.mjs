@@ -25,6 +25,14 @@ test("questions outside the files call Gemini without inventing citations",async
   assert.match(sent.systemInstruction.parts[0].text,/kiến thức chung/);
 });
 
+test("four long Vietnamese answers still allow the next conversation turn",async()=> {
+  const messages=[];
+  for(let i=0;i<4;i++) messages.push({role:"user",text:"Lúa đang làm đòng, cần kiểm tra gì?"},{role:"model",text:"ắ".repeat(4000)});
+  messages.push({role:"user",text:"Tóm tắt những việc nên làm."});
+  const response=await ask({...payload,messages},async()=>gemini(answer));
+  assert.equal(response.status,200);
+});
+
 test("scenario generation still rejects an unsupported answer without citations",async()=> {
   await assert.rejects(()=>generateGroundedReply({GEMINI_API_KEY:"test-only"},async()=>gemini({reply:"Cây cần có trụ đỡ.",source_ids:[]}),payload.messages,[]),error=>error.status===502);
 });
@@ -73,9 +81,39 @@ test("cautious wording about insufficient evidence is allowed",async()=> {
   assert.match(result.reply,/Chưa đủ dữ liệu/);
 });
 
+test("a single salinity reading cannot be called fairly safe",async()=> {
+  const messages=[{role:"user",text:"Tôi đo mặn ruộng 0,5 g/L."}],sources=[{source_id:"rice",finding_vi:"Cần đo nguồn cấp và đối chiếu điều kiện ruộng."}];
+  for(const qualifier of ["mức khá","tương đối","mức hoàn toàn","mức mặn thấp và"]) {
+    await assert.rejects(()=>generateGroundedReply({GEMINI_API_KEY:"test-only"},async()=>gemini({reply:`Độ mặn 0,5 g/L tại ruộng là ${qualifier} an toàn cho lúa đang trổ bông.`,source_ids:["rice"]}),messages,sources),error=>error.status===502);
+  }
+});
+
+test("a cautious sentence may quote a decimal salinity reading",async()=> {
+  const result=await generateGroundedReply({GEMINI_API_KEY:"test-only"},async()=>gemini({reply:"Chưa đủ dữ liệu để kết luận mức 0.5 g/L tại ruộng là mức khá an toàn. Bà con đo nguồn cấp trước nha.",source_ids:["rice"]}),[{role:"user",text:"Mặn ruộng 0.5 g/L."}],[{source_id:"rice",finding_vi:"Đo tại ruộng."}]);
+  assert.match(result.reply,/Chưa đủ dữ liệu/);
+});
+
 test("cloud routes require a session and CSRF before calling AI",async()=> {
   assert.equal((await ask(payload,()=>assert.fail(),{})).status,401);
   assert.equal((await ask(payload,()=>assert.fail(),{...sessionHeaders,"X-CSRF-Token":"bad"})).status,403);
+});
+
+test("a measured water depth is not evidence for maintaining that depth",async()=> {
+  const messages=[{role:"user",text:"Nước ruộng đang sâu 36 cm, cây cao 90 cm."}],sources=[{source_id:"rice",finding_vi:"Đối chiếu giai đoạn cây và khả năng thoát nước."}];
+  for(const reply of ["Duy trì mực nước hiện tại (36 cm) để bảo vệ lúa.","Nếu mực nước 36 cm vẫn đủ giữ ẩm, bà con nên giữ nguyên mực nước hiện tại.","Giữ mực nước hiện có để bảo vệ bộ rễ."]) {
+    await assert.rejects(()=>generateGroundedReply({GEMINI_API_KEY:"test-only"},async()=>gemini({reply,source_ids:["rice"]}),messages,sources,"",true,0,true),error=>error.status===502);
+  }
+});
+
+test("a rejected recommendation is regenerated with specific corrective guidance",async()=> {
+  let calls=0;
+  const result=await generateGroundedReply({GEMINI_API_KEY:"test-only"},async(url,options)=>{
+    calls++;
+    if(calls===1) return gemini({reply:"Giữ mực nước 36 cm để làm lớp đệm nhiệt.",source_ids:["rice"]});
+    assert.match(JSON.parse(options.body).systemInstruction.parts[0].text,/không lấy số đo hiện tại làm mức khuyến cáo/);
+    return gemini({reply:"Đối chiếu chiều cao cây và khả năng thoát nước trước khi điều chỉnh nước; tránh lấy thêm nước chưa đo mặn.",source_ids:["rice"]});
+  },[{role:"user",text:"Nước sâu 36 cm."}],[{source_id:"rice",finding_vi:"Đối chiếu giai đoạn cây và khả năng thoát nước."}],"",true,0,true);
+  assert.equal(calls,2);assert.equal(result.fallbackUsed,true);
 });
 
 test("Gemini configuration, quota and timeout failures are explicit",async()=> {
@@ -85,13 +123,13 @@ test("Gemini configuration, quota and timeout failures are explicit",async()=> {
   await assert.rejects(()=>generateGroundedReply({GEMINI_API_KEY:"test-only"},async()=>{throw new DOMException("timeout","TimeoutError");},payload.messages,sources),error=>error.status===504);
 });
 
-test("temporary Gemini overload retries once on another Gemini model with the same evidence",async()=> {
+test("default retry uses the working primary model instead of an unavailable legacy model",async()=> {
   const sent=[];
   const result=await generateGroundedReply({GEMINI_API_KEY:"test-only"},async(url,options)=>{
     sent.push({url,body:JSON.parse(options.body)});
     return sent.length===1 ? new Response("",{status:503}) : gemini(answer);
   },payload.messages,[{source_id:payload.sourceIds[0],finding_vi:"Kiểm tra đất."}]);
-  assert.equal(sent.length,2);assert.match(sent[1].url,/gemini-2.5-flash/);
+  assert.equal(sent.length,2);assert.match(sent[1].url,/gemini-3.5-flash/);
   assert.deepEqual(sent[0].body.contents,sent[1].body.contents);
   assert.equal(result.fallbackUsed,true);
 });
@@ -110,6 +148,24 @@ test("repeated Gemini overload stops after one retry and quota errors are not re
     let calls=0;
     await assert.rejects(()=>generateGroundedReply({GEMINI_API_KEY:"test-only"},async()=>{calls++;return new Response("",{status});},payload.messages,[]),error=>error.status===status);
     assert.equal(calls,status===503 ? 2 : 1);
+  }
+});
+
+test("an explicitly enabled alternate model handles quota without retrying the exhausted model",async()=> {
+  const sent=[];
+  const result=await generateGroundedReply({GEMINI_API_KEY:"test-only",GEMINI_FALLBACK_MODEL:"gemini-3.1-flash-lite",GEMINI_QUOTA_FALLBACK:"1"},async(url,options)=>{
+    sent.push({url,body:JSON.parse(options.body)});
+    return sent.length===1 ? new Response("",{status:429}) : gemini(answer);
+  },payload.messages,[{source_id:payload.sourceIds[0],finding_vi:"Kiểm tra đất."}]);
+  assert.equal(sent.length,2);assert.match(sent[1].url,/gemini-3.1-flash-lite/);
+  assert.deepEqual(sent[0].body.contents,sent[1].body.contents);assert.equal(result.fallbackUsed,true);
+});
+
+test("quota fallback remains bounded and requires an enabled distinct model",async()=> {
+  for(const options of [{},{GEMINI_FALLBACK_MODEL:"gemini-3.1-flash-lite"},{GEMINI_QUOTA_FALLBACK:"1"},{GEMINI_QUOTA_FALLBACK:"1",GEMINI_FALLBACK_MODEL:"gemini-3.1-flash-lite"}]) {
+    let calls=0;
+    await assert.rejects(()=>generateGroundedReply({GEMINI_API_KEY:"test-only",...options},async()=>{calls++;return new Response("",{status:429});},payload.messages,[]),error=>error.status===429);
+    assert.equal(calls,options.GEMINI_QUOTA_FALLBACK && options.GEMINI_FALLBACK_MODEL ? 2 : 1);
   }
 });
 
@@ -136,4 +192,32 @@ test("scenario advice sends exact conditions to Gemini and preserves engine outp
   await assert.rejects(()=>adviseScenario({GEMINI_API_KEY:"test-only"},async()=>gemini({reply:"Việc nên làm: Có thể phun bổ sung phân bón lá chứa canxi để cây chịu mặn tốt hơn.",source_ids:["ctu-om5451"]}),result),error=>error.status===502);
   const cautious=await adviseScenario({GEMINI_API_KEY:"test-only"},async()=>gemini({reply:"Việc nên làm: Không tự ý phun phân hoặc thuốc chỉ từ các số đo mô phỏng. Bà con kiểm tra nguồn cấp và bông lúa trước nha.",source_ids:["ctu-om5451"]}),result);
   assert.match(cautious.reply,/Không tự ý/);
+});
+
+test("scenario advice may repeat the measured plant height without inventing a quantity",async()=> {
+  const inputs=simulationInput.parse({varietyId:"OM5451",locationId:"can-tho",stage:"flowering",dayAfterSowing:75,salinityGl:4.2,salinitySite:"fieldWater",waterDepthCm:36,plantHeightCm:90,tempMaxC:35,rootZoneEcDsM:null,ecIsSeasonAverage:false,exposureDays:7,useWeather:false,requestAi:false},catalog);
+  const result=new simulationEngine(catalog).evaluate(inputs);
+  const advice=await adviseScenario({GEMINI_API_KEY:"test-only"},async()=>gemini({reply:"Điều kiện đáng chú ý: Đây là kịch bản giả lập, nước 36 cm và cây cao 90 cm. Việc nên làm: Đo nguồn cấp trước khi điều chỉnh nước. Cần đo thêm: Mặn nguồn cấp. Khi nào cần nhờ cán bộ nông nghiệp: Khi lúa héo bất thường.",source_ids:["ctu-om5451"]}),result);
+  assert.match(advice.reply,/90 cm/);
+  await assert.rejects(()=>adviseScenario({GEMINI_API_KEY:"test-only"},async()=>gemini({reply:"Cây cao 91 cm.",source_ids:["ctu-om5451"]}),result),error=>error.status===502);
+});
+
+test("scenario advice does not reject warnings against self-prescribing fertilizer",async()=> {
+  const inputs=simulationInput.parse({varietyId:"OM5451",locationId:"can-tho",stage:"panicle",dayAfterSowing:48,salinityGl:2.8,salinitySite:"fieldWater",waterDepthCm:4.5,plantHeightCm:null,tempMaxC:28.5,rootZoneEcDsM:null,ecIsSeasonAverage:false,exposureDays:7,useWeather:false,requestAi:false},catalog);
+  for(const prefix of ["Không nên tự ý","Chưa nên tự ý","Tránh tự ý"]) {
+    const advice=await adviseScenario({GEMINI_API_KEY:"test-only"},async()=>gemini({reply:prefix+" bón phân chỉ từ số đo mặn. Bà con kiểm tra nguồn nước trước.",source_ids:["ctu-om5451"]}),new simulationEngine(catalog).evaluate(inputs));
+    assert.match(advice.reply,/bón phân/);
+  }
+});
+
+test("unsafe scenario prescriptions get one corrective generation attempt",async()=> {
+  const inputs=simulationInput.parse({varietyId:"OM5451",locationId:"can-tho",stage:"panicle",dayAfterSowing:48,salinityGl:2.8,salinitySite:"fieldWater",waterDepthCm:4.5,plantHeightCm:null,tempMaxC:28.5,rootZoneEcDsM:null,ecIsSeasonAverage:false,exposureDays:7,useWeather:false,requestAi:false},catalog);
+  let calls=0;
+  const advice=await adviseScenario({GEMINI_API_KEY:"test-only"},async(url,options)=>{
+    calls++;
+    if(calls===1)return gemini({reply:"Bón phân để lúa chịu mặn tốt hơn.",source_ids:["ctu-om5451"]});
+    assert.match(JSON.parse(options.body).systemInstruction.parts[0].text,/Không đề xuất phun\/bón\/rải/);
+    return gemini({reply:"Đo mặn nguồn cấp và ruộng riêng trước khi quyết định lấy nước. Chưa nên tự ý bón phân khi thiếu dữ kiện.",source_ids:["ctu-om5451"]});
+  },new simulationEngine(catalog).evaluate(inputs));
+  assert.equal(calls,2);assert.equal(advice.isFallback,false);assert.equal(advice.fallbackUsed,true);
 });

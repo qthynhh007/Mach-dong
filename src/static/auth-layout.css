@@ -400,3 +400,58 @@
   .auth-hero { padding: 1.25rem 1rem; }
   .auth-form-panel { padding: 1.25rem 1rem; }
 }
+
+/* Registration keeps its required fields and action within a laptop viewport. */
+.auth-register-page .auth-page { min-height: calc(100svh - 64px); padding: 16px 24px; overflow: visible; }
+.auth-register-page .auth-split { width: min(1200px,100%); min-height: 0; grid-template-columns: minmax(0,.78fr) minmax(0,1.22fr); border-radius: 24px; }
+.auth-register-page .auth-hero { min-height: 0; padding: 32px; }
+.auth-register-page .auth-hero-content { gap: 18px; }
+.auth-register-page .auth-hero-copy strong { font-size: clamp(1.65rem,2.5vw,2.15rem); }
+.auth-register-page .auth-hero-copy p { font-size: .84rem; }
+.auth-register-page .auth-hero-features { gap: 8px; }
+.auth-register-page .auth-feature-pill { padding: 8px 12px; font-size: .78rem; }
+.auth-register-page .auth-form-panel { min-height: 0; padding: 22px 32px; gap: 10px; }
+.auth-register-page .auth-card-grid { gap: 14px; max-width: none; }
+.auth-register-page .app-page-title { font-size: 1.7rem; line-height: 1.2; }
+.auth-register-page .auth-intro { margin-top: 6px; font-size: .84rem; }
+.auth-register-page #registerForm { display: grid; gap: 12px; }
+.auth-register-page #registerForm > * { margin-block: 0 !important; }
+.auth-register-page .auth-field-group { gap: 5px; }
+.auth-register-page .auth-field-group label { font-size: .79rem; }
+.auth-register-page .auth-two-col { gap: 10px 14px; }
+.auth-register-page .auth-email-verification { grid-template-columns: minmax(0,1fr) 10rem; }
+.auth-register-page .auth-otp-help { margin: 0; font-size: .72rem; }
+.auth-register-page .auth-form-panel input:not([type=checkbox],[type=radio]) { min-height: 44px; padding: 10px 12px; border-radius: 10px; font-size: .88rem; }
+.auth-register-page #btnSendOtpRegister { font-size: .78rem; padding-inline: 12px; }
+.auth-register-page .auth-form-panel button[type=submit] { min-height: 46px !important; font-size: .9rem !important; padding-block: 10px; border-radius: 11px !important; }
+.auth-register-page .auth-status:empty { display: none; }
+.auth-register-page .auth-footnote { margin: 0; padding-top: 5px; border: 0; font-size: .82rem; }
+.auth-wallet-options { border: 1px solid #d3e5d8; border-radius: 12px; background: #f4f9f5; }
+.auth-wallet-options > summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 12px; cursor: pointer; list-style: none; }
+.auth-wallet-options > summary::-webkit-details-marker { display: none; }
+.auth-wallet-options > summary > span { display: flex; align-items: center; gap: 9px; color: #38614c; font-size: .74rem; }
+.auth-wallet-options summary strong,.auth-wallet-options summary small { display: block; }
+.auth-wallet-options summary strong { color: #204c36; font-size: .8rem; }
+.auth-wallet-options summary small { margin-top: 2px; font-size: .71rem; color: #657d6c; }
+.auth-wallet-options summary .app-icon { width: 18px; height: 18px; flex: none; }
+.auth-wallet-options > summary:focus-visible { outline: 2px solid #28734a; outline-offset: 3px; border-radius: 10px; }
+.auth-wallet-options .auth-wallet-box { margin: 0 10px 10px; padding: 12px; box-shadow: none; }
+@media(min-width:961px) and (max-height:800px) {
+  .auth-register-page .auth-page { padding-block: 10px; }
+  .auth-register-page .auth-form-panel { padding-block: 18px; }
+  .auth-register-page #registerForm { gap: 10px; }
+}
+@media(max-width:960px) {
+  .auth-register-page .auth-split { grid-template-columns: minmax(0,1fr); width: min(100%,650px); }
+  .auth-register-page .auth-hero { display: none; }
+}
+@media(max-width:580px) {
+  .auth-register-page .auth-page { padding: 16px 12px; }
+  .auth-register-page .auth-form-panel { padding: 22px 18px; }
+  .auth-register-page .auth-two-col { grid-template-columns: minmax(0,1fr); }
+  .auth-register-page .auth-email-verification { grid-template-columns: minmax(0,1fr) 8rem; }
+  .auth-register-page .auth-two-col.auth-email-verification .auth-register-email { grid-column: 1/-1; }
+  .auth-register-page .auth-otp-row { flex-wrap: wrap; }
+  .auth-register-page .auth-otp-row input { flex: 1 1 180px; }
+  .auth-register-page #btnSendOtpRegister { flex: 1 1 auto; min-height: 42px; }
+}

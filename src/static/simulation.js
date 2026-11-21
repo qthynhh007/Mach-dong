@@ -1,5 +1,5 @@
 class adviceWaitController {
-  constructor(onTick,onFallback,{now=()=>Date.now(),schedule=setTimeout,cancel=clearTimeout}={}) {
+  constructor(onTick,onFallback,{now=()=>Date.now(),schedule=(callback,delay)=>setTimeout(callback,delay),cancel=timer=>clearTimeout(timer)}={}) {
     Object.assign(this,{onTick,onFallback,now,schedule,cancel,startedAt:null,timer:null});
   }
   start() { if(this.startedAt !== null) return; this.startedAt=this.now(); this.tick(); }
@@ -45,6 +45,7 @@ class simulationView {
     this.adviceAnswer=null; this.adviceError=null;
     document.addEventListener("simulationAdviceOpen",()=>this.explainReport(true));
     document.querySelectorAll("[data-cancel-advice]").forEach(button=>button.addEventListener("click",()=>this.cancelAdvice()));
+    document.querySelectorAll("[data-retry-advice]").forEach(button=>button.addEventListener("click",()=>this.explainReport()));
     this.byId("scenarioForm").addEventListener("submit", event => { event.preventDefault(); this.run(false); });
     this.byId("askAi").addEventListener("click", async () => {
       if (!this.result) await this.run(false);
@@ -52,12 +53,17 @@ class simulationView {
     });
     this.byId("explainReport").addEventListener("click", () => this.explainReport());
     this.form.addEventListener("input", event => {
+      this.updateLabels();
       if (event.target.name === "locationId" && this.byId("weatherLocation")) this.byId("weatherLocation").value = event.target.value;
       this.invalidate();
     });
     this.form.addEventListener("invalid", () => this.status("Có điều kiện chưa hợp lệ. Hãy sửa ô được đánh dấu rồi chạy lại.",true),true);
     const reset = this.byId(this.fieldPreview ? "btnReset" : "resetScenario");
     reset.addEventListener("click", () => { this.form.reset(); this.invalidate(); });
+    this.byId("lowerSalt")?.addEventListener("click",()=>{
+      const input=this.field("salinityGl");input.value=Math.min(1,Number(input.value));
+      input.dispatchEvent(new Event("input",{bubbles:true}));
+    });
     this.byId("loadWeather").addEventListener("click", () => this.loadWeather());
     this.byId("weatherLocation")?.addEventListener("change", () => {
       this.field("locationId").value = this.byId("weatherLocation").value;
@@ -119,6 +125,16 @@ class simulationView {
       const usesCanalWater = this.field("salinitySite").value === "canalWater";
       this.byId("sim-canal-salinity").hidden = !usesCanalWater;
       this.field("canalSalinityGl").disabled = !usesCanalWater;
+      for(const [id,output,unit] of [["inputSalinity","valSalinity","g/L"],["inputWater","valWater","cm"],["inputStage","valStage","ngày"],["inputTemp","valTemp","°C"]]) {
+        const input=this.byId(id);
+        const prefix=id === "inputWater" && Number(input.value)>0 ? "+" : "";
+        const value=prefix+this.number(input.value)+" "+unit;
+        this.setText(output,value);
+        input.setAttribute("aria-valuetext",value);
+        input.style.setProperty("--range-progress",`${100*(Number(input.value)-Number(input.min))/(Number(input.max)-Number(input.min))}%`);
+      }
+      this.setText("sceneStage",`Ngày ${this.field("dayAfterSowing").value} sau sạ · ${this.field("stage")?.selectedOptions?.[0]?.textContent || "Chưa xác nhận giai đoạn"}`);
+      const lowerSalt=this.byId("lowerSalt");if(lowerSalt) lowerSalt.disabled=Number(this.field("salinityGl").value)<=1;
       return;
     }
     this.setText("salinityLabel",this.number(this.field("salinityGl").value)+" g/L");
@@ -255,7 +271,8 @@ class simulationView {
     if(!this.adviceWait || this.adviceWait.startedAt === null) {
       this.adviceWait=new adviceWaitController(seconds=>{
         if(revision !== this.revision) return;
-        const detail={pending:Boolean(this.adviceRequest),waiting:true,error:this.adviceError,elapsedSeconds:seconds};
+        const pending=Boolean(this.adviceRequest) && !this.adviceError;
+        const detail={pending,waiting:pending,error:this.adviceError,elapsedSeconds:seconds};
         this.updateAdviceWait(detail);
         document.dispatchEvent(new CustomEvent("simulationAdvice",{detail}));
       },()=>{
@@ -268,8 +285,12 @@ class simulationView {
   }
   updateAdviceWait(detail) {
     const waiting=this.byId("reportAdviceWait");
-    waiting.hidden=false; waiting.classList.toggle("is-paused",Boolean(detail.error));
+    const pending=Boolean(detail.pending && detail.waiting && !detail.error);
+    waiting.hidden=!pending;this.byId("reportAdviceCancel").hidden=!pending;
+    if(!pending) return;
+    waiting.classList.toggle("is-paused",false);
     waiting.querySelector("strong").textContent=detail.error ? "Chưa hoàn tất tư vấn" : "Đang chuẩn bị lời khuyên";
+    waiting.querySelector("p").textContent=detail.error ? "Yêu cầu trước chưa hoàn tất. Chọn Nhờ Cò Mạ tư vấn để nhận phân tích mới." : "Cò Mạ đang xem xét giai đoạn lúa và điều kiện ruộng để đề xuất việc nên làm.";
     this.byId("reportAdviceCancel").hidden=false;
     const seconds=detail.elapsedSeconds || 0;
     this.setText("reportAdviceElapsed",`Đã chờ ${Math.floor(seconds/60)}:${String(seconds%60).padStart(2,"0")}`);
@@ -305,7 +326,8 @@ class simulationView {
     document.dispatchEvent(new CustomEvent("simulationAdvice",{detail:answer}));
   }
   async explainReport(reuse=false) {
-    if(reuse && this.adviceAnswer) { document.dispatchEvent(new CustomEvent("simulationAdvice",{detail:this.adviceAnswer})); return; }
+    if(reuse && this.adviceError) { document.dispatchEvent(new CustomEvent("simulationAdvice",{detail:{pending:false,waiting:false,error:this.adviceError}})); return; }
+    if(this.adviceAnswer && (reuse || !this.adviceAnswer.isFallback)) { document.dispatchEvent(new CustomEvent("simulationAdvice",{detail:this.adviceAnswer})); return; }
     if (!this.result || this.adviceRequest) return;
     const snapshot = {...this.result.inputs};
     const revision = this.revision;
@@ -325,10 +347,12 @@ class simulationView {
       this.setAdviceAnswer(answer);
     } catch (error) {
       if (error.name !== "AbortError" && !controller.signal.aborted && revision === this.revision) {
-        this.adviceError=error.message+" Bà con có thể thử lại hoặc tiếp tục chờ đề xuất.";
+        this.adviceError=error.message+" Bà con có thể thử lại.";
         this.setText("reportExplanationStatus",this.adviceError);
         this.byId("reportAdviceCard").classList.add("is-error");
-        document.dispatchEvent(new CustomEvent("simulationAdvice",{detail:{waiting:true,error:this.adviceError}}));
+        const detail={pending:false,waiting:false,error:this.adviceError};
+        this.updateAdviceWait(detail);
+        document.dispatchEvent(new CustomEvent("simulationAdvice",{detail}));
       }
     } finally {
       if (this.adviceRequest === controller) {

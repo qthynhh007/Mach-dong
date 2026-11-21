@@ -21,12 +21,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Lời khuyên Cò Mạ về trồng cây, dinh dưỡng, sâu bệnh, mặn và ngập.">
   <title>Trợ lý Cò Mạ · Mạch Đồng</title>
-  <link rel="icon" href="{{ url_for('static', filename='assets/stitch-simulation/co-ma-logo.png') }}">
+  <link rel="icon" href="{{ url_for('static', filename='assets/co-ma/avatar-co-ma.webp') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='shell.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='co-ma.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='assistant.css') }}">
   {% include "shared/navigation-head.html" %}
-  <script src="{{ url_for('static', filename='assistant.js') }}" defer></script>
+  <script src="{{ url_for('static', filename='assistant.js') }}" type="module"></script>
 </head>
 <body class="{{ 'assistant-compact' if compact else 'app-workspace' }}">
 {% if not compact %}
@@ -85,12 +85,12 @@
           <div class="assistant-pending-copy">
             <h3 id="assistant-pending-title">Cò Mạ đang soạn lời đáp…</h3>
             <p id="assistant-pending-detail">Bà con có thể soạn câu hỏi tiếp theo trong lúc chờ.</p>
+            <div class="assistant-pending-skeleton" aria-hidden="true"><i></i><i></i><i></i></div>
           </div>
           <div class="assistant-pending-actions">
             <span class="assistant-wait-time" role="timer" aria-live="off">
               <span>Đã chờ</span>
               <time id="assistant-elapsed" datetime="PT0S">00:00</time>
-              <span class="assistant-wait-limit">/ {{ '%02d:%02d'|format(wait_seconds // 60, wait_seconds % 60) }}</span>
             </span>
             <button class="assistant-stop" id="assistant-stop" type="button">
               {{ icon("stop_circle") }} Dừng chờ

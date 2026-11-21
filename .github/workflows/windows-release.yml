@@ -46,7 +46,7 @@ jobs:
           $process = Start-Process -FilePath '.\dist\MachDong.exe' -ArgumentList '--smoke-output', $smokePath -WindowStyle Hidden -PassThru -Wait
           if ($process.ExitCode -ne 0) { throw 'EXE smoke test failed' }
           $result = Get-Content -Raw -LiteralPath $smokePath | ConvertFrom-Json
-          if ($result.static -ne 200 -or ($result.pages.PSObject.Properties.Value | Where-Object { $_ -ne 200 })) { throw 'Bundled pages failed' }
+          if ($result.static -ne 200 -or ($result.pages.PSObject.Properties.Value | Where-Object { $_ -ne 302 }) -or ($result.publicPages.PSObject.Properties.Value | Where-Object { $_ -ne 200 })) { throw 'Bundled pages or login protection failed' }
           $hash = (Get-FileHash -Algorithm SHA256 -LiteralPath '.\dist\MachDong.exe').Hash.ToLower()
           "$hash  MachDong.exe" | Set-Content -LiteralPath '.\dist\SHA256SUMS.txt' -Encoding ascii
       - uses: actions/upload-artifact@v4

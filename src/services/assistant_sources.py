@@ -25,7 +25,7 @@ ALIASES = {
 TOPIC_TERMS = {
     "planting": ("trồng", "gieo", "sạ", "làm giàn", "chăm sóc", "quy trình", "tỉa cành"),
     "nutrition": ("phân", "bón", "đất", "dinh dưỡng", "canxi", "compost", "cải tạo"),
-    "diagnostic": ("bệnh", "sâu", "đốm", "héo", "thối", "lõm", "lá vàng", "vàng lá", "đen", "xì mủ", "rụng"),
+    "diagnostic": ("bệnh", "sâu hại", "sâu cuốn", "sâu đục", "sâu ăn", "bị sâu", "có sâu", "sâu trên", "trừ sâu", "trị sâu", "đốm", "héo", "thối", "lõm", "lá vàng", "vàng lá", "đen", "xì mủ", "rụng"),
     "water": ("mặn", "ngập", "úng", "mực nước", "độ sâu", "cây sống", "nước rút", "ec", "cống"),
 }
 GROWING_SETTINGS = ("chậu", "luống", "thủy canh", "ngoài đất", "vườn", "ruộng", "nhà màng")

@@ -2,9 +2,9 @@
 <html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Mạch Đồng · Mô phỏng có căn cứ</title>
 {% include "shared/navigation-head.html" %}
-<link rel="icon" href="/static/assets/stitch-simulation/co-ma-logo.png">
+<link rel="icon" href="/static/assets/co-ma/avatar-co-ma.webp">
 <link rel="stylesheet" href="/static/assets/stitch-simulation/fonts.css">
-<link rel="stylesheet" href="/static/shell.css"><link rel="stylesheet" href="/static/simulation-workbench.css?v=20261118-report2">
+<link rel="stylesheet" href="{{ url_for('static', filename='shell.css', v='20261121-header-pill-3') }}"><link rel="stylesheet" href="/static/simulation-workbench.css?v=20261118-report2">
   <link rel="stylesheet" href="{{ url_for('static', filename='simulation-reading.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='co-ma-advice.css') }}">
 </head>
@@ -55,7 +55,7 @@
       </svg>
       <div class="sim-summary-grid"><article><span>Ảnh hưởng mặn theo FAO</span><strong id="relativeYield">Chưa có kết quả</strong><small>Năng suất tương đối tham chiếu; chưa hiệu chuẩn OM5451.</small></article><article><span>Nguy cơ cần chú ý</span><strong id="riskSummary">Chờ mô phỏng</strong><small id="sceneNote">Hình thay đổi theo cảnh báo có căn cứ.</small></article><article><span>Năng suất / tỷ lệ sống thực địa</span><strong>Chưa đủ dữ liệu</strong><small>Không dùng điểm minh họa thay cho xác suất sống.</small></article></div>
     </section>
-    <section class="sim-card sim-assistant"><img src="/static/assets/stitch-simulation/co-ma-logo.png" alt="" width="56" height="56"><div><h2>Cò Mạ · Đọc kết quả có căn cứ</h2><p id="assistantAdvice">Chọn điều kiện rồi chạy mô phỏng. Các cảnh báo và nguồn sẽ xuất hiện ở báo cáo.</p><p id="aiStatus" class="sim-muted">Chưa có đề xuất chăm sóc.</p></div></section>
+    <section class="sim-card sim-assistant"><img src="/static/assets/co-ma/avatar-co-ma.webp" alt="" width="56" height="56"><div><h2>Cò Mạ · Đọc kết quả có căn cứ</h2><p id="assistantAdvice">Chọn điều kiện rồi chạy mô phỏng. Các cảnh báo và nguồn sẽ xuất hiện ở báo cáo.</p><p id="aiStatus" class="sim-muted">Chưa có đề xuất chăm sóc.</p></div></section>
   </section>
   {% include "simulation/report-panels.html" %}
   <footer class="sim-footer">Dữ liệu có nguồn · Mô phỏng tham chiếu · Cần kiểm định thực địa trước khi dùng để quyết định canh tác</footer>

@@ -8,7 +8,7 @@ from src.services.assistant_service import answer_question
 from src.services.cloud_reference_service import referenceUnavailable
 
 blueprint = Blueprint("assistant", __name__)
-ASSISTANT_WAIT_SECONDS = 45
+ASSISTANT_WAIT_SECONDS = 120
 MAX_MESSAGE_LENGTH = 400
 MAX_REPLY_LENGTH = 4096
 MAX_HISTORY_TURNS = 8
